@@ -1,3 +1,81 @@
-first line
-second line
-third line
+import React, { useState } from "react";
+
+function App() {
+  const [states, setStates] = useState("");
+  const [tableData, setTableData] = useState([
+    ["Bihar", "Edit"],
+    ["Delhi", "Edit"],
+    ["Gujarat", "Edit"],
+    ["Kerala", "Edit"],
+    ["Tamil Nadu", "Edit"],
+  ]);
+  const [editIndex, setEditIndex] = useState(-1); // index of the row being edited
+
+  const handleChange = (e) => {
+    setStates(e.target.value);
+  };
+
+  const handleSave = () => {
+    if (editIndex === -1) {
+      // add the new state name to the table data
+      setTableData([...tableData, [states, "Edit"]]);
+    } else {
+      // update the existing state name in the table data
+      let updatedTableData = [...tableData];
+      updatedTableData[editIndex][0] = states;
+      setTableData(updatedTableData);
+      // reset the edit index
+      setEditIndex(-1);
+    }
+    // clear the input field
+    setStates("");
+  };
+
+  const handleCancel = () => {
+    setStates("");
+    setEditIndex(-1);
+  };
+
+  const handleEdit = (index) => {
+    // reflect the state name on the textfield
+    setStates(tableData[index][0]);
+    // set the edit index
+    setEditIndex(index);
+  };
+
+  return (
+    <div className="App">
+      <h1>React Code Example</h1>
+      <div className="input-container">
+        <label htmlFor="states">States:</label>
+        <input
+          type="text"
+          id="states"
+          name="states"
+          value={states}
+          onChange={handleChange}
+        />
+        <button onClick={handleSave}>Save</button>
+        <button onClick={handleCancel}>Cancel</button>
+      </div>
+      <div className="table-container">
+        <table>
+          <tbody>
+            {tableData.map((row, i) => (
+              <tr key={i}>
+                {row.map((cell, j) => (
+                  <td key={j}>
+                    {j === 0 ? cell : <button onClick={() => handleEdit(i)}>{cell}</button>}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
