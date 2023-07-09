@@ -1,6 +1,6 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { DataGrid, GridToolbar, GridRowIdGetter } from "@mui/x-data-grid";
-import { Typography, Box, Link, Card, CardContent } from "@mui/material";
+import { Typography, Box, Link, Card, CardContent, Button, TextField } from "@mui/material";
 import {
   GridToolbarContainer,
   GridToolbarColumnsButton,
@@ -8,79 +8,143 @@ import {
   GridToolbarExport,
   GridToolbarDensitySelector,
 } from "@mui/x-data-grid";
-export default function DataTable({
-  columns,
-  data,
-  isCheckbox,
-  isHideDensity,
-  isHideExport,
-  isHideFilter,
-  isHideColumn,
-  isHidePaging,
-}) {
-  const flag = isCheckbox;
-  const flagDen = isHideDensity;
-  const flagExp = isHideExport;
-  const flagFilter = isHideFilter;
-  const flagColumn = isHideColumn;
-  console.log(isCheckbox);
+
+function App() {
+  const [states, setStates] = useState("");
+  const [tableData, setTableData] = useState([
+    ["Bihar", "Edit"],
+    ["Delhi", "Edit"],
+    ["Gujarat", "Edit"],
+    ["Kerala", "Edit"],
+    ["Tamil Nadu", "Edit"],
+  ]);
+  const [editIndex, setEditIndex] = useState(-1); // index of the row being edited
+
+  const handleChange = (e) => {
+    setStates(e.target.value);
+  };
+
+  const handleSave = () => {
+    if (editIndex === -1) {
+      // add the new state name to the table data
+      setTableData([...tableData, [states, "Edit"]]);
+    } else {
+      // update the existing state name in the table data
+      let updatedTableData = [...tableData];
+      updatedTableData[editIndex][0] = states;
+      setTableData(updatedTableData);
+      // reset the edit index
+      setEditIndex(-1);
+    }
+    // clear the input field
+    setStates("");
+  };
+
+  const handleCancel = () => {
+    setStates("");
+    setEditIndex(-1);
+  };
+
+  const handleEdit = (index) => {
+    // reflect the state name on the textfield
+    setStates(tableData[index][0]);
+    // set the edit index
+    setEditIndex(index);
+  };
+
   function CustomToolbar() {
     return (
       <GridToolbarContainer>
-        {flagColumn ? <GridToolbarColumnsButton /> : null}
-        {flagFilter ? <GridToolbarFilterButton /> : null}
-        {flagDen ? <GridToolbarDensitySelector /> : null}
-        {flagExp ? <GridToolbarExport /> : null}
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+        <GridToolbarDensitySelector />
+        <GridToolbarExport />
       </GridToolbarContainer>
     );
   }
 
   let newData = [];
-  data.map((item, index) => {
+  tableData.map((item, index) => {
     newData.push({ SrNo: index + 1, ...item });
   });
 
+  const columns = [
+    { field: "SrNo", headerName: "SrNo", width: 100 },
+    { field: "0", headerName: "State", width: 150 },
+    {
+      field: "1",
+      headerName: "Action",
+      width: 150,
+      renderCell: (params) => (
+        <Button variant="contained" color="primary" onClick={() => handleEdit(params.row.SrNo - 1)}>
+          {params.value}
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <Card sx={{ mt: 2 }}>
-      <CardContent>
-        <Box sx={{ overflow: "auto" }}>
-          <Box
-            sx={{
-              width: "100%",
-              height: "auto",
-              display: "table",
-              tableLayout: "fixed",
-              height: "500%",
-            }}
-          >
-            <DataGrid
-              rows={newData}
-              columns={columns}
-              getRowId={(rows) => rows.SrNo}
-              hideFooter={isHidePaging}
-              initialState={
-                isHidePaging
-                  ? null
-                  : {
-                      pagination: { paginationModel: { pageSize: 5 } },
-                    }
-              }
-              slots={{ toolbar: CustomToolbar }}
-              pageSizeOptions={[5, 10, 25]}
-              checkboxSelection={flag}
-              sx={{
-                width: "100%",
-                "& .super-app-theme--header": {
-                  fontFamily: "Franklin Gothic Medium",
-                  fontSize: "15px",
-                  backgroundColor: "#2169b3",
-                  color: "white",
-                },
-              }}
-            />
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
+    <div className="App">
+      <h1>React Code Example</h1>
+      <div className="input-container">
+        <TextField
+          id="states"
+          name="states"
+          label="States"
+          value={states}
+          onChange={handleChange}
+        />
+        <div className="button-container">
+          <Button variant="contained" color="primary" onClick={handleSave}>
+            Save
+          </Button>
+          <Button variant="contained" color="secondary" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </div>
+      </div>
+      <div className="table-container">
+        <Card sx={{ mt: 2 }}>
+          <CardContent>
+            <Box sx={{ overflow: "auto" }}>
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "auto",
+                  display: "table",
+                  tableLayout: "fixed",
+                  height: "500%",
+                }}
+              >
+                <DataGrid
+                  rows={newData}
+                  columns={columns}
+                  getRowId={(rows) => rows.SrNo}
+                  hideFooter={false}
+                  initialState={{
+                    pagination: { paginationModel: { pageSize: 5 } },
+                  }}
+                  slots={{ toolbar: CustomToolbar }}
+                  pageSizeOptions={[5, 10, 25]}
+                  checkboxSelection={false}
+                  sx={{
+                    width: "100%",
+                    "& .super-app-theme--header": {
+                      fontFamily: "Franklin Gothic Medium",
+                      fontSize: "15px",
+                      backgroundColor: "#2169b3",
+                      color: "white",
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
+
+export default App;
+
