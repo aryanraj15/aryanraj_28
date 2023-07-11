@@ -1,0 +1,128 @@
+import React, { useState } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import {
+  TextField,
+  Button,
+  Card,
+  CardContent,
+  Box,
+} from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+
+const states = [
+  { label: 'Andhra Pradesh',district:"AA",district:"BB" ,value: 'AP' },
+  // { label: 'Andhra Pradesh',district:"BB", value: 'AP' },
+  { label: 'Andhra Pradesh',district:"CC", value: 'AP' },
+  { label: 'Andhra Pradesh',district:"DD", value: 'AP' },
+  { label: 'Jharkhand',district:"SIMDEGA", value: 'JH' },
+  { label: 'Jharkhand',district:"RANCHI", value: 'JH' },
+  { label: 'Jharkhand',district:"DHANBAD", value: 'JH' },
+  { label: 'Jharkhand',district:"BOKARO", value: 'JH' },
+  // add more states here
+];
+
+export default function StateDistrictForm() {
+  const [state, setState] = useState(null);
+  const [district, setDistrict] = useState('');
+  const [tableData, setTableData] = useState(
+    states.map((state, index) => ({
+      id: index + 1,
+      state: state.label,
+      district:state.district,
+    }))
+  );
+  const [editIndex, setEditIndex] = useState(-1);
+
+  const handleSave = () => {
+    if (editIndex === -1) {
+      let stateIndex = tableData.findIndex((row) => row.state === state.label);
+      let newRow = { id: tableData.length + 1, state: state.label, district };
+      let updatedTableData = [...tableData];
+      updatedTableData.splice(stateIndex + 1, 0, newRow);
+      setTableData(updatedTableData);
+    } else {
+      let updatedTableData = [...tableData];
+      updatedTableData[editIndex] = { id: editIndex + 1, state: state.label, district };
+      setTableData(updatedTableData);
+      setEditIndex(-1);
+    }
+    setState(null);
+    setDistrict('');
+  };
+
+  const handleCancel = () => {
+    setState(null);
+    setDistrict('');
+    setEditIndex(-1);
+  };
+
+  const handleEdit = (index) => {
+    setState(states.find((state) => state.label === tableData[index].state));
+    setDistrict(tableData[index].district || '');
+    setEditIndex(index);
+  };
+
+  const columns = [
+    { field: 'id', headerName: 'S.No', width: 100 },
+    { field: 'state', headerName: 'State', width: 150 },
+    { field: 'district', headerName: 'District', width: 150 },
+    {
+      field: 'action',
+      headerName: 'Action',
+      width: 150,
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleEdit(params.row.id - 1)}
+        >
+          Edit
+        </Button>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <Autocomplete
+        options={states}
+        getOptionLabel={(option) => option.label}
+        value={state}
+        onChange={(event, newValue) => {
+          setState(newValue);
+        }}
+        renderInput={(params) => <TextField {...params} label="STATES" />}
+      />
+      <TextField
+        label="Districts"
+        value={district}
+        onChange={(event) => setDistrict(event.target.value)}
+      />
+      <Button onClick={handleSave}>SAVE</Button>
+      <Button onClick={handleCancel}>CANCEL</Button>
+      <Card sx={{ mt: 2 }}>
+        <CardContent>
+          <Box sx={{ overflow: 'auto' }}>
+            <Box
+              sx={{
+                width: '100%',
+                height: 'auto',
+                display: 'table',
+                tableLayout: 'fixed',
+                height: '500%',
+              }}
+            >
+              <DataGrid
+                rows={state ? tableData.filter((row) => row.state === state.label) : tableData}
+                columns={columns}
+                pageSize={5}
+                rowsPerPageOptions={[5]}
+                checkboxSelection={false}
+              />
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+    </>
+  );
+}
