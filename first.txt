@@ -1,89 +1,42 @@
-import React, { useState, useEffect } from "react";
-import { TextField, Button, Link, Grid } from "@mui/material";
+import React from "react";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
-function LoginPage() {
-  // Define the state variables for username and password
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+function Home() {
+  return <h1>Home</h1>;
+}
 
-  // Define the state variable for error message
-  const [error, setError] = useState("");
+function About() {
+  return <h1>About</h1>;
+}
 
-  // Define the handler function for username change
-  const handleUsernameChange = (event) => {
-    setUsername(event.target.value);
+function App() {
+  // Get the history object from the hook
+  const history = useHistory();
+
+  // Define a function to handle the button click
+  const handleClick = () => {
+    // Redirect the user to the about page
+    history.push("/about");
   };
-
-  // Define the handler function for password change
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
-
-  // Define the handler function for login button click
-  const handleLoginClick = () => {
-    // Check if the username and password are correct
-    if (username === "kpmg" && password === "123") {
-      // Redirect to the home page
-      window.location.href = "/home";
-    } else {
-      // Set the error message
-      setError("Invalid username or password");
-    }
-  };
-
-  // Define the handler function for cancel button click
-  const handleCancelClick = () => {
-    // Clear the input fields and error message
-    setUsername("");
-    setPassword("");
-    setError("");
-  };
-
-  // Use useEffect hook to clear the error message when username or password changes
-  useEffect(() => {
-    setError("");
-  }, [username, password]);
 
   return (
-    <div>
-      <h1>Login Page</h1>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <TextField
-            label="Username"
-            variant="outlined"
-            value={username}
-            onChange={handleUsernameChange}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="Password"
-            variant="outlined"
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-        </Grid>
-        <Grid item xs={6}>
-          <Button variant="contained" color="primary" onClick={handleLoginClick}>
-            Login
-          </Button>
-        </Grid>
-        <Grid item xs={6}>
-          <Button variant="contained" color="secondary" onClick={handleCancelClick}>
-            Cancel
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Link href="/forgot-password">Forgot password?</Link>
-        </Grid>
-      </Grid>
+    <div className="App">
+      <h1>App</h1>
+      <button onClick={handleClick}>Go to about</button>
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route path="/about" component={About} />
+      </Switch>
     </div>
   );
 }
 
-export default LoginPage;
+export default function Root() {
+  // Wrap the app with a browser router
+  return (
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  );
+}
