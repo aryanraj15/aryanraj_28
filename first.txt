@@ -1,291 +1,46 @@
-import React, { useEffect } from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Box from "@mui/material/Box";
-// import {table,TableBody, TableCell, TableContainer, TableRow,Paper,Bu}
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import Card from "@mui/material/Card";
-import { H3, H4 } from "../components/Typography";
-import CardContent from "@mui/material/CardContent";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import Breadcrumbs from "@mui/material/Breadcrumbs";
-import useTitle from "../hooks/useTitle";
-import Autocomplete from "@mui/material/Autocomplete";
-import { useState } from "react";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import dayjs from 'dayjs';
-// import 'dayjs/locale/en-gb'
-import Stack from "@mui/material/Stack";
-import { Routes, Route, useNavigate } from "react-router-dom";
-// import * as Yup from "yup";
-// import axios from "../../utils/axios";
-// import useTitle from "../../hooks/useTitle";
-// import SearchTable from "../../components/SearchTable";
-import SearchTable from "../components/SearchTable";
-import { Small } from "../components/Typography";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { TextField, Button } from '@mui/material';
 
+const LoginPage = () => {
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const navigate = useNavigate();
 
-
-
-
-
-
-function TelephonicIntimations() {
-  // useTitle("Cochlear Followup Claims ");
-  useTitle("STATE");
-
-  const [states, setStates] = useState("");
-  const [tableData, setTableData] = useState([
-    ["Bihar", "Edit"],
-    ["Delhi", "Edit"],
-    ["Gujarat", "Edit"],
-    ["Kerala", "Edit"],
-    ["Tamil Nadu", "Edit"],
-  ]);
-  const [rowss, setRowss]= useState([]);
-  const [index, setIndex]= useState(0);
-  const data = [
-    {  
-      UHIDId: "01",
-      patientName: "ARYAN",
-      
-    },
-    {
-      UHIDId: "02",
-      patientName: "DIVYA",
-      
-    },
-    {  
-      UHIDId: "03",
-      patientName: "Aman",
-      
-    },
-    {
-      UHIDId: "04",
-      patientName: "Ankit",
-      
-    },
-  ];
-
-
-
-
-
-  const [editIndex, setEditIndex] = useState(-1); // index of the row being edited
-
-  const handleChange = (e) => {
-    setStates(e.target.value);
-  };
-
-  const handleSave = () => {
-    // if (editIndex === -1) {
-    //   // add the new state name to the table data
-    //   setTableData([...tableData, [states, "Edit"]]);
-    // } else {
-    //   // update the existing state name in the table data
-    //   let updatedTableData = [...tableData];
-    //   updatedTableData[editIndex][0] = states;
-    //   setTableData(updatedTableData);
-    //   // reset the edit index
-    //   setEditIndex(-1);
-    // }
-    // // clear the input field
-    // setStates("");
-    if(rowss.length===0 ){
-      setRowss([{index, }])
+  const handleLogin = () => {
+    if (username === 'kpmg' && password === '123') {
+      navigate('/home');
+    } else {
+      alert('Invalid username or password');
     }
-   
   };
 
   const handleCancel = () => {
-    setStates("");
-    setEditIndex(-1);
+    setUsername('');
+    setPassword('');
   };
-
-  const handleEdit = (index) => {
-    // reflect the state name on the textfield
-    setStates(tableData[index][0]);
-    // set the edit index
-    setEditIndex(index);
-  };
-
-
-
-  const navigate = useNavigate();
-
-  const [more, setMore] = useState(false);
-  const [filteredData, setFilteredData] = useState([]);
-
-  const columns = [
-  
-    {
-      field: "UHIDId",
-      headerName: "S.No",
-      width: 100,
-      headerClassName: "super-app-theme--header",
-    },
-    {
-      field: "patientName",
-      headerName: "Patient Name",
-      width: 500,
-      headerClassName: "super-app-theme--header",
-    },
-    {
-      field: "action",
-      headerName: "Action",
-      headerClassName: "super-app-theme--header",
-      width: 300,
-      sortable: false,
-      disableClickEventBubbling: true,
-
-      renderCell: (params) => {
-        
-       
-        return (
-          <Stack direction="row" spacing={2}>
-          
-            <Button
-              variant="outlined"
-              color="inherit"
-              size="small"
-              
-            >
-              EDIT
-            </Button>
-          </Stack>
-        );
-      },
-    },
-   
-  ];
-
-  useEffect(() => {
-    //set master data
-    setFilteredData(data);
-  }, []);
-
-
-
-  function handleReset(event) {
-   
-    setFilteredData(data);
-    setMore(false);
-  }
 
   return (
-    <>
-     <div className="App">
-      
-      <div className="table-container">
-        <table>
-          <tbody>
-            {tableData.map((row, i) => (
-              <tr key={i}>
-                {row.map((cell, j) => (
-                  <td key={j}>
-                    {j === 0 ? cell : <button onClick={() => handleEdit(i)}>{cell}</button>}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div>
+      <TextField
+        label="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <br />
+      <TextField
+        label="Password"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+      <Button onClick={handleLogin}>Login</Button>
+      <Button onClick={handleCancel}>Cancel</Button>
+      <br />
+      <a href="/forgot-password">Forgot Password?</a>
     </div>
-
-
-
-
-
-
-
-
-
-      <Card sx={{ mt: 2 }}>
-        <CardContent>
-          <H3 lineHeight={2.2}>Select State</H3>
-          <Box component="form">
-            {/* onSubmit={formik.handleSubmit} noValidate */}
-
-            <Grid
-              container
-              direction="row"
-              rowSpacing={0}
-              columnSpacing={2}
-              justify="flex-end"
-              alignItems="center"
-            >
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="normal"
-                  fullWidth
-                  type="text"
-                  id="states"
-                  name="states"
-                  label="State Name"
-                  size="small"
-                  value={states}
-                  onChange={handleChange}
-                  
-                />
-              </Grid>
-            </Grid>
-
-           
-
-            <Box
-              spacing={2}
-              sx={{ flexGrow: 1, spacing: 2, mt: 1, pb: 3, float: "right" }}
-            >
-              <Button
-                sx={{ 
-                  minWidth: 100, ml: 1 }}
-                variant="contained"
-                onClick={handleSave}
-                type="subit"
-              >
-                SAVE
-              </Button>
-              <Button
-                type="button"
-                sx={{ minWidth: 100, ml: 1 }}
-                onClick={handleCancel}
-                variant="outlined"
-              >
-                CANCEL
-              </Button>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ mt: 2 }}>
-        <CardContent>
-          <SearchTable
-            columns={columns}
-            // isCheckbox={false}
-            data={filteredData}
-            isCheckbox={false}
-            isHideDensity={false}
-            isHideExport={true}
-            isHideFilter={true}
-            isHideColumn={true}
-            isHidePaging={false}
-            name="abc"
-            id="hjjh"
-          ></SearchTable>
-        </CardContent>
-      </Card>
-    </>
   );
-}
+};
 
-export default TelephonicIntimations;
-
-
+export default LoginPage;
