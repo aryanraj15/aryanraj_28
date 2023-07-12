@@ -1,42 +1,93 @@
-import React from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { TextField, Button, Link, Grid } from "@mui/material";
 import { useHistory } from "react-router-dom";
 
-function Home() {
-  return <h1>Home</h1>;
-}
+function LoginPage() {
+  // Use state hooks to store the username and password values
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-function About() {
-  return <h1>About</h1>;
-}
-
-function App() {
-  // Get the history object from the hook
+  // Use history hook to navigate to other pages
   const history = useHistory();
 
-  // Define a function to handle the button click
-  const handleClick = () => {
-    // Redirect the user to the about page
-    history.push("/about");
+  // Use effect hook to check if the user is already logged in
+  useEffect(() => {
+    // Get the user data from local storage
+    const user = localStorage.getItem("user");
+    // If the user data exists, redirect to the home page
+    if (user) {
+      history.push("/home");
+    }
+  }, [history]);
+
+  // Handle the change of username input
+  const handleUsernameChange = (event) => {
+    setUsername(event.target.value);
+  };
+
+  // Handle the change of password input
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+
+  // Handle the click of login button
+  const handleLoginClick = () => {
+    // Check if the username and password are correct
+    if (username === "kpmg" && password === "123") {
+      // Store the user data in local storage
+      localStorage.setItem("user", username);
+      // Redirect to the home page
+      history.push("/home");
+    } else {
+      // Show an alert message
+      alert("Invalid username or password");
+    }
+  };
+
+  // Handle the click of cancel button
+  const handleCancelClick = () => {
+    // Clear the input fields
+    setUsername("");
+    setPassword("");
   };
 
   return (
-    <div className="App">
-      <h1>App</h1>
-      <button onClick={handleClick}>Go to about</button>
-      <Switch>
-        <Route exact path="/" component={Home} />
-        <Route path="/about" component={About} />
-      </Switch>
+    <div className="login-page">
+      <h1>Login</h1>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            label="Username"
+            variant="outlined"
+            value={username}
+            onChange={handleUsernameChange}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="Password"
+            variant="outlined"
+            type="password"
+            value={password}
+            onChange={handlePasswordChange}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <Button variant="contained" color="primary" onClick={handleLoginClick}>
+            Login
+          </Button>
+        </Grid>
+        <Grid item xs={6}>
+          <Button variant="contained" color="secondary" onClick={handleCancelClick}>
+            Cancel
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Link href="/forgot-password">Forgot password?</Link>
+        </Grid>
+      </Grid>
     </div>
   );
 }
 
-export default function Root() {
-  // Wrap the app with a browser router
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  );
-}
+export default LoginPage;
