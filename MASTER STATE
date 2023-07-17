@@ -1,186 +1,173 @@
-import React, { useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import SearchTable from "../../src/Components/SearchTable";
 import useTitle from "../Components/useTitle";
-import { H3, H4 } from "../Components/Typography";
-import { useTheme, alpha, CardHeader, Divider } from "@mui/material";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Autocomplete from "@mui/material/Autocomplete";
-import { useState } from "react";
-import Stack from "@mui/material/Stack";
+import { H3 } from "../Components/Typography";
+import { useTheme, Card, CardContent, Button, Stack } from "@mui/material";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
 function TelephonicIntimations() {
+  useTitle("STATE");
 
-    useTitle("STATE");
+  const [rowss, setRowss] = useState([]);
+  const [index, setIndex] = useState(1);
+  const [selectedRow, setSelectedRow] = useState(null);
 
-    const [states, setStates] = useState("");
-    const [rowss, setRowss] = useState([]);
-    const [index, setIndex] = useState(1);
-    const [selectedRow, setSelectedRow] = useState(null);
+  const theme = useTheme();
 
-    const handleChange = (e) => {
-        setStates(e.target.value);
-    };
-    const theme = useTheme();
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setSelectedRow(null);
-        if (selectedRow !== null) {
-            setRowss((prevValue) => {
-                const updatedRows = [...prevValue];
-                updatedRows[selectedRow].states = states;
-                return updatedRows;
-            });
-        }
-        else {
-            setRowss((prevValue) => [
-                ...prevValue,
-                { index, states: states }
-            ]);
-            setIndex((prevValue) => prevValue + 1);
-        }
+  // define the validation schema for the form
+  const validationSchema = Yup.object({
+    states: Yup.string()
+      .required("State name is required")
+      .matches(/^[A-Za-z\s]+$/, "State name must contain only letters and spaces"),
+  });
 
-        setStates("");
-    };
+  // use the useFormik hook to handle the form state and validation
+  const formik = useFormik({
+    initialValues: {
+      states: "",
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      // handle submit logic here
+      setSelectedRow(null);
+      if (selectedRow !== null) {
+        setRowss((prevValue) => {
+          const updatedRows = [...prevValue];
+          updatedRows[selectedRow].states = values.states;
+          return updatedRows;
+        });
+      } else {
+        setRowss((prevValue) => [
+          ...prevValue,
+          { index, states: values.states },
+        ]);
+        setIndex((prevValue) => prevValue + 1);
+      }
 
-    const handleCancel = () => {
-        setSelectedRow(null);
-        setStates("");
-    };
+      formik.resetForm();
+    },
+  });
 
-    const handleEdit = (index) => {
-        setSelectedRow(index - 1);
-        setStates(rowss[index - 1].states);
-    };
+  // use the useCallback hook to memoize the event handlers
+  const handleCancel = useCallback(() => {
+    setSelectedRow(null);
+    formik.resetForm();
+  }, []);
 
+  const handleEdit = useCallback(
+    (index) => () => {
+      // handle edit logic here
+      setSelectedRow(index - 1);
+      formik.setFieldValue("states", rowss[index - 1].states);
+    },
+    [rowss]
+  );
 
-    const columns = [
-        {
-            field: "index",
-            headerName: "S.No",
-            width: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "states",
-            headerName: "STATES",
-            width: 500,
-            headerClassName: "super-app-theme--header",
-        },
-      
-        {
-            field: "action",
-            headerName: "ACTION",
-            headerClassName: "super-app-theme--header",
-            width: 450,
-            sortable: false,
-            disableClickEventBubbling: true,
+  // define the columns for the table
+  const columns = [
+    {
+      field: "index",
+      headerName: "S.No",
+      width: 200,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "states",
+      headerName: "STATES",
+      width: 500,
+      headerClassName: "super-app-theme--header",
+    },
 
-            renderCell: (params) => {
+    {
+      field: "action",
+      headerName: "ACTION",
+      headerClassName: "super-app-theme--header",
+      width: 450,
+      sortable: false,
+      disableClickEventBubbling: true,
 
+      renderCell: (params) => {
+        return (
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="outlined"
+              color="inherit"
+              size="small"
+              onClick={handleEdit(params.row.index)}
+            >
+              EDIT
+            </Button>
+          </Stack>
+        );
+      },
+    },
+  ];
 
-                return (
-                    <Stack direction="row" spacing={2}>
+  return (
+    <>
+      <Card sx={{ mt: 2, backgroundColor: theme.palette.primary[100] }}>
+        <CardContent>
+          <H3 lineHeight={2.2} sx={{ ml: 65 }}>
+            SELECT STATE
+          </H3>
+          <form onSubmit={formik.handleSubmit}>
+            {/* use the sx prop to style the components */}
+            <Stack direction="row" spacing={2} sx={{ ml: theme.spacing(6) }}>
+              {/* use the TextField component from formik-material-ui */}
+              <TextField
+                margin="normal"
+                fullWidth
+                type="text"
+                id="states"
+                name="states"
+                label="State Name"
+                value={formik.values.states}
+                onChange={formik.handleChange}
+                error={formik.touched.states && Boolean(formik.errors.states)}
+                helperText={formik.touched.states && formik.errors.states}
+              />
+            </Stack>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ flexGrow: 1, mt: theme.spacing(1), pb: theme.spacing(3), float: "center", ml: theme.spacing(6) }}
+            >
+              <Button variant="contained" type="submit" size="large">
+                SAVE
+              </Button>
+              <Button
+                type="button"
+                onClick={handleCancel}
+                variant="outlined"
+                size="large"
+              >
+                CANCEL
+              </Button>
+            </Stack>
+          </form>
+        </CardContent>
+      </Card>
 
-                        <Button
-                            variant="outlined"
-                            color="inherit"
-                            size="small"
-                            onClick={() => handleEdit(params.row.index)}
-                        >
-                            EDIT
-                        </Button>
-                    </Stack>
-                );
-            },
-        },
-
-    ];
-
-    return (
-        <>
-            <Card sx={{ mt: 2, backgroundColor: theme.palette.primary[100] }}>
-                <CardContent >
-                    <H3 lineHeight={2.2} sx={{ ml: 65 }} >SELECT STATE</H3>
-                    <Box component="form" onSubmit={handleSubmit}>
-                        <Grid
-                            container
-                            direction="row"
-                            rowSpacing={0}
-                            columnSpacing={2}
-                            justify="flex-end"
-                            alignItems="center"
-                        >
-
-                            <Grid item xs={12} sm={4} md={4} lg={4}  >
-                                <TextField
-                                    margin="normal"
-                                    fullWidth
-                                    type="text"
-                                    id="states"
-                                    name="states"
-                                    label="State Name"
-                                    sx={{ ml: 50 }}
-                                    value={states}
-                                    onChange={handleChange}
-
-                                />
-
-                            </Grid>
-
-                        </Grid>
-                        <Box
-                            spacing={2}
-                            sx={{ flexGrow: 1, spacing: 2, mt: 1, pb: 3, float: "center", ml: 60 }}
-                        >
-                            <Button
-
-                                sx={{
-                                    minWidth: 100, ml: 1
-                                }}
-                                variant="contained"
-                                type="submit"
-                                size="large"
-                            >
-                                SAVE
-                            </Button>
-                            <Button
-                                type="button"
-                                sx={{ minWidth: 100, ml: 1 }}
-                                onClick={handleCancel}
-                                variant="outlined"
-                                size="large"
-                            >
-                                CANCEL
-                            </Button>
-                        </Box>
-                    </Box>
-                </CardContent>
-            </Card>
-
-            <Card >
-                <CardContent>
-                    <SearchTable
-                        columns={columns}
-                        data={rowss}
-                        isCheckbox={false}
-                        isHideDensity={false}
-                        isHideExport={true}
-                        isHideFilter={true}
-                        isHideColumn={true}
-                        isHidePaging={false}
-                        name="state"
-                        id="state"
-                    ></SearchTable>
-                </CardContent>
-            </Card>
-        </>
-    );
+      <Card>
+        <CardContent>
+          <SearchTable
+            columns={columns}
+            data={rowss}
+            isCheckbox={false}
+            isHideDensity={false}
+            isHideExport={true}
+            isHideFilter={true}
+            isHideColumn={true}
+            isHidePaging={false}
+            name="state"
+            id="state"
+          ></SearchTable>
+        </CardContent>
+      </Card>
+    </>
+  );
 }
 
 export default TelephonicIntimations;
