@@ -24,13 +24,13 @@ function TelephonicIntimations() {
   });
 
   // use the useFormik hook to handle the form state and validation
-  // add the validateOnBlur prop and set it to false
+  // add the validateOnChange prop and set it to false
   const formik = useFormik({
     initialValues: {
       states: "",
     },
     validationSchema,
-    validateOnBlur: false,
+    validateOnChange: false,
     onSubmit: (values) => {
       // handle submit logic here
       setSelectedRow(null);
@@ -118,6 +118,7 @@ function TelephonicIntimations() {
             {/* use the sx prop to style the components */}
             <Stack direction="row" spacing={2} sx={{ ml: theme.spacing(6) }}>
               {/* use the TextField component from formik-material-ui */}
+              {/* add the onBlur prop */}
               <TextField
                 margin="normal"
                 fullWidth
@@ -127,6 +128,7 @@ function TelephonicIntimations() {
                 label="State Name"
                 value={formik.values.states}
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 error={formik.touched.states && Boolean(formik.errors.states)}
                 helperText={formik.touched.states && formik.errors.states}
               />
