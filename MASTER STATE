@@ -1,177 +1,337 @@
-import React, { useState, useCallback } from "react";
+import React, { useEffect } from "react";
 import SearchTable from "../../src/Components/SearchTable";
 import useTitle from "../Components/useTitle";
-import { H3 } from "../Components/Typography";
-import { useTheme, Card, CardContent, Button, Stack } from "@mui/material";
-import { useFormik } from "formik";
-import * as Yup from "yup";
+import { H3, H4 } from "../Components/Typography";
+import Navbar from "../Components/Navbar";
+import { useTheme, alpha, CardHeader, Divider } from "@mui/material";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Link from "@mui/material/Link";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Card from "@mui/material/Card";
+
+import CardContent from "@mui/material/CardContent";
+
+import Autocomplete from "@mui/material/Autocomplete";
+import { useState } from "react";
+
+import Stack from "@mui/material/Stack";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
+
+import { Small } from "../Components/Typography";
+const stateslist = [
+    { label: 'Andhra Pradesh' },
+    { label: 'Jharkhand' },
+    { label: 'Delhi' },
+    { label: 'Bihar' },
+    { label: 'Rajesthan' },
+    { label: 'Gujrat' },
+    // add more states here
+];
+const districtlist = [
+    { label: 'Ranchi' },
+    { label: 'Dhanbad' },
+    { label: 'Gumla' },
+    { label: 'Bokaro' },
+    { label: 'Ramgarh' },
+    { label: 'Vijaywada' },
+    { label: 'Hydrabad' },
+    { label: 'Kolkata' },
+    { label: 'Kota' },
+    // add more district here
+];
+
+
+const mandallist = [
+    { label: 'CHEBROLU ' },
+    { label: 'DUGGIRALA - R' },
+    { label: 'Guntur ' },
+    { label: 'Guntur - U' },
+    { label: 'KAKUMANU ' },
+    { label: 'Vijaywada' },
+    { label: 'KOLLIPARA ' },
+    { label: 'Mangalagiri ' },
+    { label: 'MANGALAGIRI ' },
+    { label: 'SINDRI' },
+    { label: 'JHARIYA' },
+    // add more mandal here
+];
+
+
+
+
 function TelephonicIntimations() {
-  useTitle("STATE");
 
-  const [rowss, setRowss] = useState([]);
-  const [index, setIndex] = useState(1);
-  const [selectedRow, setSelectedRow] = useState(null);
+    useTitle("STATE");
 
-  const theme = useTheme();
+    const [states, setStates] = useState("");
+    const [district, setDistrict] = useState("");
+    const [mandal, setMandal] = useState("");
+    const [sachiwalaym, setSachiwalaym] = useState("");
+    const [rowss, setRowss] = useState([]);
+    const [index, setIndex] = useState(1);
+    const [selectedRow, setSelectedRow] = useState(null);
 
-  // define the validation schema for the form
-  const validationSchema = Yup.object({
-    states: Yup.string()
-      .required("State name is required")
-      .matches(/^[A-Za-z\s]+$/, "State name must contain only letters and spaces"),
-  });
 
-  // use the useFormik hook to handle the form state and validation
-  // add the validateOnChange prop and set it to false
-  const formik = useFormik({
-    initialValues: {
-      states: "",
-    },
-    validationSchema,
-    validateOnChange: false,
-    onSubmit: (values) => {
-      // handle submit logic here
-      setSelectedRow(null);
-      if (selectedRow !== null) {
-        setRowss((prevValue) => {
-          const updatedRows = [...prevValue];
-          updatedRows[selectedRow].states = values.states;
-          return updatedRows;
-        });
-      } else {
-        setRowss((prevValue) => [
-          ...prevValue,
-          { index, states: values.states },
-        ]);
-        setIndex((prevValue) => prevValue + 1);
-      }
+    const handleChange = (e) => {
+        setSachiwalaym(e.target.value);
+    };
+    const theme = useTheme();
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setSelectedRow(null);
+        if (selectedRow !== null) {
+            setRowss((prevValue) => {
+                const updatedRows = [...prevValue];
+                updatedRows[selectedRow].sachiwalaymtable = sachiwalaym;
+                updatedRows[selectedRow].districttable = district;
+                updatedRows[selectedRow].statestable = states;
+                updatedRows[selectedRow].mandaltable = mandal;
+                return updatedRows;
+            });
+        }
+        else {
+            setRowss((prevValue) => [
+                ...prevValue,
+                { index, statestable: states, districttable: district, mandaltable: mandal, sachiwalaymtable: sachiwalaym },
 
-      formik.resetForm();
-    },
-  });
+            ]);
+            setIndex((prevValue) => prevValue + 1);
+        }
 
-  // use the useCallback hook to memoize the event handlers
-  const handleCancel = useCallback(() => {
-    setSelectedRow(null);
-    formik.resetForm();
-  }, []);
+        setDistrict("");
+        setStates("");
+        setMandal("");
+        setSachiwalaym("");
 
-  const handleEdit = useCallback(
-    (index) => () => {
-      // handle edit logic here
-      setSelectedRow(index - 1);
-      formik.setFieldValue("states", rowss[index - 1].states);
-    },
-    [rowss]
-  );
+    };
 
-  // define the columns for the table
-  const columns = [
-    {
-      field: "index",
-      headerName: "S.No",
-      width: 200,
-      headerClassName: "super-app-theme--header",
-    },
-    {
-      field: "states",
-      headerName: "STATES",
-      width: 500,
-      headerClassName: "super-app-theme--header",
-    },
+    const handleCancel = () => {
+        setSelectedRow(null);
+        setStates("");
+        setDistrict("");
+        setMandal("");
+        setSachiwalaym("");
 
-    {
-      field: "action",
-      headerName: "ACTION",
-      headerClassName: "super-app-theme--header",
-      width: 450,
-      sortable: false,
-      disableClickEventBubbling: true,
 
-      renderCell: (params) => {
-        return (
-          <Stack direction="row" spacing={2}>
-            <Button
-              variant="outlined"
-              color="inherit"
-              size="small"
-              onClick={handleEdit(params.row.index)}
-            >
-              EDIT
-            </Button>
-          </Stack>
-        );
-      },
-    },
-  ];
+    };
 
-  return (
-    <>
-      <Card sx={{ mt: 2, backgroundColor: theme.palette.primary[100] }}>
-        <CardContent>
-          <H3 lineHeight={2.2} sx={{ ml: 65 }}>
-            SELECT STATE
-          </H3>
-          <form onSubmit={formik.handleSubmit}>
-            {/* use the sx prop to style the components */}
-            <Stack direction="row" spacing={2} sx={{ ml: theme.spacing(6) }}>
-              {/* use the TextField component from formik-material-ui */}
-              {/* add the onBlur prop */}
-              <TextField
-                margin="normal"
-                fullWidth
-                type="text"
-                id="states"
-                name="states"
-                label="State Name"
-                value={formik.values.states}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.states && Boolean(formik.errors.states)}
-                helperText={formik.touched.states && formik.errors.states}
-              />
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ flexGrow: 1, mt: theme.spacing(1), pb: theme.spacing(3), float: "center", ml: theme.spacing(6) }}
-            >
-              <Button variant="contained" type="submit" size="large">
-                SAVE
-              </Button>
-              <Button
-                type="button"
-                onClick={handleCancel}
-                variant="outlined"
-                size="large"
-              >
-                CANCEL
-              </Button>
-            </Stack>
-          </form>
-        </CardContent>
-      </Card>
+    const handleEdit = (index) => {
+        setSelectedRow(index - 1);
+        setMandal(rowss[index - 1].mandaltable);
+        setDistrict(rowss[index - 1].districttable);
+        setStates(rowss[index - 1].statestable);
+        setSachiwalaym(rowss[index - 1].sachiwalaymtable);
 
-      <Card>
-        <CardContent>
-          <SearchTable
-            columns={columns}
-            data={rowss}
-            isCheckbox={false}
-            isHideDensity={false}
-            isHideExport={true}
-            isHideFilter={true}
-            isHideColumn={true}
-            isHidePaging={false}
-            name="state"
-            id="state"
-          ></SearchTable>
-        </CardContent>
-      </Card>
-    </>
-  );
+    };
+
+
+    const columns = [
+        {
+            field: "index",
+            headerName: "S.No",
+            width: 150,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "statestable",
+            headerName: "STATES",
+            width: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "districttable",
+            headerName: "District",
+            width: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "mandaltable",
+            headerName: "Mandal",
+            width: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "sachiwalaymtable",
+            headerName: "Sachiwalaym",
+            width: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "action",
+            headerName: "ACTION",
+            headerClassName: "super-app-theme--header",
+            width: 190,
+            sortable: false,
+            disableClickEventBubbling: true,
+
+            renderCell: (params) => {
+
+
+                return (
+                    <Stack direction="row" spacing={2}>
+
+                        <Button
+                            variant="outlined"
+                            color="inherit"
+                            size="small"
+                            onClick={() => handleEdit(params.row.index)}
+                        >
+                            EDIT
+                        </Button>
+                    </Stack>
+                );
+            },
+        },
+
+    ];
+
+    return (
+        <>
+            <Navbar ></Navbar>
+            <Card sx={{ mt: 2, backgroundColor: theme.palette.primary[100] }}>
+                <CardContent >
+                    <H3 lineHeight={2.2} sx={{ ml: 65 }} >SELECT SACHIWALAYM</H3>
+                    <Box component="form" onSubmit={handleSubmit}>
+                        <Grid
+                            container
+                            direction="column"
+
+                            columnSpacing={2}
+                            justify="flex-end"
+                            alignItems="center"
+                        >
+                            <Grid sx={{ mt: 2, width: 380 }}   >
+                                <Autocomplete
+                                    options={stateslist}
+                                    // getOptionLabel={(option) => option.label}
+                                    value={states}
+                                    onChange={(e, newValue) => {
+                                        setStates(newValue.label);
+                                        console.log(newValue);
+                                    }}
+
+                                    renderInput={(params) =>
+                                        <TextField
+                                            {...params}
+                                            label="STATES" />}
+                                />
+
+                            </Grid>
+                            <Grid sx={{ mt: 2, width: 380 }} >
+                                <Autocomplete
+                                    options={districtlist}
+                                    // getOptionLabel={(option) => option.label}
+                                    value={district}
+                                    onChange={(e, newValue) => {
+                                        setDistrict(newValue.label);
+                                        console.log(newValue);
+                                    }}
+
+                                    renderInput={(params) =>
+                                        <TextField
+                                            {...params}
+                                            label="District" />}
+                                />
+
+                            </Grid>
+                            <Grid sx={{ mt: 2, width: 380 }} >
+                                <Autocomplete
+                                    options={mandallist}
+                                    // getOptionLabel={(option) => option.label}
+                                    value={mandal}
+                                    onChange={(e, newValue) => {
+                                        setMandal(newValue.label);
+                                        console.log(newValue);
+                                    }}
+
+                                    renderInput={(params) =>
+                                        <TextField
+                                            {...params}
+                                            label="Mandal" />}
+                                />
+
+                            </Grid>
+                        </Grid>
+                        <Grid
+                            container
+
+
+                            columnSpacing={1}
+                            justify="flex-end"
+                            alignItems="center"
+                        >
+
+                            <Grid sx={{ mt: 1, width: 380 }}   >
+                                <TextField
+                                    margin="normal"
+                                    fullWidth
+                                    type="text"
+                                    id="sachiwalaym"
+                                    name="sachiwalaym"
+                                    label="Schiwalaym"
+                                    sx={{ ml: 50 }}
+                                    value={sachiwalaym}
+                                    onChange={handleChange}
+
+                                />
+
+                            </Grid>
+
+                        </Grid>
+
+
+
+                        <Box
+                            spacing={2}
+                            sx={{ flexGrow: 1, spacing: 2, mt: 1, float: "center", ml: 60 }}
+                        >
+                            <Button
+
+                                sx={{
+                                    minWidth: 100, ml: 1
+                                }}
+                                variant="contained"
+                                type="submit"
+                                size="large"
+                            >
+                                SAVE
+                            </Button>
+                            <Button
+                                type="button"
+                                sx={{ minWidth: 100, ml: 1 }}
+                                onClick={handleCancel}
+                                variant="outlined"
+                                size="large"
+                            >
+                                CANCEL
+                            </Button>
+                        </Box>
+                    </Box>
+                </CardContent>
+            </Card>
+
+            <Card >
+                <CardContent>
+                    <SearchTable
+                        columns={columns}
+                        data={rowss}
+                        isCheckbox={false}
+                        isHideDensity={false}
+                        isHideExport={true}
+                        isHideFilter={true}
+                        isHideColumn={true}
+                        isHidePaging={false}
+                        name="state"
+                        id="state"
+                    ></SearchTable>
+                </CardContent>
+            </Card>
+        </>
+    );
 }
 
 export default TelephonicIntimations;
