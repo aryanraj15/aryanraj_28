@@ -24,11 +24,13 @@ function TelephonicIntimations() {
   });
 
   // use the useFormik hook to handle the form state and validation
+  // add the validateOnBlur prop and set it to false
   const formik = useFormik({
     initialValues: {
       states: "",
     },
     validationSchema,
+    validateOnBlur: false,
     onSubmit: (values) => {
       // handle submit logic here
       setSelectedRow(null);
