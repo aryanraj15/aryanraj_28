@@ -2,82 +2,31 @@ import React, { useEffect } from "react";
 import SearchTable from "../../src/Components/SearchTable";
 import useTitle from "../Components/useTitle";
 import { H3, H4 } from "../Components/Typography";
-import Navbar from "../Components/Navbar";
+import { useTheme, Card, CardContent, Button, Stack } from "@mui/material";
 import { useTheme, alpha, CardHeader, Divider } from "@mui/material";
-import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import Card from "@mui/material/Card";
-
-import CardContent from "@mui/material/CardContent";
-
 import Autocomplete from "@mui/material/Autocomplete";
 import { useState } from "react";
-
-import Stack from "@mui/material/Stack";
 import { Routes, Route, useNavigate } from "react-router-dom";
-
-
 import { Small } from "../Components/Typography";
 const stateslist = [
-    { label: 'Andhra Pradesh' },
-    { label: 'Jharkhand' },
-    { label: 'Delhi' },
-    { label: 'Bihar' },
-    { label: 'Rajesthan' },
-    { label: 'Gujrat' },
-    // add more states here
+    { label: 'Andhra Pradesh', value: 'AP' },
+    { label: 'Jharkhand', value: 'JH' },
 ];
-const districtlist = [
-    { label: 'Ranchi' },
-    { label: 'Dhanbad' },
-    { label: 'Gumla' },
-    { label: 'Bokaro' },
-    { label: 'Ramgarh' },
-    { label: 'Vijaywada' },
-    { label: 'Hydrabad' },
-    { label: 'Kolkata' },
-    { label: 'Kota' },
-    // add more district here
-];
-
-
-const mandallist = [
-    { label: 'CHEBROLU ' },
-    { label: 'DUGGIRALA - R' },
-    { label: 'Guntur ' },
-    { label: 'Guntur - U' },
-    { label: 'KAKUMANU ' },
-    { label: 'Vijaywada' },
-    { label: 'KOLLIPARA ' },
-    { label: 'Mangalagiri ' },
-    { label: 'MANGALAGIRI ' },
-    { label: 'SINDRI' },
-    { label: 'JHARIYA' },
-    // add more mandal here
-];
-
-
-
 
 function TelephonicIntimations() {
-
-    useTitle("STATE");
-
     const [states, setStates] = useState("");
-    const [district, setDistrict] = useState("");
-    const [mandal, setMandal] = useState("");
-    const [sachiwalaym, setSachiwalaym] = useState("");
+    const [district, setDistrict]= useState("");
     const [rowss, setRowss] = useState([]);
     const [index, setIndex] = useState(1);
     const [selectedRow, setSelectedRow] = useState(null);
-
-
-    const handleChange = (e) => {
-        setSachiwalaym(e.target.value);
+    
+const handleChange = (e) => {
+        setDistrict(e.target.value);
     };
     const theme = useTheme();
     const handleSubmit = (e) => {
@@ -86,91 +35,62 @@ function TelephonicIntimations() {
         if (selectedRow !== null) {
             setRowss((prevValue) => {
                 const updatedRows = [...prevValue];
-                updatedRows[selectedRow].sachiwalaymtable = sachiwalaym;
                 updatedRows[selectedRow].districttable = district;
                 updatedRows[selectedRow].statestable = states;
-                updatedRows[selectedRow].mandaltable = mandal;
+       
                 return updatedRows;
             });
         }
         else {
             setRowss((prevValue) => [
                 ...prevValue,
-                { index, statestable: states, districttable: district, mandaltable: mandal, sachiwalaymtable: sachiwalaym },
-
+                { index,statestable: states, districttable: district },
+              
             ]);
             setIndex((prevValue) => prevValue + 1);
         }
-
         setDistrict("");
         setStates("");
-        setMandal("");
-        setSachiwalaym("");
-
     };
-
     const handleCancel = () => {
         setSelectedRow(null);
         setStates("");
-        setDistrict("");
-        setMandal("");
-        setSachiwalaym("");
-
-
+        setDistrict("");   
     };
 
     const handleEdit = (index) => {
         setSelectedRow(index - 1);
-        setMandal(rowss[index - 1].mandaltable);
         setDistrict(rowss[index - 1].districttable);
         setStates(rowss[index - 1].statestable);
-        setSachiwalaym(rowss[index - 1].sachiwalaymtable);
-
     };
-
 
     const columns = [
         {
             field: "index",
             headerName: "S.No",
-            width: 150,
+            width: 200,
             headerClassName: "super-app-theme--header",
         },
         {
             field: "statestable",
             headerName: "STATES",
-            width: 200,
+            width: 300,
             headerClassName: "super-app-theme--header",
         },
         {
             field: "districttable",
             headerName: "District",
-            width: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "mandaltable",
-            headerName: "Mandal",
-            width: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "sachiwalaymtable",
-            headerName: "Sachiwalaym",
-            width: 200,
+            width: 300,
             headerClassName: "super-app-theme--header",
         },
         {
             field: "action",
             headerName: "ACTION",
             headerClassName: "super-app-theme--header",
-            width: 190,
+            width: 350,
             sortable: false,
             disableClickEventBubbling: true,
-
             renderCell: (params) => {
-
-
                 return (
                     <Stack direction="row" spacing={2}>
 
@@ -186,111 +106,65 @@ function TelephonicIntimations() {
                 );
             },
         },
-
     ];
 
     return (
         <>
-            <Navbar ></Navbar>
             <Card sx={{ mt: 2, backgroundColor: theme.palette.primary[100] }}>
                 <CardContent >
-                    <H3 lineHeight={2.2} sx={{ ml: 65 }} >SELECT SACHIWALAYM</H3>
+                    <H3 lineHeight={2.2} sx={{ ml: 65 }} >SELECT DISTRICT</H3>
                     <Box component="form" onSubmit={handleSubmit}>
-                        <Grid
+                    <Grid
                             container
-                            direction="column"
-
+                            direction="row"
                             columnSpacing={2}
                             justify="flex-end"
                             alignItems="center"
                         >
-                            <Grid sx={{ mt: 2, width: 380 }}   >
+                             <Grid item xs={12} sm={4} md={4} lg={4}  >
                                 <Autocomplete
-                                    options={stateslist}
-                                    // getOptionLabel={(option) => option.label}
+                                    options={stateslist} 
                                     value={states}
                                     onChange={(e, newValue) => {
                                         setStates(newValue.label);
                                         console.log(newValue);
                                     }}
-
-                                    renderInput={(params) =>
-                                        <TextField
-                                            {...params}
-                                            label="STATES" />}
+                                   
+                                    renderInput={(params) => 
+                                    <TextField  sx={{ ml: 50 }} 
+                                    {...params} 
+                                    label="STATES" />}
                                 />
 
                             </Grid>
-                            <Grid sx={{ mt: 2, width: 380 }} >
-                                <Autocomplete
-                                    options={districtlist}
-                                    // getOptionLabel={(option) => option.label}
-                                    value={district}
-                                    onChange={(e, newValue) => {
-                                        setDistrict(newValue.label);
-                                        console.log(newValue);
-                                    }}
-
-                                    renderInput={(params) =>
-                                        <TextField
-                                            {...params}
-                                            label="District" />}
-                                />
-
                             </Grid>
-                            <Grid sx={{ mt: 2, width: 380 }} >
-                                <Autocomplete
-                                    options={mandallist}
-                                    // getOptionLabel={(option) => option.label}
-                                    value={mandal}
-                                    onChange={(e, newValue) => {
-                                        setMandal(newValue.label);
-                                        console.log(newValue);
-                                    }}
-
-                                    renderInput={(params) =>
-                                        <TextField
-                                            {...params}
-                                            label="Mandal" />}
-                                />
-
-                            </Grid>
-                        </Grid>
                         <Grid
                             container
-
-
-                            columnSpacing={1}
+                            direction="row"
+                            rowSpacing={0}
+                            columnSpacing={2}
                             justify="flex-end"
                             alignItems="center"
                         >
-
-                            <Grid sx={{ mt: 1, width: 380 }}   >
+                            <Grid item xs={12} sm={4} md={4} lg={4}  >
                                 <TextField
                                     margin="normal"
                                     fullWidth
                                     type="text"
-                                    id="sachiwalaym"
-                                    name="sachiwalaym"
-                                    label="Schiwalaym"
+                                    id="district"
+                                    name="district"
+                                    label="District Name"
                                     sx={{ ml: 50 }}
-                                    value={sachiwalaym}
+                                    value={district}
                                     onChange={handleChange}
-
                                 />
-
                             </Grid>
-
                         </Grid>
-
-
-
                         <Box
                             spacing={2}
-                            sx={{ flexGrow: 1, spacing: 2, mt: 1, float: "center", ml: 60 }}
+                            sx={{ flexGrow: 1, spacing: 2, mt: 1, pb: 3, float: "center", ml: 60 }}
                         >
                             <Button
-
                                 sx={{
                                     minWidth: 100, ml: 1
                                 }}
@@ -313,7 +187,6 @@ function TelephonicIntimations() {
                     </Box>
                 </CardContent>
             </Card>
-
             <Card >
                 <CardContent>
                     <SearchTable
