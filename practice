@@ -1,216 +1,31 @@
-import React, { useEffect } from "react";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import SearchTable from "../../src/Components/SearchTable";
-import useTitle from "../Components/useTitle";
-import { H3, H4 } from "../Components/Typography";
-import { useTheme, Card, CardContent, Button, Stack } from "@mui/material";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Autocomplete from "@mui/material/Autocomplete";
-import { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import { Small } from "../Components/Typography";
+<Grid xs={12} sm={8} smOffset={2} md={6} mdOffset={3}>
+                                        <Autocomplete
+                                            disablePortal
+                                            margin="normal"
+                                            fullWidth
+                                            id="pharmacologicalSubgroupName"
+                                            name="pharmacologicalSubgroupName"
+                                            options={pharmacologicalSubgroup}
+                                            value={pharmacologicalSubgroup.find(
+                                                (option) => option.valueName === formik.values.pharmacologicalSubgroupName
+                                            ) || null}
+                                            onChange={(e, value) => {
+                                                if (value === null) {
+                                                    formik.setFieldValue("pharmacologicalSubgroupName", null)
+                                                }
+                                                else
+                                                    formik.setFieldValue("pharmacologicalSubgroupName", value.valueName)
+                                            }}
+                                            getOptionLabel={(value) => value.valueName}
+                                            sx={{ width: "100%", mt: 2, mb: 1 }}
+                                            renderInput={(params) => (
+                                                <TextField {...params}
+                                                    label="Pharmacological Subgroup Name"
+                                                    onBlur={formik.handleBlur}
+                                                    helperText={formik.errors.pharmacologicalSubgroupName && formik.touched.pharmacologicalSubgroupName ? formik.errors.pharmacologicalSubgroupName : null}
+                                                    error={formik.errors.pharmacologicalSubgroupName && formik.touched.pharmacologicalSubgroupName ? true : false}
+                                                />
+                                            )}
+                                        />
 
-const stateslist = [
-  { label: "Andhra Pradesh", value: "AP" },
-  { label: "Jharkhand", value: "JH" },
-];
-
-function TelephonicIntimations() {
-  const [rowss, setRowss] = useState([]);
-  const [index, setIndex] = useState(1);
-  const [selectedRow, setSelectedRow] = useState(null);
-
-  const validationSchema = yup.object({
-    states: yup.string().required("State is required"),
-    district: yup.string().required("District is required"),
-  });
-
-  const formik = useFormik({
-    initialValues: {
-      states: "",
-      district: "",
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      setSelectedRow(null);
-      if (selectedRow !== null) {
-        setRowss((prevValue) => {
-          const updatedRows = [...prevValue];
-          updatedRows[selectedRow].districttable = values.district;
-          updatedRows[selectedRow].statestable = values.states;
-
-          return updatedRows;
-        });
-      } else {
-        setRowss((prevValue) => [
-          ...prevValue,
-          { index, statestable: values.states, districttable: values.district },
-        ]);
-        setIndex((prevValue) => prevValue + 1);
-      }
-      formik.resetForm();
-    },
-  });
-
-  const handleCancel = () => {
-    setSelectedRow(null);
-    formik.resetForm();
-  };
-
-  const handleEdit = (index) => {
-    setSelectedRow(index - 1);
-    formik.setFieldValue("district", rowss[index - 1].districttable);
-    formik.setFieldValue("states", rowss[index - 1].statestable);
-  };
-
-  const theme = useTheme();
-
-  const columns = [
-    {
-        field: "index",
-        headerName: "S.No",
-        width: 200,
-        headerClassName: "super-app-theme--header",
-    },
-    {
-        field: "statestable",
-        headerName: "STATES",
-        width: 300,
-        headerClassName: "super-app-theme--header",
-    },
-    {
-        field: "districttable",
-        headerName: "District",
-        width: 300,
-        headerClassName: "super-app-theme--header",
-    },
-    {
-        field: "action",
-        headerName: "ACTION",
-        headerClassName: "super-app-theme--header",
-        width: 350,
-        sortable: false,
-        disableClickEventBubbling: true,
-        renderCell: (params) => {
-            return (
-                <Stack direction="row" spacing={2}>
-
-                    <Button
-                        variant="outlined"
-                        color="inherit"
-                        size="small"
-                        onClick={() => handleEdit(params.row.index)}
-                    >
-                        EDIT
-                    </Button>
-                </Stack>
-            );
-        },
-    },
-];
-
-  return (
-    <>
-      <Card sx={{ mt: 2, backgroundColor: theme.palette.primary[100] }}>
-        <CardContent>
-          <H3 lineHeight={2.2} sx={{ ml: 65 }}>
-            SELECT DISTRICT
-          </H3>
-          <Box component="form" onSubmit={formik.handleSubmit}>
-            <Grid
-              container
-              direction="row"
-              columnSpacing={2}
-              justify="flex-end"
-              alignItems="center"
-            >
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <Autocomplete
-                  options={stateslist}
-                  value={formik.values.states}
-                  onChange={(e, newValue) => {
-                    formik.setFieldValue("states", newValue?.label || "");
-                  }}
-                  onBlur={formik.handleBlur("states")}
-                  renderInput={(params) => (
-                    <TextField
-                      sx={{ ml: 50 }}
-                      {...params}
-                      label="STATES"
-                      error={formik.touched.states && !!formik.errors.states}
-                      helperText={formik.touched.states && formik.errors.states}
-                    />
-                  )}
-                />
-              </Grid>
-            </Grid>
-            <Grid
-              container
-              direction="row"
-              rowSpacing={0}
-              columnSpacing={2}
-              justify="flex-end"
-              alignItems="center"
-            >
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="normal"
-                  fullWidth
-                  type="text"
-                  id="district"
-                  name="district"
-                  label="District Name"
-                  sx={{ ml: 50 }}
-                  value={formik.values.district}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.district && !!formik.errors.district}
-                  helperText={formik.touched.district && formik.errors.district}
-                />
-              </Grid>
-            </Grid>
-            <Box
-              spacing={2}
-              sx={{ flexGrow: 1, spacing: 2, mt: 1, pb: 3, float: "center", ml: 60 }}
-            >
-              <Button
-                sx={{
-                  minWidth: 100,
-                  ml: 1,
-                }}
-                variant="contained"
-                type="submit"
-              >
-                SAVE
-              </Button>
-              <Button type="button" onClick={handleCancel} variant="outlined">
-                CANCEL
-              </Button>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent>
-          <SearchTable
-            columns={columns}
-            data={rowss}
-            isCheckbox={false}
-            isHideDensity={false}
-            isHideExport={true}
-            isHideFilter={true}
-            isHideColumn={true}
-            isHidePaging={false}
-            name="state"
-            id="state"
-          />
-        </CardContent>
-      </Card>
-    </>
-  );
-}
-
-export default TelephonicIntimations;
+                                    </Grid>
