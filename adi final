@@ -1,15 +1,211 @@
-Join Teams Meeting
-en-US
-https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZDc4NjAzOGYtNzU3Ni00YjQ2LWFmNDItN2ViNzA4ODk1NjBm%40thread.v2/0?context=%7b%22Tid%22%3a%22deff24bb-2089-4400-8c8e-f71e680378b2%22%2c%22Oid%22%3a%22a727fae6-19d6-4ed1-8bb8-b167d661db1b%22%7d
-Meeting ID: 326 103 182 921
-Passcode: ZMBhS3
-Join with a video conferencing device
+import { Box, Button, Card, CardContent, Checkbox, FormControlLabel, Stack, TextField } from '@mui/material';
+import React, { useState } from 'react'
+import * as yup from "yup";
+import { H3 } from '../Components/Typography';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import { useFormik } from 'formik';
+import SearchTable from "../../src/Components/SearchTable";
+import Grid from "@mui/material/Unstable_Grid2";
+import useTitle from '../hooks/useTitle';
+
+const StateMaster = () => {
+    const [rowss, setRowss] = useState([]);
+    const [index, setIndex] = useState(1);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const title="State Master"
+    useTitle(title);
+
+    const validationSchema = yup.object({
+        State: yup.string().required("State Name is required"),
+
+    });
+
+    const formik = useFormik({
+        initialValues: {
+            
+            State: "",
+            isActive: false
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            // console.log(values);
+            setSelectedRow(null);
+            if (selectedRow !== null) {
+                setRowss((prevValue) => {
+                    const updatedRows = [...prevValue];
+
+                    updatedRows[selectedRow].State = values.State;
+                   
+                    updatedRows[selectedRow].isActive = values.isActive.toString().toUpperCase();
+                    return updatedRows;
+                });
+            } else {
+                setRowss((prevValue) => [
+                    ...prevValue,
+                    { 
+                        index, 
+                        State: values.State, 
+                        isActive: values.isActive.toString().toUpperCase() 
+                    },
+                ]);
+                setIndex((prevValue) => prevValue + 1);
+            }
+            formik.resetForm();
+        },
+    });
+
+    const handleCancel = () => {
+        setSelectedRow(null);
+        formik.resetForm();
+    };
+
+    const handleEdit = (index) => {
+        setSelectedRow(index - 1);
+
+        formik.setFieldValue("State", rowss[index - 1].State);
+     
+        formik.setFieldValue("isActive", JSON.parse(rowss[index - 1].isActive.toLowerCase()));
+    };
 
 
-Microsoft Teams meeting 
-Join on your computer, mobile app or room device 
-Click here to join the meeting 
-https://teams.microsoft.com/dl/launcher/launcher.html?url=%2F_%23%2Fl%2Fmeetup-join%2F19%3Ameeting_ZTEzM2Y0MjItN2Q4Ny00NGQ2LTliMmQtYmYxODcwN2EwZjc3%40thread.v2%2F0%3Fcontext%3D%257b%2522Tid%2522%253a%2522deff24bb-2089-4400-8c8e-f71e680378b2%2522%252c%2522Oid%2522%253a%25224956b371-f1aa-4c5f-8b2d-f33f59de08fc%2522%257d%26anon%3Dtrue&type=meetup-join&deeplinkId=67ec94b3-3766-40ea-8ff5-ead6193fb98d&directDl=true&msLaunch=true&enableMobilePage=true&suppressPrompt=true
-Meeting ID: 393 592 713 059 
-Passcode: mieqC5 
+    const columns = [
+        {
+            field: "index",
+            headerName: "S.No",
+            flex: 0.1,
+            minWidth: 150,
+            headerClassName: "super-app-theme--header",
+        },
+     
+        {
+            field: "State",
+            headerName: "STATE NAME",
+            flex: 0.6,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "isActive",
+            headerName: "IS ACTIVE",
+            flex: 0.3,
+            minWidth: 150,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "action",
+            headerName: "ACTION",
+            headerClassName: "super-app-theme--header",
+            flex: 0.3,
+            minWidth: 150,
+            sortable: false,
+            disableClickEventBubbling: true,
+            renderCell: (params) => {
+                return (
+                    <Stack direction="row" spacing={2}>
 
+                        <Button
+                            variant="outlined"
+                            color="inherit"
+                            size="small"
+                            onClick={() => handleEdit(params.row.index)}
+                        >
+                            EDIT
+                        </Button>
+                    </Stack>
+                );
+            },
+        }
+       
+    ];
+
+    return (
+        <>
+            <Grid container>
+                <Grid xs={12} >
+                    <Card sx={{ my: 2 }} elevation={5}>
+                        <CardContent>
+                            <H3 lineHeight={2.2} sx={{ textAlign: 'center' }}>
+                                {title}
+                            </H3>
+                            <Box component="form" onSubmit={formik.handleSubmit}>
+                                <Grid container columnSpacing={2}>
+                                    <Grid xs={12} sm={4} smOffset={2} md={6} mdOffset={3}>
+                                     
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            type="text"
+                                            id="State"
+                                            name="State"
+                                            label="State Name"
+                                            value={formik.values.State}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            error={formik.touched.State && !!formik.errors.State}
+                                            helperText={formik.touched.State && formik.errors.State}
+                                        />
+
+                                    </Grid>
+                                    <Grid xs={12} sm={8} smOffset={2} md={6} mdOffset={3}>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={formik.values.isActive}
+                                                />}
+                                            name='isActive'
+                                            id="isActive"
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            label="is Active"
+                                        />
+                                    </Grid>
+
+                                </Grid>
+                                <Box
+                                    spacing={2}
+                                    sx={{ mt: 1, textAlign: 'center' }}
+                                >
+                                    <Button
+                                        sx={{
+                                            minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
+                                        }}
+                                        variant="contained"
+                                        type="submit"
+                                    >
+                                        SAVE
+                                        <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                                        onClick={handleCancel}
+                                        variant="outlined"
+                                    >
+                                        CANCEL
+                                    </Button>
+                                </Box>
+                            </Box>
+
+                            <Box component={"div"} >
+                                <SearchTable
+                                    columns={columns}
+                                    data={rowss}
+                                    isCheckbox={false}
+                                    isHideDensity={false}
+                                    isHideExport={true}
+                                    isHideFilter={true}
+                                    isHideColumn={true}
+                                    isHidePaging={false}
+                                    name="StateMaster"
+                                    id="StateMaster"
+                                />
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+        </>
+    );
+}
+
+export default StateMaster;
