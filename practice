@@ -1,31 +1,4 @@
-<Grid xs={12} sm={8} smOffset={2} md={6} mdOffset={3}>
-                                        <Autocomplete
-                                            disablePortal
-                                            margin="normal"
-                                            fullWidth
-                                            id="pharmacologicalSubgroupName"
-                                            name="pharmacologicalSubgroupName"
-                                            options={pharmacologicalSubgroup}
-                                            value={pharmacologicalSubgroup.find(
-                                                (option) => option.valueName === formik.values.pharmacologicalSubgroupName
-                                            ) || null}
-                                            onChange={(e, value) => {
-                                                if (value === null) {
-                                                    formik.setFieldValue("pharmacologicalSubgroupName", null)
-                                                }
-                                                else
-                                                    formik.setFieldValue("pharmacologicalSubgroupName", value.valueName)
-                                            }}
-                                            getOptionLabel={(value) => value.valueName}
-                                            sx={{ width: "100%", mt: 2, mb: 1 }}
-                                            renderInput={(params) => (
-                                                <TextField {...params}
-                                                    label="Pharmacological Subgroup Name"
-                                                    onBlur={formik.handleBlur}
-                                                    helperText={formik.errors.pharmacologicalSubgroupName && formik.touched.pharmacologicalSubgroupName ? formik.errors.pharmacologicalSubgroupName : null}
-                                                    error={formik.errors.pharmacologicalSubgroupName && formik.touched.pharmacologicalSubgroupName ? true : false}
-                                                />
-                                            )}
-                                        />
-
-                                    </Grid>
+     for (let i = indexToDelete; i <= updatedRows.length; i++) {
+                const rowToUpdate = updatedRows.find((row) => row.index === i);
+                if (rowToUpdate) {
+                    rowToUpdate.index = i;
