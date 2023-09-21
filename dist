@@ -1,128 +1,358 @@
-import React, { useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import {
-  TextField,
-  Button,
-  Card,
-  CardContent,
-  Box,
-} from '@mui/material';
-import Autocomplete from '@mui/material/Autocomplete';
+import { Autocomplete, Box, Button, Card, CardContent, Checkbox, FormControlLabel, Stack, TextField } from '@mui/material';
+import React, { useState } from 'react'
+import * as yup from "yup";
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import { useFormik } from 'formik';
+import Grid from "@mui/material/Unstable_Grid2";
+import { H3 } from '../../components/Typography';
+import SearchTable from "../../components/SearchTablecopy";
+import useTitle from '../../hooks/useTitle';
+import axios from 'axios';
+import { useEffect } from 'react';
 
-const states = [
-  { label: 'Andhra Pradesh',district:"AA",district:"BB" ,value: 'AP' },
-  // { label: 'Andhra Pradesh',district:"BB", value: 'AP' },
-  { label: 'Andhra Pradesh',district:"CC", value: 'AP' },
-  { label: 'Andhra Pradesh',district:"DD", value: 'AP' },
-  { label: 'Jharkhand',district:"SIMDEGA", value: 'JH' },
-  { label: 'Jharkhand',district:"RANCHI", value: 'JH' },
-  { label: 'Jharkhand',district:"DHANBAD", value: 'JH' },
-  { label: 'Jharkhand',district:"BOKARO", value: 'JH' },
-  // add more states here
-];
+// const districtList = [
+//     {
+//         valueId: 31,
+//         valueName: "NICOBARS"
+//     },
+//     {
+//         valueId: 32,
+//         valueName: "Anakapalli"
+//     },
+//     {
+//         valueId: 33,
+//         valueName: "EAST GODAVARI"
+//     },
+//     {
+//         valueId: 34,
+//         valueName: "GUNTUR"
+//     },
+// ]
 
-export default function StateDistrictForm() {
-  const [state, setState] = useState(null);
-  const [district, setDistrict] = useState('');
-  const [tableData, setTableData] = useState(
-    states.map((state, index) => ({
-      id: index + 1,
-      state: state.label,
-      district:state.district,
-    }))
-  );
-  const [editIndex, setEditIndex] = useState(-1);
+const YsrConstituencyMaster = () => {
+    const [rowss, setRowss] = useState([]);
+    const [index, setIndex] = useState(1);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [districtList, setDistrictList] = useState([]);
+    const title = "Constituency Master";
+    useTitle(title);
 
-  const handleSave = () => {
-    if (editIndex === -1) {
-      let stateIndex = tableData.findIndex((row) => row.state === state.label);
-      let newRow = { id: tableData.length + 1, state: state.label, district };
-      let updatedTableData = [...tableData];
-      updatedTableData.splice(stateIndex + 1, 0, newRow);
-      setTableData(updatedTableData);
-    } else {
-      let updatedTableData = [...tableData];
-      updatedTableData[editIndex] = { id: editIndex + 1, state: state.label, district };
-      setTableData(updatedTableData);
-      setEditIndex(-1);
-    }
-    setState(null);
-    setDistrict('');
-  };
+    useEffect(() => {
+        axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getDistrictList`).then(response => {
+            let sortedDistrictData = response.data.result.map((value) => {
+                value.districtName = value.districtName.toUpperCase();
+                return value;
+            })
 
-  const handleCancel = () => {
-    setState(null);
-    setDistrict('');
-    setEditIndex(-1);
-  };
+            sortedDistrictData = sortedDistrictData.sort((a, b) => a.districtName.localeCompare(b.districtName));
 
-  const handleEdit = (index) => {
-    setState(states.find((state) => state.label === tableData[index].state));
-    setDistrict(tableData[index].district || '');
-    setEditIndex(index);
-  };
+            setDistrictList(sortedDistrictData);
+            console.log(sortedDistrictData);
+        })
+            .catch(error => {
+                setDistrictList([]);
+                console.log(error);
+            });
 
-  const columns = [
-    { field: 'id', headerName: 'S.No', width: 100 },
-    { field: 'state', headerName: 'State', width: 150 },
-    { field: 'district', headerName: 'District', width: 150 },
-    {
-      field: 'action',
-      headerName: 'Action',
-      width: 150,
-      renderCell: (params) => (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleEdit(params.row.id - 1)}
-        >
-          Edit
-        </Button>
-      ),
-    },
-  ];
 
-  return (
-    <>
-      <Autocomplete
-        options={states}
-        getOptionLabel={(option) => option.label}
-        value={state}
-        onChange={(event, newValue) => {
-          setState(newValue);
-        }}
-        renderInput={(params) => <TextField {...params} label="STATES" />}
-      />
-      <TextField
-        label="Districts"
-        value={district}
-        onChange={(event) => setDistrict(event.target.value)}
-      />
-      <Button onClick={handleSave}>SAVE</Button>
-      <Button onClick={handleCancel}>CANCEL</Button>
-      <Card sx={{ mt: 2 }}>
-        <CardContent>
-          <Box sx={{ overflow: 'auto' }}>
-            <Box
-              sx={{
-                width: '100%',
-                height: 'auto',
-                display: 'table',
-                tableLayout: 'fixed',
-                height: '500%',
-              }}
-            >
-              <DataGrid
-                rows={state ? tableData.filter((row) => row.state === state.label) : tableData}
-                columns={columns}
-                pageSize={5}
-                rowsPerPageOptions={[5]}
-                checkboxSelection={false}
-              />
+        axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getYsrConstituency`).then(response => {
+            // const sortedData = response.data?.result.sort((a, b) => a.bankId - b.bankId);
+            let i = 1;
+            let sortedData = response.data?.result.sort((a, b) => a.constName.localeCompare(b.constName));
+            sortedData = sortedData.map((value) => {
+                let newVal = { ...value, index: i };
+                i++;
+                return newVal;
+            });
+            setIndex(i);
+
+            setRowss(sortedData);
+            console.log(sortedData);
+        })
+            .catch(error => {
+                alert(error);
+                setRowss([]);
+            });
+
+    }, []);
+
+    const validationSchema = yup.object({
+        distId: yup.string().required("District Name is required"),
+        constCode: yup.string().required("Constituency Code is required"),
+        constName: yup.string().required("Constituency Name is required"),
+
+    });
+
+    const formik = useFormik({
+        initialValues: {
+            constId: -1,
+            distId: "",
+            constCode: "",
+            constName: "",
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            // console.log(values);
+            if (selectedRow !== null) {
+                setRowss((prevValue) => {
+
+                    let postData = { ...values, isConstActive: true, distId: parseInt(values.distId) };
+                    console.log(postData);
+                    // axios.put(`${process.env.REACT_APP_MASTER_API_URL}/user/saveYsrConstituency`, postData)
+                    //     .then(response => {
+                    //         console.log(response.data);
+                    //     })
+                    //     .catch(error => {
+                    //         console.log(error);
+                    //     });
+
+                    const updatedRows = [...prevValue];
+
+                    updatedRows[selectedRow].distId = values.distId;
+                    updatedRows[selectedRow].constCode = values.constCode;
+                    updatedRows[selectedRow].constName = values.constName;
+                    return updatedRows;
+                });
+            } else {
+                // console.log(values);
+                let postData = { ...values, isConstActive: true, distId: parseInt(values.distId) };
+                console.log(postData);
+                axios.post(`${process.env.REACT_APP_MASTER_API_URL}/user/saveYsrConstituency`, postData)
+                    .then(response => {
+                        console.log(response.data);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+                setRowss((prevValue) => [
+                    ...prevValue,
+                    {
+                        index,
+                        // districtName: values.districtName,
+                        constCode: values.constCode,
+                        constName: values.constName,
+                    },
+                ]);
+                setSelectedRow(null);
+                setIndex((prevValue) => prevValue + 1);
+            }
+            formik.resetForm();
+        },
+    });
+
+    const handleCancel = () => {
+        setSelectedRow(null);
+        formik.resetForm();
+    };
+
+    const handleEdit = (index) => {
+        setSelectedRow(index - 1);
+
+        console.log(rowss[index - 1].constId);
+        formik.setFieldValue("constId", rowss[index - 1].constId);
+        // let distId = districtList.find((option) => option.distName === rowss[index - 1].distName)?.distId;
+        let distId = rowss[index - 1].distId;
+        formik.setFieldValue("distId", distId ? distId.toString() : "");
+        formik.setFieldValue("constCode", rowss[index - 1].constCode);
+        formik.setFieldValue("constName", rowss[index - 1].constName);
+        // formik.setFieldValue("isConstActive", rowss[index - 1].isConstActive);
+    };
+
+    const columns = [
+        {
+            field: "index",
+            headerName: "S.No",
+            flex: 0.1,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "distId",
+            headerName: "DISTRICT ID",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "constCode",
+            headerName: "CONSTITUENCY CODE",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "constName",
+            headerName: "CONSTITUENCY NAME",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "action",
+            headerName: "ACTION",
+            headerClassName: "super-app-theme--header",
+            flex: 0.3,
+            minWidth: 180,
+            sortable: false,
+            disableClickEventBubbling: true,
+            renderCell: (params) => {
+                return (
+                    <Stack direction="row" spacing={1}>
+
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            size="small"
+                            onClick={() => handleEdit(params.row.index)}
+                        >
+                            EDIT
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            onClick={() => alert(params.row.index)}
+                        >
+                            DELETE
+                        </Button>
+                    </Stack>
+                );
+            },
+        },
+    ];
+
+    return (
+        <>
+            <Grid container>
+                <Grid xs={12} >
+                    <Card sx={{ my: 2 }} elevation={5}>
+                        <CardContent>
+                            {/* <H3 lineHeight={2.2} sx={{ textAlign: 'center' }}>
+                                {title}
+                            </H3> */}
+                            <Box component="form" onSubmit={formik.handleSubmit}>
+                                <Grid container columnSpacing={2}>
+                                    <Grid xs={12} sm={4}>
+                                        <Autocomplete
+                                            disablePortal
+                                            margin="normal"
+                                            fullWidth
+                                            id="distId"
+                                            name="distId"
+                                            options={districtList}
+                                            value={districtList.find((option) => option.distId === parseInt(formik.values.distId)) || null}
+                                            onChange={(e, value) => {
+                                                if (value === null) {
+                                                    formik.setFieldValue("distId", ""); // Set to an empty string or null as needed
+                                                } else {
+                                                    formik.setFieldValue("distId", value.distId.toString()); // Convert to string if needed
+                                                }
+                                            }}
+                                            getOptionLabel={(value) => value.districtName}
+                                            sx={{ width: "100%", mt: 2, mb: 1 }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="District Name"
+                                                    onBlur={formik.handleBlur}
+                                                    helperText={formik.errors.distId && formik.touched.distId ? formik.errors.distId : null}
+                                                    error={formik.errors.distId && formik.touched.distId ? true : false}
+                                                />
+                                            )}
+                                        />
+
+                                    </Grid>
+                                    <Grid xs={12} sm={4}>
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            type="text"
+                                            id="constCode"
+                                            name="constCode"
+                                            label="Constituency Code"
+                                            value={formik.values.constCode}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            error={formik.touched.constCode && !!formik.errors.constCode}
+                                            helperText={formik.touched.constCode && formik.errors.constCode}
+                                        />
+
+                                    </Grid>
+                                    <Grid xs={12} sm={4}>
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            type="text"
+                                            id="constName"
+                                            name="constName"
+                                            label="Constituency Name"
+                                            value={formik.values.constName}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            error={formik.touched.constName && !!formik.errors.constName}
+                                            helperText={formik.touched.constName && formik.errors.constName}
+                                        />
+
+                                    </Grid>
+                                    {/* <Grid xs={12} sm={8} smOffset={2} md={6} mdOffset={3}>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={formik.values.isConstActive}
+                                                />}
+                                            name='isConstActive'
+                                            id="isConstActive"
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            label="is Active"
+                                        />
+                                    </Grid> */}
+
+                                </Grid>
+                                <Box
+                                    spacing={2}
+                                    sx={{ mt: 1, textAlign: 'center' }}
+                                >
+                                    <Button
+                                        sx={{
+                                            minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
+                                        }}
+                                        variant="contained"
+                                        type="submit"
+                                    >
+                                        SAVE
+                                        <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                                        onClick={handleCancel}
+                                        variant="outlined"
+                                    >
+                                        CANCEL
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+            <Box component={"div"} >
+                <SearchTable
+                    columns={columns}
+                    data={rowss}
+                    isCheckbox={false}
+                    isHideDensity={false}
+                    isHideExport={true}
+                    isHideFilter={true}
+                    isHideColumn={true}
+                    isHidePaging={false}
+                    name="constituencyMaster"
+                    id="constituencyMaster"
+                />
             </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    </>
-  );
+        </>
+    );
 }
+
+export default YsrConstituencyMaster
