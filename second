@@ -1,150 +1,217 @@
-import React, { useState } from "react";
-import { DataGrid, GridToolbar, GridRowIdGetter } from "@mui/x-data-grid";
-import { Typography, Box, Link, Card, CardContent, Button, TextField } from "@mui/material";
+import * as React from "react";
+import { Formik, Form, Field } from "formik";
+import * as Yup from "yup";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import Typography from "@mui/material/Typography";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Button from "@mui/material/Button";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import { useState } from "react";
+import Autocomplete from '@mui/material/Autocomplete';
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import LanguageIcon from '@mui/icons-material/Language';
+import { createTheme } from "@mui/material";
+import { ThemeProvider } from '@mui/material/styles';
+import { makeStyles } from "@mui/styles";
 import {
-  GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,
-  GridToolbarExport,
-  GridToolbarDensitySelector,
-} from "@mui/x-data-grid";
+    Grid,
+    TextField,
+} from "@mui/material";
 
-function App() {
-  const [states, setStates] = useState("");
-  const [tableData, setTableData] = useState([
-    ["Bihar", "Edit"],
-    ["Delhi", "Edit"],
-    ["Gujarat", "Edit"],
-    ["Kerala", "Edit"],
-    ["Tamil Nadu", "Edit"],
-  ]);
-  const [editIndex, setEditIndex] = useState(-1); // index of the row being edited
-
-  const handleChange = (e) => {
-    setStates(e.target.value);
-  };
-
-  const handleSave = () => {
-    if (editIndex === -1) {
-      // add the new state name to the table data
-      setTableData([...tableData, [states, "Edit"]]);
-    } else {
-      // update the existing state name in the table data
-      let updatedTableData = [...tableData];
-      updatedTableData[editIndex][0] = states;
-      setTableData(updatedTableData);
-      // reset the edit index
-      setEditIndex(-1);
+const Step1 = (props) => {
+    if (props.currentStep !== 1) {
+        return null;
     }
-    // clear the input field
-    setStates("");
-  };
 
-  const handleCancel = () => {
-    setStates("");
-    setEditIndex(-1);
-  };
+    // Define validation schema using Yup
+    const validationSchema = Yup.object().shape({
+        hospitalType: Yup.string().required("Hospital Type is required"),
+        hospitalName: Yup.string().required("Hospital Name is required"),
+        parentType: Yup.string().required("Hospital Parent Type is required"),
+        hospitalPAN: Yup.string().required("Hospital PAN is required"),
+        alternateMobileNo: Yup.string().required("Alternate Mobile No. is required"),
+        contactNo: Yup.string().required("Hospital Contact No. is required"),
+    });
 
-  const handleEdit = (index) => {
-    // reflect the state name on the textfield
-    setStates(tableData[index][0]);
-    // set the edit index
-    setEditIndex(index);
-  };
+    const initialValues = {
+        hospitalType: "Government",
+        hospitalName: "ASDF",
+        parentType: "Single",
+        hospitalPAN: "",
+        alternateMobileNo: "7894352103",
+        contactNo: "9435628105",
+    };
 
-  function CustomToolbar() {
     return (
-      <GridToolbarContainer>
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-        <GridToolbarDensitySelector />
-        <GridToolbarExport />
-      </GridToolbarContainer>
-    );
-  }
-
-  let newData = [];
-  tableData.map((item, index) => {
-    newData.push({ SrNo: index + 1, ...item });
-  });
-
-  const columns = [
-    { field: "SrNo", headerName: "SrNo", width: 100 },
-    { field: "0", headerName: "State", width: 150 },
-    {
-      field: "1",
-      headerName: "Action",
-      width: 150,
-      renderCell: (params) => (
-        <Button variant="contained" color="primary" onClick={() => handleEdit(params.row.SrNo - 1)}>
-          {params.value}
-        </Button>
-      ),
-    },
-  ];
-
-  return (
-    <div className="App">
-      <h1>React Code Example</h1>
-      <div className="input-container">
-        <TextField
-          id="states"
-          name="states"
-          label="States"
-          value={states}
-          onChange={handleChange}
-        />
-        <div className="button-container">
-          <Button variant="contained" color="primary" onClick={handleSave}>
-            Save
-          </Button>
-          <Button variant="contained" color="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-      <div className="table-container">
-        <Card sx={{ mt: 2 }}>
-          <CardContent>
-            <Box sx={{ overflow: "auto" }}>
-              <Box
-                sx={{
-                  width: "100%",
-                  height: "auto",
-                  display: "table",
-                  tableLayout: "fixed",
-                  height: "500%",
+        <div style={{ padding: "0px 60px", marginBottom: "5px" }}>
+            <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={(values) => {
+                    // Handle form submission here
+                    console.log(values);
                 }}
-              >
-                <DataGrid
-                  rows={newData}
-                  columns={columns}
-                  getRowId={(rows) => rows.SrNo}
-                  hideFooter={false}
-                  initialState={{
-                    pagination: { paginationModel: { pageSize: 5 } },
-                  }}
-                  slots={{ toolbar: CustomToolbar }}
-                  pageSizeOptions={[5, 10, 25]}
-                  checkboxSelection={false}
-                  sx={{
-                    width: "100%",
-                    "& .super-app-theme--header": {
-                      fontFamily: "Franklin Gothic Medium",
-                      fontSize: "15px",
-                      backgroundColor: "#2169b3",
-                      color: "white",
-                    },
-                  }}
-                />
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
+            >
+                {({ errors, touched }) => (
+                    <Form>
+                        <AccordionDetails>
+                            <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
+                                <p><b>Note:</b> Please fill the Personal Details, all fields are mandatory</p>
+                            </div>
+                            <Grid
+                                container
+                                direction="row"
+                                rowSpacing={0}
+                                columnSpacing={2}
+                                justify="flex-end"
+                                alignItems="center"
+                                sx={{ mb: 2 }}
+                            >
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                    <Autocomplete
+                                        disablePortal
+                                        margin="normal"
+                                        fullWidth
+                                        size="small"
+                                        id="hospitalType"
+                                        name="hospitalType"
+                                        options={options}
+                                        sx={{ width: "100%" }}
+                                        renderInput={(params) => (
+                                            <TextField {...params} label="Hospital Type" />
+                                        )}
+                                    />
+                                    {touched.hospitalType && errors.hospitalType ? (
+                                        <div>{errors.hospitalType}</div>
+                                    ) : null}
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                    <TextField
+                                        margin="normal"
+                                        fullWidth
+                                        size="small"
+                                        id="hospitalName"
+                                        name="hospitalName"
+                                        label="Hospital Name"
+                                    />
+                                    {touched.hospitalName && errors.hospitalName ? (
+                                        <div>{errors.hospitalName}</div>
+                                    ) : null}
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                    <Autocomplete
+                                        disablePortal
+                                        margin="normal"
+                                        fullWidth
+                                        size="small"
+                                        id="parentType"
+                                        name="parentType"
+                                        options={options}
+                                        sx={{ width: "100%" }}
+                                        renderInput={(params) => (
+                                            <TextField {...params} label="Hospital Parent Type" />
+                                        )}
+                                    />
+                                    {touched.parentType && errors.parentType ? (
+                                        <div>{errors.parentType}</div>
+                                    ) : null}
+                                </Grid>
+                            </Grid>
+                            <Grid
+                                container
+                                direction="row"
+                                rowSpacing={0}
+                                columnSpacing={2}
+                                justify="flex-end"
+                                alignItems="center"
+                                sx={{ mb: 2 }}
+                            >
+                                <Grid item xs={12} sm={4} md={4} lg={4} sx={{ display: "flex" }}>
+                                    <TextField
+                                        margin="normal"
+                                        fullWidth
+                                        id="hospitalPAN"
+                                        name="hospitalPAN"
+                                        label="Hospital PAN"
+                                    />
+                                    {touched.hospitalPAN && errors.hospitalPAN ? (
+                                        <div>{errors.hospitalPAN}</div>
+                                    ) : null}
+                                    <VisibilityIcon sx={{ ml: 1, mt: 1 }} />
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                    <TextField
+                                        margin="normal"
+                                        fullWidth
+                                        id="alternateMobileNo"
+                                        name="alternateMobileNo"
+                                        label="Alternate Mobile No."
+                                    />
+                                    {touched.alternateMobileNo && errors.alternateMobileNo ? (
+                                        <div>{errors.alternateMobileNo}</div>
+                                    ) : null}
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                    <TextField
+                                        margin="normal"
+                                        fullWidth
+                                        id="contactNo"
+                                        name="contactNo"
+                                        label="Hospital Contact No."
+                                    />
+                                    {touched.contactNo && errors.contactNo ? (
+                                        <div>{errors.contactNo}</div>
+                                    ) : null}
+                                </Grid>
+                            </Grid>
+                        </AccordionDetails>
+                    </Form>
+                )}
+            </Formik>
+        </div>
+    );
+};
 
-export default App;
+export default Step1;
 
+
+
+
+
+
+
+
+// ... (previous code)
+
+<Grid
+    container
+    direction="row"
+    rowSpacing={0}
+    columnSpacing={2}
+    justify="flex-end"
+    alignItems="center"
+    sx={{ mb: 2 }}
+>
+    <Grid item xs={12} sm={4} md={4} lg={4}>
+        <input
+            type="file"
+            id="aadharCard"
+            name="aadharCard"
+            accept=".pdf, .jpg, .jpeg, .png"
+        />
+        <label htmlFor="aadharCard">Upload Aadhar Card</label>
+    </Grid>
+    <Grid item xs={12} sm={4} md={4} lg={4}>
+        <input
+            type="file"
+            id="panCard"
+            name="panCard"
+            accept=".pdf, .jpg, .jpeg, .png"
+        />
+        <label htmlFor="panCard">Upload PAN Card</label>
+    </Grid>
+</Grid>
+
+// ... (continue with the rest of the code)
