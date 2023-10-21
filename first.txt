@@ -1,93 +1,162 @@
-import React, { useState, useEffect } from "react";
-import { TextField, Button, Link, Grid } from "@mui/material";
-import { useHistory } from "react-router-dom";
 
-function LoginPage() {
-  // Use state hooks to store the username and password values
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+import * as React from "react";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import Typography from "@mui/material/Typography";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Button from "@mui/material/Button";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import { useState } from "react";
+import Autocomplete from '@mui/material/Autocomplete';
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import LanguageIcon from '@mui/icons-material/Language';
+import { createTheme } from "@mui/material";
+import { ThemeProvider } from '@mui/material/styles';
+import { makeStyles } from "@mui/styles";
+import {
+    Grid,
+    TextField,
 
-  // Use history hook to navigate to other pages
-  const history = useHistory();
+} from "@mui/material";
 
-  // Use effect hook to check if the user is already logged in
-  useEffect(() => {
-    // Get the user data from local storage
-    const user = localStorage.getItem("user");
-    // If the user data exists, redirect to the home page
-    if (user) {
-      history.push("/home");
+
+const Step1 = props => {
+    if (props.currentStep !== 1) {
+        return null;
     }
-  }, [history]);
 
-  // Handle the change of username input
-  const handleUsernameChange = (event) => {
-    setUsername(event.target.value);
-  };
+    const options = [
+        { label: 'One', id: 1 },
+        { label: 'Two', id: 2 },
+    ];
 
-  // Handle the change of password input
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
 
-  // Handle the click of login button
-  const handleLoginClick = () => {
-    // Check if the username and password are correct
-    if (username === "kpmg" && password === "123") {
-      // Store the user data in local storage
-      localStorage.setItem("user", username);
-      // Redirect to the home page
-      history.push("/home");
-    } else {
-      // Show an alert message
-      alert("Invalid username or password");
-    }
-  };
+    return (
+        <div style={{ padding: "0px 60px", marginBottom: "5px" }}>
 
-  // Handle the click of cancel button
-  const handleCancelClick = () => {
-    // Clear the input fields
-    setUsername("");
-    setPassword("");
-  };
 
-  return (
-    <div className="login-page">
-      <h1>Login</h1>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <TextField
-            label="Username"
-            variant="outlined"
-            value={username}
-            onChange={handleUsernameChange}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="Password"
-            variant="outlined"
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <Button variant="contained" color="primary" onClick={handleLoginClick}>
-            Login
-          </Button>
-        </Grid>
-        <Grid item xs={6}>
-          <Button variant="contained" color="secondary" onClick={handleCancelClick}>
-            Cancel
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Link href="/forgot-password">Forgot password?</Link>
-        </Grid>
-      </Grid>
-    </div>
-  );
+
+            <AccordionDetails>
+                <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
+                    <p><b>Note:</b> Please fill the Personal Details, all fields are mandatory</p>
+                </div>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <Autocomplete
+                            disablePortal
+                            margin="normal"
+                            fullWidth
+                            size="small"
+                            defaultValue="Government"
+                            id="combo-box-demo"
+                            options={options}
+                            sx={{ width: "100%" }}
+                            renderInput={(params) => (
+                                <TextField required {...params} label="Hospital Type" />
+                            )}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="mobileno"
+                            defaultValue="ASDF"
+                            label="Hospital Name"
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <Autocomplete
+                            disablePortal
+
+                            margin="normal"
+                            fullWidth
+                            size="small"
+                            id="combo-box-demo"
+                            options={options}
+                            defaultValue="Single"
+                            sx={{ width: "100%" }}
+                            renderInput={(params) => (
+                                <TextField required {...params} label="Hospital Parent Type" />
+                            )}
+                        />
+                    </Grid>
+
+                </Grid>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >
+                    <Grid item xs={12} sm={4} md={4} lg={4} sx={{ display: "flex" }}>
+
+                        <TextField
+                            margin="0"
+
+                            fullWidth
+                            id="mobileno"
+                            label="Hospital PAN"
+                            //value={mobileno}
+                            //onChange={(newValue) => setMobileno(newValue.target.value)}
+                            autoComplete="email"
+                            size="small"
+                        />
+
+                        <VisibilityIcon sx={{ ml: 1, mt: 1 }} />
+
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="mobileno"
+                            defaultValue="7894352103"
+                            label="Alternate Mobile No."
+                            //value={mobileno}
+                            //onChange={(newValue) => setMobileno(newValue.target.value)}
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="mobileno"
+                            defaultValue="9435628105"
+                            label="Hospital Contact No."
+                            //value={mobileno}
+                            //onChange={(newValue) => setMobileno(newValue.target.value)}
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+
+                </Grid>
+
+            </AccordionDetails>
+
+        </div>
+    );
 }
-
-export default LoginPage;
+export default Step1;
