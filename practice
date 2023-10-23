@@ -1,145 +1,128 @@
 import React, { useState } from "react";
-import { Link, NavLink, Route, Router, Routes ,Card, CardContent,} from "react-router-dom";
 import {
-    FormControl,
-    MenuItem,
-    Select,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableRow,
-    TextField,
-} from "@mui/material";
+  Grid,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  Checkbox,
+  FormControlLabel,
+} from "@material-ui/core";
+import CardActions from "@mui/material/CardActions";
 
-import { AppBar, Toolbar, Button, Box, Grid } from '@mui/material'
-import { AddBox } from '@mui/icons-material'
+const WorkExperience = () => {
+  const [showCard, setShowCard] = useState(false);
+  const [experiences, setExperiences] = useState([
+    createNewExperience(),
+  ]);
 
-import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
-import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
-import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
-import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
-import AccountBoxOutlinedIcon from "@mui/icons-material/AccountBoxOutlined";
-import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
-
-export default function NavBar() {
-
-    const [activIcon, setActiveIcon] = useState(null)
-    const [selectedOptions, setSelectedOptions] = React.useState([]);
-    const handleIconClick = (icon) => {
-        setActiveIcon(icon);
+  function createNewExperience() {
+    return {
+      jobTitle: "",
+      companyName: "",
+      location: "",
+      current: false,
+      fromDate: null,
+      toDate: null,
     };
+  }
 
-    const getIconColor = (icon) => {
-        return activIcon === icon ? { backgroundColor: "#7BBF4B", color: "white" }
-            : { backgroundColor: "#EDEDED", color: '#2169B2' }
-    }
+  function addExperience() {
+    setExperiences([...experiences, createNewExperience()]);
+  }
 
-    const [showMore, setShowMore] = useState(false)
+  function deleteExperience(index) {
+    setExperiences(experiences.filter((_, i) => i !== index));
+  }
 
-    const [selectedOp, setSelectedOp] = useState('')
+  function handleChange(index, field, value) {
+    setExperiences((prev) =>
+      prev.map((exp, i) => (i === index ? { ...exp, [field]: value } : exp))
+    );
+  }
 
+  return (
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <Typography variant="h3">Work experience</Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setShowCard(true)}
+        >
+          ADD Experience
+        </Button>
+      </Grid>
+      {showCard &&
+        experiences.map((exp, index) => (
+          <ExperienceCard
+            key={index}
+            index={index}
+            experience={exp}
+            handleChange={handleChange}
+            addExperience={addExperience}
+            deleteExperience={deleteExperience}
+          />
+        ))}
+    </Grid>
+  );
+};
 
-
-    const handleOptionSelect = (event) => {
-
-        setSelectedOp(event.target.value)
-        // setShowMore(false);
-    }
-
-    return (
-        <card>
-
-        <div style={{}}>
-
-            <AppBar position='sticky' style={{ background: 'white', alignItems: 'center'}} elevation={0}>
-                <Grid container sx={{ padding: "0px 60px", mt: 1 }} >
-
-
-                    <Grid item xs={12} sm={1.7} md={1.7} lg={2.4} style={{ alignItems: "center" }} >
-                        <Button sx={{ width: "90%", height: "100%" }} component={Link} to="/baic" onClick={() => handleIconClick('basic')} >
-                            <div style={{ textAlign: 'center' }}>
-                                <AssignmentOutlinedIcon sx={{ color: getIconColor('basic') }} style={{ fontSize: '40px', padding: "8px", borderRadius: "50%" }} />
-                                <span style={{ display: 'block', fontSize: '12px', color: "#444444" }}>Personal Details</span>
-
-                            </div>
-                        </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={1.7} md={1.7} lg={2.8}  >
-                        <Button sx={{ width: "90%", height: "100%" ,}} component={Link} to="/" onClick={() => handleIconClick('service')}>
-                            <div style={{ textAlign: 'center' }}>
-                                <BusinessCenterOutlinedIcon sx={{ color: getIconColor('service') }} style={{ fontSize: '40px', padding: "8px", borderRadius: "50%" }} />
-                                <span style={{ display: 'block', fontSize: '12px', color: "#444444" }}>Educational Details</span>
-                            </div>
-
-                        </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={1.7} md={1.7} lg={2.2}  >
-                        <Button sx={{ width: "90%", height: "100%" }} component={Link} to="/" onClick={() => handleIconClick('infra')}>
-                            <div style={{ textAlign: 'center' }}>
-                                <BusinessOutlinedIcon sx={{ color: getIconColor('infra') }} style={{ fontSize: '40px', padding: "8px", borderRadius: "50%" }} />
-                                <span style={{ display: 'block', fontSize: '12px', color: "#444444" }}>Experience</span>
-                            </div>
-
-                        </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={1.7} md={1.7} lg={2.2}  >
-                        <Button sx={{ width: "90%", height: "100%" }} component={Link} to="/" onClick={() => handleIconClick('equip')}>
-                            <div style={{ textAlign: 'center' }}>
-                                <LocalHospitalOutlinedIcon sx={{ color: getIconColor('equip') }} style={{ fontSize: '40px', padding: "8px", borderRadius: "50%" }} />
-                                <span style={{ display: 'block', fontSize: '12px', color: "#444444" }}>Certificates</span>
-                            </div>
-
-                        </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={1.7} md={1.7} lg={2.2} >
-                        <Button sx={{ width: "90%", height: "100%" }} component={Link} to="/" onClick={() => handleIconClick('manpower')}>
-                            <div style={{ textAlign: 'center' }}>
-                                <AccountBoxOutlinedIcon sx={{ color: getIconColor('manpower') }} style={{ fontSize: '40px', padding: "8px", borderRadius: "50%" }} />
-                                <span style={{ display: 'block', fontSize: '12px', color: "#444444" }}>Bank Details</span>
-                            </div>
-
-                        </Button>
-                    </Grid>
-                   
-                    
-                </Grid>
-
-                <Grid container sx={{ padding: "0px 80px", mt: 1, }} >
-                    <div id="progress" >
-                        {/* <div id="progress-bar"></div> */}
-                        <ul id="progress-num">
-
-                            <li class="step active">1</li>
-                            <li class="step unactive">2</li>
-                            <li class="step unactive">3</li>
-                            <li class="step unactive">4</li>
-                            <li class="step unactive">5</li>
-                           
-                        </ul>
-                    </div>
-                </Grid>
-            </AppBar>
-            <card>
-            {/* <Baic></Baic> */}
-            </card>
-
-
-            {/* <button id="progress-prev" class="btn" disabled>Prev</button>
-    <button id="progress-next" class="btn">Next</button> */}
-            {/* <script src="script.js"></script> */}
-            <Routes >
-                {/* <Route path='/basic' element={<BasicApplicationForm />}  /> */}
-                <Route path='/baic' element={<Baic />} />
-               
-             
-            </Routes>
-
-
-        </div>
-        
-        </card>
-
-    )
+function ExperienceCard({ index, experience, handleChange, addExperience, deleteExperience }) {
+  return (
+    <Grid item xs={12}>
+      <Card variant="outlined">
+        <CardContent>
+          <Typography variant="h5" component="h2">
+            Work Experience {index + 1}
+          </Typography>
+          <TextField
+            label="Job Title"
+            value={experience.jobTitle}
+            onChange={(e) => handleChange(index, "jobTitle", e.target.value)}
+          />
+          <TextField
+            label="Company Name"
+            value={experience.companyName}
+            onChange={(e) => handleChange(index, "companyName", e.target.value)}
+          />
+          <TextField
+            label="Location"
+            value={experience.location}
+            onChange={(e) => handleChange(index, "location", e.target.value)}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={experience.current}
+                onChange={(e) => handleChange(index, "current", e.target.checked)}
+              />
+            }
+            label="I am currently here"
+          />
+          <TextField
+            label="From Date"
+            type="date"
+            value={experience.fromDate}
+            onChange={(e) => handleChange(index, "fromDate", e.target.value)}
+          />
+          <TextField
+            label="To Date"
+            type="date"
+            value={experience.toDate}
+            onChange={(e) => handleChange(index, "toDate", e.target.value)}
+          />
+        </CardContent>
+        <CardActions>
+          <Button onClick={addExperience}>ADD Another</Button>
+          <Button onClick={() => deleteExperience(index)}>DELETE</Button>
+        </CardActions>
+      </Card>
+    </Grid>
+  );
 }
+
+export default WorkExperience;
