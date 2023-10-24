@@ -1,358 +1,573 @@
-import { Autocomplete, Box, Button, Card, CardContent, Checkbox, FormControlLabel, Stack, TextField } from '@mui/material';
-import React, { useState } from 'react'
-import * as yup from "yup";
-import SaveAltIcon from '@mui/icons-material/SaveAlt';
-import { useFormik } from 'formik';
-import Grid from "@mui/material/Unstable_Grid2";
-import { H3 } from '../../components/Typography';
-import SearchTable from "../../components/SearchTablecopy";
-import useTitle from '../../hooks/useTitle';
-import axios from 'axios';
-import { useEffect } from 'react';
+// import DeleteIcon from '@mui/icons-material/Delete';
+// import EditIcon from '@mui/icons-material/Edit';
+// import SaveAltIcon from '@mui/icons-material/SaveAlt';
+// import { Alert, Autocomplete, Box, Button, Card, CardContent, Slide, Snackbar, Stack, TextField } from '@mui/material';
+// import Grid from "@mui/material/Unstable_Grid2";
+// import axios from 'axios';
+// import { useFormik } from 'formik';
+// import React, { useEffect, useState } from 'react';
+// import * as yup from "yup";
+// import SearchTable from "../../components/SearchTablecopy";
+// import useTitle from '../../components/hooks/useTitle';
+// import PageTitle from '../../layouts/PageTitle';
 
-// const districtList = [
-//     {
-//         valueId: 31,
-//         valueName: "NICOBARS"
-//     },
-//     {
-//         valueId: 32,
-//         valueName: "Anakapalli"
-//     },
-//     {
-//         valueId: 33,
-//         valueName: "EAST GODAVARI"
-//     },
-//     {
-//         valueId: 34,
-//         valueName: "GUNTUR"
-//     },
-// ]
-
-const YsrConstituencyMaster = () => {
-    const [rowss, setRowss] = useState([]);
-    const [index, setIndex] = useState(1);
-    const [selectedRow, setSelectedRow] = useState(null);
-    const [districtList, setDistrictList] = useState([]);
-    const title = "Constituency Master";
-    useTitle(title);
-
-    useEffect(() => {
-        axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getDistrictList`).then(response => {
-            let sortedDistrictData = response.data.result.map((value) => {
-                value.districtName = value.districtName.toUpperCase();
-                return value;
-            })
-
-            sortedDistrictData = sortedDistrictData.sort((a, b) => a.districtName.localeCompare(b.districtName));
-
-            setDistrictList(sortedDistrictData);
-            console.log(sortedDistrictData);
-        })
-            .catch(error => {
-                setDistrictList([]);
-                console.log(error);
-            });
+// function TransitionLeft(props) {
+//     return <Slide {...props} direction="left" />;
+// }
 
 
-        axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getYsrConstituency`).then(response => {
-            // const sortedData = response.data?.result.sort((a, b) => a.bankId - b.bankId);
-            let i = 1;
-            let sortedData = response.data?.result.sort((a, b) => a.constName.localeCompare(b.constName));
-            sortedData = sortedData.map((value) => {
-                let newVal = { ...value, index: i };
-                i++;
-                return newVal;
-            });
-            setIndex(i);
+// const YsrPHCMaster = () => {
+//     const [rowss, setRowss] = useState([]);
+//     const [index, setIndex] = useState(1);
+//     const [selectedRow, setSelectedRow] = useState(null);
+//     const [mandalList, setMandalList] = useState([]);
+//     const [openToast, setOpenToast] = useState(false);
+//     const [toastMessage, setToastMessage] = useState("");
+//     const [toastSeverity, setToastSeverity] = useState("info");
 
-            setRowss(sortedData);
-            console.log(sortedData);
-        })
-            .catch(error => {
-                alert(error);
-                setRowss([]);
-            });
+//     const handleClick = () => {
+//         setOpenToast(true);
+//     };
 
-    }, []);
+//     const handleClose = (event, reason) => {
+//         if (reason === 'clickaway') {
+//             return;
+//         }
 
-    const validationSchema = yup.object({
-        distId: yup.string().required("District Name is required"),
-        constCode: yup.string().required("Constituency Code is required"),
-        constName: yup.string().required("Constituency Name is required"),
+//         setOpenToast(false);
+//     };
 
-    });
+//     const title = "PHC Master";
+//     useTitle(title);
 
-    const formik = useFormik({
-        initialValues: {
-            constId: -1,
-            distId: "",
-            constCode: "",
-            constName: "",
-        },
-        validationSchema: validationSchema,
-        onSubmit: (values) => {
-            // console.log(values);
-            if (selectedRow !== null) {
-                setRowss((prevValue) => {
 
-                    let postData = { ...values, isConstActive: true, distId: parseInt(values.distId) };
-                    console.log(postData);
-                    // axios.put(`${process.env.REACT_APP_MASTER_API_URL}/user/saveYsrConstituency`, postData)
-                    //     .then(response => {
-                    //         console.log(response.data);
-                    //     })
-                    //     .catch(error => {
-                    //         console.log(error);
-                    //     });
+//     useEffect(() => {
 
-                    const updatedRows = [...prevValue];
+//         axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getMandalList`).then(response => {
+//             let sortedMandalData = response.data.result.map((value) => {
+//                 value.mandalName = value.mandalName.toUpperCase();
+//                 return value;
+//             })
 
-                    updatedRows[selectedRow].distId = values.distId;
-                    updatedRows[selectedRow].constCode = values.constCode;
-                    updatedRows[selectedRow].constName = values.constName;
-                    return updatedRows;
-                });
-            } else {
-                // console.log(values);
-                let postData = { ...values, isConstActive: true, distId: parseInt(values.distId) };
-                console.log(postData);
-                axios.post(`${process.env.REACT_APP_MASTER_API_URL}/user/saveYsrConstituency`, postData)
-                    .then(response => {
-                        console.log(response.data);
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    });
-                setRowss((prevValue) => [
-                    ...prevValue,
-                    {
-                        index,
-                        // districtName: values.districtName,
-                        constCode: values.constCode,
-                        constName: values.constName,
-                    },
-                ]);
-                setSelectedRow(null);
-                setIndex((prevValue) => prevValue + 1);
-            }
-            formik.resetForm();
-        },
-    });
+//             sortedMandalData = sortedMandalData.sort((a, b) => a.mandalName.localeCompare(b.mandalName));
 
-    const handleCancel = () => {
-        setSelectedRow(null);
-        formik.resetForm();
+//             setMandalList(sortedMandalData);
+//             console.log(sortedMandalData);
+//         })
+//             .catch(error => {
+//                 setMandalList([]);
+//                 console.log(error);
+//             });
+
+
+//         axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getPhcList`).then(response => {
+//             // const sortedData = response.data?.result.sort((a, b) => a.bankId - b.bankId);
+//             let i = 1;
+//             let sortedData = response.data?.result.sort((a, b) => a.phcName.localeCompare(b.phcName));
+//             sortedData = sortedData.map((value) => {
+//                 let newVal = { ...value, index: i };
+//                 i++;
+//                 return newVal;
+//             });
+//             setIndex(i);
+
+//             setRowss(sortedData);
+//             console.log(sortedData);
+//         })
+//             .catch(error => {
+//                 alert(error);
+//                 setRowss([]);
+//             });
+
+//     }, []);
+
+
+
+
+//     const validationSchema = yup.object({
+//         mandalId: yup.string().required("Mandal Name is required"),
+//         phcCode: yup.string().required("PHC Code is required"),
+//         phcName: yup.string().required("PHC Name is required"),
+
+//     });
+
+//     const formik = useFormik({
+//         initialValues: {
+//             id: -1,
+//             mandalId: "",
+//             phcCode: "",
+//             phcName: "",
+
+//         },
+//         validationSchema: validationSchema,
+//         onSubmit: (values) => {
+//             // console.log(values);
+//             setSelectedRow(null);
+//             if (selectedRow !== null) {
+//                 let postData = { ...values, isActive: true, mandalId: parseInt(values.mandalId) };
+//                 console.log(postData);
+//                 axios.put(`${process.env.REACT_APP_MASTER_API_URL}/user/editPhc`, postData)
+//                     .then(response => {
+//                         console.log(response.data);
+//                         if (response.data.statusCode === 200) {
+//                             setRowss((prevValue) => {
+//                                 const updatedRows = [...prevValue];
+
+//                                 updatedRows[selectedRow].mandalId = values.mandalId;
+//                                 updatedRows[selectedRow].phcCode = values.phcCode;
+//                                 updatedRows[selectedRow].phcName = values.phcName;
+
+//                                 let sortedUpdatedData = updatedRows.sort((a, b) => b.id - a.id);
+
+//                                 return sortedUpdatedData;
+//                             });
+//                             setToastSeverity("success");
+//                             setToastMessage(response.data?.message);
+//                             handleClick();
+
+//                         }
+//                         else {
+//                             setToastSeverity("error");
+//                             setToastMessage(response.data?.message);
+//                             handleClick();
+//                         }
+//                     })
+//                     .catch(error => {
+//                         console.log(error);
+//                         setToastSeverity("error");
+//                         setToastMessage(error.response.data?.error);
+//                         handleClick();
+//                     });
+//             } else {
+//                 let postData = { ...values, isActive: true, mandalId: parseInt(values.mandalId) };
+//                 console.log(postData);
+//                 axios.post(`${process.env.REACT_APP_MASTER_API_URL}/user/savePhc`, postData)
+//                     .then(response => {
+//                         console.log(response.data);
+//                         if (response.data.statusCode === 200) {
+//                             setRowss((prevValue) => {
+//                                 let updatedRow = [
+//                                     ...prevValue,
+//                                     {
+//                                         index,
+//                                         mandalId: values.mandalId,
+//                                         phcCode: values.phcCode,
+//                                         phcName: values.phcName,
+
+//                                     },
+//                                 ];
+//                                 let sortedUpdatedData = updatedRow.sort((a, b) => b.id - a.id);
+
+//                                 return sortedUpdatedData;
+//                             });
+//                             setIndex((prevValue) => prevValue + 1);
+//                             setToastSeverity("success");
+//                             setToastMessage(response.data?.message);
+//                             handleClick();
+//                         }
+//                         else {
+//                             setToastSeverity("error");
+//                             setToastMessage(response.data?.message);
+//                             handleClick();
+//                         }
+//                     })
+//                     .catch(error => {
+//                         console.log(error);
+//                         setToastSeverity("error");
+//                         setToastMessage(error.response.data?.error);
+//                         handleClick();
+//                     });
+//             }
+//             formik.resetForm();
+//         },
+//     });
+
+//     const handleDelete = (indexToDelete) => {
+//         setRowss((prevValue) => {
+
+//             const updatedRows = prevValue.filter((row) => row.index !== indexToDelete);
+//             updatedRows.splice(index - 1, 1);
+//             return updatedRows;
+//             //  const updatedRows = [...prevValue];
+//             //  updatedRows.splice(index -1, 1);
+//             //  return updatedRows;
+
+//         });
+//     };
+
+//     const handleCancel = () => {
+//         setSelectedRow(null);
+//         formik.resetForm();
+//     };
+
+//     const handleEdit = (index) => {
+//         setSelectedRow(index - 1);
+
+//         console.log(rowss[index - 1].id);
+//         formik.setFieldValue("id", rowss[index - 1].id);
+//         // let mandalId = mandalList.find((option) => option.mandalName === rowss[index - 1].Mandal)?.mandalId;
+//         let mandalId = rowss[index - 1].mandalId;
+//         formik.setFieldValue("mandalId", mandalId ? mandalId.toString() : "");
+//         formik.setFieldValue("phcCode", rowss[index - 1].phcCode);
+//         formik.setFieldValue("phcName", rowss[index - 1].phcName);
+
+//     };
+
+//     const columns = [
+//         {
+//             field: "index",
+//             headerName: "S.No",
+//             flex: 0.1,
+//             minWidth: 100,
+//             headerClassName: "super-app-theme--header",
+//         },
+//         {
+//             field: "mandalId",
+//             headerName: "Mandal Name",
+//             flex: 0.6,
+//             minWidth: 200,
+//             headerClassName: "super-app-theme--header",
+//         },
+//         {
+//             field: "phcCode",
+//             headerName: "PHC Code",
+//             flex: 0.6,
+//             minWidth: 200,
+//             headerClassName: "super-app-theme--header",
+//         },
+//         {
+//             field: "phcName",
+//             headerName: "PHC Name",
+//             flex: 0.6,
+//             minWidth: 200,
+//             headerClassName: "super-app-theme--header",
+//         },
+
+//         {
+//             field: "action",
+//             headerName: "Action",
+//             headerClassName: "super-app-theme--header",
+//             flex: 0.3,
+//             minWidth: 180,
+//             sortable: false,
+//             disableClickEventBubbling: true,
+//             renderCell: (params) => {
+//                 return (
+//                     <Stack direction="row" spacing={1}>
+
+//                         <Button variant="contained" sx={{ color: 'black', backgroundColor: 'white', ":hover": { color: 'black', backgroundColor: 'white' }, borderRadius: '4px' }} endIcon={<EditIcon />} size="small" onClick={() => handleEdit(params.row.index)}>Edit</Button>
+
+//                         <Button variant="contained" sx={{ color: 'white', backgroundColor: '#286cb4', ":hover": { color: 'white', backgroundColor: '#286cb4' }, borderRadius: '4px' }} startIcon={<DeleteIcon />} size="small" onClick={() => alert(params.row.index)}>Delete</Button>
+//                     </Stack>
+//                 );
+//             },
+//         },
+//     ];
+
+//     return (
+//         <>
+//             <div>
+//                 <Snackbar
+//                     open={openToast}
+//                     autoHideDuration={6000}
+//                     anchorOrigin={{ vertical: "top", horizontal: "right" }}
+//                     onClose={handleClose}
+//                     TransitionComponent={TransitionLeft}
+//                 >
+//                     <Alert onClose={handleClose} severity={toastSeverity} sx={{ width: '100%', padding: { sm: '15px', xs: '10px' }, borderRadius: '15px', fontSize: { sm: '16px', xs: '14px' }, boxShadow: "0 0 10px #999", marginTop: { sm: '25px', xs: '20px' } }}>
+//                         {toastMessage}
+//                     </Alert>
+//                 </Snackbar>
+//             </div>
+//             <Grid container>
+//                 <Grid xs={12} >
+//                     <Card sx={{ my: 2 }} elevation={5}>
+//                         <CardContent>
+//                             <PageTitle name={title} />
+
+//                             <Box component="form" onSubmit={formik.handleSubmit}>
+//                                 <Grid container columnSpacing={2}>
+//                                     <Grid xs={12} sm={4} >
+//                                         <Autocomplete
+//                                             disablePortal
+//                                             margin="normal"
+//                                             fullWidth
+//                                             id="mandalId"
+//                                             name="mandalId"
+//                                             options={mandalList}
+//                                             value={mandalList.find(
+//                                                 (option) => option.mandalId === parseInt(formik.values.mandalId)
+//                                             ) || null}
+//                                             onChange={(e, value) => {
+//                                                 if (value === null) {
+//                                                     formik.setFieldValue("mandalId", "");
+//                                                 }
+//                                                 else
+//                                                     formik.setFieldValue("mandalId", value.mandalId.toString());
+//                                             }}
+//                                             getOptionLabel={(value) => value.mandalName}
+
+//                                             sx={{ width: "100%", mt: 2, mb: 1 }}
+//                                             renderInput={(params) => (
+//                                                 <TextField {...params}
+//                                                     label="Mandal Name"
+//                                                     onBlur={formik.handleBlur}
+//                                                     helperText={formik.errors.mandalId && formik.touched.mandalId ? formik.errors.mandalId : null}
+//                                                     error={formik.errors.mandalId && formik.touched.mandalId ? true : false}
+//                                                 />
+//                                             )}
+//                                         />
+
+//                                     </Grid>
+//                                     <Grid xs={12} sm={4} >
+//                                         <TextField
+//                                             margin="normal"
+//                                             fullWidth
+//                                             type="text"
+//                                             id="phcCode"
+//                                             name="phcCode"
+//                                             label="PHC Code"
+//                                             value={formik.values.phcCode}
+//                                             onChange={formik.handleChange}
+//                                             onBlur={formik.handleBlur}
+//                                             error={formik.touched.phcCode && !!formik.errors.phcCode}
+//                                             helperText={formik.touched.phcCode && formik.errors.phcCode}
+//                                         />
+
+//                                     </Grid>
+//                                     <Grid xs={12} sm={4} >
+//                                         <TextField
+//                                             margin="normal"
+//                                             fullWidth
+//                                             type="text"
+//                                             id="phcName"
+//                                             name="phcName"
+//                                             label="PHC Name"
+//                                             value={formik.values.phcName}
+//                                             onChange={formik.handleChange}
+//                                             onBlur={formik.handleBlur}
+//                                             error={formik.touched.phcName && !!formik.errors.phcName}
+//                                             helperText={formik.touched.phcName && formik.errors.phcName}
+//                                         />
+
+//                                     </Grid>
+
+
+//                                 </Grid>
+//                                 <Box
+//                                     spacing={2}
+//                                     sx={{ mt: 1, textAlign: 'center' }}
+//                                 >
+//                                     <Button
+//                                         sx={{
+//                                             minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
+//                                         }}
+//                                         variant="contained"
+//                                         type="submit"
+//                                     >
+//                                         SAVE
+//                                         <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
+//                                     </Button>
+//                                     <Button
+//                                         type="button"
+//                                         sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+//                                         onClick={handleCancel}
+//                                         variant="outlined"
+//                                     >
+//                                         CANCEL
+//                                     </Button>
+//                                 </Box>
+//                             </Box>
+
+
+//                         </CardContent>
+//                     </Card>
+//                 </Grid>
+//             </Grid>
+//             <Box component={"div"} >
+//                 <SearchTable
+//                     columns={columns}
+//                     data={rowss}
+//                     isCheckbox={false}
+//                     isHideDensity={false}
+//                     isHideExport={true}
+//                     isHideFilter={true}
+//                     isHideColumn={true}
+//                     isHidePaging={false}
+//                     name="pHCMaster"
+//                     id="pHCMaster"
+//                 />
+//             </Box>
+//         </>
+//     );
+// }
+
+// export default YsrPHCMaster
+import React, { Component } from "react";
+import {
+    Form,
+    Button,
+    Card,
+    CardHeader,
+    CardBody,
+    CardTitle,
+    CardText,
+    CardFooter
+} from "reactstrap";
+
+import Step1 from "./Step1";
+import Step2 from "./Step2";
+import Step3 from "./Step3";
+import Step4 from "./Step4";
+import Step5 from "./Step5";
+import YSRScheme from "./YsrSchemeMaster";
+import styled from "styled-components";
+import MultiStepProgressBar from "./MultiStepProgressBar";
+
+class MasterForm extends Component {
+    constructor(props) {
+        super(props);
+
+        // Set the intiial input values
+        this.state = {
+            currentStep: 1,
+            
+        };
+
+        // Bind the submission to handleChange()
+        this.handleChange = this.handleChange.bind(this);
+
+        // Bind new functions for next and previous
+        this._next = this._next.bind(this);
+        this._prev = this._prev.bind(this);
+    }
+
+    // Use the submitted data to set the state
+    handleChange(event) {
+        const { name, value } = event.target;
+        this.setState({
+            [name]: value
+        });
+    }
+
+    // Trigger an alert on form submission
+    handleSubmit = event => {
+        event.preventDefault();
+      
+        
     };
 
-    const handleEdit = (index) => {
-        setSelectedRow(index - 1);
+    // Test current step with ternary
+    // _next and _previous functions will be called on button click
+    _next() {
+        let currentStep = this.state.currentStep;
 
-        console.log(rowss[index - 1].constId);
-        formik.setFieldValue("constId", rowss[index - 1].constId);
-        // let distId = districtList.find((option) => option.distName === rowss[index - 1].distName)?.distId;
-        let distId = rowss[index - 1].distId;
-        formik.setFieldValue("distId", distId ? distId.toString() : "");
-        formik.setFieldValue("constCode", rowss[index - 1].constCode);
-        formik.setFieldValue("constName", rowss[index - 1].constName);
-        // formik.setFieldValue("isConstActive", rowss[index - 1].isConstActive);
-    };
+        // If the current step is 4 or 5, then add one on "next" button click
+        currentStep = currentStep >= 3 ? 4 : currentStep + 1;
+        this.setState({
+            currentStep: currentStep
+        });
+    }
 
-    const columns = [
-        {
-            field: "index",
-            headerName: "S.No",
-            flex: 0.1,
-            minWidth: 100,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "distId",
-            headerName: "DISTRICT ID",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "constCode",
-            headerName: "CONSTITUENCY CODE",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "constName",
-            headerName: "CONSTITUENCY NAME",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "action",
-            headerName: "ACTION",
-            headerClassName: "super-app-theme--header",
-            flex: 0.3,
-            minWidth: 180,
-            sortable: false,
-            disableClickEventBubbling: true,
-            renderCell: (params) => {
-                return (
-                    <Stack direction="row" spacing={1}>
+    _prev() {
+        let currentStep = this.state.currentStep;
+        // If the current step is 2 or 3, then subtract one on "previous" button click
+        currentStep = currentStep <= 1 ? 1 : currentStep - 1;
+        this.setState({
+            currentStep: currentStep
+        });
 
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            size="small"
-                            onClick={() => handleEdit(params.row.index)}
-                        >
-                            EDIT
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            onClick={() => alert(params.row.index)}
-                        >
-                            DELETE
-                        </Button>
-                    </Stack>
-                );
-            },
-        },
-    ];
+    }
 
-    return (
-        <>
-            <Grid container>
-                <Grid xs={12} >
-                    <Card sx={{ my: 2 }} elevation={5}>
-                        <CardContent>
-                            {/* <H3 lineHeight={2.2} sx={{ textAlign: 'center' }}>
-                                {title}
-                            </H3> */}
-                            <Box component="form" onSubmit={formik.handleSubmit}>
-                                <Grid container columnSpacing={2}>
-                                    <Grid xs={12} sm={4}>
-                                        <Autocomplete
-                                            disablePortal
-                                            margin="normal"
-                                            fullWidth
-                                            id="distId"
-                                            name="distId"
-                                            options={districtList}
-                                            value={districtList.find((option) => option.distId === parseInt(formik.values.distId)) || null}
-                                            onChange={(e, value) => {
-                                                if (value === null) {
-                                                    formik.setFieldValue("distId", ""); // Set to an empty string or null as needed
-                                                } else {
-                                                    formik.setFieldValue("distId", value.distId.toString()); // Convert to string if needed
-                                                }
-                                            }}
-                                            getOptionLabel={(value) => value.districtName}
-                                            sx={{ width: "100%", mt: 2, mb: 1 }}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="District Name"
-                                                    onBlur={formik.handleBlur}
-                                                    helperText={formik.errors.distId && formik.touched.distId ? formik.errors.distId : null}
-                                                    error={formik.errors.distId && formik.touched.distId ? true : false}
-                                                />
-                                            )}
-                                        />
+    // The "next" and "previous" button functions
+    get previousButton() {
+        let currentStep = this.state.currentStep;
 
-                                    </Grid>
-                                    <Grid xs={12} sm={4}>
-                                        <TextField
-                                            margin="normal"
-                                            fullWidth
-                                            type="text"
-                                            id="constCode"
-                                            name="constCode"
-                                            label="Constituency Code"
-                                            value={formik.values.constCode}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            error={formik.touched.constCode && !!formik.errors.constCode}
-                                            helperText={formik.touched.constCode && formik.errors.constCode}
-                                        />
+        // If the current step is not 1, then render the "previous" button
+        if (currentStep !== 1) {
+            return (
+                <Button color="secondary float-left" onClick={this._prev}>
+                    Previous
+                </Button>
+            );
+        }
 
-                                    </Grid>
-                                    <Grid xs={12} sm={4}>
-                                        <TextField
-                                            margin="normal"
-                                            fullWidth
-                                            type="text"
-                                            id="constName"
-                                            name="constName"
-                                            label="Constituency Name"
-                                            value={formik.values.constName}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            error={formik.touched.constName && !!formik.errors.constName}
-                                            helperText={formik.touched.constName && formik.errors.constName}
-                                        />
+        // ...else return nothing
+        return null;
+    }
 
-                                    </Grid>
-                                    {/* <Grid xs={12} sm={8} smOffset={2} md={6} mdOffset={3}>
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={formik.values.isConstActive}
-                                                />}
-                                            name='isConstActive'
-                                            id="isConstActive"
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            label="is Active"
-                                        />
-                                    </Grid> */}
+    get nextButton() {
+        let currentStep = this.state.currentStep;
+        // If the current step is not 3, then render the "next" button
+        if (currentStep < 4) {
+            return (
+                <Button 
+                variant="contained"
+                onClick={this._next}>
+                    NEXT
+                </Button>
+            );
+        }
+        // ...else render nothing
+        return null;
+    }
 
-                                </Grid>
-                                <Box
-                                    spacing={2}
-                                    sx={{ mt: 1, textAlign: 'center' }}
-                                >
-                                    <Button
-                                        sx={{
-                                            minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
-                                        }}
-                                        variant="contained"
-                                        type="submit"
-                                    >
-                                        SAVE
-                                        <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
-                                        onClick={handleCancel}
-                                        variant="outlined"
-                                    >
-                                        CANCEL
-                                    </Button>
-                                </Box>
-                            </Box>
-                        </CardContent>
+    get submitButton() {
+        let currentStep = this.state.currentStep;
+
+        // If the current step is the last step, then render the "submit" button
+        if (currentStep > 3) {
+            return <Button color="primary float-right">Submit</Button>;
+        }
+        // ...else render nothing
+        return null;
+    }
+
+    render() {
+        return (
+            <>
+                <Form onSubmit={this.handleSubmit}>
+                    <Card>
+                        <YSRScheme />
+                        <CardBody>
+                            <CardTitle>
+                                <MultiStepProgressBar currentStep={this.state.currentStep} />
+                            </CardTitle>
+                            <CardText />
+                            <Step1
+                                currentStep={this.state.currentStep}
+                                handleChange={this.handleChange}
+
+                            />
+                            <Step2
+                                currentStep={this.state.currentStep}
+                                handleChange={this.handleChange}
+
+                            />
+                            <Step3
+                                currentStep={this.state.currentStep}
+                                handleChange={this.handleChange}
+
+                            />
+                            <Step4
+                                currentStep={this.state.currentStep}
+                                handleChange={this.handleChange} 
+                                    
+                                />
+                            <Step5
+                                currentStep={this.state.currentStep}
+                                handleChange={this.handleChange} />
+                        </CardBody>
+                        <CardFooter>
+                            {this.previousButton}
+                            {this.nextButton}
+                            {this.submitButton}
+                        </CardFooter>
                     </Card>
-                </Grid>
-            </Grid>
-            <Box component={"div"} >
-                <SearchTable
-                    columns={columns}
-                    data={rowss}
-                    isCheckbox={false}
-                    isHideDensity={false}
-                    isHideExport={true}
-                    isHideFilter={true}
-                    isHideColumn={true}
-                    isHidePaging={false}
-                    name="constituencyMaster"
-                    id="constituencyMaster"
-                />
-            </Box>
-        </>
-    );
+                </Form>
+            </>
+        );
+    }
 }
 
-export default YsrConstituencyMaster
+export default MasterForm;
