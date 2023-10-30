@@ -1,83 +1,507 @@
-import React, { useState } from 'react';
-import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Box, IconButton } from '@mui/material';
-import { RemoveCircle } from '@mui/icons-material';
 
-const EducationForm = () => {
-  const [educations, setEducations] = useState([
-    { degree: '', university: '', percentage: '' },
-  ]);
+import * as React from "react";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import Typography from "@mui/material/Typography";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Button from "@mui/material/Button";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import { useState } from "react";
+import Autocomplete from '@mui/material/Autocomplete';
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import LanguageIcon from '@mui/icons-material/Language';
+import { createTheme } from "@mui/material";
+import { ThemeProvider } from '@mui/material/styles';
+import { makeStyles } from "@mui/styles";
+import {
+    Grid,
+    TextField,
+    Box,
+    Card,
+    CardContent
 
-  const handleAddEducation = () => {
-    setEducations([...educations, { degree: '', university: '', percentage: '' }]);
-  };
 
-  const handleRemoveEducation = (index) => {
-    const updatedEducations = [...educations];
-    updatedEducations.splice(index, 1);
-    setEducations(updatedEducations);
-  };
+} from "@mui/material";
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import dayjs from 'dayjs';
 
-  const handleInputChange = (index, field, value) => {
-    const updatedEducations = [...educations];
-    updatedEducations[index][field] = value;
-    setEducations(updatedEducations);
-  };
 
-  const handleSubmit = () => {
-    // Handle form submission here, e.g., send data to the server
-    console.log(educations);
-  };
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-  return (
-    <div>
-      {educations.map((education, index) => (
-        <Box key={index} display="flex" alignItems="center" mb={2}>
-          <FormControl variant="outlined" style={{ marginRight: 16 }}>
-            <InputLabel>Degree</InputLabel>
-            <Select
-              value={education.degree}
-              onChange={(e) => handleInputChange(index, 'degree', e.target.value)}
-              label="Degree"
-            >
-              <MenuItem value="Bachelors">Bachelors</MenuItem>
-              <MenuItem value="Masters">Masters</MenuItem>
-              <MenuItem value="Ph.D.">Ph.D.</MenuItem>
-            </Select>
-          </FormControl>
-
-          <TextField
-            label="University"
-            variant="outlined"
-            value={education.university}
-            onChange={(e) => handleInputChange(index, 'university', e.target.value)}
-            style={{ marginRight: 16 }}
-          />
-
-          <TextField
-            label="Percentage"
-            variant="outlined"
-            value={education.percentage}
-            onChange={(e) => handleInputChange(index, 'percentage', e.target.value)}
-            style={{ marginRight: 16 }}
-          />
-
-          {index > 0 && (
-            <IconButton onClick={() => handleRemoveEducation(index)}>
-              <RemoveCircle />
-            </IconButton>
-          )}
-        </Box>
-      ))}
-
-      <Button variant="contained" color="primary" onClick={handleAddEducation}>
-        Add
-      </Button>
-
-      <Button variant="contained" color="primary" onClick={handleSubmit} style={{ marginLeft: 16 }}>
-        Submit
-      </Button>
-    </div>
-  );
+const calculateAge = (birthday) => {
+    const age = dayjs().diff(birthday, 'year');
+    return age;
 };
 
-export default EducationForm;
+const Step1 = props => {
+    const [value, setValue] = React.useState(dayjs());
+    const [age, setAge] = React.useState(calculateAge(value));
+    const [hasphysicalHand, setHasphysicalHand] = useState('no');
+
+
+    if (props.currentStep !== 1) {
+        return null;
+    }
+    const handleDateChange = (newValue) => {
+        setValue(newValue);
+        setAge(calculateAge(newValue));
+    };
+
+
+    const options = [
+        { label: 'Male', id: 1 },
+        { label: 'Female', id: 2 },
+        { label: 'Others', id: 3 },
+    ];
+    const genderoptions = [
+        { label: 'OBC', id: 1 },
+        { label: 'ST', id: 2 },
+        { label: 'SC', id: 3 },
+        { label: 'General', id: 4 },
+    ];
+
+
+
+    const handlephysicalhand = (event) => {
+        setHasphysicalHand(event.target.value);
+    };
+
+
+    return (
+        <div style={{ padding: "0px 60px", marginBottom: "5px" }}>
+
+         <Card sx={{padding:2, background:"#EFF7FF", height:"4", margin:0}} >
+        
+         <FormControl>
+      <FormLabel id="demo-row-radio-buttons-group-label"><b>Employee Type</b></FormLabel>
+      <RadioGroup
+        row
+        aria-labelledby="demo-row-radio-buttons-group-label"
+        name="row-radio-buttons-group"
+      >
+        <FormControlLabel value="Government" control={<Radio />} label="Government" />
+        <FormControlLabel value="Trust" control={<Radio />} label="Trust" />
+        <FormControlLabel value="APCOS" control={<Radio />} label="APCOS" />
+       
+      </RadioGroup>
+    </FormControl>
+       
+         </Card>
+
+
+
+            <AccordionDetails>
+                <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
+                    <p><b>Note:</b> Please fill the Personal Details, all fields are mandatory</p>
+                </div>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="firstName"
+                            defaultValue=""
+                            label="Name"
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="employeeid"
+                            defaultValue=""
+                            label="Employee ID"
+                            autoComplete="email"
+                            size="small"
+                        />
+
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <input
+                            type="file"
+                            id="panCard"
+                            name="panCard"
+                            accept=".pdf, .jpg, .jpeg, .png"
+                        />
+                        <label htmlFor="panCard">Upload Image <br />Max size 300 KB </label>
+                    </Grid>
+
+                </Grid>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="fatherName"
+                            defaultValue=""
+                            label="Father Name"
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="motherName"
+                            defaultValue=""
+                            label="Mother Name"
+                            autoComplete="email"
+                            size="small"
+                        />
+
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <Autocomplete
+                            disablePortal
+                            margin="normal"
+                            fullWidth
+                            size="small"
+
+                            id="combo-box-demo"
+                            options={options}
+                            sx={{ width: "100%" }}
+                            renderInput={(params) => (
+                                <TextField required {...params} label="Gender" />
+                            )}
+                        />
+                    </Grid>
+
+                </Grid>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                            <DatePicker
+                                label="Date of Birth"
+                                inputFormat="20-12-2019"
+                                value={value}
+                                onChange={handleDateChange}
+
+                                renderInput={(params) => (
+                                    <TextField
+                                        sx={{ width: "100%", mt: 1 }}
+                                        fullWidth
+                                        {...params}
+                                        size="small"
+
+                                    />
+                                )}
+                            />
+
+
+
+                        </LocalizationProvider>
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+
+
+                            label="Age"
+                            value={age}
+                            disabled
+                            size="small"
+
+                        />
+
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="identificationMarks"
+                            defaultValue=""
+                            label="Identification Mark(Acc to SSC)"
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+
+                </Grid>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <Autocomplete
+                            disablePortal
+                            margin="normal"
+                            fullWidth
+                            size="small"
+
+                            id="combo-box-demo"
+                            options={genderoptions}
+                            sx={{ width: "100%" }}
+                            renderInput={(params) => (
+                                <TextField required {...params} label="Caste" />
+                            )}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                           
+                            fullWidth
+                            id="subCaste"
+                            defaultValue=""
+                            label="Sub Caste"
+                            
+                            size="small"
+                        />
+
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="presentAddress"
+                            defaultValue=""
+                            label="Present Address"
+                            autoComplete="email"
+                            size="small"
+                        />
+
+                    </Grid>
+                   
+
+                </Grid>
+
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >  
+                 <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="permanentAddress"
+                            defaultValue=""
+                            label="Permanent Address"
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="contact"
+                            defaultValue=""
+                            label="Contact Number"
+                            //value={mobileno}
+                            //onChange={(newValue) => setMobileno(newValue.target.value)}
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                        <TextField
+                            margin="0"
+
+                            fullWidth
+                            id="mobileno"
+                            label="Emergency Contact"
+                            //value={mobileno}
+                            //onChange={(newValue) => setMobileno(newValue.target.value)}
+                            autoComplete="email"
+                            size="small"
+                        />
+
+
+
+                    </Grid>
+
+                    
+                </Grid>
+
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >  
+                <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="emailid"
+                            defaultValue=""
+                            label="Email ID"
+                            //value={mobileno}
+                            //onChange={(newValue) => setMobileno(newValue.target.value)}
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="adhar"
+                            defaultValue=""
+                            label="Aadhaar Number"
+                            //value={mobileno}
+                            //onChange={(newValue) => setMobileno(newValue.target.value)}
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                        <TextField
+                            margin="0"
+                            required
+
+                            fullWidth
+                            id="pan"
+                            label="PAN Number"
+                            //value={mobileno}
+                            //onChange={(newValue) => setMobileno(newValue.target.value)}
+                            autoComplete="email"
+                            size="small"
+                        />
+
+
+
+                    </Grid>
+                    
+                </Grid>
+
+
+
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+                >
+                <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <div>
+                            <FormControl>
+                                <FormLabel id="demo-row-radio-buttons-group-label">Physically Handicapped</FormLabel>
+                                <RadioGroup
+                                    row
+                                    aria-labelledby="demo-row-radio-buttons-group-label"
+                                    name="row-radio-buttons-group"
+                                    value={hasphysicalHand}
+                                    onChange={handlephysicalhand}
+                                >
+                                    <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                                    <FormControlLabel value="no" control={<Radio />} label="No" />
+
+                                </RadioGroup>
+                            </FormControl>
+
+                        </div>
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <input
+                            type="file"
+                            id="aadharCard"
+                            name="aadharCard"
+                            accept=".pdf, .jpg, .jpeg, .png"
+                        />
+                        <label htmlFor="aadharCard">Upload Aadhaar Card <br />Max size 300 KB</label>
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <input
+                            type="file"
+                            id="panCard"
+                            name="panCard"
+                            accept=".pdf, .jpg, .jpeg, .png"
+                        />
+                        <label htmlFor="panCard">Upload PAN Card <br />Max size 300 KB</label>
+                    </Grid>
+
+                    {hasphysicalHand === 'yes' && (
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <input
+                                type="file"
+                                id="panCard"
+                                name="panCard"
+                                accept=".pdf, .jpg, .jpeg, .png"
+                            />
+                            <label htmlFor="panCard">Upload Document <br />Max size 300 KB</label>
+                        </Grid>
+                    )}
+                </Grid>
+
+
+
+            </AccordionDetails>
+        
+
+        </div>
+    );
+}
+export default Step1;
+
