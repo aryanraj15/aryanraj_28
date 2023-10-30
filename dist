@@ -564,5 +564,16 @@ const Step1 = (props) => {
 export default Step1;
 
 
-
+fatherName
+motherName
+Age
+identificationMarks
+subCaste
+presentAddress
+permanentAddress
+contactNumber
+emergencyContact
+emailid
+Aadhaar
+pancard
 
