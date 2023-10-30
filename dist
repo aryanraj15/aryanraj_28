@@ -1,169 +1,568 @@
-
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
 import {
-    Form,
-    Button,
-    Card,
-    CardHeader,
-    CardBody,
-    CardTitle,
-    CardText,
-    CardFooter
-} from "reactstrap";
+  Grid,
+  TextField,
+  Box,
+  Card,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Button,
+} from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import AccordionDetails from "@mui/material/AccordionDetails";
+const calculateAge = (birthday) => {
+  const age = dayjs().diff(birthday, "year");
+  return age;
+};
 
-import Step1 from "./Step1";
-import Step2 from "./Step2";
-import Step3 from "./Step3";
-import Step4 from "./Step4";
-import Step5 from "./Step5";
-import YSRScheme from "./YsrSchemeMaster";
-import styled from "styled-components";
-import MultiStepProgressBar from "./MultiStepProgressBar";
+const validationSchema = Yup.object().shape({
+  Name: Yup.string().required('Name is required'),
+  employeeid: Yup.string().required('Employee ID is required'),
 
-class MasterForm extends Component {
-    constructor(props) {
-        super(props);
+  // Add validation for other fields
+});
 
-        // Set the intiial input values
-        this.state = {
-            currentStep: 1,
+const Step1 = (props) => {
+  const [value, setValue] = React.useState(dayjs());
+  const [age, setAge] = React.useState(calculateAge(value));
+  const [hasphysicalHand, setHasphysicalHand] = useState("no");
+  const [options, setOptions] = useState([]);
+  const [selectedGender, setSelectedGender] = useState(null);
+
+  const onOptionsChange = (event, newValue) => {
+    setSelectedGender(newValue);
+  };
+  if (props.currentStep !== 1) {
+    return null;
+  }
+
+ 
+
+  useEffect(() => {
+    // Fetch data from your API and set it as options
+    // Example API call:
+    // fetch('your/api/endpoint')
+    //   .then(response => response.json())
+    //   .then(data => setOptions(data));
+  }, []); // Make sure to fetch data on component mount
+
+  const formik = useFormik({
+    initialValues: {
+      Name: '',
+      employeeid: '',
+      // Add initial values for other fields
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      // Handle form submission or API integration here
+    },
+  });
+
+  const handleDateChange = (newValue) => {
+    setValue(newValue);
+    setAge(calculateAge(newValue));
+  };
+
+  const genderoptions = [
+    { label: "OBC", id: 1 },
+    { label: "ST", id: 2 },
+    { label: "SC", id: 3 },
+    { label: "General", id: 4 },
+  ];
+
+  const handlephysicalhand = (event) => {
+    setHasphysicalHand(event.target.value);
+  };
+
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <div style={{ padding: "0px 60px", marginBottom: "5px" }}>
+        <Card sx={{ padding: 2, background: "#EFF7FF", height: "4", margin: 0 }}>
+          <FormControl>
+            <FormLabel id="demo-row-radio-buttons-group-label">
+              <b>Employee Type</b>
+            </FormLabel>
+            <RadioGroup
+              row
+              aria-labelledby="demo-row-radio-buttons-group-label"
+              name="row-radio-buttons-group"
+            >
+              <FormControlLabel
+                value="Government"
+                control={<Radio />}
+                label="Government"
+              />
+              <FormControlLabel value="Trust" control={<Radio />} label="Trust" />
+              <FormControlLabel value="APCOS" control={<Radio />} label="APCOS" />
+            </RadioGroup>
+          </FormControl>
+        </Card>
+
+        <AccordionDetails>
+        <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
+          <p>
+            <b>Note:</b> Please fill the Personal Details, all fields are
+            mandatory
+          </p>
+        </div>
+        <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center" sx={{ mb: 2 }}>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <TextField
+              margin="0"
+             
+              fullWidth
+              id="Name"
+              name="Name"
+              label="Name"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.Name}
+            />
+            {formik.touched.Name && formik.errors.Name && (
+              <div style={{ color: 'red' }}>{formik.errors.Name}</div>
+            )}
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <TextField
+              margin="0"
+              fullWidth
+              type="text"
+              id="employeeid"
+              name="employeeid"
+              label="Employee ID"
+              autoComplete="email"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.employeeid}
+              error={formik.touched.employeeid && !!formik.error.employeeid}
+              helperText={formik.touched.employeeid && formik.error.employeeid}
+            />
+          
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <input type="file" id="panCard" name="panCard" accept=".pdf, .jpg, .jpeg, .png" />
+            <label htmlFor="panCard">
+              Upload Image <br />
+              Max size 300 KB
+            </label>
+          </Grid>
+        </Grid>
+
+        <Grid
+          container
+          direction="row"
+          rowSpacing={0}
+          columnSpacing={2}
+          justify="flex-end"
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+          
+            <TextField
+              margin="0"
+              fullWidth
+              type="text"
+              id="fatherName"
+              name="fatherName"
+              label="Father Name"
+              autoComplete="email"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.fatherName}
+              error={formik.touched.fatherName && !!formik.error.fatherName}
+              helperText={formik.touched.fatherName && formik.error.fatherName}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
             
-        };
-
-        // Bind the submission to handleChange()
-        this.handleChange = this.handleChange.bind(this);
-
-        // Bind new functions for next and previous
-        this._next = this._next.bind(this);
-        this._prev = this._prev.bind(this);
-    }
-
-    // Use the submitted data to set the state
-    handleChange(event) {
-        const { name, value } = event.target;
-        this.setState({
-            [name]: value
-        });
-    }
-
-    // Trigger an alert on form submission
-    handleSubmit = event => {
-        event.preventDefault();
-      
+            <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="motherName"
+              name="motherName"
+              label="Father Name"
+              autoComplete="email"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.motherName}
+              error={formik.touched.motherName && !!formik.error.motherName}
+              helperText={formik.touched.motherName && formik.error.motherName}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <Autocomplete
+              disablePortal
+              margin="normal"
+              fullWidth
+              size="small"
+              id="combo-box-demo"
+              options={options}
+              sx={{ width: "100%" }}
+              renderInput={(params) => (
+                <TextField required {...params} label="Gender" />
+              )}
+            />
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          direction="row"
+          rowSpacing={0}
+          columnSpacing={2}
+          justify="flex-end"
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Date of Birth"
+                inputFormat="20-12-2019"
+                value={value}
+                onChange={handleDateChange}
+                renderInput={(params) => (
+                  <TextField
+                    sx={{ width: "100%", mt: 1 }}
+                    fullWidth
+                    {...params}
+                    size="small"
+                  />
+                )}
+              />
+            </LocalizationProvider>
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+           
+             <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="Age"
+              name="Age"
+              label="Father Name"
+              autoComplete="email"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={age}
+              error={formik.touched.Age && !!formik.error.Age}
+              helperText={formik.touched.Age && formik.error.Age}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+              <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="identificationMarks"
+              name="identificationMarks"
+              label="Identification Mark(Acc to SSC)"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.identificationMarks}
+              error={formik.touched.identificationMarks && !!formik.error.identificationMarks}
+              helperText={formik.touched.identificationMarks && formik.error.identificationMarks}
+            />
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          direction="row"
+          rowSpacing={0}
+          columnSpacing={2}
+          justify="flex-end"
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <Autocomplete
+              disablePortal
+              margin="normal"
+              fullWidth
+              size="small"
+              id="combo-box-demo"
+              options={genderoptions}
+              sx={{ width: "100%" }}
+              renderInput={(params) => (
+                <TextField required {...params} label="Caste" />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+           
+            <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="subCaste"
+              name="subCaste"
+              label="Sub Caste"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.subCaste}
+              error={formik.touched.subCaste && !!formik.error.subCaste}
+              helperText={formik.touched.subCaste && formik.error.subCaste}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
         
-    };
+            <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="presentAddress"
+              name="presentAddress"
+              label="Present Address"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.presentAddress}
+              error={formik.touched.presentAddress && !!formik.error.presentAddress}
+              helperText={formik.touched.presentAddress && formik.error.presentAddress}
+            />
+          </Grid>
+        </Grid>
 
-    // Test current step with ternary
-    // _next and _previous functions will be called on button click
-    _next() {
-        let currentStep = this.state.currentStep;
+        <Grid
+          container
+          direction="row"
+          rowSpacing={0}
+          columnSpacing={2}
+          justify="flex-end"
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+          
+              <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="permanentAddress"
+              name="permanentAddress"
+              label="Permanent Address"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.permanentAddress}
+              error={formik.touched.permanentAddress && !!formik.error.permanentAddress}
+              helperText={formik.touched.permanentAddress && formik.error.permanentAddress}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+          
+            <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="contactNumber"
+              name="contactNumber"
+              label="Contact Number"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.contactNumber}
+              error={formik.touched.contactNumber && !!formik.error.contactNumber}
+              helperText={formik.touched.contactNumber && formik.error.contactNumber}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            
+            <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="emergencyContact"
+              name="emergencyContact"
+              label="Emergency Contact"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.emergencyContact}
+              error={formik.touched.emergencyContact && !!formik.error.emergencyContact}
+              helperText={formik.touched.emergencyContact && formik.error.emergencyContact}
+            />
+          </Grid>
+        </Grid>
 
-        // If the current step is 4 or 5, then add one on "next" button click
-        currentStep = currentStep >= 3 ? 4 : currentStep + 1;
-        this.setState({
-            currentStep: currentStep
-        });
-    }
+        <Grid
+          container
+          direction="row"
+          rowSpacing={0}
+          columnSpacing={2}
+          justify="flex-end"
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            
+             <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="emailid"
+              name="emailid"
+              label="Email ID"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.emailid}
+              error={formik.touched.emailid && !!formik.error.emailid}
+              helperText={formik.touched.emailid && formik.error.emailid}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            
+            <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="Aadhaar"
+              name="Aadhaar"
+              label="Aadhaar Number"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.Aadhaar}
+              error={formik.touched.Aadhaar && !!formik.error.Aadhaar}
+              helperText={formik.touched.Aadhaar && formik.error.Aadhaar}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+          
+            <TextField
+              margin="0"
+              required
+              fullWidth
+              type="text"
+              id="pancard"
+              name="pancard"
+              label="PAN Number"
+              size="small"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.pancard}
+              error={formik.touched.pancard && !!formik.error.pancard}
+              helperText={formik.touched.pancard && formik.error.pancard}
+            />
+          </Grid>
+        </Grid>
 
-    _prev() {
-        let currentStep = this.state.currentStep;
-        // If the current step is 2 or 3, then subtract one on "previous" button click
-        currentStep = currentStep <= 1 ? 1 : currentStep - 1;
-        this.setState({
-            currentStep: currentStep
-        });
+        <Grid
+          container
+          direction="row"
+          rowSpacing={0}
+          columnSpacing={2}
+          justify="flex-end"
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <div>
+              <FormControl>
+                <FormLabel id="demo-row-radio-buttons-group-label">
+                  Physically Handicapped
+                </FormLabel>
+                <RadioGroup
+                  row
+                  aria-labelledby="demo-row-radio-buttons-group-label"
+                  name="row-radio-buttons-group"
+                  value={hasphysicalHand}
+                  onChange={handlephysicalhand}
+                >
+                  <FormControlLabel
+                    value="yes"
+                    control={<Radio />}
+                    label="Yes"
+                  />
+                  <FormControlLabel value="no" control={<Radio />} label="No" />
+                </RadioGroup>
+              </FormControl>
+            </div>
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <input
+              type="file"
+              id="aadharCard"
+              name="aadharCard"
+              accept=".pdf, .jpg, .jpeg, .png"
+            />
+            <label htmlFor="aadharCard">
+              Upload Aadhaar Card <br />
+              Max size 300 KB
+            </label>
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <input
+              type="file"
+              id="panCard"
+              name="panCard"
+              accept=".pdf, .jpg, .jpeg, .png"
+            />
+            <label htmlFor="panCard">
+              Upload PAN Card <br />
+              Max size 300 KB
+            </label>
+          </Grid>
 
-    }
+          {hasphysicalHand === "yes" && (
+            <Grid item xs={12} sm={4} md={4} lg={4}>
+              <input
+                type="file"
+                id="panCard"
+                name="panCard"
+                accept=".pdf, .jpg, .jpeg, .png"
+              />
+              <label htmlFor="panCard">
+                Upload Document <br />
+                Max size 300 KB
+              </label>
+            </Grid>
+          )}
+        </Grid>
 
-    // The "next" and "previous" button functions
-    get previousButton() {
-        let currentStep = this.state.currentStep;
 
-        // If the current step is not 1, then render the "previous" button
-        if (currentStep !== 1) {
-            return (
-                <Button color="secondary float-left" onClick={this._prev}>
-                    Previous
-                </Button>
-            );
-        }
 
-        // ...else return nothing
-        return null;
-    }
 
-    get nextButton() {
-        let currentStep = this.state.currentStep;
-        // If the current step is not 3, then render the "next" button
-        if (currentStep < 4) {
-            return (
-                <Button 
-                variant="contained"
-                onClick={this._next}>
-                    NEXT
-                </Button>
-            );
-        }
-        // ...else render nothing
-        return null;
-    }
+        {/* ... Rest of the form fields ... */}
 
-    get submitButton() {
-        let currentStep = this.state.currentStep;
+        
+        </AccordionDetails>
+      </div>
+      
+    </form>
+  );
+};
 
-        // If the current step is the last step, then render the "submit" button
-        if (currentStep > 3) {
-            return <Button color="primary float-right">Submit</Button>;
-        }
-        // ...else render nothing
-        return null;
-    }
+export default Step1;
 
-    render() {
-        return (
-            <>
-                <Form onSubmit={this.handleSubmit}>
-                    <Card>
-                        <YSRScheme />
-                        <CardBody>
-                            <CardTitle>
-                                <MultiStepProgressBar currentStep={this.state.currentStep} />
-                            </CardTitle>
-                            <CardText />
-                            <Step1
-                                currentStep={this.state.currentStep}
-                                handleChange={this.handleChange}
 
-                            />
-                            <Step2
-                                currentStep={this.state.currentStep}
-                                handleChange={this.handleChange}
 
-                            />
-                            <Step3
-                                currentStep={this.state.currentStep}
-                                handleChange={this.handleChange}
 
-                            />
-                            <Step4
-                                currentStep={this.state.currentStep}
-                                handleChange={this.handleChange} 
-                                    
-                                />
-                            <Step5
-                                currentStep={this.state.currentStep}
-                                handleChange={this.handleChange} />
-                        </CardBody>
-                        <CardFooter>
-                            {this.previousButton}
-                            {this.nextButton}
-                            {this.submitButton}
-                        </CardFooter>
-                    </Card>
-                </Form>
-            </>
-        );
-    }
-}
-
-export default MasterForm;
