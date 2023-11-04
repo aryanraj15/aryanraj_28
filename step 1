@@ -1,0 +1,1222 @@
+
+import React, { useEffect, useState } from "react";
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import axios from 'axios';
+import {
+    Grid,
+    TextField,
+    Box,
+    Card,
+    FormControl,
+    FormLabel,
+    RadioGroup,
+    FormControlLabel,
+    Radio,
+
+    Divider,
+    CardContent,
+    CardHeader,
+    Checkbox,
+    Typography
+
+} from "@mui/material";
+import { styled } from '@mui/material/styles';
+import Button from '@mui/material/Button';
+import Autocomplete from "@mui/material/Autocomplete";
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import PersonAdd from "@mui/icons-material/PersonAdd";
+import PinDropTwoToneIcon from "@mui/icons-material/PinDropTwoTone";
+import AccountCircleTwoToneIcon from "@mui/icons-material/AccountCircleTwoTone";
+// import ImageUploadCard from "./ImageUploadCard";
+import ImageUploadCard from "./ImageUploadCard";
+import Avatar from '@mui/material/Avatar';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+
+const calculateAge = (birthday) => {
+    const age = dayjs().diff(birthday, "year");
+    return age;
+};
+
+const validationSchema = Yup.object().shape({
+    Name: Yup.string().required('Name is required'),
+    employeeid: Yup.string().required('Employee ID is required'),
+    fatherName: Yup.string().required('FatherName is required'),
+    motherName: Yup.string().required('Mother Name is required'),
+    Age: Yup.string().required('Age is required'),
+    Gender: Yup.string().required('Gender is required'),
+    identificationMarks: Yup.string().required('Identification Marks is required'),
+    subCaste: Yup.string().required('Sub Caste is required'),
+    presentAddress: Yup.string().required('Present Address is required'),
+    permanentAddress: Yup.string().required('Permanent Address is required'),
+    contactNumber: Yup.string().required('Contact Number is required'),
+    emergencyContact: Yup.string().required('Emergency Contact is required'),
+    emailid: Yup.string().required('Email ID is required'),
+    Aadhaar: Yup.string().required('Aadhaar Card is required'),
+    pancard: Yup.string().required('PanCard is required'),
+    Caste: Yup.string().required('Caste is required'),
+
+    // Add validation for other fields
+});
+
+const Step1 = (props) => {
+    const {
+
+        isDisabled = { isDisabled: true },
+
+    } = props;
+    const [value, setValue] = React.useState(dayjs());
+    const [age, setAge] = React.useState(calculateAge(value));
+    const [checked, setChecked] = React.useState(false);
+    const [disableoption, setDisableoption] = useState(false);
+    const [expertise, setExpertise] = useState([]);
+    const [hasphysicalHand, setHasphysicalHand] = useState("no");
+    const [options, setOptions] = useState([
+        {
+            valueId: 31,
+            valueName: "Male"
+        },
+        {
+            valueId: 32,
+            valueName: "Female"
+        },
+        {
+            valueId: 33,
+            valueName: "Others"
+        },
+    ]);
+    const [selectedGender, setSelectedGender] = useState(null);
+
+    const onOptionsChange = (event, newValue) => {
+        setSelectedGender(newValue);
+    };
+    const castoptions = [
+        {
+            valueId: 31,
+            valueName: "OBC"
+        },
+        {
+            valueId: 32,
+            valueName: "ST"
+        },
+        {
+            valueId: 33,
+            valueName: "SC"
+        },
+        {
+            valueId: 33,
+            valueName: "General"
+        },
+
+    ];
+   
+
+    useEffect(() => {
+
+        axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getStatelist`).then(response => {
+            // console.log("result",response)
+            let sortedStateData = response.data.result.map((value) => {
+                value.stateName = value.stateName.toUpperCase();
+                return value;
+            })
+
+            setExpertise(sortedStateData);
+            console.log(sortedStateData);
+
+            // // sortedStateData = sortedStateData.sort((a, b) => a.StateName.localeCompare(b.StateName));
+
+            // setExpertise(sortedStateData);
+            // console.log(sortedStateData);
+        })
+        .catch(error => {
+            setExpertise([]);
+            console.log(error);
+        });
+
+    }, []);
+    
+
+
+
+
+
+    //   useEffect(() => {
+    //     // Fetch data from your API and set it as options
+    //     // Example API call:
+    //     // fetch('your/api/endpoint')
+    //     //   .then(response => response.json())
+    //     //   .then(data => setOptions(data));
+    //   }, []); // Make sure to fetch data on component mount
+
+    const formik = useFormik({
+        initialValues: {
+            Name: '',
+            employeeid: '',
+            fatherName: '',
+            motherName: '',
+            Age: '',
+            Gender: '',
+            identificationMarks: '',
+            Caste: '',
+            subCaste: '',
+            presentAddress: '',
+            permanentAddress: '',
+            contactNumber: '',
+            emergencyContact: '',
+            emailid: '',
+            Aadhaar: '',
+            pancard: '',
+            stateId:'',
+            stateIdPermanent:'',
+            // Add initial values for other fields
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            // Handle form submission or API integration here
+        },
+    });
+    if (props.currentStep !== 1) {
+        return null;
+    }
+    const handleDateChange = (newValue) => {
+        setValue(newValue);
+        setAge(calculateAge(newValue));
+    };
+
+
+    const genderoptions = [
+        {
+            valueId: 31,
+            valueName: "A"
+        },
+        {
+            valueId: 32,
+            valueName: "B"
+        },
+        {
+            valueId: 33,
+            valueName: "C"
+        },
+    ]
+
+    const handlephysicalhand = (event) => {
+        setHasphysicalHand(event.target.value);
+    };
+
+    const copyAddress = (e) => {
+        setChecked(e.target.checked);
+        console.log("the chekced value", checked);
+        if (e.target.checked) {
+            formik.setFieldValue("houseNumberComm", formik.values.houseNumberCard);
+            formik.setFieldValue("streetComm", formik.values.streetCard);
+
+            formik.setFieldValue("pincodeComm", formik.values.pincodeCard);
+            setDisableoption(true);
+        } else {
+            formik.setFieldValue("houseNumberComm", "");
+            formik.setFieldValue("streetComm", "");
+
+            formik.setFieldValue("pincodeComm", "");
+            setDisableoption(false);
+        }
+    };
+    const CardTitle = styled((props) => (
+        <Typography component="span" {...props} />
+    ))(() => ({
+        fontWeight: 600,
+        display: "flex",
+        alignItems: "center",
+    }));
+
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
+
+    return (
+        <form onSubmit={formik.handleSubmit}>
+            <div style={{ padding: "0px 60px", marginBottom: "5px" }}>
+                <Card sx={{ padding: 2, background: "#EFF7FF", height: "4", margin: 0 }}>
+
+                    <FormControl>
+
+                        <FormLabel id="demo-row-radio-buttons-group-label">
+                            <b>Employee Type</b>
+                        </FormLabel>
+                        <RadioGroup
+                            row
+                            aria-labelledby="demo-row-radio-buttons-group-label"
+                            name="row-radio-buttons-group"
+                        >
+                            <FormControlLabel
+                                value="Government"
+                                control={<Radio />}
+                                label="Government"
+                            />
+                            <FormControlLabel value="Trust" control={<Radio />} label="Trust" />
+                            <FormControlLabel value="APCOS" control={<Radio />} label="APCOS" />
+                        </RadioGroup>
+                    </FormControl>
+                </Card>
+            </div>
+
+
+
+            <Card sx={{ boxShadow: "none" }}>
+                <CardContent>
+                    <h3 lineHeight={2.2}>
+
+                        <PersonAdd sx={{ mr: 1 }} />
+                        Personal Details
+                    </h3>
+                    <Divider />
+                    <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
+                        <p>
+                            <b>Note:</b> Please go through all the fields before filling the form and fill the details according to SSC.
+                            <br />Please upload only .pdf/.jpeg/.png/.jpg
+                            <br />File should be less than 200kb
+                        </p>
+                    </div>
+
+
+                    <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center" sx={{ mb: 1 }}>
+                        <Grid item xs={12} sm={4} md={4} lg={8}>
+
+                            <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center" sx={{ mb: 1 }}>
+                                <Grid item xs={12} sm={4} md={4} lg={6}>
+                                    <TextField
+
+                                        fullWidth
+                                        id="Name"
+                                        name="Name"
+                                        label="Full Name"
+                                        size="small"
+                                        margin="normal"
+                                        required
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        value={formik.values.Name}
+                                        error={formik.touched.Name && !!formik.errors.Name}
+                                        helperText={formik.touched.Name && formik.errors.Name}
+                                    />
+
+
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={6}>
+                                    <TextField
+                                        margin="normal"
+                                        fullWidth
+                                        required
+                                        type="text"
+                                        id="employeeid"
+                                        name="employeeid"
+                                        label="Employee ID"
+                                        //   autoComplete="email"
+                                        size="small"
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        value={formik.values.employeeid}
+                                        error={formik.touched.employeeid && !!formik.errors.employeeid}
+                                        helperText={formik.touched.employeeid && formik.errors.employeeid}
+                                    />
+
+
+                                </Grid>
+
+                            </Grid>
+
+                            <Grid
+                                container
+                                direction="row"
+                                rowSpacing={0}
+                                columnSpacing={2}
+                                justify="flex-end"
+                                alignItems="center"
+                                sx={{ mb: 1 }}
+
+                            >
+
+                                <Grid item xs={12} sm={4} md={4} lg={6}>
+
+                                    <TextField
+                                        margin="0"
+                                        required
+                                        fullWidth
+                                        type="text"
+                                        id="motherName"
+                                        name="motherName"
+                                        label="Mother Name"
+                                        autoComplete="email"
+                                        size="small"
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        value={formik.values.motherName}
+                                        error={formik.touched.motherName && !!formik.errors.motherName}
+                                        helperText={formik.touched.motherName && formik.errors.motherName}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={6}>
+
+                                    <TextField
+                                        margin="0"
+                                        fullWidth
+                                        type="text"
+                                        id="fatherName"
+                                        name="fatherName"
+                                        label="Father Name"
+                                        required
+                                        size="small"
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        value={formik.values.fatherName}
+                                        error={formik.touched.fatherName && !!formik.errors.fatherName}
+                                        helperText={formik.touched.fatherName && formik.errors.fatherName}
+                                    />
+                                </Grid>
+
+                            </Grid>
+
+
+                            <Grid
+                                container
+                                direction="row"
+                                rowSpacing={0}
+                                columnSpacing={2}
+                                justify="flex-end"
+                                alignItems="center"
+                                sx={{ mb: 1 }}
+                            >
+                                <Grid item xs={12} sm={4} md={4} lg={6}>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                            label="Date of Birth"
+
+                                            value={value}
+                                            id="DateofBirth"
+                                            name="DateofBirth"
+                                            onChange={handleDateChange}
+
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    sx={{ width: "100%", mt: 1 }}
+                                                    fullWidth
+                                                    {...params}
+                                                    size="small"
+                                                    required
+                                                    error={formik.touched.DateofBirth && Boolean(formik.errors.DateofBirth)}
+                                                    helperText={formik.touched.DateofBirth && formik.errors.DateofBirth}
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                />
+                                            )}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+
+
+
+                                <Grid item xs={12} sm={4} md={4} lg={6}>
+
+                                    <TextField
+                                        margin="0"
+                                        required
+                                        disabled
+                                        fullWidth
+                                        type="text"
+                                        id="Age"
+                                        name="Age"
+                                        label="Age"
+                                        autoComplete="email"
+                                        size="small"
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        defaultValue="25 Years, 2 Months, 1 day"
+                                        // value={age}
+                                        error={formik.touched.Age && !!formik.errors.Age}
+                                        helperText={formik.touched.Age && formik.errors.Age}
+                                    />
+                                </Grid>
+
+                            </Grid>
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            {/* <ImageUploadCard></ImageUploadCard> */}
+                            <ImageUploadCard></ImageUploadCard>
+                            <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
+                   <p><b>Note:</b> Please upload Latest passport size photo</p>
+                     </div>
+                        </Grid>
+
+                    </Grid>
+
+
+
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mb: 1 }}
+                    >
+
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <Autocomplete
+                                disablePortal
+                                margin="0"
+                                size="small"
+                                required
+                                fullWidth
+                                id="Gender"
+                                name="Gender"
+                                options={options}
+                                value={options.find(
+                                    (option) => option.valueName === formik.values.Gender
+                                ) || null}
+                                onChange={(e, value) => {
+                                    if (value === null) {
+                                        formik.setFieldValue("Gender", null)
+                                    }
+                                    else
+                                        formik.setFieldValue("Gender", value.valueName)
+                                }}
+                                getOptionLabel={(value) => value.valueName}
+                                sx={{ width: "100%" }}
+                                renderInput={(params) => (
+                                    <TextField {...params}
+                                        required
+                                        label="Gender"
+                                        onBlur={formik.handleBlur}
+                                        helperText={formik.errors.Gender && formik.touched.Gender ? formik.errors.Gender : null}
+                                        error={formik.errors.Gender && formik.touched.Gender ? true : false}
+                                    />
+                                )}
+                            />
+
+
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <TextField
+                                margin="0"
+                                required
+                                fullWidth
+                                type="text"
+                                id="identificationMarks"
+                                name="identificationMarks"
+                                label="Identification Mark 1(Acc to SSC)"
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.identificationMarks}
+                                error={formik.touched.identificationMarks && !!formik.errors.identificationMarks}
+                                helperText={formik.touched.identificationMarks && formik.errors.identificationMarks}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <TextField
+                                margin="0"
+                                required
+                                fullWidth
+                                type="text"
+                                id="identificationMarks"
+                                name="identificationMarks"
+                                label="Identification Mark 2(Acc to SSC)"
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.identificationMarks}
+                                error={formik.touched.identificationMarks && !!formik.errors.identificationMarks}
+                                helperText={formik.touched.identificationMarks && formik.errors.identificationMarks}
+                            />
+                        </Grid>
+                    </Grid>
+
+
+
+
+
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+
+                    >
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+
+                            <Autocomplete
+                                disablePortal
+                                margin="0"
+                                size="small"
+                                fullWidth
+                                id="Caste"
+                                required
+                                name="Caste"
+                                options={castoptions}
+                                value={castoptions.find(
+                                    (option) => option.valueName === formik.values.Caste
+                                ) || null}
+                                onChange={(e, value) => {
+                                    if (value === null) {
+                                        formik.setFieldValue("Caste", null)
+                                    }
+                                    else
+                                        formik.setFieldValue("Caste", value.valueName)
+                                }}
+                                getOptionLabel={(value) => value.valueName}
+                                sx={{ width: "100%", mt: 2, mb: 1 }}
+                                renderInput={(params) => (
+                                    <TextField {...params}
+                                        required
+                                        label="Caste"
+                                        onBlur={formik.handleBlur}
+                                        helperText={formik.errors.Caste && formik.touched.Caste ? formik.errors.Caste : null}
+                                        error={formik.errors.Caste && formik.touched.Caste ? true : false}
+                                    />
+                                )}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                sx={{ mt: 1 }}
+                                required
+                                fullWidth
+                                type="text"
+                                id="subCaste"
+                                name="subCaste"
+                                label="Sub Caste"
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.subCaste}
+                                error={formik.touched.subCaste && !!formik.errors.subCaste}
+                                helperText={formik.touched.subCaste && formik.errors.subCaste}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                Upload Caste Certificate
+                                <VisuallyHiddenInput type="file" />
+
+                            </Button>
+
+                        </Grid>
+
+                    </Grid>
+
+
+
+                    <Card sx={{ margin: 0, boxShadow: "none" }}>
+                        <Grid container direction="row" rowSpacing={0} columnSpacing={2}>
+                            <Grid item xs={12} sm={6} md={6} lg={6}>
+                                {/* <H4 lineHeight={3.2}>Card Address</H4> */}
+                                <Card sx={{ height: "372px", border: "1px solid black" }}>
+                                    <CardHeader
+                                        title={
+                                            <CardTitle>
+                                                <AccountCircleTwoToneIcon sx={{ mr: 1 }} />
+                                                Present Address
+                                            </CardTitle>
+                                        }
+                                    />
+                                    <Divider />
+                                    <CardContent>
+                                        <Grid
+                                            container
+                                            direction="row"
+                                            rowSpacing={0}
+                                            columnSpacing={2}
+                                        >
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <TextField
+                                                    margin="normal"
+                                                    required
+                                                    fullWidth
+                                                    id="houseNumberCard"
+                                                    label="House No./Building Name"
+                                                    name="houseNumberCard"
+                                                    value={formik.values.houseNumberCard}
+                                                    autoComplete="email"
+                                                    size="small"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    error={
+                                                        formik.touched.houseNumberCard &&
+                                                        Boolean(formik.errors.houseNumberCard)
+                                                    }
+                                                    helperText={
+                                                        formik.touched.houseNumberCard &&
+                                                        formik.errors.houseNumberCard
+                                                    }
+                                                // disabled={isDisabled}
+                                                />
+                                            </Grid>
+
+
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <FormControl fullWidth sx={{ mt: 2 }}>
+                                                    <TextField
+                                                        label="Pincode"
+                                                        size="small"
+                                                        fullWidth
+                                                        required
+                                                        placeholder={"999999"}
+                                                        mask={"######"}
+                                                        value={formik.values.pincodeCard || ""}
+                                                        id="pincodeCard"
+                                                        name="pincodeCard"
+                                                        onChange={formik.handleChange}
+                                                        onBlur={formik.handleBlur}
+                                                        error={
+                                                            formik.touched.pincodeCard &&
+                                                            Boolean(formik.errors.pincodeCard)
+                                                        }
+                                                        helperText={
+                                                            formik.touched.pincodeCard &&
+                                                            formik.errors.pincodeCard
+                                                        }
+                                                    // disabled={isDisabled}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <FormControl fullWidth sx={{ mt: 2 }}>
+                                                    <Autocomplete
+                                                        disablePortal
+                                                        margin="0"
+                                                        size="small"
+                                                        fullWidth
+                                                        required
+                                                        id="stateId"
+                                                        name="stateId"
+                                                        options={expertise}
+                                                        value={expertise.find(
+           
+                                                            (option) => option.stateId === formik.values.stateId?.stateId
+                                                        ) || null}
+                                                        onChange={(e, value) => {
+                                                            if (value === null) {
+                                                                formik.setFieldValue("stateId", null)
+                                                            }
+                                                            else
+                                                                formik.setFieldValue("stateId", value)
+                                                        }}
+                                                        getOptionLabel={(value) => value.stateName}
+                                                        sx={{ width: "100%" }}
+                                                        renderInput={(params) => (
+                                                            <TextField {...params}
+                                                                required
+                                                                label="State"
+                                                                onBlur={formik.handleBlur}
+                                                                helperText={formik.errors.stateId && formik.touched.stateId ? formik.errors.stateId : null}
+                                                                error={formik.errors.stateId && formik.touched.stateId ? true : false}
+                                                            />
+                                                        )}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <FormControl fullWidth sx={{ mt: 2 }}>
+                                                    <Autocomplete
+                                                        disablePortal
+                                                        margin="0"
+                                                        size="small"
+                                                        required
+                                                        fullWidth
+                                                        id="Gender"
+                                                        name="Gender"
+                                                        options={options}
+                                                        value={options.find(
+                                                            (option) => option.valueName === formik.values.Gender
+                                                        ) || null}
+                                                        onChange={(e, value) => {
+                                                            if (value === null) {
+                                                                formik.setFieldValue("Gender", null)
+                                                            }
+                                                            else
+                                                                formik.setFieldValue("Gender", value.valueName)
+                                                        }}
+                                                        getOptionLabel={(value) => value.valueName}
+                                                        sx={{ width: "100%" }}
+                                                        renderInput={(params) => (
+                                                            <TextField {...params}
+                                                                required
+                                                                label="District"
+                                                                onBlur={formik.handleBlur}
+                                                                helperText={formik.errors.Gender && formik.touched.Gender ? formik.errors.Gender : null}
+                                                                error={formik.errors.Gender && formik.touched.Gender ? true : false}
+                                                            />
+                                                        )}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+
+                                            <Grid item xs={12} sm={8} md={8} lg={8}>
+                                                <TextField
+                                                    margin="normal"
+                                                    required
+                                                    fullWidth
+                                                    id="streetCard"
+                                                    label="Street"
+                                                    name="streetCard"
+                                                    value={formik.values.streetCard}
+                                                    autoComplete="email"
+                                                    size="small"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    error={
+                                                        formik.touched.streetCard &&
+                                                        Boolean(formik.errors.streetCard)
+                                                    }
+                                                    helperText={
+                                                        formik.touched.streetCard && formik.errors.streetCard
+                                                    }
+                                                // disabled={isDisabled}
+                                                />
+                                            </Grid>
+                                        </Grid>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={6} lg={6}>
+                                <Card sx={{ border: "1px solid black" }}>
+                                    <CardHeader
+                                        title={
+                                            <CardTitle>
+                                                <PinDropTwoToneIcon sx={{ mr: 1 }} /> Permanent Address
+
+                                            </CardTitle>
+                                        }
+                                    />
+                                    <Divider />
+                                    <CardContent>
+                                        <Grid
+                                            container
+                                            direction="row"
+                                            rowSpacing={0}
+                                            columnSpacing={2}
+                                            justify="flex-end"
+                                            alignItems="center"
+
+                                        >
+                                            <Grid item xs={12} sm={12} md={12} lg={12}>
+                                                <FormControlLabel
+                                                    sx={{ margin: 0 }}
+                                                    control={
+                                                        <Checkbox
+                                                            value="remember"
+                                                            checked={checked}
+                                                            color="primary"
+                                                        />
+                                                    }
+                                                    label="If Present address and Permanent address are same"
+                                                    onChange={copyAddress}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <TextField
+                                                    margin="normal"
+                                                    required
+                                                    fullWidth
+                                                    id="houseNumberComm"
+                                                    label="House No./Building Name"
+                                                    name="houseNumberComm"
+                                                    value={formik.values.houseNumberComm || ""}
+                                                    size="small"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    error={
+                                                        formik.touched.houseNumberComm &&
+                                                        Boolean(formik.errors.houseNumberComm)
+                                                    }
+                                                    helperText={
+                                                        formik.touched.houseNumberComm &&
+                                                        formik.errors.houseNumberComm
+                                                    }
+                                                    disabled={disableoption}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <FormControl fullWidth sx={{ mt: 2 }}>
+                                                    <TextField
+                                                        label="Pincode"
+                                                        size="small"
+                                                        required
+                                                        fullWidth
+                                                        placeholder={"999999"}
+                                                        mask={"######"}
+                                                        value={formik.values.pincodeCard || ""}
+                                                        id="pincodeCard"
+                                                        name="pincodeCard"
+                                                        onChange={formik.handleChange}
+                                                        onBlur={formik.handleBlur}
+                                                        error={
+                                                            formik.touched.pincodeCard &&
+                                                            Boolean(formik.errors.pincodeCard)
+                                                        }
+                                                        helperText={
+                                                            formik.touched.pincodeCard &&
+                                                            formik.errors.pincodeCard
+                                                        }
+                                                    // disabled={isDisabled}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <FormControl fullWidth sx={{ mt: 2 }}>
+                                                <Autocomplete
+                                                        disablePortal
+                                                        margin="0"
+                                                        size="small"
+                                                        fullWidth
+                                                        required
+                                                        id="stateIdPermanent"
+                                                        name="stateIdPermanent"
+                                                        options={expertise}
+                                                        value={expertise.find(
+           
+                                                            (option) => option.stateIdPermanent === formik.values.stateIdPermanent?.stateIdPermanent
+                                                        ) || null}
+                                                        onChange={(e, value) => {
+                                                            if (value === null) {
+                                                                formik.setFieldValue("stateIdPermanent", null)
+                                                            }
+                                                            else
+                                                                formik.setFieldValue("stateIdPermanent", value)
+                                                        }}
+                                                        getOptionLabel={(value) => value.stateName}
+                                                        sx={{ width: "100%" }}
+                                                        renderInput={(params) => (
+                                                            <TextField {...params}
+                                                                required
+                                                                label="State"
+                                                                onBlur={formik.handleBlur}
+                                                                helperText={formik.errors.stateIdPermanent && formik.touched.stateIdPermanent ? formik.errors.stateIdPermanent : null}
+                                                                error={formik.errors.stateIdPermanent && formik.touched.stateIdPermanent ? true : false}
+                                                            />
+                                                        )}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <FormControl fullWidth sx={{ mt: 2 }}>
+                                                    <Autocomplete
+                                                        disablePortal
+                                                        margin="0"
+                                                        size="small"
+                                                        fullWidth
+                                                        id="Gender"
+                                                        name="Gender"
+                                                        options={options}
+                                                        value={options.find(
+                                                            (option) => option.valueName === formik.values.Gender
+                                                        ) || null}
+                                                        onChange={(e, value) => {
+                                                            if (value === null) {
+                                                                formik.setFieldValue("Gender", null)
+                                                            }
+                                                            else
+                                                                formik.setFieldValue("Gender", value.valueName)
+                                                        }}
+                                                        getOptionLabel={(value) => value.valueName}
+                                                        sx={{ width: "100%" }}
+                                                        renderInput={(params) => (
+                                                            <TextField {...params}
+                                                                required
+                                                                label="District"
+                                                                onBlur={formik.handleBlur}
+                                                                helperText={formik.errors.Gender && formik.touched.Gender ? formik.errors.Gender : null}
+                                                                error={formik.errors.Gender && formik.touched.Gender ? true : false}
+                                                            />
+                                                        )}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} sm={8} md={8} lg={8}>
+                                                <TextField
+                                                    margin="normal"
+                                                    required
+                                                    fullWidth
+
+                                                    id="streetComm"
+                                                    label="Street"
+                                                    name="streetComm"
+                                                    value={formik.values.streetComm || ""}
+                                                    size="small"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    error={
+                                                        formik.touched.streetComm &&
+                                                        Boolean(formik.errors.streetComm)
+                                                    }
+                                                    helperText={
+                                                        formik.touched.streetComm && formik.errors.streetComm
+                                                    }
+                                                    disabled={disableoption}
+                                                />
+                                            </Grid>
+
+
+
+                                        </Grid>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        </Grid>
+                    </Card>
+
+
+
+
+
+
+
+
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mb: 1 }}
+                    >
+
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                margin="0"
+                                required
+                                fullWidth
+                                type="text"
+                                id="contactNumber"
+                                name="contactNumber"
+                                label="Contact Number"
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.contactNumber}
+                                error={formik.touched.contactNumber && !!formik.errors.contactNumber}
+                                helperText={formik.touched.contactNumber && formik.errors.contactNumber}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                margin="0"
+                                required
+                                fullWidth
+                                type="text"
+                                id="emergencyContact"
+                                name="emergencyContact"
+                                label="Alternate Contact Number"
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.emergencyContact}
+                                error={formik.touched.emergencyContact && !!formik.errors.emergencyContact}
+                                helperText={formik.touched.emergencyContact && formik.errors.emergencyContact}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                margin="0"
+                                required
+                                fullWidth
+                                type="text"
+                                id="emailid"
+                                name="emailid"
+                                label="Personal Email ID"
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.emailid}
+                                error={formik.touched.emailid && !!formik.errors.emailid}
+                                helperText={formik.touched.emailid && formik.errors.emailid}
+                            />
+                        </Grid>
+                    </Grid>
+
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mb: 1 }}
+                    >
+
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                margin="0"
+                                required
+                                fullWidth
+                                type="text"
+                                id="emailid"
+                                name="emailid"
+                                label="Official Email ID"
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.emailid}
+                                error={formik.touched.emailid && !!formik.errors.emailid}
+                                helperText={formik.touched.emailid && formik.errors.emailid}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                margin="0"
+                                required
+                                fullWidth
+                                type="text"
+                                id="Aadhaar"
+                                name="Aadhaar"
+                                label="Aadhaar Number"
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.Aadhaar}
+                                error={formik.touched.Aadhaar && !!formik.errors.Aadhaar}
+                                helperText={formik.touched.Aadhaar && formik.errors.Aadhaar}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <Button sx={{ mb: 3 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                Upload Aadhaar
+                                <VisuallyHiddenInput type="file" />
+                            </Button>
+                        </Grid>
+
+                    </Grid>
+
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mb: 1 }}
+                    >
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <div>
+                                <FormControl>
+                                    <FormLabel id="demo-row-radio-buttons-group-label">
+                                        Physically Handicapped
+                                    </FormLabel>
+                                    <RadioGroup
+                                        row
+                                        aria-labelledby="demo-row-radio-buttons-group-label"
+                                        name="row-radio-buttons-group"
+                                        value={hasphysicalHand}
+                                        onChange={handlephysicalhand}
+                                    >
+                                        <FormControlLabel
+                                            value="yes"
+                                            control={<Radio />}
+                                            label="Yes"
+                                        />
+                                        <FormControlLabel value="no" control={<Radio />} label="No" />
+                                    </RadioGroup>
+                                </FormControl>
+                            </div>
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                margin="0"
+                                required
+                                fullWidth
+                                type="text"
+                                id="pancard"
+                                name="pancard"
+                                label="PAN Number"
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.pancard}
+                                error={formik.touched.pancard && !!formik.errors.pancard}
+                                helperText={formik.touched.pancard && formik.errors.pancard}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <Button sx={{ mb: 3 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                Upload PAN Card
+                                <VisuallyHiddenInput type="file" />
+                            </Button>
+                        </Grid>
+
+
+
+                        {hasphysicalHand === "yes" && (
+                            <>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                    <TextField
+                                        margin="0"
+                                        required
+                                        fullWidth
+                                        type="text"
+                                        id="Aadhaar"
+                                        name="Aadhaar"
+                                        label="Physically handicapped Percentage"
+                                        size="small"
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        value={formik.values.Aadhaar}
+                                        error={formik.touched.Aadhaar && !!formik.errors.Aadhaar}
+                                        helperText={formik.touched.Aadhaar && formik.errors.Aadhaar}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                    <Button sx={{ mb: 3 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                        Upload Certificate
+                                        <VisuallyHiddenInput type="file" />
+                                    </Button>
+                                </Grid>
+                            </>
+
+                        )}
+                    </Grid>
+
+
+
+
+                    {/* ... Rest of the form fields ... */}
+
+                </CardContent>
+            </Card>
+
+
+        </form>
+    );
+};
+
+export default Step1;
