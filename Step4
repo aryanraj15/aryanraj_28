@@ -1,0 +1,262 @@
+
+import * as React from "react";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import Typography from "@mui/material/Typography";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Button from "@mui/material/Button";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import { useState } from "react";
+import Autocomplete from '@mui/material/Autocomplete';
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import LanguageIcon from '@mui/icons-material/Language';
+import { createTheme } from "@mui/material";
+import { ThemeProvider } from '@mui/material/styles';
+import { makeStyles } from "@mui/styles";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { styled } from '@mui/material/styles';
+import Checkbox from '@mui/material/Checkbox';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import {
+    Grid,
+    TextField,
+    Box
+
+} from "@mui/material";
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+
+
+const Step4 = props => {
+    if (props.currentStep !== 4) {
+        return null;
+    }
+
+    const options = [
+        { label: 'One', id: 1 },
+        { label: 'Two', id: 2 },
+    ];
+
+    const optionsBank = [
+        { label: 'Savings Account', id: 1 },
+        { label: 'Current Account', id: 2 },
+        { label: 'Salary Account', id: 3 },
+    ];
+
+    const BankName = [
+        { label: 'State Bank of India', id: 1 },
+        { label: 'Union Bank of India', id: 2 },
+        { label: 'Canara bank', id: 3 },
+        { label: 'HDFC Bank', id: 3 },
+    ];
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
+
+
+
+    return (
+        <div style={{ padding: "0px 60px", marginBottom: "5px" }}>
+
+
+            <AccordionDetails>
+                <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
+                    <p><b>Note:</b> Please fill the Bank Details, all fields are mandatory</p>
+                </div>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                        <Autocomplete
+                            disablePortal
+                            margin="normal"
+                            fullWidth
+                            size="small"
+
+                            id="combo-box-demo"
+                            options={BankName}
+                            sx={{ width: "100%" }}
+                            renderInput={(params) => (
+                                <TextField required {...params} label="Bank Name" />
+                            )}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="bankBranch"
+                            defaultValue=""
+                            label="Branch Name"
+                            autoComplete="email"
+                            size="small"
+                        />
+
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="accountNumber"
+                            defaultValue=""
+                            label="Account Number"
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+
+                </Grid>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >
+
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+
+                        <Autocomplete
+                            disablePortal
+                            margin="normal"
+                            fullWidth
+                            size="small"
+
+                            id="combo-box-demo"
+                            options={optionsBank}
+                            sx={{ width: "100%" }}
+                            renderInput={(params) => (
+                                <TextField required {...params} label="Account Type" />
+                            )}
+                        />
+
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="accountholderName"
+                            defaultValue=""
+                            label="Account Holder Name"
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField
+                            margin="0"
+                            required
+                            fullWidth
+                            id="ifdc"
+                            defaultValue=""
+                            label="IFSC Code"
+                            autoComplete="email"
+                            size="small"
+                        />
+                    </Grid>
+
+                </Grid>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+
+                >
+
+
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                        <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                            Upload PassBook
+                            <VisuallyHiddenInput type="file" />
+
+                        </Button>
+
+                    </Grid>
+
+
+                </Grid>
+                <Grid
+                    container
+                    direction="row"
+                    rowSpacing={0}
+                    columnSpacing={2}
+                    justify="flex-end"
+                    alignItems="center"
+                    sx={{ ml:20}}
+
+                >
+                    <Grid item xs={12} sm={4} md={4} lg={12}>
+                        <FormControl component="fieldset">
+                            
+                            <FormGroup aria-label="position" row>
+
+                                <FormControlLabel
+                                    value="end"
+                                    control={<Checkbox />}
+                                    label="I hereby agree that all the information provided above are true to my knowledge."
+                                    labelPlacement="end"
+                                />
+                            </FormGroup>
+                        </FormControl>
+                    </Grid>
+
+                </Grid>
+
+
+                
+
+
+            </AccordionDetails>
+            {/* <Box
+                spacing={2}
+                sx={{ mt: 1, textAlign: 'center' }}
+            >
+                <Button
+                    sx={{
+                        minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
+                    }}
+                    variant="contained"
+                    type="submit"
+                >
+                    SAVE
+
+                </Button>
+
+            </Box> */}
+
+        </div>
+    );
+}
+export default Step4;
