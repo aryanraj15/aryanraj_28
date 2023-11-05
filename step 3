@@ -1,0 +1,459 @@
+
+import React, { useState } from "react";
+import {
+    Grid,
+    Typography,
+    Button,
+    Card,
+    CardContent,
+    FormControl,
+    Radio,
+    RadioGroup,
+
+    Checkbox,
+    FormControlLabel,
+} from "@mui/material";
+import Autocomplete from '@mui/material/Autocomplete';
+
+import TextField from '@mui/material/TextField';
+import CardActions from "@mui/material/CardActions";
+import AddIcon from '@mui/icons-material/Add';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+
+
+
+function Step3(props) {
+    const [showCard, setShowCard] = useState(false);
+    const [experiences, setExperiences] = useState([
+        createNewExperience(),
+    ]);
+    const [hasExperience, setHasExperience] = useState('no');
+
+
+    if (props.currentStep !== 3) {
+        return null;
+    }
+
+    const handleExperienceChange = (event) => {
+        setHasExperience(event.target.value);
+    };
+
+    const departmentList  = [
+        'Admin',
+        'IT',
+       ];
+
+    const designatinonList = [
+        'General Manager',
+        'DGM',
+       ];
+
+    function createNewExperience() {
+        return {
+            jobTitle: "",
+            organizationName: "",
+            location: "",
+            current: false,
+            fromDate: null,
+            toDate: null,
+        };
+    }
+
+    function addExperience() {
+        setExperiences([...experiences, createNewExperience()]);
+    }
+
+    function deleteExperience(index) {
+        setExperiences(experiences.filter((_, i) => i !== index));
+    }
+
+    function handleChange(index, field, value) {
+        setExperiences((prev) =>
+            prev.map((exp, i) => (i === index ? { ...exp, [field]: value } : exp))
+        );
+    }
+
+    return (
+        <>
+            <Grid item xs={12}>
+                <Card variant="outlined">
+                    <CardContent>
+                        <Typography variant="h6" component="h2">
+                            Present Work Experience
+                        </Typography>
+                        <Grid
+                            container
+                            direction="row"
+                            rowSpacing={0}
+                            columnSpacing={2}
+                            justify="flex-end"
+                            alignItems="center"
+                            sx={{ mb: 2 }}
+
+                        >
+
+                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="outlined-basic"
+                                    variant="outlined"
+                                    label="Organization Name"
+                                    defaultValue="Dr.YSR Aarogyasri Health Care Trust"
+                                    disabled
+
+
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <Autocomplete
+                            disablePortal
+                            margin="normal"
+                            fullWidth
+                            id="combo-box-demo"
+                            options={departmentList}
+                            sx={{ width: "100%", mt:2 }}
+                            renderInput={(params) => (
+                                <TextField required {...params} label="Department" />
+                            )}
+                            disabled
+                        />
+                            </Grid>
+
+                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <Autocomplete
+                            disablePortal
+                            margin="normal"
+                            fullWidth
+                            id="combo-box-demo"
+                            options={designatinonList}
+                            sx={{ width: "100%", mt:2 }}
+                            renderInput={(params) => (
+                                <TextField required {...params} label="Designation" />
+                            )}
+                            disabled
+                        />
+
+                            </Grid>
+                        </Grid>
+
+                        <Grid
+                            container
+                            direction="row"
+                            rowSpacing={0}
+                            columnSpacing={2}
+                            justify="flex-end"
+                            alignItems="center"
+                            sx={{ mb: 2 }}
+
+                        >  
+                           
+
+                            <Grid item xs={12} sm={3} md={3} lg={4}>
+
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                                    <DatePicker
+                                        label="From"
+                                        inputFormat="26-09-2022"
+                                        sx={{ width: "100%" }}
+
+                                        renderInput={(params) => (
+                                            <TextField
+                                                sx={{ width: "100%", mt: 1 }}
+                                                fullWidth
+                                                {...params}
+                                                disabled
+
+                                            />
+                                        )}
+                                    />
+
+                                </LocalizationProvider>
+                            </Grid>
+                            <Grid item xs={12} sm={3} md={3} lg={4}>
+
+                                <LocalizationProvider
+                                    dateAdapter={AdapterDayjs}>
+
+                                    <DatePicker
+                                        label="To"
+                                        inputFormat="DD-MM-YYYY"
+                                        sx={{ width: "100%" }}
+
+                                        renderInput={(params) => (
+                                            <TextField
+                                                sx={{ width: "100%", mt: 1 }}
+                                                fullWidth
+                                                {...params}
+                                                disabled
+
+                                            />
+                                        )}
+                                    />
+
+                                </LocalizationProvider>
+                            </Grid>
+                            <Grid item xs={12} sm={3} md={3} lg={4}>
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="outlined-basic"
+                                    variant="outlined"
+                                    label="Work Experience"
+                                    defaultValue="1 year, 1 months"
+                                    disabled
+                                    sx={{ width: "100%", mt: 1 }}
+                                />
+                            </Grid>
+                            
+                        </Grid>
+
+                        <Grid
+                            container
+                            direction="row"
+                            rowSpacing={0}
+                            columnSpacing={2}
+                            justify="flex-end"
+                            alignItems="center"
+                            sx={{ mb: 2 }}
+
+                        > 
+
+                        <Grid item xs={12} sm={3} md={3} lg={4}>
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="outlined-basic"
+                                    variant="outlined"
+                                    label="Total Work Experience"
+                                    defaultValue="4 years, 2 Months, 10 days"
+                                    disabled
+                                    sx={{ width: "100%", mt: 1 }}
+                                />
+                            </Grid>
+                            </Grid>
+
+                            <CardActions>
+                    <Button onClick={addExperience}>ADD Another</Button>
+                    <Button onClick={() => deleteExperience()}>DELETE</Button>
+                </CardActions>
+
+                  
+
+
+                    </CardContent>
+
+                </Card>
+            </Grid>
+
+            <div>
+                <FormControl component="fieldset">
+                    <Typography variant="h6" gutterBottom>
+                        Do you have previous experience?
+                    </Typography>
+                    <RadioGroup
+                        aria-label="experience"
+                        name="experience"
+                        value={hasExperience}
+                        onChange={handleExperienceChange}
+                        row
+                    >
+                        <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                        <FormControlLabel value="no" control={<Radio />} label="No" />
+                    </RadioGroup>
+                </FormControl>
+
+                {hasExperience === 'yes' && (
+
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography variant="h6">Add Work Experience</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                borderRadius="10px"
+
+                                onClick={() => setShowCard(true)}>
+                                ADD 
+                                <AddIcon></AddIcon>
+                            </Button>
+                        </Grid>
+                        {showCard &&
+                            experiences.map((exp, index) => (
+                                <ExperienceCard
+                                    key={index}
+                                    index={index}
+                                    experience={exp}
+                                    handleChange={handleChange}
+                                    addExperience={addExperience}
+                                    deleteExperience={deleteExperience}
+                                />
+                            ))}
+                    </Grid>
+
+                )}
+            </div>
+        </>
+    );
+};
+
+function ExperienceCard({ index, experience, handleChange, addExperience, deleteExperience }) {
+    return (
+        <Grid item xs={12}>
+            <Card variant="outlined">
+                <CardContent>
+                    <Typography variant="h5" component="h2">
+                        Work Experience {index + 1}
+                    </Typography>
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mb: 2 }}
+
+                    >
+
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="outlined-basic"
+                                variant="outlined"
+                                label="Organization Name"
+                                value={experience.jobTitle}
+                                onChange={(e) => handleChange(index, "organizationName", e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="outlined-basic"
+                                variant="outlined"
+                                label="Designation"
+                                value={experience.organizationName}
+                                onChange={(e) => handleChange(index, "Designation", e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="outlined-basic"
+                                variant="outlined"
+                                label="Location"
+                                value={experience.location}
+                                onChange={(e) => handleChange(index, "location", e.target.value)}
+                            />
+                        </Grid>
+                    </Grid>
+
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mb: 2 }}
+
+                    >
+
+                        <Grid item xs={12} sm={3} md={3} lg={4}>
+
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                                <DatePicker
+                                    label="From"
+                                    inputFormat="12-05-2022"
+                                    sx={{ width: "100%" }}
+
+                                    renderInput={(params) => (
+                                        <TextField
+                                            sx={{ width: "100%", mt: 1 }}
+                                            fullWidth
+                                            {...params}
+
+                                        />
+                                    )}
+                                />
+
+                            </LocalizationProvider>
+                        </Grid>
+                        <Grid item xs={12} sm={3} md={3} lg={4}>
+
+                            <LocalizationProvider
+                                dateAdapter={AdapterDayjs}>
+
+                                <DatePicker
+                                    label="To"
+                                    inputFormat="DD-MM-YYYY"
+                                    sx={{ width: "100%" }}
+
+                                    renderInput={(params) => (
+                                        <TextField
+                                            sx={{ width: "100%", mt: 1 }}
+                                            fullWidth
+                                            {...params}
+
+                                        />
+                                    )}
+                                />
+
+                            </LocalizationProvider>
+                        </Grid>
+                        <Grid item xs={12} sm={3} md={3} lg={4}>
+                            <TextField
+                                margin="normal"
+                                required
+                                defaultValue="1.1 years"
+                                fullWidth
+                                id="outlined-basic"
+                                variant="outlined"
+                                label="Work Experience"
+                                disabled
+                               
+                                sx={{ width: "100%", mt: 1 }}
+
+
+                            />
+
+                        </Grid>
+                    </Grid>
+
+                    {/* <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={experience.current}
+                                onChange={(e) => handleChange(index, "current", e.target.checked)}
+                            />
+                        }
+                        label="I am currently working here"
+                    /> */}
+                </CardContent>
+                <CardActions>
+                    <Button onClick={addExperience}>ADD Another</Button>
+                    <Button onClick={() => deleteExperience(index)}>DELETE</Button>
+                </CardActions>
+            </Card>
+        </Grid>
+    );
+}
+
+export default Step3;
