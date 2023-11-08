@@ -1,0 +1,151 @@
+import React, { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  IconButton,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  Grid,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DatePicker from '@mui/lab/DatePicker';
+
+const QualificationOptions = ['Option 1', 'Option 2', 'Option 3'];
+const InstituteOptions = ['Institute 1', 'Institute 2', 'Institute 3'];
+
+function App() {
+  const [rows, setRows] = useState([
+    {
+      qualification: '',
+      institute: '',
+      board: '',
+      admissionDate: null,
+      completionDate: null,
+      document: '',
+    },
+  ]);
+
+  const addRow = () => {
+    setRows([
+      ...rows,
+      {
+        qualification: '',
+        institute: '',
+        board: '',
+        admissionDate: null,
+        completionDate: null,
+        document: '',
+      },
+    ]);
+  };
+
+  const deleteRow = (index) => {
+    const newRows = [...rows];
+    newRows.splice(index, 1);
+    setRows(newRows);
+  };
+
+  const handleChange = (index, field, value) => {
+    const newRows = [...rows];
+    newRows[index][field] = value;
+    setRows(newRows);
+  };
+
+  return (
+    <div>
+      <Button variant="contained" color="primary" onClick={addRow}>
+        Add
+      </Button>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Qualification</TableCell>
+              <TableCell>Institute</TableCell>
+              <TableCell>Board</TableCell>
+              <TableCell>Admission Date</TableCell>
+              <TableCell>Completion Date</TableCell>
+              <TableCell>Upload</TableCell>
+              <TableCell>Delete</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map((row, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <FormControl>
+                    <Select
+                      value={row.qualification}
+                      onChange={(e) => handleChange(index, 'qualification', e.target.value)}
+                    >
+                      {QualificationOptions.map((option, i) => (
+                        <MenuItem key={i} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </TableCell>
+                <TableCell>
+                  <FormControl>
+                    <Select
+                      value={row.institute}
+                      onChange={(e) => handleChange(index, 'institute', e.target.value)}
+                    >
+                      {InstituteOptions.map((option, i) => (
+                        <MenuItem key={i} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    value={row.board}
+                    onChange={(e) => handleChange(index, 'board', e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <DatePicker
+                    value={row.admissionDate}
+                    onChange={(date) => handleChange(index, 'admissionDate', date)}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </TableCell>
+                <TableCell>
+                  <DatePicker
+                    value={row.completionDate}
+                    onChange={(date) => handleChange(index, 'completionDate', date)}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </TableCell>
+                <TableCell>
+                  <input
+                    type="file"
+                    onChange={(e) => handleChange(index, 'document', e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <IconButton onClick={() => deleteRow(index)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
+  );
+}
+
+export default App;
