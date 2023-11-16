@@ -197,3 +197,49 @@ function MyTable() {
 }
 
 export default MyTable;
+
+
+
+
+
+
+
+
+
+
+ <Grid xs={12} sm={4} >
+                                    <Tooltip title={isPharmacologicalDisabled ? "Please select Caste first" : ""} arrow>
+                                        <Autocomplete
+                                            disablePortal
+                                            margin="normal"
+                                            fullWidth
+                                            id="subcaste"
+                                            name="subcaste"
+                                            options={subcasteList}
+                                            value={subcasteList.find(
+                                                (option) => option.id === formik.values.subcaste?.id
+                                            ) || null}
+                                            onChange={(e, value) => {
+                                                console.log(value)
+                                                if (value === null) {
+                                                    formik.setFieldValue("subcaste", null)
+                                                }
+                                                else
+                                                    formik.setFieldValue("subcaste", value)
+                                            }}
+                                            
+                                           
+                                            getOptionLabel={(value) => value.label}
+                                            sx={{ width: "100%", mt: 2, mb: 1 }}
+                                            renderInput={(params) => (
+                                                <TextField {...params}
+                                                    label="Sub caste"
+                                                    onBlur={formik.handleBlur}
+                                                    helperText={formik.errors.subcaste && formik.touched.subcaste ? formik.errors.subcaste : null}
+                                                    error={formik.errors.subcaste && formik.touched.subcaste ? true : false}
+                                                />
+                                            )}
+                                        />
+                                        </Tooltip>
+
+                                    </Grid>
