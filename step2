@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, TextField, Button, Select, MenuItem, FormControl, InputLabel, Box, IconButton, Grid } from '@mui/material';
+import { Card, CardContent, TextField, Button, Select, MenuItem, InputLabel, Box, IconButton, Grid } from '@mui/material';
 import { RemoveCircle } from '@mui/icons-material';
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -14,6 +14,26 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import MyTable from "./components/MyTable";
+import {
+
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import CachedIcon from '@mui/icons-material/Cached';
+import CertificateTable from "./components/CertificateTable";
 const useStyles = makeStyles({
     accordianRoot: { border: "1px solid #B7E2FF" },
 });
@@ -29,699 +49,14 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-const GraduationDetailsCard = ({ val }) => {
 
-    const degrees = [
-        'X',
-        'XII',
-        'Graduation',
-        'Post-Graduation',
-        'Doctorate',
-        'Others'];
-
-    const boardList = [
-        'Matriculation',
-        'Intermediate',
-        'Diploma',
-        'Graduation',
-    ];
-
-    return (
-        <Card>
-            <CardContent>
-                <Typography variant="h5" component="div">
-                    {`${val}`}
-                </Typography>
-
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-
-
-                >
-
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <Autocomplete
-                         disabled
-                            disablePortal
-                            margin="normal"
-                            fullWidth
-                            id="combo-box-demo"
-                            size='small'
-                            options={boardList}
-                            sx={{ width: "100%", mt: 2 }}
-                            renderInput={(params) => (
-                                <TextField required    {...params} label="Qualification" />
-                            )}
-                        />
-                    </Grid>
-
-
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <Autocomplete
-                            disablePortal
-                            margin="normal"
-                            fullWidth
-                            id="combo-box-demo"
-                            size='small'
-                            options={boardList}
-                            sx={{ width: "100%", mt: 2 }}
-                            renderInput={(params) => (
-                                <TextField required    {...params} label="Institute Name" />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <Autocomplete
-                            disablePortal
-                            margin="normal"
-                            fullWidth
-                            id="combo-box-demo"
-                            size='small'
-                            options={boardList}
-                            sx={{ width: "100%", mt: 2 }}
-                            renderInput={(params) => (
-                                <TextField required    {...params} label="Field of Study" />
-                            )}
-                        />
-                    </Grid>
-                    
-                </Grid>
-
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-                    sx={{ mb: 2 }}
-
-                >  
-                <Grid item xs={12} sm={3} md={3} lg={4}>
-                        <TextField
-                            margin="normal"
-                            fullWidth
-                            label="Percentage"
-                            variant="outlined"
-                            size='small'
-                            sx={{ width: "100%", mt: 2 }}
-
-                        />
-                    </Grid>
-
-
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                            <DatePicker
-                                label="Admission Date"
-                                inputFormat="10-04-2021"
-                                sx={{ width: "100%" }}
-
-                                renderInput={(params) => (
-                                    <TextField
-                                        sx={{ width: "100%", mt: 1 }}
-                                        fullWidth
-                                        {...params}
-                                        size='small'
-
-                                    />
-                                )}
-                            />
-
-                        </LocalizationProvider>
-                    </Grid>
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <LocalizationProvider
-                            dateAdapter={AdapterDayjs}>
-
-                            <DatePicker
-                                label="Completion Date"
-                                inputFormat="12-06-2023"
-                                sx={{ width: "100%" }}
-
-                                renderInput={(params) => (
-                                    <TextField
-                                        sx={{ width: "100%", mt: 1 }}
-                                        fullWidth
-                                        {...params}
-                                        size='small'
-
-                                    />
-                                )}
-                            />
-
-                        </LocalizationProvider>
-                    </Grid>
-
-                    
-                </Grid>
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-                    sx={{ mb: 2 }}
-
-                > 
-
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <Button sx={{ mb: 2 }} component="label" size="medium" variant="contained" startIcon={<CloudUploadIcon />}>
-                            Upload Documents
-                            <VisuallyHiddenInput type="file" />
-                        </Button>
-
-                    </Grid>
-                    </Grid>
-
-
-
-
-
-            </CardContent>
-        </Card>
-    )
-
-};
-
-
-
-const EducationDetailsCard = ({ val }) => {
-    const degrees = [
-        'Matriculation',
-        'Intermediate',
-        'Diploma',
-        'X',
-        'XII',
-        'Graduation',
-        'Post-Graduation',
-        'Doctorate',
-        'Others'];
-
-    const boardList = [
-        'Matriculation',
-        'Intermediate',
-        'Diploma',
-    ];
-
-    return (
-        <Card>
-            <CardContent>
-                <Typography variant="h5" component="div">
-                    {`${val}`}
-                </Typography>
-
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-
-
-                >
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <Autocomplete
-                            disablePortal
-                           disabled
-                            margin="normal"
-                            fullWidth
-                            id="combo-box-demo"
-                            size='small'
-                            options={boardList}
-                            sx={{ width: "100%", mt: 2 }}
-                            renderInput={(params) => (
-                                <TextField required    {...params} label="Qualification" />
-                            )}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-                        <TextField
-                            margin="normal"
-                            fullWidth
-                            label="Institute Name"
-                            variant="outlined"
-                            size='small'
-                            style={{ margin: '10px 0' }}
-
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <Autocomplete
-                            disablePortal
-                            margin="normal"
-                            fullWidth
-                            id="combo-box-demo"
-                            size='small'
-                            options={boardList}
-                            sx={{ width: "100%", mt: 2 }}
-                            renderInput={(params) => (
-                                <TextField required    {...params} label="Boards" />
-                            )}
-                        />
-                    </Grid>
-                    
-                </Grid>
-
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-                    sx={{ mb: 2 }}
-
-                > 
-                <Grid item xs={12} sm={3} md={3} lg={4}>
-                        <TextField
-                            margin="normal"
-                            fullWidth
-                            label="Percentage"
-                            variant="outlined"
-                            size='small'
-                            sx={{ width: "100%", mt: 1 }}
-
-                        />
-                    </Grid>
-
-
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                            <DatePicker
-                                label="Admission  Date"
-                                inputFormat="10-04-2021"
-                                sx={{ width: "100%" }}
-
-                                renderInput={(params) => (
-                                    <TextField
-                                        sx={{ width: "100%", mt: 1 }}
-                                        fullWidth
-                                        {...params}
-                                        size='small'
-
-                                    />
-                                )}
-                            />
-
-                        </LocalizationProvider>
-                    </Grid>
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <LocalizationProvider
-                            dateAdapter={AdapterDayjs}>
-
-                            <DatePicker
-                                label="Completion Date"
-                                inputFormat="12-06-2023"
-                                sx={{ width: "100%" }}
-
-                                renderInput={(params) => (
-                                    <TextField
-                                        sx={{ width: "100%", mt: 1 }}
-                                        fullWidth
-                                        {...params}
-                                        size='small'
-
-                                    />
-                                )}
-                            />
-
-                        </LocalizationProvider>
-                    </Grid>
-
-                   
-
-                </Grid>
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-                    sx={{ mb: 2 }}
-
-                > 
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <Button sx={{ mb: 2 }} component="label" size="medium" variant="contained" startIcon={<CloudUploadIcon />}>
-                            Upload Documents
-                            <VisuallyHiddenInput type="file" />
-                        </Button>
-
-                    </Grid>
-                    </Grid>
-
-
-
-
-            </CardContent>
-        </Card>
-    )
-
-};
-
-const EducationCard = ({ education, index }) => {
-    const degrees = [
-        'X',
-        'XII',
-        'Graduation',
-        'Post-Graduation',
-        'Doctorate',
-        'Others'];
-
-    const boardList = [
-        'Matriculation',
-        'Intermediate',
-        'Diploma',
-    ];
-
-
-    return (
-        <>
-
-            <Card>
-                <CardContent>
-                    <Typography variant="h6" component="div">
-                        {`Further Education Details${index + 1}`}
-                    </Typography>
-
-                    <Grid
-                        container
-                        direction="row"
-                        rowSpacing={0}
-                        columnSpacing={2}
-                        justify="flex-end"
-                        alignItems="center"
-
-
-                    >
-                        
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
-                            <Autocomplete
-                                   type='small'
-                                margin="normal"
-                                fullWidth
-                                options={degrees}
-                                renderInput={(params) =>
-                                    <TextField {...params}
-                                        label="Qualification"
-                                        variant="outlined"
-                                        sx={{ mt: 2 }}
-
-                                    />}
-                                style={{ margin: '10px 0' }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
-                            <TextField
-                                margin="normal"
-                                fullWidth
-                                label="Institute Name"
-                                variant="outlined"
-                                style={{ margin: '10px 0' }}
-                                type='small'
-
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                            <Autocomplete
-                              type='small'
-                                disablePortal
-                                margin="normal"
-                                fullWidth
-                                id="combo-box-demo"
-                                options={boardList}
-                                sx={{ width: "100%", mt: 2 }}
-                                renderInput={(params) => (
-                                    <TextField required {...params} label=" Field of Study" />
-                                )}
-                            />
-                        </Grid>
-                    </Grid>
-
-                    <Grid
-                        container
-                        direction="row"
-                        rowSpacing={0}
-                        columnSpacing={2}
-                        justify="flex-end"
-                        alignItems="center"
-                        sx={{ mb: 2 }}
-
-                    >
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
-                            <TextField
-                              type='small'
-                                margin="normal"
-                                fullWidth
-                                label="Percentage"
-                                variant="outlined"
-
-                                sx={{ width: "100%", mt: 1 }}
-
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                                <DatePicker
-                                    label="Admission Date"
-                                    inputFormat="10-04-2021"
-                                    sx={{ width: "100%" }}
-                                    type='small'
-                                    renderInput={(params) => (
-                                        <TextField
-                                            sx={{ width: "100%", mt: 1 }}
-                                            fullWidth
-                                            {...params}
-                                           
-
-                                        />
-                                    )}
-                                />
-
-                            </LocalizationProvider>
-                        </Grid>
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                            <LocalizationProvider
-                                dateAdapter={AdapterDayjs}>
-
-                                <DatePicker
-                                    label="Completion Date"
-                                    inputFormat="12-06-2023"
-                                    sx={{ width: "100%" }}
-                                    type='small'
-                                    renderInput={(params) => (
-                                        <TextField
-                                            sx={{ width: "100%", mt: 1 }}
-                                            fullWidth
-                                            {...params}
-                                            
-
-                                        />
-                                    )}
-                                />
-
-                            </LocalizationProvider>
-                        </Grid>
-
-                    </Grid>
-                    <Grid
-                        container
-                        direction="row"
-                        rowSpacing={0}
-                        columnSpacing={2}
-                        justify="flex-end"
-                        alignItems="center"
-                        sx={{ mb: 2 }}
-
-                    >
-
-                        <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <Button sx={{ mb: 2 }} component="label" size="medium" variant="contained" startIcon={<CloudUploadIcon />}>
-                            Upload Documents
-                            <VisuallyHiddenInput type="file" />
-                        </Button>
-                        </Grid>
-                    </Grid>
-                </CardContent>
-            </Card>
-        </>
-    );
-};
-
-const CertificateCard = ({ certificate, index }) => {
-    const degrees = [
-        'X',
-        'XII',
-        'Graduation',
-        'Post-Graduation',
-        'Doctorate',
-        'Others'];
-
-
-    return (
-        <Card>
-            <CardContent>
-                <Typography variant="h5" component="div">
-
-                    {`Certificate ${index + 1}`}
-
-                </Typography>
-
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-
-
-                >
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-                        <TextField
-                            margin="normal"
-                            fullWidth
-                            size='small'
-                          
-                            label="Name of the Course"
-                            variant="outlined"
-                            style={{ margin: '10px 0' }}
-
-
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                            <DatePicker
-                                label="Start Date"
-                                inputFormat="01-01-2023"
-                                sx={{ width: "100%" }}
-                                defaultValue={dayjs('2022-04-17')}
-                                renderInput={(params) => (
-                                    <TextField
-                                    size='small'
-                                        sx={{ width: "100%", mt: 2 }}
-                                        fullWidth
-                                        {...params}
-
-
-
-
-                                    />
-                                )}
-                            />
-
-                        </LocalizationProvider>
-                    </Grid>
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-
-
-
-                        <LocalizationProvider
-                            dateAdapter={AdapterDayjs}>
-
-                            <DatePicker
-                                label=" End Date"
-                                inputFormat="03-01-2023"
-                                sx={{ width: "100%" }}
-
-                                renderInput={(params) => (
-                                    <TextField
-                                        sx={{ width: "100%", mt: 2 }}
-                                        fullWidth
-                                        {...params}
-                                        size='small'
-
-                                    />
-                                )}
-                            />
-
-                        </LocalizationProvider>
-                    </Grid>
-
-
-                </Grid>
-
-
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-                    sx={{ mb: 2 }}
-                >
-                    <Grid item xs={12} sm={3} md={3} lg={4}>
-                        <TextField
-                            margin="normal"
-                            fullWidth
-                            label="Course Duration"
-                            defaultValue="3 days"
-                            variant="outlined"
-                            disabled
-                            style={{ margin: '10px 0' }}
-                            size='small'
-
-                        />
-                    </Grid>
-
-
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                    <Button  component="label" size="medium" variant="contained" startIcon={<CloudUploadIcon />}>
-                            Upload Certificate
-                            <VisuallyHiddenInput type="file" />
-                        </Button>
-                    </Grid>
-
-                </Grid>
-
-
-
-
-            </CardContent>
-        </Card>
-    );
-};
-
-function Step2(props) {
+const PageTwo = ({ onButtonClick }) => {
 
     const classes = useStyles();
     const [expand, setExpand] = useState(false);
     const [educations, setEducations] = useState([{}]);
     const [certificates, setCertificates] = useState([{}]);
-
-    if (props.currentStep !== 2) {
-        return null;
-    }
-
+    const [hasphysicalHand, setHasphysicalHand] = useState("no");
 
     const handleAddAnother = () => {
         setEducations([...educations, {}]);
@@ -737,6 +72,9 @@ function Step2(props) {
         setCertificates(certificates.filter((_, i) => i !== index));
     };
 
+    const handlephysicalhand = (event) => {
+        setHasphysicalHand(event.target.value);
+    };
     return (
         <>
             <div style={{ padding: "0px 60px", marginBottom: "5px" }}>
@@ -767,42 +105,88 @@ function Step2(props) {
                     <AccordionDetails>
                         {/* <ThemeProvider theme={theme}> */}
                         <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
-                            <p><b>Note:</b> All fields are mandatory</p>
+                            <p><b>Note:</b> All the fields are mandatory</p>
                         </div>
-                        <div>
-                            <Grid>
-                                <EducationDetailsCard val="Matriculation"> </EducationDetailsCard>
-                                <EducationDetailsCard val="Intermediate/Diploma"></EducationDetailsCard>
-                                <GraduationDetailsCard val="Graduation" ></GraduationDetailsCard>
-                                <Grid item xs={12} sm={3} md={3} lg={3}>
-                                    {educations.map((education, index) => (
-                                        <div key={index}>
-                                            <EducationCard education={education} index={index} />
-                                            <Button
-                                                variant="contained" color="error"
-                                                onClick={() => handleDelete(index)}
-                                                style={{ margin: '10px' }}>
-                                                DELETE
-                                            </Button>
-                                        </div>
-                                    ))}
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={3} lg={3}>
+                        <Grid
+                            container
+                            direction="row"
+                            rowSpacing={0}
+                            columnSpacing={2}
+                            justify="flex-end"
+                            alignItems="center"
+                            sx={{ mb: 1 }}
+                        >
+                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                <div>
+                                    <FormControl>
+                                        <FormLabel id="demo-row-radio-buttons-group-label">
+                                            Please choose if you are from Technical or Non Technical Background?
+                                        </FormLabel>
 
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={3} lg={3}>
-                                    <Button
-                                        direction="row"
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={handleAddAnother}
-                                        style={{ margin: '10px' }}>
-                                        ADD ANOTHER
-                                    </Button>
-                                </Grid>
+                                        <RadioGroup
+                                            row
+                                            aria-labelledby="demo-row-radio-buttons-group-label"
+                                            name="row-radio-buttons-group"
+                                            value={hasphysicalHand}
+                                            onChange={handlephysicalhand}
+                                        >
+                                            <FormControlLabel value="yes"
+                                                control={<Radio />}
+                                                label="Technical" />
+                                            <FormControlLabel value="no"
+                                                control={<Radio />}
+                                                label="Non-Technical" />
+
+                                        </RadioGroup>
+
+                                    </FormControl>
+                                </div>
                             </Grid>
+                            {/* <Grid item xs={12} sm={4} md={4} lg={8}> */}
+                            {hasphysicalHand === "yes" && (
+                                <>
+                                    <Grid item xs={12} sm={4} md={4} lg={3}>
 
-                        </div>
+                                        <TextField
+                                            margin="0"
+                                            required
+                                            fullWidth
+                                            type="text"
+                                            id="Aadhaar"
+                                            name="Aadhaar"
+                                            label="APMC Number"
+                                            size="small"
+
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} sm={4} md={4} lg={3}>
+
+                                        <Button sx={{ mb: 3 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                            Upload
+                                            <VisuallyHiddenInput type="file" />
+                                        </Button>
+                                    </Grid>
+                                </>
+
+                            )}
+                        </Grid >
+
+                        <Grid>
+                            <Box sx={{ overflow: "auto", my: 2 }} component={Paper} elevation={2}>
+                                <Box sx={{
+                                    width: "100%",
+                                    height: "auto",
+                                    display: "table",
+                                    tableLayout: "fixed",
+                                }}
+                                >
+                                    <MyTable></MyTable>
+                                </Box>
+
+                            </Box>
+                        </Grid>
+
                         {/* </ThemeProvider> */}
                     </AccordionDetails>
                 </Accordion>
@@ -841,33 +225,20 @@ function Step2(props) {
                             <p><b>Note:</b> All fields are mandatory</p>
                         </div>
                         <div>
-                            <Grid>
-                                <Grid item xs={12} sm={3} md={3} lg={3}>
-                                    {certificates.map((certificate, index) => (
-                                        <div key={index}>
-                                            <CertificateCard certificate={certificate} index={index} />
-                                            <Button
-                                                variant="contained" color="error"
-                                                onClick={() => handleDeleteCertificate(index)}
-                                                style={{ margin: '10px' }}>
-                                                DELETE
-                                            </Button>
-                                        </div>
-                                    ))}
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={3} lg={3}>
+                            <Grid >
+                                <Box sx={{ overflow: "auto", my: 2 }} component={Paper} elevation={2}>
+                                    <Box sx={{
+                                        width: "100%",
+                                        height: "auto",
+                                        display: "table",
+                                        tableLayout: "fixed",
+                                    }}
 
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={3} lg={3}>
-                                    <Button
-                                        direction="row"
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={handleAddAnotherCertificate}
-                                        style={{ margin: '10px' }}>
-                                        ADD ANOTHER
-                                    </Button>
-                                </Grid>
+                                    >
+                                        <CertificateTable></CertificateTable>
+                                    </Box>
+
+                                </Box>
                             </Grid>
 
                         </div>
@@ -904,26 +275,49 @@ function Step2(props) {
                     <AccordionDetails>
                         <Card>
 
-                        <Button  sx={{alignItems:"center"}}component="label" size="medium" variant="outlined" startIcon={<CloudUploadIcon />}>
-                            Upload All Documents
-                            <VisuallyHiddenInput type="file" />
-                        </Button>
+                            <Button sx={{ alignItems: "center" }} component="label" size="medium" variant="outlined" startIcon={<CloudUploadIcon />}>
+                                Upload All Documents
+                                <VisuallyHiddenInput type="file" />
+                            </Button>
 
-                                  
-                               
-                        
                         </Card>
-
-
 
                     </AccordionDetails>
                 </Accordion>
+                <Box
+                    spacing={2}
+                    sx={{ mt: 1, textAlign: 'center' }}
+                >
+
+                    <Button
+                        type="button"
+                        sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                        onClick={() => onButtonClick("pageone")}
+                        variant="outlined" color="secondary"
+                    >
+                        <CachedIcon /> Previous
+                    </Button>
+                    <Button
+                        sx={{
+                            minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
+                        }}
+                        variant="contained"
+                        type="submit"
+                        onClick={() => onButtonClick("pagethree")}
+                    >
+                        SAVE
+                        <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
+                    </Button>
+                </Box>
+
             </div>
         </>
     );
 };
 
-export default Step2;
+
+export default PageTwo;
+
 
 
 
