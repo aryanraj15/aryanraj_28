@@ -1,0 +1,28 @@
+ <Autocomplete
+                                disablePortal
+                                margin="0"
+                                size="small"
+                                id="label"
+                                name="label"
+                                options={genderList}
+                                value={genderList.find(
+                                    (option) => option.label === formik.values.label?.label
+                                ) || null}
+                                onChange={(e, value) => {
+                                    if (value === null) {
+                                        formik.setFieldValue("label", null)
+                                    }
+                                    else
+                                        formik.setFieldValue("label", value)
+                                }}
+                                getOptionLabel={(value) => value.label}
+                                sx={{ width: "100%" }}
+                                renderInput={(params) => (
+                                    <TextField {...params}
+                                        label="Gender"
+                                        onBlur={formik.handleBlur}
+                                        helperText={formik.errors.label && formik.touched.label ? formik.errors.label : null}
+                                        error={formik.errors.label && formik.touched.label ? true : false}
+                                    />
+                                )}
+                            />
