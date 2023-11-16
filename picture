@@ -4,14 +4,14 @@ import React from "react";
 import Card from "@material-ui/core/Card";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
-import Avatar from "@material-ui/core/Avatar";
 
+import AvatarImage from "./avatar.jpg"
 //Tabs
 import { withStyles } from "@material-ui/core/styles";
 
 const styles = theme => ({
   root: {
-    width: 500,
+    width: 250,
     display: "flex",
     justifyContent: "center",
     alignItems: "flex-end"
@@ -20,8 +20,8 @@ const styles = theme => ({
     display: "none"
   },
   img: {
-    width: 200,
-    height: 256,
+    width: 110,
+    height: 110,
     margin: "auto",
     display: "block",
     maxWidth: "100%",
@@ -33,7 +33,7 @@ class ImageUploadCard extends React.Component {
   state = {
     mainState: "initial", // initial
     imageUploaded: 0,
-    selectedFile: "avatar.jpg"
+    selectedFile: AvatarImage
   };
 
   handleUploadClick = event => {
@@ -71,7 +71,7 @@ class ImageUploadCard extends React.Component {
         </Grid>
         <label htmlFor="contained-button-file">
           <Button variant="contained" component="span">
-            Select Image
+            Upload Image
             <input
               accept="image/*"
               className={classes.input}
@@ -130,3 +130,4 @@ class ImageUploadCard extends React.Component {
 }
 
 export default withStyles(styles, { withTheme: true })(ImageUploadCard);
+
