@@ -1,5 +1,29 @@
+{
 
-import * as React from "react";
+     "userId":4,
+
+    "accNo":"81010191367",
+
+    "empAccountType":73,
+
+    "accHolderName":"Soham",
+
+    "ifscCode":"UBIN0902411",
+
+    "crtBy":1,
+
+    "updBy":1
+
+}
+
+
+
+
+
+
+
+
+import React, { useEffect, useRef } from "react";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Button from "@mui/material/Button";
 import AddBoxIcon from "@mui/icons-material/AddBox";
@@ -18,6 +42,7 @@ import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import CachedIcon from '@mui/icons-material/Cached';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
+import { useSelector } from "react-redux";
 import FormLabel from '@mui/material/FormLabel';
 import {
     Grid,
@@ -25,7 +50,7 @@ import {
     Box
 
 } from "@mui/material";
-
+import axios from 'axios';
 const validationSchema = Yup.object().shape({
     ifscCode: Yup.string().required('IFSC is required'),
     bankName: Yup.string().required('Bank Name is required'),
@@ -38,7 +63,13 @@ const validationSchema = Yup.object().shape({
 
 
 const PageFour = ({ onButtonClick }) => {
+    const user = useSelector((state) => state.loginReducer);
+    console.log(user)
 
+    const [bankName, setBankName] = useState("");
+    const [branchName, setBranchName] = useState("");
+    const [enteredValue, setEnteredValue] = useState('');
+    const [accountList, setAccountList]= useState([]);
 
     const formik = useFormik({
         initialValues: {
@@ -57,23 +88,6 @@ const PageFour = ({ onButtonClick }) => {
         },
     });
 
-    const options = [
-        { label: 'One', id: 1 },
-        { label: 'Two', id: 2 },
-    ];
-
-    const optionsBank = [
-        { label: 'Savings Account', id: 1 },
-        { label: 'Current Account', id: 2 },
-        { label: 'Salary Account', id: 3 },
-    ];
-
-    const BankName = [
-        { label: 'State Bank of India', id: 1 },
-        { label: 'Union Bank of India', id: 2 },
-        { label: 'Canara bank', id: 3 },
-        { label: 'HDFC Bank', id: 3 },
-    ];
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
         clipPath: 'inset(50%)',
@@ -86,431 +100,396 @@ const PageFour = ({ onButtonClick }) => {
         width: 1,
     });
 
+    const handleTextfield = (e) => {
+        const newValue = e.target.value;
+        setEnteredValue(newValue);
+    }
+    console.log("aryan", enteredValue)
+
+
+    useEffect(() => {
+
+        let req = {
+            "ifscCode": enteredValue
+        }
+        if (enteredValue.length === 11) {
+            axios.post(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/branchname`, req).then(response => {
+
+                console.log(response.data.result.branchList.bankId.bankName)
+                console.log(response.data.result.branchList.branchName)
+                setBranchName(response.data.result.branchList.branchName);
+                setBankName(response.data.result.branchList.bankId.bankName);
+
+            })
+                .catch(error => {
+                    setBranchName([]);
+                    setBankName([]);
+                    console.log(error);
+                });
+        }
+
+        axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/initiate-dropdown`).then(response => {
+            let sortedAccountData = response.data.result.AccountTypes.map((value) => {
+
+                value.AccountTypes = value.AccountTypes
+                return value;
+
+            })
+            console.log(sortedAccountData);
+            setAccountList(sortedAccountData)
+
+        })
+            .catch(error => {
+                setAccountList([]);
+                console.log(error);
+            });
+
+
+    }, [enteredValue]);
+ 
+
+    const savePersonalDetails = async (data) => {
+  
+        try {
+          let body = {
+            userId:4,
+            accNo: formik.values.accountNumber,
+            empAccountType: formik.values.AccountTypes.valueId,
+            accHolderName: formik.values.accholdername,
+            ifscCode: "UBIN0902411",
+            crtBy: user.data.userdetails.user.userId,
+            updBy: user.data.userdetails.user.userId,
+ 
+
+          };
+
+       
+          console.log("the saved details  body", body);
+          const res = await axios.post(
+            "http://localhost:8099/usermanagementapi/employee-enrollment/saveBankDetail",
+   
+            body
+          );
+          console.log("the saved details  areeeeee", res);
+          if (res.data.statusCode == 200) {
+            console.log("the result ", res.data.result);
+            //setPatientId("The Registered Patient Id is " + res.data.result);
+            onButtonClick("pagetwo")
+            //handleClickOpen();
+            //showSnackbar(res.data.result, "success");
+          }
+        } catch (error) {
+          alert("Data has not saved", error);
+          console.log(error.message);
+        }
+      };
+
 
 
     return (
         <form onSubmit={formik.handleSubmit}>
-        <div style={{ padding: "0px 60px", marginBottom: "5px" }}>
+            <div style={{ padding: "0px 60px", marginBottom: "5px" }}>
 
 
-            <AccordionDetails>
-                <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
-                    <p><b>Note:</b> Please fill the Bank Details, all fields are mandatory</p>
-                </div>
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-                    sx={{ mb: 2 }}
+                <AccordionDetails>
+                    <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
+                        <p><b>Note:</b> Please fill the Bank Details, all fields are mandatory</p>
+                    </div>
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mb: 2 }}
 
-                >
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                    <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="ifscCode"
-                            label="IFSC Code"
-                            name="ifscCode"
-                            value={formik.values.ifscCode || ""}
-                            size="small"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={
-                                formik.touched.ifscCode &&
-                                Boolean(formik.errors.ifscCode)
-                            }
-                            helperText={
-                                formik.touched.ifscCode &&
-                                formik.errors.ifscCode
-                            }
-                            
-                        />
-                        
+                    >
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="ifscCode"
+                                label="IFSC Code"
+                                name="ifscCode"
+                                // value={formik.values.ifscCode || ""}
+                                value={enteredValue}
+                                size="small"
+                                onChange={handleTextfield}
+                            // onBlur={formik.handleBlur}
+                            // error={
+                            //     formik.touched.ifscCode &&
+                            //     Boolean(formik.errors.ifscCode)
+                            // }
+                            // helperText={
+                            //     formik.touched.ifscCode &&
+                            //     formik.errors.ifscCode
+                            // }
+
+                            />
+
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="bankName"
+                                label="Bank Name"
+                                name="bankName"
+                                // value={formik.values.ifscCode || ""}
+                                value={bankName}
+                                size="small"
+                                onChange={handleTextfield}
+                            // onBlur={formik.handleBlur}
+                            // error={
+                            //     formik.touched.ifscCode &&
+                            //     Boolean(formik.errors.ifscCode)
+                            // }
+                            // helperText={
+                            //     formik.touched.ifscCode &&
+                            //     formik.errors.ifscCode
+                            // }
+
+                            />
+
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="branchName"
+                                label="Branch Name"
+                                name="branchName"
+                                // value={formik.values.ifscCode || ""}
+                                value={branchName}
+                                size="small"
+                                onChange={handleTextfield}
+                            // onBlur={formik.handleBlur}
+                            // error={
+                            //     formik.touched.ifscCode &&
+                            //     Boolean(formik.errors.ifscCode)
+                            // }
+                            // helperText={
+                            //     formik.touched.ifscCode &&
+                            //     formik.errors.ifscCode
+                            // }
+
+                            />
+
+                        </Grid>
+
+
                     </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mb: 2 }}
 
-                        <Autocomplete
-                            disablePortal
-                            margin="0"
-                            fullWidth
-                            size="small"
-                            id="bankName"
-                            name="bankName"
-                            options={optionsBank}
-                            value={optionsBank.find(
-                                (option) => option.id === formik.values.bankName?.id
-                            ) || null}
-                            onChange={(e, value) => {
-                                console.log(value)
-                                if (value === null) {
-                                    formik.setFieldValue("bankName", null)
+                    >
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="accountNumber"
+                                label="Account Number"
+                                name="accountNumber"
+                                value={formik.values.accountNumber || ""}
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={
+                                    formik.touched.accountNumber &&
+                                    Boolean(formik.errors.accountNumber)
                                 }
-                                else
-                                    formik.setFieldValue("bankName", value)
-                            }}
-
-                            getOptionLabel={(value) => value.label}
-                            sx={{ width: "100%", mt: 2, mb: 1 }}
-                            renderInput={(params) => (
-                                <TextField {...params}
-                                    label="Bank Name"
-                                    onBlur={formik.handleBlur}
-                                    helperText={formik.errors.bankName && formik.touched.bankName ? formik.errors.bankName : null}
-                                    error={formik.errors.bankName && formik.touched.bankName ? true : false}
-                                />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                    <Autocomplete
-                            disablePortal
-                            margin="0"
-                            fullWidth
-                            size="small"
-                            id="branchName"
-                            name="branchName"
-                            options={optionsBank}
-                            value={optionsBank.find(
-                                (option) => option.id === formik.values.branchName?.id
-                            ) || null}
-                            onChange={(e, value) => {
-                                console.log(value)
-                                if (value === null) {
-                                    formik.setFieldValue("branchName", null)
+                                helperText={
+                                    formik.touched.accountNumber &&
+                                    formik.errors.accountNumber
                                 }
-                                else
-                                    formik.setFieldValue("branchName", value)
-                            }}
 
-                            getOptionLabel={(value) => value.label}
-                            sx={{ width: "100%", mt: 2, mb: 1 }}
-                            renderInput={(params) => (
-                                <TextField {...params}
-                                    label="Branch Name"
-                                    onBlur={formik.handleBlur}
-                                    helperText={formik.errors.branchName && formik.touched.branchName ? formik.errors.branchName : null}
-                                    error={formik.errors.branchName && formik.touched.branchName ? true : false}
-                                />
-                            )}
-                        />
+                            />
 
-                    </Grid>
+                        </Grid>
 
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
 
-                </Grid>
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-                    sx={{ mb: 2 }}
-
-                >
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="accountNumber"
-                            label="Account Number"
-                            name="accountNumber"
-                            value={formik.values.accountNumber || ""}
-                            size="small"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={
-                                formik.touched.accountNumber &&
-                                Boolean(formik.errors.accountNumber)
-                            }
-                            helperText={
-                                formik.touched.accountNumber &&
-                                formik.errors.accountNumber
-                            }
-                            
-                        />
-                       
-                    </Grid>
-
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <Autocomplete
+                                disablePortal
+                                margin="0"
+                                fullWidth
+                                size="small"
+                                id="AccountTypes"
+                                name="AccountTypes"
+                                options={accountList}
+                                value={accountList.find(
+                                    (option) => option.valueId === formik.values.AccountTypes?.valueId
+                                ) || null}
+                                onChange={(e, value) => {
+                                    console.log(value)
+                                    if (value === null) {
+                                        formik.setFieldValue("AccountTypes", null)
+                                    }
+                                    else
+                                        formik.setFieldValue("AccountTypes", value)
+                                }}
 
 
-                    <Autocomplete
-                            disablePortal
-                            margin="0"
-                            fullWidth
-                            size="small"
-                            id="accounttype"
-                            name="accounttype"
-                            options={optionsBank}
-                            value={optionsBank.find(
-                                (option) => option.id === formik.values.accounttype?.id
-                            ) || null}
-                            onChange={(e, value) => {
-                                console.log(value)
-                                if (value === null) {
-                                    formik.setFieldValue("accounttype", null)
+                                getOptionLabel={(value) => value.valueName}
+                                sx={{ width: "100%", mt: 2}}
+                                renderInput={(params) => (
+                                    <TextField {...params}
+                                        label="Account Type"
+                                        onBlur={formik.handleBlur}
+                                        helperText={formik.errors.AccountTypes && formik.touched.AccountTypes ? formik.errors.AccountTypes : null}
+                                        error={formik.errors.AccountTypes && formik.touched.AccountTypes ? true : false}
+                                    />
+                                )}
+                            />
+
+                        </Grid>
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="accholdername"
+                                label="Account Holder Name"
+                                name="accholdername"
+                                value={formik.values.accholdername || ""}
+                                size="small"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={
+                                    formik.touched.accholdername &&
+                                    Boolean(formik.errors.accholdername)
                                 }
-                                else
-                                    formik.setFieldValue("accounttype", value)
-                            }}
+                                helperText={
+                                    formik.touched.accholdername &&
+                                    formik.errors.accholdername
+                                }
 
-                            getOptionLabel={(value) => value.label}
-                            sx={{ width: "100%", mt:2}}
-                            renderInput={(params) => (
-                                <TextField {...params}
-                                    label="Account Type"
-                                    onBlur={formik.handleBlur}
-                                    helperText={formik.errors.accounttype && formik.touched.accounttype ? formik.errors.accounttype : null}
-                                    error={formik.errors.accounttype && formik.touched.accounttype ? true : false}
-                                />
-                            )}
-                        />
+                            />
+
+                        </Grid>
+
 
                     </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mb: 2 }}
 
-                    <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="accholdername"
-                            label="Account Holder Name"
-                            name="accholdername"
-                            value={formik.values.accholdername || ""}
-                            size="small"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={
-                                formik.touched.accholdername &&
-                                Boolean(formik.errors.accholdername)
-                            }
-                            helperText={
-                                formik.touched.accholdername &&
-                                formik.errors.accholdername
-                            }
-                            
-                        />
-                       
+                    >
+
+
+                        <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                            <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                Upload Bank PassBook
+                                <VisuallyHiddenInput type="file" />
+
+                            </Button>
+
+                        </Grid>
+
+
+                    </Grid>
+                    <Grid
+                        container
+                        direction="row"
+                        rowSpacing={0}
+                        columnSpacing={2}
+                        justify="flex-end"
+                        alignItems="center"
+                        sx={{ mt: 1, textAlign: 'center' }}
+
+                    >
+                        <Grid item xs={12} sm={4} md={4} lg={12}>
+                            <FormControl component="fieldset">
+
+                                <FormGroup aria-label="position" row>
+
+                                    <FormControlLabel
+                                        value="end"
+                                        control={<Checkbox />}
+                                        label="I hereby agree that all the information provided above are true to my knowledge."
+                                        labelPlacement="end"
+                                    />
+                                </FormGroup>
+                            </FormControl>
+                        </Grid>
+
                     </Grid>
 
 
-                </Grid>
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
-                    sx={{ mb: 2 }}
 
+
+
+                </AccordionDetails>
+
+                <Box
+                    spacing={2}
+                    sx={{ margin: 2, textAlign: 'center' }}
                 >
 
+                    <Button
+                        type="button"
+                        sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                        onClick={() => onButtonClick("pagethree")}
+                        variant="outlined" color="secondary"
 
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-
-                        <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-                            Upload Bank PassBook
-                            <VisuallyHiddenInput type="file" />
-
-                        </Button>
-
-                    </Grid>
-
-
-                </Grid>
-                <Grid
-                    container
-                    direction="row"
-                    rowSpacing={0}
-                    columnSpacing={2}
-                    justify="flex-end"
-                    alignItems="center"
+                    >
+                        <CachedIcon /> Previous
+                    </Button>
+                    <Button
+                        sx={{
+                            minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
+                        }}
+                        variant="contained"
+                        type="submit"
+                        onClick={() => onButtonClick(alert("Submitted"))}
+                    >
+                        SUBMIT
+                        <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
+                    </Button>
+                </Box>
+                <Box
+                    spacing={2}
                     sx={{ mt: 1, textAlign: 'center' }}
-
                 >
-                    <Grid item xs={12} sm={4} md={4} lg={12}>
-                        <FormControl component="fieldset">
+                    <Button
+                        sx={{
+                            minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
+                        }}
+                        variant="contained"
+                        type="submit"
+                        onClick={() => { savePersonalDetails(); 
+                           // onButtonClick("pagetwo")
+                        }}
+                    >
+                        SAVE
+                        
+                    </Button>
 
-                            <FormGroup aria-label="position" row>
-
-                                <FormControlLabel
-                                    value="end"
-                                    control={<Checkbox />}
-                                    label="I hereby agree that all the information provided above are true to my knowledge."
-                                    labelPlacement="end"
-                                />
-                            </FormGroup>
-                        </FormControl>
-                    </Grid>
-
-                </Grid>
-
+                </Box>
 
 
-
-
-            </AccordionDetails>
-
-            <Box
-                spacing={2}
-                sx={{ margin: 2, textAlign: 'center' }}
-            >
-
-                <Button
-                    type="button"
-                    sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
-                    onClick={() => onButtonClick("pagethree")}
-                    variant="outlined" color="secondary"
-
-                >
-                    <CachedIcon /> Previous
-                </Button>
-                <Button
-                    sx={{
-                        minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
-                    }}
-                    variant="contained"
-                    type="submit"
-                    onClick={() => onButtonClick(alert("Submitted"))}
-                >
-                    SUBMIT
-                    <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
-                </Button>
-            </Box>
-
-
-        </div>
-    </form>
+            </div>
+        </form>
     );
 }
 export default PageFour;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getStatelist`).then(response => {
-            let sortedStateData = response.data.result.map((value) => {
-                value.stateName = value.stateName.toUpperCase();
-                return value;
-            })
-
-            sortedStateData = sortedStateData.sort((a, b) => a.stateName.localeCompare(b.stateName));
-
-            setstateList(sortedStateData);
-            console.log(sortedStateData);
-        })
-            .catch(error => {
-                setstateList([]);
-                console.log(error);
-            });
-
-                                   <Grid item xs={12} sm={4} md={4} lg={4}>
-                                   
-                                        <Autocomplete
-                                            disablePortal
-                                            margin="0"
-                                            fullWidth
-                                            size="small"
-                                            id="caste"
-                                            name="caste"
-                                            options={casteList}
-                                            value={casteList.find(
-                                                (option) => option.id === formik.values.caste?.id
-                                            ) || null}
-                                            onChange={(e, value) => {
-                                                console.log(value)
-                                                if (value === null) {
-                                                    formik.setFieldValue("caste", null)
-                                                  
-                                                }
-                                                else
-                                                    formik.setFieldValue("caste", value)
-                                                axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/subcaste/${value.id}`).then(response => {
-
-                                                    console.log(response.data.result)
-
-                                                    let sortedcastegroup = response.data.result.map((value) => {
-                                                        value.label = value.label.toUpperCase();
-                                                        return value;
-                                                    })
-
-                                                    setSubCasteList(sortedcastegroup);
-                                                   
-                                                    console.log(sortedcastegroup);
-                                                })
-                                                    .catch(error => {
-                                                        setSubCasteList([]);
-                                                        console.log(error);
-                                                    });
-
-                                            }}
-                                           
-                                            
-                                            getOptionLabel={(value) => value.label}
-                                            sx={{ width: "100%", mt: 2, mb: 1 }}
-                                            renderInput={(params) => (
-                                                <TextField {...params}
-                                                    label="Caste"
-                                                    onBlur={formik.handleBlur}
-                                                    helperText={formik.errors.caste && formik.touched.caste ? formik.errors.caste : null}
-                                                    error={formik.errors.caste && formik.touched.caste ? true : false}
-                                                />
-                                            )}
-                                        />
-                                    
-                                    </Grid>
-                                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                                    <Tooltip >
-                                        <Autocomplete
-                                            disablePortal
-                                            margin="0"
-                                            fullWidth
-                                            size="small"
-                                            id="subcaste"
-                                            name="subcaste"
-                                            options={subcasteList}
-                                            value={subcasteList.find(
-                                                (option) => option.id === formik.values.subcaste?.id
-                                            ) || null}
-                                            onChange={(e, value) => {
-                                                console.log(value)
-                                                if (value === null) {
-                                                    formik.setFieldValue("subcaste", null)
-                                                }
-                                                else
-                                                    formik.setFieldValue("subcaste", value)
-                                            }}
-                                            
-                                           
-                                            getOptionLabel={(value) => value.label}
-                                            sx={{ width: "100%", mt: 2, mb: 1 }}
-                                            renderInput={(params) => (
-                                                <TextField {...params}
-                                                    label="Sub caste"
-                                                    onBlur={formik.handleBlur}
-                                                    helperText={formik.errors.subcaste && formik.touched.subcaste ? formik.errors.subcaste : null}
-                                                    error={formik.errors.subcaste && formik.touched.subcaste ? true : false}
-                                                />
-                                            )}
-                                        />
-                                        </Tooltip>
-
-                                    </Grid>
