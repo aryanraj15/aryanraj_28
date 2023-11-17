@@ -1,28 +1,27 @@
- <Autocomplete
-                                disablePortal
-                                margin="0"
-                                size="small"
-                                id="label"
-                                name="label"
-                                options={genderList}
-                                value={genderList.find(
-                                    (option) => option.label === formik.values.label?.label
-                                ) || null}
-                                onChange={(e, value) => {
-                                    if (value === null) {
-                                        formik.setFieldValue("label", null)
-                                    }
-                                    else
-                                        formik.setFieldValue("label", value)
-                                }}
-                                getOptionLabel={(value) => value.label}
-                                sx={{ width: "100%" }}
-                                renderInput={(params) => (
-                                    <TextField {...params}
-                                        label="Gender"
-                                        onBlur={formik.handleBlur}
-                                        helperText={formik.errors.label && formik.touched.label ? formik.errors.label : null}
-                                        error={formik.errors.label && formik.touched.label ? true : false}
-                                    />
-                                )}
-                            />
+const savePersonalDetails = async () => {
+    try {
+        const response = await axios.post(
+            `${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/saveBankDetail`,
+            {
+                userId: 4,
+                accNo: formik.values.accountNumber,
+                empAccountType: formik.values.AccountTypes?.valueId, // Assuming AccountTypes is an object with a valueId property
+                accHolderName: formik.values.accholdername,
+                ifscCode: enteredValue, // Assuming enteredValue contains the IFSC code
+                crtBy: user.data.userdetails.user.userId,
+                updBy: user.data.userdetails.user.userId,
+            }
+        );
+
+        if (response.data.statusCode === 200) {
+            console.log("Successfully saved details:", response.data.result);
+            // Handle success, navigate to the next page, show a notification, etc.
+        } else {
+            console.error("Failed to save details:", response.data.message);
+            // Handle failure, show an error message, etc.
+        }
+    } catch (error) {
+        console.error("Error while saving details:", error.message);
+        // Handle error, show an error message, etc.
+    }
+};
