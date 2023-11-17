@@ -406,7 +406,21 @@ export default PageFour;
 
 
 
+ axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getStatelist`).then(response => {
+            let sortedStateData = response.data.result.map((value) => {
+                value.stateName = value.stateName.toUpperCase();
+                return value;
+            })
 
+            sortedStateData = sortedStateData.sort((a, b) => a.stateName.localeCompare(b.stateName));
+
+            setstateList(sortedStateData);
+            console.log(sortedStateData);
+        })
+            .catch(error => {
+                setstateList([]);
+                console.log(error);
+            });
 
                                    <Grid item xs={12} sm={4} md={4} lg={4}>
                                    
