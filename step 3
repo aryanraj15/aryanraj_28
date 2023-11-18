@@ -9,7 +9,6 @@ import {
     FormControl,
     Radio,
     RadioGroup,
-
     Checkbox,
     FormControlLabel,
 } from "@mui/material";
@@ -21,35 +20,356 @@ import AddIcon from '@mui/icons-material/Add';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { styled } from '@mui/material/styles';
+import {
+
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Box,
+    IconButton
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import FormLabel from '@mui/material/FormLabel';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import CachedIcon from '@mui/icons-material/Cached';
+const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+});
+
+const OrganizationOptions = ['Option 1', 'Option 2', 'Option 3'];
+const DepartmentOptions = ['Option A', 'Option B', 'Option C'];
+const DesignationOptions = ['Option A', 'Option B', 'Option C'];
 
 
+const MyTableOne = () => {
+    const [rows, setRows] = useState([{}]);
+    const handleAddRow = () => {
+        setRows([...rows, {}]);
+    };
+
+    const handleDeleteRow = (index) => {
+        const updatedRows = [...rows];
+        updatedRows.splice(index, 1);
+        setRows(updatedRows);
+    };
+
+    return (
+        <>
+
+            <TableContainer component={Paper}>
+                <Table  >
+
+                    <TableHead>
+                        <TableRow>
+                            <TableCell >Organization Name</TableCell>
+                            <TableCell >Department</TableCell>
+                            <TableCell>Designation</TableCell>
+                            <TableCell>From Date</TableCell>
+                            <TableCell>To Date</TableCell>
+                            <TableCell>Work Experience(Years)</TableCell>
+                            <TableCell>Upload</TableCell>
+                            <TableCell>Action</TableCell>
+                        </TableRow>
+                    </TableHead>
 
 
-function Step3(props) {
+                    <TableBody>
+                        {rows.map((row, index) => (
+                            <TableRow key={index}>
+                                <TableCell>
+                                    <FormControl>
+
+                                        <Autocomplete
+                                            type='small'
+                                            margin="normal"
+                                            fullWidth
+                                            options={OrganizationOptions}
+                                            sx={{ width: "150px", mt: 2 }}
+                                            renderInput={(params) => (
+                                                <TextField required {...params} label=" Qualification" />
+                                            )}
+                                        />
+
+                                    </FormControl>
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <FormControl>
+                                        <Autocomplete
+                                            type='small'
+                                            margin="normal"
+                                            fullWidth
+                                            options={DepartmentOptions}
+                                            sx={{ width: "150px", mt: 2 }}
+                                            renderInput={(params) => (
+                                                <TextField required {...params} label=" Department" />
+                                            )}
+                                        />
+                                    </FormControl>
+                                </TableCell>
+
+
+                                <TableCell>
+
+                                    <Autocomplete
+                                        type='small'
+                                        margin="normal"
+                                        fullWidth
+                                        options={DesignationOptions}
+                                        sx={{ width: "150px", mt: 2 }}
+                                        renderInput={(params) => (
+                                            <TextField required {...params} label=" Designation" />
+                                        )}
+                                    />
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <TextField
+                                        type="date"
+                                        variant="outlined"
+                                        sx={{ mt: 1.5, padding: 0 }}
+
+                                    />
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <TextField
+                                        type="date"
+                                        variant="outlined"
+                                        sx={{ mt: 1.5, padding: 0 }}
+
+                                    />
+                                </TableCell>
+                                <TableCell>
+
+                                    <TextField
+                                        type='small'
+                                        margin="normal"
+                                        fullWidth
+                                        label="Work Experience(Years)"
+                                        variant="outlined"
+                                        style={{ width: "150px", padding: 0 }}
+
+                                    />
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                        Upload
+                                        <VisuallyHiddenInput type="file" />
+                                    </Button>
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <IconButton onClick={() => handleDeleteRow(index)}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </TableCell>
+
+
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Button variant="contained" color="primary" onClick={handleAddRow}
+                sx={{ margin: 2 }}
+            >
+
+                ADD
+            </Button>
+
+        </>
+    );
+};
+
+const MyTableTwo = () => {
+    const [rows, setRows] = useState([{}]);
+
+    const handleAddRow = () => {
+        setRows([...rows, {}]);
+    };
+
+    const handleDeleteRow = (index) => {
+        const updatedRows = [...rows];
+        updatedRows.splice(index, 1);
+        setRows(updatedRows);
+    };
+
+    return (
+        <>
+
+            <TableContainer component={Paper}>
+                <Table  >
+
+                    <TableHead>
+                        <TableRow>
+                            <TableCell >Organization Name</TableCell>
+                            <TableCell >Location</TableCell>
+                            <TableCell>Designation</TableCell>
+                            <TableCell>From Date</TableCell>
+                            <TableCell>To Date</TableCell>
+                            <TableCell>Work Experience(Years)</TableCell>
+                            <TableCell>Upload</TableCell>
+                            <TableCell>Action</TableCell>
+                        </TableRow>
+                    </TableHead>
+
+
+                    <TableBody>
+                        {rows.map((row, index) => (
+                            <TableRow key={index}>
+                                <TableCell>
+                                    <FormControl>
+
+                                        <TextField
+                                            type="text"
+                                            variant="outlined"
+                                            sx={{ mt: 1.5, padding: 0, width: "150px" }}
+                                            label="Organization Name"
+
+                                        />
+
+                                    </FormControl>
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <FormControl>
+                                        <TextField
+                                            type="text"
+                                            variant="outlined"
+                                            sx={{ mt: 1.5, padding: 0, width: "150px" }}
+                                            label="Location"
+
+                                        />
+                                    </FormControl>
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <TextField
+                                        type="text"
+                                        variant="outlined"
+                                        sx={{ mt: 1.5, padding: 0, width: "150px" }}
+                                        label="Designation"
+
+                                    />
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <TextField
+                                        type="date"
+                                        variant="outlined"
+                                        sx={{ mt: 1.5, padding: 0 }}
+
+                                    />
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <TextField
+                                        type="date"
+                                        variant="outlined"
+                                        sx={{ mt: 1.5, padding: 0 }}
+
+                                    />
+                                </TableCell>
+                                <TableCell>
+
+                                    <TextField
+                                        type='small'
+                                        margin="normal"
+                                        fullWidth
+                                        label="Work Experience(Years)"
+                                        variant="outlined"
+                                        style={{ width: "150px", padding: 0 }}
+
+                                    />
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                        Upload
+                                        <VisuallyHiddenInput type="file" />
+                                    </Button>
+                                </TableCell>
+
+
+                                <TableCell>
+                                    <IconButton onClick={() => handleDeleteRow(index)}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </TableCell>
+
+
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+            <Button variant="contained" color="primary" onClick={handleAddRow}
+                sx={{ margin: 2 }}
+            >
+
+                ADD
+            </Button>
+
+        </>
+    );
+};
+
+
+const PageThree = ({ onButtonClick }) => {
     const [showCard, setShowCard] = useState(false);
     const [experiences, setExperiences] = useState([
         createNewExperience(),
     ]);
     const [hasExperience, setHasExperience] = useState('no');
+    const [hasOtherExperience, setHasOtherExperience] = useState('no');
 
-
-    if (props.currentStep !== 3) {
-        return null;
-    }
 
     const handleExperienceChange = (event) => {
         setHasExperience(event.target.value);
     };
 
-    const departmentList  = [
+    const handleOtherExperienceChange = (event) => {
+        setHasOtherExperience(event.target.value);
+    };
+
+    const departmentList = [
         'Admin',
         'IT',
-       ];
+    ];
 
     const designatinonList = [
         'General Manager',
         'DGM',
-       ];
+    ];
 
     function createNewExperience() {
         return {
@@ -78,6 +398,85 @@ function Step3(props) {
 
     return (
         <>
+            <div>
+                <FormControl component="fieldset" sx={{ paddingLeft: 3 }}>
+                    <Typography variant="h7" gutterBottom>
+                        Do you have previous experience in Current Organization?
+                    </Typography>
+                    <RadioGroup
+                        aria-label="experience"
+                        name="experience"
+                        value={hasExperience}
+                        onChange={handleExperienceChange}
+                        row
+                    >
+                        <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                        <FormControlLabel value="no" control={<Radio />} label="No" />
+                    </RadioGroup>
+                </FormControl>
+
+                {hasExperience === 'yes' && (
+
+                    <Grid >
+                        <Box sx={{ overflow: "auto", my: 2 }} component={Paper} elevation={2}>
+                            <Box sx={{
+                                width: "100%",
+                                height: "auto",
+                                display: "table",
+                                tableLayout: "fixed",
+                            }}
+
+                            >
+                                <MyTableOne></MyTableOne>
+                            </Box>
+                        </Box>
+
+                    </Grid>
+
+                )}
+            </div>
+
+            <div>
+                <FormControl component="fieldset" sx={{ paddingLeft: 3 }}>
+                    <Typography variant="h7" gutterBottom>
+                        Do you have previous experience in Other Organization?
+                    </Typography>
+                    <RadioGroup
+                        aria-label="experience"
+                        name="experience"
+                        value={hasOtherExperience}
+                        onChange={handleOtherExperienceChange}
+                        row
+                    >
+                        <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                        <FormControlLabel value="no" control={<Radio />} label="No" />
+                    </RadioGroup>
+                </FormControl>
+
+                {hasOtherExperience === 'yes' && (
+
+                    <Grid >
+                        <Box sx={{ overflow: "auto", my: 2 }} component={Paper} elevation={2}>
+                            <Box sx={{
+                                width: "100%",
+                                height: "auto",
+                                display: "table",
+                                tableLayout: "fixed",
+                            }}
+
+                            >
+                                <MyTableTwo></MyTableTwo>
+                            </Box>
+
+                        </Box>
+
+                    </Grid>
+
+                )}
+            </div>
+
+
+
             <Grid item xs={12}>
                 <Card variant="outlined">
                     <CardContent>
@@ -96,7 +495,7 @@ function Step3(props) {
                         >
 
                             <Grid item xs={12} sm={4} md={4} lg={4}>
-                            <TextField
+                                <TextField
                                     margin="normal"
                                     required
                                     fullWidth
@@ -110,33 +509,33 @@ function Step3(props) {
                                 />
                             </Grid>
                             <Grid item xs={12} sm={4} md={4} lg={4}>
-                            <Autocomplete
-                            disablePortal
-                            margin="normal"
-                            fullWidth
-                            id="combo-box-demo"
-                            options={departmentList}
-                            sx={{ width: "100%", mt:2 }}
-                            renderInput={(params) => (
-                                <TextField required {...params} label="Department" />
-                            )}
-                            disabled
-                        />
+                                <Autocomplete
+                                    disablePortal
+                                    margin="normal"
+                                    fullWidth
+                                    id="combo-box-demo"
+                                    options={departmentList}
+                                    sx={{ width: "100%", mt: 2 }}
+                                    renderInput={(params) => (
+                                        <TextField required {...params} label="Department" />
+                                    )}
+                                    disabled
+                                />
                             </Grid>
 
                             <Grid item xs={12} sm={4} md={4} lg={4}>
-                            <Autocomplete
-                            disablePortal
-                            margin="normal"
-                            fullWidth
-                            id="combo-box-demo"
-                            options={designatinonList}
-                            sx={{ width: "100%", mt:2 }}
-                            renderInput={(params) => (
-                                <TextField required {...params} label="Designation" />
-                            )}
-                            disabled
-                        />
+                                <Autocomplete
+                                    disablePortal
+                                    margin="normal"
+                                    fullWidth
+                                    id="combo-box-demo"
+                                    options={designatinonList}
+                                    sx={{ width: "100%", mt: 2 }}
+                                    renderInput={(params) => (
+                                        <TextField required {...params} label="Designation" />
+                                    )}
+                                    disabled
+                                />
 
                             </Grid>
                         </Grid>
@@ -150,8 +549,8 @@ function Step3(props) {
                             alignItems="center"
                             sx={{ mb: 2 }}
 
-                        >  
-                           
+                        >
+
 
                             <Grid item xs={12} sm={3} md={3} lg={4}>
 
@@ -206,12 +605,12 @@ function Step3(props) {
                                     id="outlined-basic"
                                     variant="outlined"
                                     label="Work Experience"
-                                    defaultValue="1 year, 1 months"
+                                    defaultValue="1 year, 1 month, 14 days"
                                     disabled
                                     sx={{ width: "100%", mt: 1 }}
                                 />
                             </Grid>
-                            
+
                         </Grid>
 
                         <Grid
@@ -223,9 +622,9 @@ function Step3(props) {
                             alignItems="center"
                             sx={{ mb: 2 }}
 
-                        > 
+                        >
 
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
+                            <Grid item xs={12} sm={3} md={3} lg={4}>
                                 <TextField
                                     margin="normal"
                                     required
@@ -233,19 +632,18 @@ function Step3(props) {
                                     id="outlined-basic"
                                     variant="outlined"
                                     label="Total Work Experience"
-                                    defaultValue="4 years, 2 Months, 10 days"
+                                    defaultValue="1 years, 1 Month, 14 days"
                                     disabled
                                     sx={{ width: "100%", mt: 1 }}
                                 />
                             </Grid>
-                            </Grid>
+                        </Grid>
 
-                            <CardActions>
-                    <Button onClick={addExperience}>ADD Another</Button>
-                    <Button onClick={() => deleteExperience()}>DELETE</Button>
-                </CardActions>
+                        <CardActions>
 
-                  
+                        </CardActions>
+
+
 
 
                     </CardContent>
@@ -253,207 +651,35 @@ function Step3(props) {
                 </Card>
             </Grid>
 
-            <div>
-                <FormControl component="fieldset">
-                    <Typography variant="h6" gutterBottom>
-                        Do you have previous experience?
-                    </Typography>
-                    <RadioGroup
-                        aria-label="experience"
-                        name="experience"
-                        value={hasExperience}
-                        onChange={handleExperienceChange}
-                        row
-                    >
-                        <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                        <FormControlLabel value="no" control={<Radio />} label="No" />
-                    </RadioGroup>
-                </FormControl>
+            <Box
+                spacing={2}
+                sx={{ margin: 2, textAlign: 'center' }}
+            >
 
-                {hasExperience === 'yes' && (
-
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Typography variant="h6">Add Work Experience</Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                borderRadius="10px"
-
-                                onClick={() => setShowCard(true)}>
-                                ADD 
-                                <AddIcon></AddIcon>
-                            </Button>
-                        </Grid>
-                        {showCard &&
-                            experiences.map((exp, index) => (
-                                <ExperienceCard
-                                    key={index}
-                                    index={index}
-                                    experience={exp}
-                                    handleChange={handleChange}
-                                    addExperience={addExperience}
-                                    deleteExperience={deleteExperience}
-                                />
-                            ))}
-                    </Grid>
-
-                )}
-            </div>
+                <Button
+                    type="button"
+                    sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                    onClick={() => onButtonClick("pagetwo")}
+                    variant="outlined" color="secondary"
+                >
+                    <CachedIcon /> Previous
+                </Button>
+                <Button
+                    sx={{
+                        minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
+                    }}
+                    variant="contained"
+                    type="submit"
+                    onClick={() => onButtonClick("pagefour")}
+                >
+                    SAVE
+                    <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
+                </Button>
+            </Box>
         </>
     );
 };
 
-function ExperienceCard({ index, experience, handleChange, addExperience, deleteExperience }) {
-    return (
-        <Grid item xs={12}>
-            <Card variant="outlined">
-                <CardContent>
-                    <Typography variant="h5" component="h2">
-                        Work Experience {index + 1}
-                    </Typography>
-                    <Grid
-                        container
-                        direction="row"
-                        rowSpacing={0}
-                        columnSpacing={2}
-                        justify="flex-end"
-                        alignItems="center"
-                        sx={{ mb: 2 }}
-
-                    >
-
-                        <Grid item xs={12} sm={4} md={4} lg={4}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="outlined-basic"
-                                variant="outlined"
-                                label="Organization Name"
-                                value={experience.jobTitle}
-                                onChange={(e) => handleChange(index, "organizationName", e.target.value)}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={4} md={4} lg={4}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="outlined-basic"
-                                variant="outlined"
-                                label="Designation"
-                                value={experience.organizationName}
-                                onChange={(e) => handleChange(index, "Designation", e.target.value)}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={4} md={4} lg={4}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="outlined-basic"
-                                variant="outlined"
-                                label="Location"
-                                value={experience.location}
-                                onChange={(e) => handleChange(index, "location", e.target.value)}
-                            />
-                        </Grid>
-                    </Grid>
-
-                    <Grid
-                        container
-                        direction="row"
-                        rowSpacing={0}
-                        columnSpacing={2}
-                        justify="flex-end"
-                        alignItems="center"
-                        sx={{ mb: 2 }}
-
-                    >
-
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                                <DatePicker
-                                    label="From"
-                                    inputFormat="12-05-2022"
-                                    sx={{ width: "100%" }}
-
-                                    renderInput={(params) => (
-                                        <TextField
-                                            sx={{ width: "100%", mt: 1 }}
-                                            fullWidth
-                                            {...params}
-
-                                        />
-                                    )}
-                                />
-
-                            </LocalizationProvider>
-                        </Grid>
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                            <LocalizationProvider
-                                dateAdapter={AdapterDayjs}>
-
-                                <DatePicker
-                                    label="To"
-                                    inputFormat="DD-MM-YYYY"
-                                    sx={{ width: "100%" }}
-
-                                    renderInput={(params) => (
-                                        <TextField
-                                            sx={{ width: "100%", mt: 1 }}
-                                            fullWidth
-                                            {...params}
-
-                                        />
-                                    )}
-                                />
-
-                            </LocalizationProvider>
-                        </Grid>
-                        <Grid item xs={12} sm={3} md={3} lg={4}>
-                            <TextField
-                                margin="normal"
-                                required
-                                defaultValue="1.1 years"
-                                fullWidth
-                                id="outlined-basic"
-                                variant="outlined"
-                                label="Work Experience"
-                                disabled
-                               
-                                sx={{ width: "100%", mt: 1 }}
 
 
-                            />
-
-                        </Grid>
-                    </Grid>
-
-                    {/* <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={experience.current}
-                                onChange={(e) => handleChange(index, "current", e.target.checked)}
-                            />
-                        }
-                        label="I am currently working here"
-                    /> */}
-                </CardContent>
-                <CardActions>
-                    <Button onClick={addExperience}>ADD Another</Button>
-                    <Button onClick={() => deleteExperience(index)}>DELETE</Button>
-                </CardActions>
-            </Card>
-        </Grid>
-    );
-}
-
-export default Step3;
+export default PageThree;
