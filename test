@@ -1,27 +1,136 @@
-const savePersonalDetails = async () => {
-    try {
-        const response = await axios.post(
-            `${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/saveBankDetail`,
-            {
-                userId: 4,
-                accNo: formik.values.accountNumber,
-                empAccountType: formik.values.AccountTypes?.valueId, // Assuming AccountTypes is an object with a valueId property
-                accHolderName: formik.values.accholdername,
-                ifscCode: enteredValue, // Assuming enteredValue contains the IFSC code
-                crtBy: user.data.userdetails.user.userId,
-                updBy: user.data.userdetails.user.userId,
-            }
-        );
+import React, { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Button,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-        if (response.data.statusCode === 200) {
-            console.log("Successfully saved details:", response.data.result);
-            // Handle success, navigate to the next page, show a notification, etc.
-        } else {
-            console.error("Failed to save details:", response.data.message);
-            // Handle failure, show an error message, etc.
-        }
-    } catch (error) {
-        console.error("Error while saving details:", error.message);
-        // Handle error, show an error message, etc.
-    }
+const WorkExperienceTable = () => {
+  const [data, setData] = useState([
+    {
+      organizationName: 'Company 1',
+      designation: 'Developer',
+      fromDate: '2022-01-01',
+      toDate: '2023-01-01',
+      workExperience: '2',
+    },
+    // Add more initial data as needed
+  ]);
+
+  const handleDelete = (index) => {
+    const newData = [...data];
+    newData.splice(index, 1);
+    setData(newData);
+  };
+
+  const handleAdd = () => {
+    setData((prevData) => [
+      ...prevData,
+      {
+        organizationName: '',
+        designation: '',
+        fromDate: '',
+        toDate: '',
+        workExperience: '',
+      },
+    ]);
+  };
+
+  const handleChange = (index, field, value) => {
+    const newData = [...data];
+    newData[index][field] = value;
+    setData(newData);
+  };
+
+  return (
+    <div>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Organization Name</TableCell>
+              <TableCell>Designation</TableCell>
+              <TableCell>From Date</TableCell>
+              <TableCell>To Date</TableCell>
+              <TableCell>Work Experience (Years)</TableCell>
+              <TableCell>Upload</TableCell>
+              <TableCell>Delete</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data.map((row, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <input
+                    type="text"
+                    value={row.organizationName}
+                    onChange={(e) =>
+                      handleChange(index, 'organizationName', e.target.value)
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <input
+                    type="text"
+                    value={row.designation}
+                    onChange={(e) =>
+                      handleChange(index, 'designation', e.target.value)
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <input
+                    type="date"
+                    value={row.fromDate}
+                    onChange={(e) =>
+                      handleChange(index, 'fromDate', e.target.value)
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <input
+                    type="date"
+                    value={row.toDate}
+                    onChange={(e) =>
+                      handleChange(index, 'toDate', e.target.value)
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <input
+                    type="text"
+                    value={row.workExperience}
+                    onChange={(e) =>
+                      handleChange(index, 'workExperience', e.target.value)
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  {/* Add file upload input here */}
+                  <input type="file" />
+                </TableCell>
+                <TableCell>
+                  <IconButton onClick={() => handleDelete(index)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Button variant="contained" color="primary" onClick={handleAdd}>
+        Add
+      </Button>
+    </div>
+  );
 };
+
+export default WorkExperienceTable;
