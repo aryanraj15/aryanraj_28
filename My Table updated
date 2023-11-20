@@ -1,0 +1,508 @@
+// import React, { useState } from 'react';
+// import {
+//     Table,
+//     TableBody,
+//     Autocomplete,
+//     TableCell,
+//     TableContainer,
+//     TableHead,
+//     TableRow,
+//     Paper,
+//     Button,
+//     IconButton,
+//     TextField,
+//     MenuItem,
+//     Select,
+//     FormControl,
+//     Grid,
+// } from '@mui/material';
+
+// import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+// import { styled } from '@mui/material/styles';
+// import DeleteIcon from '@mui/icons-material/Delete';
+// import DatePicker from '@mui/lab/DatePicker';
+
+// const QualificationOptions = ['Option 1', 'Option 2', 'Option 3'];
+// const InstituteOptions = ['Institute 1', 'Institute 2', 'Institute 3'];
+
+
+// const MyTable = () => {
+//     const [rows, setRows] = useState([
+//         {
+//             qualification: '',
+//             institute: '',
+//             board: '',
+//             admissionDate: null,
+//             completionDate: null,
+//             document: '',
+//         },
+//     ]);
+
+//     const addRow = () => {
+//         setRows((prevData) => [
+//       ...prevData,
+//             {
+//                 qualification: '',
+//                 institute: '',
+//                 board: '',
+//                 percentage: '',
+//                 admissionDate: null,
+//                 completionDate: null,
+//                 document: '',
+//             },
+//         ]);
+//     };
+
+//     const deleteRow = (index) => {
+//         const newRows = [...rows];
+//         newRows.splice(index, 1);
+//         setRows(newRows);
+//     };
+
+    
+//     const handleChange = (index, field, value) => {
+//         const newRows = [...rows];
+//         newRows[index][field] = value;
+//         setRows(newRows);
+//     };
+
+//     return (
+//         <div>
+           
+//             <TableContainer component={Paper}>
+//                 <Table  >
+
+//                     <TableHead>
+//                         <TableRow>
+//                             <TableCell >Qualification</TableCell>
+//                             <TableCell  >Institute</TableCell>
+//                             <TableCell>Board</TableCell>
+//                             <TableCell>Percentage</TableCell>                           
+//                             <TableCell>Admission Date</TableCell>
+//                             <TableCell>Completion Date</TableCell>
+//                             <TableCell>Upload</TableCell>
+//                             <TableCell>Action</TableCell>
+//                         </TableRow>
+//                     </TableHead>
+
+
+//                     <TableBody>
+//                         {rows.map((row, index) => (
+//                             <TableRow key={index}>
+//                                 <TableCell>
+//                                     <FormControl>
+
+//                                         <Autocomplete
+//                                             type='small'
+//                                             margin="normal"
+//                                             fullWidth
+//                                             options={QualificationOptions}
+//                                             sx={{ width: "150px", mt: 2 }}
+//                                             renderInput={(params) => (
+//                                                 <TextField required {...params} label=" Qualification" />
+//                                             )}
+//                                         />
+
+//                                     </FormControl>
+//                                 </TableCell>
+
+
+//                                 <TableCell>
+//                                     <FormControl>
+//                                         <Autocomplete
+//                                             type='small'
+//                                             margin="normal"
+//                                             fullWidth
+//                                             options={InstituteOptions}
+//                                             sx={{ width: "150px", mt: 2 }}
+//                                             renderInput={(params) => (
+//                                                 <TextField required {...params} label=" Institute" />
+//                                             )}
+//                                         />
+//                                     </FormControl>
+//                                 </TableCell>
+
+
+//                                 <TableCell>
+
+//                                     <TextField
+//                                         type='small'
+//                                         margin="normal"
+//                                         fullWidth
+//                                         label="Board"
+//                                         variant="outlined"
+//                                         style={{ width: "150px", padding: 0 }}
+                                     
+//                                     />
+//                                 </TableCell>
+//                                 <TableCell>
+
+//                                     <TextField
+//                                         type='small'
+//                                         margin="normal"
+//                                         fullWidth
+//                                         label="Percentage(%)"
+//                                         variant="outlined"
+//                                         style={{ width: "150px", padding: 0 }}
+
+//                                     />
+//                                 </TableCell>
+
+
+//                                 <TableCell>
+//                                     <TextField
+//                                         type="date"
+//                                         variant="outlined"
+//                                         sx={{ mt: 1.5, padding: 0 }}
+
+//                                     />
+//                                 </TableCell>
+
+
+//                                 <TableCell>
+//                                     <TextField
+//                                         type="date"
+//                                         variant="outlined"
+//                                         sx={{ mt: 1.5, padding: 0 }}
+
+//                                     />
+//                                 </TableCell>
+
+
+
+//                                 <TableCell>
+//                                     <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+//                                         Upload
+
+//                                     </Button>
+//                                 </TableCell>
+
+
+//                                 <TableCell>
+//                                     <IconButton onClick={() => deleteRow(index)}>
+//                                         <DeleteIcon />
+//                                     </IconButton>
+//                                 </TableCell>
+
+
+//                             </TableRow>
+//                         ))}
+//                     </TableBody>
+//                 </Table>
+//             </TableContainer>
+//             <Button variant="contained" color="primary" onClick={addRow} sx={{margin:2}}>
+//                 Add 
+//             </Button>
+//         </div>
+//     );
+// }
+
+// export default MyTable;
+
+
+import React, { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Button,
+  Input,
+  Autocomplete,
+  TextField // Import TextField
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+const qualifications = [
+  "Bachelor's Degree",
+  "Master's Degree",
+  "Ph.D.",
+  "Diploma",
+  "Other"
+];
+
+const MyTable = () => {
+  const validationSchema = Yup.object().shape({
+    data: Yup.array().of(
+      Yup.object().shape({
+        qualification: Yup.string().required("Organization Name is required"),
+        institute: Yup.string().required("institute is required"),
+        board: Yup.string().required("Board is required"),
+        percentage: Yup.string().required("Percentage is required"),
+        admissionDate: Yup.date().required("Admission Date is required"),
+        completionDate: Yup.date().required("Completion Date is required"),
+        
+      })
+    )
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      data: [
+        {
+          qualification: "",
+          institute: "",
+          board: "",
+          percentage: "",
+          admissionDate: "",
+          completionDate: "",
+          
+        }
+      ]
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      // Handle form submission here
+      console.log("Form submitted with values:", values);
+    }
+  });
+
+  const handleDelete = (index) => {
+    formik.values.data.splice(index, 1);
+    formik.setValues({ ...formik.values });
+  };
+
+  const handleAdd = () => {
+    formik.values.data.push({
+      qualification: "",
+      institute: "",
+      board: "",
+      percentage: "",
+      admissionDate: "",
+      completionDate: "",
+      
+    });
+    formik.setValues({ ...formik.values });
+  };
+
+  const VisuallyHiddenInput = styled("input")({
+    clip: "rect(0 0 0 0)",
+    clipPath: "inset(50%)",
+    height: 1,
+    overflow: "hidden",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    whiteSpace: "nowrap",
+    width: 1
+  });
+
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Qualification</TableCell>
+              <TableCell>Institute</TableCell>
+              <TableCell>Board</TableCell>
+              <TableCell>Percentage</TableCell>
+              <TableCell>Admission Date</TableCell>
+              <TableCell>Completion Date</TableCell>
+              <TableCell>Upload</TableCell>
+              <TableCell>Action</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {formik.values.data.map((row, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                <Autocomplete
+                    size="small"
+                    options={qualifications}
+                    getOptionLabel={(option) => option}
+                    renderInput={(params) => (
+                      <TextField
+                    
+                        {...params}
+                        name={`data[${index}].qualification`}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        sx={{ width: "150px", mt:1 }}
+                        value={formik.values.data[index].qualification}
+                        helperText={
+                          formik.errors.qualification &&
+                          formik.touched.qualification
+                            ? formik.errors.qualification
+                            : null
+                        }
+                        error={
+                          formik.errors.qualification &&
+                          formik.touched.qualification
+                            ? true
+                            : false
+                        }
+                        placeholder="Qualification"
+                      />
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    margin="dense"
+                    required
+                    fullWidth
+                    size="small"
+                    sx={{ width: "150px" }}
+                    type="text"
+                    name={`data[${index}].institute`}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.data[index].institute}
+                    error={
+                      formik.touched.institute && !!formik.errors.institute
+                    }
+                    helperText={
+                      formik.touched.institute && formik.errors.institute
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    margin="dense"
+                    required
+                    fullWidth
+                    size="small"
+                    sx={{ width: "150px"}}
+                    type="text"
+                    name={`data[${index}].board`}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.data[index].board}
+                    error={
+                      formik.touched.board &&
+                      !!formik.errors.board
+                    }
+                    helperText={
+                      formik.touched.board &&
+                      formik.errors.board
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  {/* Qualification as Autocomplete */}
+                  <TextField
+                    margin="dense"
+                    required
+                    fullWidth
+                    size="small"
+                    sx={{ width: "150px"}}
+                    type="text"
+                    name={`data[${index}].percentage`}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.data[index].percentage}
+                    error={
+                      formik.touched.percentage &&
+                      !!formik.errors.percentage
+                    }
+                    helperText={
+                      formik.touched.percentage &&
+                      formik.errors.percentage
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="To Date"
+                      id="admissionDate"
+                      name="admissionDate"
+                      sx={{ width: "100%" }}
+                      renderInput={(params) => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          sx={{ width: "150px" }}
+                          size="small"
+                          required
+                          error={
+                            formik.touched.admissionDate &&
+                            Boolean(formik.errors.admissionDate)
+                          }
+                          helperText={
+                            formik.touched.admissionDate &&
+                            formik.errors.admissionDate
+                          }
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                </TableCell>
+                <TableCell>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="From Date"
+                      id="completionDate"
+                      name="completionDate"
+                      sx={{ width: "100%" }}
+                      renderInput={(params) => (
+                        <TextField
+                          fullWidth
+                          sx={{ width: "150px" }}
+                          {...params}
+                          size="small"
+                          required
+                          error={
+                            formik.touched.completionDate &&
+                            Boolean(formik.errors.completionDate)
+                          }
+                          helperText={
+                            formik.touched.completionDate &&
+                            formik.errors.completionDate
+                          }
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                </TableCell>
+              
+                <TableCell>
+                  <Button
+                    sx={{ mb: 2 }}
+                    component="label"
+                    variant="contained"
+                    startIcon={<CloudUploadIcon />}
+                  >
+                    Upload
+                    <VisuallyHiddenInput type="file" />
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <IconButton onClick={() => handleDelete(index)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Button
+        type="button"
+        variant="contained"
+        color="primary"
+        onClick={handleAdd}
+      >
+        Add
+      </Button>
+    </form>
+  );
+};
+
+export default MyTable;
