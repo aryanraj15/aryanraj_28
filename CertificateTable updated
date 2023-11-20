@@ -1,0 +1,421 @@
+// import React, { useState } from 'react';
+// import {
+//     Table,
+//     TableBody,
+//     Autocomplete,
+//     TableCell,
+//     TableContainer,
+//     TableHead,
+//     TableRow,
+//     Paper,
+//     Button,
+//     IconButton,
+//     TextField,
+//     MenuItem,
+//     Select,
+//     FormControl,
+//     Grid,
+// } from '@mui/material';
+
+// import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+// import { styled } from '@mui/material/styles';
+// import DeleteIcon from '@mui/icons-material/Delete';
+// import DatePicker from '@mui/lab/DatePicker';
+
+// const QualificationOptions = ['Option 1', 'Option 2', 'Option 3'];
+// const InstituteOptions = ['Institute 1', 'Institute 2', 'Institute 3'];
+
+// function CertificateTable() {
+//     const [rows, setRows] = useState([
+//         {
+//             nameofcourse: '', 
+//             startDate: null,
+//             endDate: null,
+//             courseduration: '',
+//             upload:'',
+//         },
+//     ]);
+
+//     const addRow = () => {
+//         setRows([
+//             ...rows,
+//             {
+//             nameofcourse: '', 
+//             startDate: null,
+//             endDate: null,
+//             courseduration: '',
+//             upload:'',
+//             },
+//         ]);
+//     };
+
+//     const deleteRow = (index) => {
+//         const newRows = [...rows];
+//         newRows.splice(index, 1);
+//         setRows(newRows);
+//     };
+
+//     const handleChange = (index, field, value) => {
+//         const newRows = [...rows];
+//         newRows[index][field] = value;
+//         setRows(newRows);
+//     };
+
+//     return (
+//         <div>
+           
+//             <TableContainer component={Paper}>
+//                 <Table  >
+
+//                     <TableHead>
+//                         <TableRow>
+//                             <TableCell >Name of the Course</TableCell>
+                            
+//                             <TableCell>Start Date</TableCell>
+//                             <TableCell>End Date</TableCell>
+
+//                             <TableCell>Course Duration</TableCell>
+//                             <TableCell>Upload</TableCell>
+                            
+                            
+//                             <TableCell>Action</TableCell>
+//                         </TableRow>
+//                     </TableHead>
+
+
+//                     <TableBody>
+//                         {rows.map((row, index) => (
+//                             <TableRow key={index}>
+                                
+
+//                                 <TableCell>
+
+//                                     <TextField
+//                                         type='small'
+//                                         margin="normal"
+//                                         fullWidth
+//                                         label="Name of the Course"
+//                                         variant="outlined"
+//                                         style={{ width: "150px", padding: 0 }}
+
+//                                     />
+//                                 </TableCell>
+                                
+
+
+//                                 <TableCell>
+//                                     <TextField
+//                                         type="date"
+//                                         variant="outlined"
+//                                         sx={{ mt: 1.5, padding: 0 }}
+
+//                                     />
+//                                 </TableCell>
+
+
+//                                 <TableCell>
+//                                     <TextField
+//                                         type="date"
+//                                         variant="outlined"
+//                                         sx={{ mt: 1.5, padding: 0 }}
+
+//                                     />
+//                                 </TableCell>
+//                                 <TableCell>
+
+//                                     <TextField
+//                                         type='small'
+//                                         margin="normal"
+//                                         fullWidth
+//                                         label="Course Duration"
+//                                         variant="outlined"
+//                                         style={{ width: "150px", padding: 0 }}
+
+//                                     />
+//                                 </TableCell>
+
+
+
+//                                 <TableCell>
+//                                     <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+//                                         Upload
+
+//                                     </Button>
+//                                 </TableCell>
+
+
+//                                 <TableCell>
+//                                     <IconButton onClick={() => deleteRow(index)}>
+//                                         <DeleteIcon />
+//                                     </IconButton>
+//                                 </TableCell>
+
+
+//                             </TableRow>
+//                         ))}
+//                     </TableBody>
+//                 </Table>
+//             </TableContainer>
+//             <Button variant="contained" color="primary" onClick={addRow} sx={{margin:2}}>
+//                 Add 
+//             </Button>
+//         </div>
+//     );
+// }
+
+// export default CertificateTable;
+
+
+
+
+
+
+
+import React, { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Button,
+  Input,
+  Autocomplete,
+  TextField // Import TextField
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+const qualifications = [
+  "Bachelor's Degree",
+  "Master's Degree",
+  "Ph.D.",
+  "Diploma",
+  "Other"
+];
+
+const CertificateTable = () => {
+  const validationSchema = Yup.object().shape({
+    data: Yup.array().of(
+      Yup.object().shape({
+        nameoftheCourse: Yup.string().required("Name of the Course is required"),
+        startDate: Yup.date().required("Start Date is required"),
+        endDate: Yup.date().required("End Date is required"),
+        courseDuration: Yup.string().required("Work Experience is required"),
+    
+      })
+    )
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      data: [
+        {
+         nameoftheCourse: "",
+          startDate: "",
+          endDate: "",
+          courseDuration: ""
+        }
+      ]
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      // Handle form submission here
+      console.log("Form submitted with values:", values);
+    }
+  });
+
+  const handleDelete = (index) => {
+    formik.values.data.splice(index, 1);
+    formik.setValues({ ...formik.values });
+  };
+
+  const handleAdd = () => {
+    formik.values.data.push({
+      nameoftheCourse: "",
+      startDate: "",
+      endDate: "",
+      courseDuration: ""
+    });
+    formik.setValues({ ...formik.values });
+  };
+
+  const VisuallyHiddenInput = styled("input")({
+    clip: "rect(0 0 0 0)",
+    clipPath: "inset(50%)",
+    height: 1,
+    overflow: "hidden",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    whiteSpace: "nowrap",
+    width: 1
+  });
+
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name of the Course</TableCell>
+              <TableCell>Start Date</TableCell>
+              <TableCell>End Date</TableCell>
+              <TableCell>Course Duration</TableCell>
+              <TableCell>Upload</TableCell>
+              <TableCell>Action</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {formik.values.data.map((row, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <TextField
+                    margin="dense"
+                    required
+                    size="small"
+                    sx={{ width: "150px" }}
+                    fullWidth
+                    type="text"
+                    name={`data[${index}].nameoftheCourse`}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.data[index].nameoftheCourse}
+                    error={
+                      formik.touched.nameoftheCourse &&
+                      !!formik.errors.nameoftheCourse
+                    }
+                    helperText={
+                      formik.touched.nameoftheCourse &&
+                      formik.errors.nameoftheCourse
+                    }
+                  />
+                </TableCell>
+
+                <TableCell>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Start Date"
+                      id="startDate"
+                      name="startDate"
+                   
+                      sx={{ width: "100%" }}
+                      renderInput={(params) => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          sx={{ width: "150px" }}
+                          size="small"
+                          required
+                          error={
+                            formik.touched.startDate &&
+                            Boolean(formik.errors.startDate)
+                          }
+                          helperText={
+                            formik.touched.startDate &&
+                            formik.errors.startDate
+                          }
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                </TableCell>
+                <TableCell>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="End Date"
+                      id="endDate"
+                      name="endDate"
+                      
+                      sx={{ width: "100%" }}
+                      renderInput={(params) => (
+                        <TextField
+                          fullWidth
+                          sx={{ width: "150px" }}
+                          {...params}
+                          size="small"
+                          required
+                          error={
+                            formik.touched.endDate &&
+                            Boolean(formik.errors.endDate)
+                          }
+                          helperText={
+                            formik.touched.endDate &&
+                            formik.errors.endDate
+                          }
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    margin="0"
+                    required
+                    size="small"
+                    fullWidth
+                    sx={{ width: "150px"}}
+                    type="text"
+                    name={`data[${index}].courseDuration`}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.data[index].courseDuration}
+                    error={
+                      formik.touched.courseDuration &&
+                      !!formik.errors.courseDuration
+                    }
+                    helperText={
+                      formik.touched.courseDuration &&
+                      formik.errors.courseDuration
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <Button
+                    sx={{ mb: 2 }}
+                    component="label"
+                    variant="contained"
+                    startIcon={<CloudUploadIcon />}
+                  >
+                    Upload
+                    <VisuallyHiddenInput type="file" />
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <IconButton onClick={() => handleDelete(index)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Button
+        type="button"
+        variant="contained"
+        color="primary"
+        onClick={handleAdd}
+      >
+        Add
+      </Button>
+    </form>
+  );
+};
+
+export default CertificateTable;
+
+
