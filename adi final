@@ -1,211 +1,291 @@
-import { Box, Button, Card, CardContent, Checkbox, FormControlLabel, Stack, TextField } from '@mui/material';
-import React, { useState } from 'react'
-import * as yup from "yup";
-import { H3 } from '../Components/Typography';
-import SaveAltIcon from '@mui/icons-material/SaveAlt';
-import { useFormik } from 'formik';
+import React, { useState, useCallback } from "react";
+import { useTheme, Card, CardContent, Button, Stack } from "@mui/material";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import TextField from "@mui/material/TextField";
+import Checkbox from "@mui/material/Checkbox";
+import FormGroup from "@mui/material/FormGroup";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import DeleteIcon from "@mui/icons-material/Delete";
+import DateRangePicker from "@mui/lab/DateRangePicker";
+import Autocomplete from "@mui/material/Autocomplete";
+import Grid from "@mui/material/Grid";
+import { H3 } from "../Components/Typography";
 import SearchTable from "../../src/Components/SearchTable";
-import Grid from "@mui/material/Unstable_Grid2";
-import useTitle from '../hooks/useTitle';
+import Navbar from "../Components/Navbar";
 
-const StateMaster = () => {
-    const [rowss, setRowss] = useState([]);
-    const [index, setIndex] = useState(1);
-    const [selectedRow, setSelectedRow] = useState(null);
-    const title="State Master"
-    useTitle(title);
+function YourComponent() {
+  const name = "Your Component";
+  const theme = useTheme();
 
-    const validationSchema = yup.object({
-        State: yup.string().required("State Name is required"),
+  const [rows, setRows] = useState([]);
+  const [index, setIndex] = useState(1);
+  const [selectedRow, setSelectedRow] = useState(null);
 
-    });
+  const validationSchema = Yup.object({
+    qualification: Yup.string().required("Qualification is required"),
+    institute: Yup.string().required("Institute is required"),
+    board: Yup.string().required("Board is required"),
+    fromDate: Yup.date().required("From Date is required"),
+    toDate: Yup.date().required("To Date is required"),
+    percentage: Yup.number().required("Percentage is required"),
+    document: Yup.string().required("Document name is required"),
+  });
 
-    const formik = useFormik({
-        initialValues: {
-            
-            State: "",
-            isActive: false
-        },
-        validationSchema: validationSchema,
-        onSubmit: (values) => {
-            // console.log(values);
-            setSelectedRow(null);
-            if (selectedRow !== null) {
-                setRowss((prevValue) => {
-                    const updatedRows = [...prevValue];
+  const formik = useFormik({
+    initialValues: {
+      qualification: "",
+      institute: "",
+      board: "",
+      fromDate: null,
+      toDate: null,
+      percentage: "",
+      document: "",
+      isMandatory: false,
+      isActive: false,
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      setSelectedRow(null);
+      if (selectedRow !== null) {
+        setRows((prevValue) => {
+          const updatedRows = [...prevValue];
+          updatedRows[selectedRow] = values;
+          return updatedRows;
+        });
+      } else {
+        setRows((prevValue) => [...prevValue, { ...values, index }]);
+        setIndex((prevValue) => prevValue + 1);
+      }
 
-                    updatedRows[selectedRow].State = values.State;
-                   
-                    updatedRows[selectedRow].isActive = values.isActive.toString().toUpperCase();
-                    return updatedRows;
-                });
-            } else {
-                setRowss((prevValue) => [
-                    ...prevValue,
-                    { 
-                        index, 
-                        State: values.State, 
-                        isActive: values.isActive.toString().toUpperCase() 
-                    },
-                ]);
-                setIndex((prevValue) => prevValue + 1);
-            }
-            formik.resetForm();
-        },
-    });
+      formik.resetForm();
+    },
+  });
 
-    const handleCancel = () => {
-        setSelectedRow(null);
-        formik.resetForm();
-    };
+  const handleCancel = useCallback(() => {
+    setSelectedRow(null);
+    formik.resetForm();
+  }, []);
 
-    const handleEdit = (index) => {
-        setSelectedRow(index - 1);
+  const handleEdit = useCallback(
+    (index) => () => {
+      setSelectedRow(index);
+      formik.setValues(rows[index - 1]);
+    },
+    [rows]
+  );
 
-        formik.setFieldValue("State", rowss[index - 1].State);
-     
-        formik.setFieldValue("isActive", JSON.parse(rowss[index - 1].isActive.toLowerCase()));
-    };
+  const handleDelete = useCallback(
+    (index) => () => {
+      setRows((prevValue) => prevValue.filter((_, i) => i !== index - 1));
+      setSelectedRow(null);
+      formik.resetForm();
+    },
+    []
+  );
 
+  const columns = [
+    { field: "index", headerName: "S.No", width: 200 },
+    { field: "qualification", headerName: "Qualification", width: 200 },
+    { field: "institute", headerName: "Institute", width: 200 },
+    { field: "board", headerName: "Board", width: 200 },
+    { field: "fromDate", headerName: "From Date", width: 200 },
+    { field: "toDate", headerName: "To Date", width: 200 },
+    { field: "percentage", headerName: "Percentage", width: 200 },
+    { field: "document", headerName: "Document", width: 200 },
+    {
+      field: "action",
+      headerName: "Action",
+      width: 200,
+      renderCell: (params) => {
+        return (
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="outlined"
+              color="inherit"
+              size="small"
+              onClick={handleEdit(params.row.index)}
+            >
+              EDIT
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={handleDelete(params.row.index)}
+              startIcon={<DeleteIcon />}
+            >
+              DELETE
+            </Button>
+          </Stack>
+        );
+      },
+    },
+  ];
 
-    const columns = [
-        {
-            field: "index",
-            headerName: "S.No",
-            flex: 0.1,
-            minWidth: 150,
-            headerClassName: "super-app-theme--header",
-        },
-     
-        {
-            field: "State",
-            headerName: "STATE NAME",
-            flex: 0.6,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "isActive",
-            headerName: "IS ACTIVE",
-            flex: 0.3,
-            minWidth: 150,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "action",
-            headerName: "ACTION",
-            headerClassName: "super-app-theme--header",
-            flex: 0.3,
-            minWidth: 150,
-            sortable: false,
-            disableClickEventBubbling: true,
-            renderCell: (params) => {
-                return (
-                    <Stack direction="row" spacing={2}>
-
-                        <Button
-                            variant="outlined"
-                            color="inherit"
-                            size="small"
-                            onClick={() => handleEdit(params.row.index)}
-                        >
-                            EDIT
-                        </Button>
-                    </Stack>
-                );
-            },
-        }
-       
-    ];
-
-    return (
-        <>
-            <Grid container>
-                <Grid xs={12} >
-                    <Card sx={{ my: 2 }} elevation={5}>
-                        <CardContent>
-                            <H3 lineHeight={2.2} sx={{ textAlign: 'center' }}>
-                                {title}
-                            </H3>
-                            <Box component="form" onSubmit={formik.handleSubmit}>
-                                <Grid container columnSpacing={2}>
-                                    <Grid xs={12} sm={4} smOffset={2} md={6} mdOffset={3}>
-                                     
-                                        <TextField
-                                            margin="normal"
-                                            fullWidth
-                                            type="text"
-                                            id="State"
-                                            name="State"
-                                            label="State Name"
-                                            value={formik.values.State}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            error={formik.touched.State && !!formik.errors.State}
-                                            helperText={formik.touched.State && formik.errors.State}
-                                        />
-
-                                    </Grid>
-                                    <Grid xs={12} sm={8} smOffset={2} md={6} mdOffset={3}>
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={formik.values.isActive}
-                                                />}
-                                            name='isActive'
-                                            id="isActive"
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            label="is Active"
-                                        />
-                                    </Grid>
-
-                                </Grid>
-                                <Box
-                                    spacing={2}
-                                    sx={{ mt: 1, textAlign: 'center' }}
-                                >
-                                    <Button
-                                        sx={{
-                                            minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
-                                        }}
-                                        variant="contained"
-                                        type="submit"
-                                    >
-                                        SAVE
-                                        <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
-                                        onClick={handleCancel}
-                                        variant="outlined"
-                                    >
-                                        CANCEL
-                                    </Button>
-                                </Box>
-                            </Box>
-
-                            <Box component={"div"} >
-                                <SearchTable
-                                    columns={columns}
-                                    data={rowss}
-                                    isCheckbox={false}
-                                    isHideDensity={false}
-                                    isHideExport={true}
-                                    isHideFilter={true}
-                                    isHideColumn={true}
-                                    isHidePaging={false}
-                                    name="StateMaster"
-                                    id="StateMaster"
-                                />
-                            </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
+  return (
+    <>
+      <Navbar name={name}></Navbar>
+      <Card sx={{ mt: 2, backgroundColor: theme.palette.primary[100] }}>
+        <CardContent>
+          <H3 lineHeight={2.2} sx={{ ml: 62 }}>
+            YOUR TITLE
+          </H3>
+          <form onSubmit={formik.handleSubmit}>
+            <Grid container direction="column" spacing={2}>
+              <Grid item>
+                <Autocomplete
+                  id="qualification"
+                  options={["Option 1", "Option 2", "Option 3"]}
+                  fullWidth
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Qualification"
+                      error={
+                        formik.touched.qualification &&
+                        Boolean(formik.errors.qualification)
+                      }
+                      helperText={
+                        formik.touched.qualification && formik.errors.qualification
+                      }
+                    />
+                  )}
+                  value={formik.values.qualification}
+                  onChange={(_, value) =>
+                    formik.setFieldValue("qualification", value)
+                  }
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  fullWidth
+                  id="institute"
+                  name="institute"
+                  label="Institute"
+                  value={formik.values.institute}
+                  onChange={formik.handleChange}
+                  error={formik.touched.institute && Boolean(formik.errors.institute)}
+                  helperText={formik.touched.institute && formik.errors.institute}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  fullWidth
+                  id="board"
+                  name="board"
+                  label="Board"
+                  value={formik.values.board}
+                  onChange={formik.handleChange}
+                  error={formik.touched.board && Boolean(formik.errors.board)}
+                  helperText={formik.touched.board && formik.errors.board}
+                />
+              </Grid>
+              <Grid item>
+                <DateRangePicker
+                  startText="From Date"
+                  endText="To Date"
+                  value={[formik.values.fromDate, formik.values.toDate]}
+                  onChange={(newValue) => {
+                    formik.setFieldValue("fromDate", newValue[0]);
+                    formik.setFieldValue("toDate", newValue[1]);
+                  }}
+                  renderInput={(startProps, endProps) => (
+                    <>
+                      <TextField {...startProps} fullWidth margin="normal" />
+                      <TextField {...endProps} fullWidth margin="normal" />
+                    </>
+                  )}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  fullWidth
+                  id="percentage"
+                  name="percentage"
+                  label="Percentage"
+                  type="number"
+                  value={formik.values.percentage}
+                  onChange={formik.handleChange}
+                  error={formik.touched.percentage && Boolean(formik.errors.percentage)}
+                  helperText={formik.touched.percentage && formik.errors.percentage}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  fullWidth
+                  id="document"
+                  name="document"
+                  label="Document"
+                  value={formik.values.document}
+                  onChange={formik.handleChange}
+                  error={formik.touched.document && Boolean(formik.errors.document)}
+                  helperText={formik.touched.document && formik.errors.document}
+                />
+              </Grid>
+              <Grid item>
+                <FormGroup row>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formik.values.isMandatory}
+                        onChange={(_, checked) =>
+                          formik.setFieldValue("isMandatory", checked)
+                        }
+                      />
+                    }
+                    label="Is Mandatory"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formik.values.isActive}
+                        onChange={(_, checked) =>
+                          formik.setFieldValue("isActive", checked)
+                        }
+                      />
+                    }
+                    label="Active"
+                  />
+                </FormGroup>
+              </Grid>
             </Grid>
-        </>
-    );
+            <Stack direction="row" spacing={2} sx={{ mt: 2, ml: theme.spacing(6) }}>
+              <Button variant="contained" type="submit" size="large">
+                SAVE <AttachFileIcon />
+              </Button>
+              <Button
+                type="button"
+                onClick={handleCancel}
+                variant="outlined"
+                sx={{ minWidth: 100, ml: 1 }}
+                size="large"
+              >
+                CANCEL
+              </Button>
+            </Stack>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent>
+          <SearchTable
+            columns={columns}
+            data={rows}
+            isCheckbox={false}
+            isHideDensity={false}
+            isHideExport={true}
+            isHideFilter={true}
+            isHideColumn={true}
+            isHidePaging={false}
+            name="your-component"
+            id="your-component"
+          />
+        </CardContent>
+      </Card>
+    </>
+  );
 }
 
-export default StateMaster;
+export default YourComponent;
