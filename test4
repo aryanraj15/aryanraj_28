@@ -1,0 +1,129 @@
+import React, { useState } from "react";
+
+//mui
+import {
+  Card,
+  CardContent,
+  Autocomplete,
+  Typography,
+  TextField,
+  Grid,
+  Checkbox,
+  RadioGroup,
+  Radio,
+  FormControl,
+  FormControlLabel,
+  Stack,
+  FormHelperText,
+  Paper,
+} from "@mui/material";
+
+import FormGroup from "@mui/material/FormGroup";
+import Button from "@mui/material/Button";
+
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Slide from "@mui/material/Slide";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import CloseIcon from "@mui/icons-material/Close";
+import { useDispatch } from "react-redux";
+import { useTheme } from "@emotion/react";
+import { DropzoneArea, DropzoneDialog } from "react-mui-dropzone";
+import CardActions from "@mui/material/CardActions";
+import Box from "@mui/material/Box";
+import { bool } from "yup";
+
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
+const LabInvestigation = ({data, rows, setRows, rows2, setRows2, rows3, setRows3, rows4, setRows4, isReadOnly, isDisabled}) => {
+    
+  const {showSnackbar} = useSnackbar();
+
+  const theme = useTheme();
+
+const handlefieldchangePreOp = (id, field, value) => {
+  // alert(100)
+   rows.map((row) => {
+     if (row.id === id) {
+       row[field] = value;
+     }
+   });
+   setRows([...rows]);
+ };
+
+ const addRowPreOp = () => {
+  const newRow = {
+    id: rows.length+1,
+    namePreOp: "",
+    pricePreOp: "",
+    actionPreOp: "",
+  };
+  setRows([...rows, newRow]);
+  //setCC(cc+1)
+  console.log(rows);
+};
+
+const handleRowChangePreOP = (e, id, field) => {
+  const updatedRows = rows.map((row) => {
+    if (row.id === id) {
+      return { ...row, [field]: e.target.value };
+    }
+    return row;
+  });
+  setRows(updatedRows);
+};
+
+const handleDeletePreOp = (id) => {
+  if (id === 1) {
+    // Prevent deleting the first row
+    return;
+  }
+  const updatedRows = rows.filter((row) => row.id !== id);
+  setRows(updatedRows);
+};
+
+
+return (
+  <>
+  <div style={{display:'flex', justifyContent:'flex-end', alignItems:'flex-start', padding:'24px', zIndex:9999}}>
+    {snackbarOpen && 
+    <Snackbar open={snackbarOpen} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{paddingTop:8, paddingRight: 4}} autoHideDuration={3000} onClose={() => setSnackBarOpen(false)}>
+            <Alert severity="error" sx={{color:'red'}} onClose={() => setSnackBarOpen(false)}>
+              {error}
+            </Alert>
+          </Snackbar>
+    }
+  </div>
+    <Grid container columnSpacing={2}>
+        <Grid item xs={12} sm={6} md={6} lg={6} >
+            <Paper sx={{padding:2, mt:2}} >
+                <Grid style={{borderBottom: "1px solid black",}}>
+                    <H4 sx={{fontSize:'20px'}} variant='subtitle1' align="center">Pre-OP</H4>
+                </Grid>
+                
+                <SearchTable
+                columns={columnsPreOp}
+                isTableHeaderColor = {true}
+                isCheckbox={false}
+                isHideDensity={false}
+                isHideExport={false}
+                isHideFilter={false}
+                isHideColumn={false}
+                isHidePaging={true}
+                data={rows}
+                name="abc"
+                id="hjjh"
+                ></SearchTable>
+       </Grid>
+      </>
+    );
+}
+
+export default LabInvestigation
