@@ -1,128 +1,31 @@
-import React, { useState } from "react";
-import {
-  Grid,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  TextField,
-  Checkbox,
-  FormControlLabel,
-} from "@material-ui/core";
-import CardActions from "@mui/material/CardActions";
-
-const WorkExperience = () => {
-  const [showCard, setShowCard] = useState(false);
-  const [experiences, setExperiences] = useState([
-    createNewExperience(),
-  ]);
-
-  function createNewExperience() {
-    return {
-      jobTitle: "",
-      companyName: "",
-      location: "",
-      current: false,
-      fromDate: null,
-      toDate: null,
-    };
-  }
-
-  function addExperience() {
-    setExperiences([...experiences, createNewExperience()]);
-  }
-
-  function deleteExperience(index) {
-    setExperiences(experiences.filter((_, i) => i !== index));
-  }
-
-  function handleChange(index, field, value) {
-    setExperiences((prev) =>
-      prev.map((exp, i) => (i === index ? { ...exp, [field]: value } : exp))
-    );
-  }
-
-  return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Typography variant="h3">Work experience</Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setShowCard(true)}
-        >
-          ADD Experience
-        </Button>
-      </Grid>
-      {showCard &&
-        experiences.map((exp, index) => (
-          <ExperienceCard
-            key={index}
-            index={index}
-            experience={exp}
-            handleChange={handleChange}
-            addExperience={addExperience}
-            deleteExperience={deleteExperience}
-          />
-        ))}
-    </Grid>
-  );
-};
-
-function ExperienceCard({ index, experience, handleChange, addExperience, deleteExperience }) {
-  return (
-    <Grid item xs={12}>
-      <Card variant="outlined">
-        <CardContent>
-          <Typography variant="h5" component="h2">
-            Work Experience {index + 1}
-          </Typography>
-          <TextField
-            label="Job Title"
-            value={experience.jobTitle}
-            onChange={(e) => handleChange(index, "jobTitle", e.target.value)}
-          />
-          <TextField
-            label="Company Name"
-            value={experience.companyName}
-            onChange={(e) => handleChange(index, "companyName", e.target.value)}
-          />
-          <TextField
-            label="Location"
-            value={experience.location}
-            onChange={(e) => handleChange(index, "location", e.target.value)}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={experience.current}
-                onChange={(e) => handleChange(index, "current", e.target.checked)}
-              />
-            }
-            label="I am currently here"
-          />
-          <TextField
-            label="From Date"
-            type="date"
-            value={experience.fromDate}
-            onChange={(e) => handleChange(index, "fromDate", e.target.value)}
-          />
-          <TextField
-            label="To Date"
-            type="date"
-            value={experience.toDate}
-            onChange={(e) => handleChange(index, "toDate", e.target.value)}
-          />
-        </CardContent>
-        <CardActions>
-          <Button onClick={addExperience}>ADD Another</Button>
-          <Button onClick={() => deleteExperience(index)}>DELETE</Button>
-        </CardActions>
-      </Card>
-    </Grid>
-  );
-}
-
-export default WorkExperience;
+  <LocalizationProvider
+                  dateAdapter={AdapterDayjs}
+                  adapterLocale={"en-gb"}
+                >
+                  <DatePicker
+                    label="Date of Birth"
+                    inputFormat="DD-MM-YYYY"
+                    maxDate={new Date()}
+                    id="dob"
+                    name="dob"
+                    value={formik.values.dob}
+                    onChange={(value) => {
+                      formik.setFieldValue("dob", Date.parse(value));
+                      const ageString = calculateAge(value);
+                      formik.setFieldValue("age", ageString);
+                    }}
+                    disabled={isDisabled}
+                    renderInput={(params) => (
+                      <TextField
+                        size="small"
+                        fullWidth
+                        {...params}
+                        required
+                        error={formik.touched.dob && Boolean(formik.errors.dob)}
+                        helperText={formik.touched.dob && formik.errors.dob}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
