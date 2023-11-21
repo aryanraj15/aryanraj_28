@@ -4,33 +4,46 @@
                     size="small"
                     id="Department"
                     name="Department"
-                    options={departmentpreviousList}
+                    options={departmentList}
                     
-                    // value={params.value || null}
-                    value={departmentpreviousList.find(
-                        (option) => option.valueId === formik.values.Department?.valueId
-                    ) || null}
-                    // getOptionLabel={(option) => option.label}
-                    getOptionLabel={(value) => value.valueName}
-
-
+                    value={params.value || null}
+                    getOptionLabel={(option) => option.label}
                     onChange={(e, value) => {
 
-                        handlefieldchange(params.row.id, "Department", value);
+                        handlefieldchange(params.row.id, "qualification", value);
                     }}
-                    sx={{ width: "100%", mt: 2 }}
+                    sx={{ width: "100%", mt: 1 }}
                     renderInput={(params) => <TextField {...params} />}
-
-                    
-                    
                 />
+                              
+<Autocomplete
+                                    disablePortal
+                                    margin="0"
+                                    fullWidth
+                                    id="Department"
+                                    name="Department"
+                                    options={departmentList}
+                                    value={departmentList.find(
+                                        (option) => option.valueName === formik.values.Department?.valueName
+                                    ) || null}
+                                    onChange={(e, value) => {
+                                        console.log(value)
+                                        if (value === null) {
+                                            formik.setFieldValue("Department", null)
+                                        }
+                                        else
+                                            formik.setFieldValue("Department", value)
+                                    }}
+                                    getOptionLabel={(value) => value.valueName}
+                                    sx={{ width: "100%", mt: 2 }}
+                                    renderInput={(params) => (
+                                        <TextField {...params}
+                                            label="Department"
+                                            onBlur={formik.handleBlur}
+                                            helperText={formik.errors.Department && formik.touched.Department ? formik.errors.Department : null}
+                                            error={formik.errors.Department && formik.touched.Department ? true : false}
+                                        />
+                                    )}
+                                />
 
 
- onChange={(e, value) => {
-                        console.log(value)
-                        if (value === null) {
-                            formik.setFieldValue("Department", null)
-                        }
-                        else
-                            formik.setFieldValue("Department", value)
-                    }}
