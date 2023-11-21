@@ -1,31 +1,36 @@
-  <LocalizationProvider
-                  dateAdapter={AdapterDayjs}
-                  adapterLocale={"en-gb"}
-                >
-                  <DatePicker
-                    label="Date of Birth"
-                    inputFormat="DD-MM-YYYY"
-                    maxDate={new Date()}
-                    id="dob"
-                    name="dob"
-                    value={formik.values.dob}
-                    onChange={(value) => {
-                      formik.setFieldValue("dob", Date.parse(value));
-                      const ageString = calculateAge(value);
-                      formik.setFieldValue("age", ageString);
+<Autocomplete
+                    margin="normal"
+                    fullWidth
+                    size="small"
+                    id="Department"
+                    name="Department"
+                    options={departmentpreviousList}
+                    
+                    // value={params.value || null}
+                    value={departmentpreviousList.find(
+                        (option) => option.valueId === formik.values.Department?.valueId
+                    ) || null}
+                    // getOptionLabel={(option) => option.label}
+                    getOptionLabel={(value) => value.valueName}
+
+
+                    onChange={(e, value) => {
+
+                        handlefieldchange(params.row.id, "Department", value);
                     }}
-                    disabled={isDisabled}
-                    renderInput={(params) => (
-                      <TextField
-                        size="small"
-                        fullWidth
-                        {...params}
-                        required
-                        error={formik.touched.dob && Boolean(formik.errors.dob)}
-                        helperText={formik.touched.dob && formik.errors.dob}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
+                    sx={{ width: "100%", mt: 2 }}
+                    renderInput={(params) => <TextField {...params} />}
+
+                    
+                    
+                />
+
+
+ onChange={(e, value) => {
+                        console.log(value)
+                        if (value === null) {
+                            formik.setFieldValue("Department", null)
+                        }
+                        else
+                            formik.setFieldValue("Department", value)
+                    }}
