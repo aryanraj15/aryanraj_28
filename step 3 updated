@@ -1,7 +1,65 @@
+[
 
-import React, { useState } from "react";
+    {
+
+    "userId":5,
+
+    "designation":"Junior Accountant",
+
+    "filePath":"EWODKVPNkLOLW0iFogLx9e1IiyAGWFFlkmUVAsNUf2IuEIgzmLOeqn/0vd68HMI8yLyBfUY/ZmbrtkqDnHU0YwUGOpOpUv3/Vf7nqwyoAxT7TxNEKOtFat8nxFt+fq0RHYx/2timAK1n2C3ce0hsIdSkPBcmLynjS4v8eADLbuk=",
+
+    "organization":"Finance",
+
+    "startDate":"2022-05-10",
+
+    "endDate":"2023-01-10",
+
+    "crtBy":1,
+
+    "updBy":1
+
+},
+
+{
+
+    "userId":5,
+
+    "designation":"Junior Analyst",
+
+    "filePath":"GNwYOzVBznUYsLZ0MLc2QR6mGP0CRP2XtO+SkvRLfLO27kLXVzQlGD22njYwn/CAqbpHMNIGDit2qjpfnSudUOgaU/+ELPv0O7W2WY3S6z52CtFG05+SAbcIRyhlbXcwcz6CDDe+epSbpAhfNQui+FkzLgYQ3u5kZvmTJV8RAvA=",
+
+    "organization":"Operations",
+
+    "startDate":"2022-05-10",
+
+    "endDate":"2023-01-10",
+
+    "crtBy":1,
+
+    "updBy":1
+
+}
+
+ 
+
+]
+
+
+
+10.48.158.197:8099/usermanagementapi/employee-enrollment/savePreviousExpDetails
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from "react";
 import {
     Grid,
+    Alert,
+    Slide,
     Typography,
     Button,
     Card,
@@ -10,13 +68,15 @@ import {
     Radio,
     RadioGroup,
     Checkbox,
+    InputLabel,
     FormControlLabel,
 } from "@mui/material";
 import Autocomplete from '@mui/material/Autocomplete';
-
+import Snackbar from '@mui/material/Snackbar';
 import TextField from '@mui/material/TextField';
 import CardActions from "@mui/material/CardActions";
 import AddIcon from '@mui/icons-material/Add';
+import dayjs from "dayjs";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -33,324 +93,740 @@ import {
     Box,
     IconButton
 } from '@mui/material';
+import * as Yup from 'yup';
+import { useFormik } from "formik";
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import FormLabel from '@mui/material/FormLabel';
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
+import { useSelector } from "react-redux";
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import CachedIcon from '@mui/icons-material/Cached';
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
+import SearchTable from "./components/SearchTable";
+import axios from 'axios';
+
+function TransitionLeft(props) {
+    return <Slide {...props} direction="left" />;
+}
+
+const validationSchema = Yup.object({
+    Designation: Yup.object().nullable().required("Designation Name is required"),
+    Department: Yup.object().nullable().required("Department Name is required"),
+    // Designation: Yup.string().required('Designation is required'),
+    //  Department: Yup.string().required('Department is required'),
 });
 
-const OrganizationOptions = ['Option 1', 'Option 2', 'Option 3'];
-const DepartmentOptions = ['Option A', 'Option B', 'Option C'];
-const DesignationOptions = ['Option A', 'Option B', 'Option C'];
-
-
-const MyTableOne = () => {
-    const [rows, setRows] = useState([{}]);
-    const handleAddRow = () => {
-        setRows([...rows, {}]);
-    };
-
-    const handleDeleteRow = (index) => {
-        const updatedRows = [...rows];
-        updatedRows.splice(index, 1);
-        setRows(updatedRows);
-    };
-
-    return (
-        <>
-
-            <TableContainer component={Paper}>
-                <Table  >
-
-                    <TableHead>
-                        <TableRow>
-                            <TableCell >Organization Name</TableCell>
-                            <TableCell >Department</TableCell>
-                            <TableCell>Designation</TableCell>
-                            <TableCell>From Date</TableCell>
-                            <TableCell>To Date</TableCell>
-                            <TableCell>Work Experience(Years)</TableCell>
-                            <TableCell>Upload</TableCell>
-                            <TableCell>Action</TableCell>
-                        </TableRow>
-                    </TableHead>
-
-
-                    <TableBody>
-                        {rows.map((row, index) => (
-                            <TableRow key={index}>
-                                <TableCell>
-                                    <FormControl>
-
-                                        <Autocomplete
-                                            type='small'
-                                            margin="normal"
-                                            fullWidth
-                                            options={OrganizationOptions}
-                                            sx={{ width: "150px", mt: 2 }}
-                                            renderInput={(params) => (
-                                                <TextField required {...params} label=" Qualification" />
-                                            )}
-                                        />
-
-                                    </FormControl>
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <FormControl>
-                                        <Autocomplete
-                                            type='small'
-                                            margin="normal"
-                                            fullWidth
-                                            options={DepartmentOptions}
-                                            sx={{ width: "150px", mt: 2 }}
-                                            renderInput={(params) => (
-                                                <TextField required {...params} label=" Department" />
-                                            )}
-                                        />
-                                    </FormControl>
-                                </TableCell>
-
-
-                                <TableCell>
-
-                                    <Autocomplete
-                                        type='small'
-                                        margin="normal"
-                                        fullWidth
-                                        options={DesignationOptions}
-                                        sx={{ width: "150px", mt: 2 }}
-                                        renderInput={(params) => (
-                                            <TextField required {...params} label=" Designation" />
-                                        )}
-                                    />
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <TextField
-                                        type="date"
-                                        variant="outlined"
-                                        sx={{ mt: 1.5, padding: 0 }}
-
-                                    />
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <TextField
-                                        type="date"
-                                        variant="outlined"
-                                        sx={{ mt: 1.5, padding: 0 }}
-
-                                    />
-                                </TableCell>
-                                <TableCell>
-
-                                    <TextField
-                                        type='small'
-                                        margin="normal"
-                                        fullWidth
-                                        label="Work Experience(Years)"
-                                        variant="outlined"
-                                        style={{ width: "150px", padding: 0 }}
-
-                                    />
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-                                        Upload
-                                        <VisuallyHiddenInput type="file" />
-                                    </Button>
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <IconButton onClick={() => handleDeleteRow(index)}>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </TableCell>
-
-
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <Button variant="contained" color="primary" onClick={handleAddRow}
-                sx={{ margin: 2 }}
-            >
-
-                ADD
-            </Button>
-
-        </>
-    );
-};
-
-const MyTableTwo = () => {
-    const [rows, setRows] = useState([{}]);
-
-    const handleAddRow = () => {
-        setRows([...rows, {}]);
-    };
-
-    const handleDeleteRow = (index) => {
-        const updatedRows = rows.filter((_,i) => i !== index);
-        setRows(updatedRows);
-    };
-
-    return (
-        <>
-
-            <TableContainer component={Paper}>
-                <Table  >
-
-                    <TableHead>
-                        <TableRow>
-                            <TableCell >Organization Name</TableCell>
-                            <TableCell >Location</TableCell>
-                            <TableCell>Designation</TableCell>
-                            <TableCell>From Date</TableCell>
-                            <TableCell>To Date</TableCell>
-                            <TableCell>Work Experience(Years)</TableCell>
-                            <TableCell>Upload</TableCell>
-                            <TableCell>Action</TableCell>
-                        </TableRow>
-                    </TableHead>
-
-
-                    <TableBody>
-                        {rows.map((row, index) => (
-                            <TableRow key={index}>
-                                <TableCell>
-                                    <FormControl>
-
-                                        <TextField
-                                            type="text"
-                                            variant="outlined"
-                                            sx={{ mt: 1.5, padding: 0, width: "150px" }}
-                                            label="Organization Name"
-
-                                        />
-
-                                    </FormControl>
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <FormControl>
-                                        <TextField
-                                            type="text"
-                                            variant="outlined"
-                                            sx={{ mt: 1.5, padding: 0, width: "150px" }}
-                                            label="Location"
-
-                                        />
-                                    </FormControl>
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <TextField
-                                        type="text"
-                                        variant="outlined"
-                                        sx={{ mt: 1.5, padding: 0, width: "150px" }}
-                                        label="Designation"
-
-                                    />
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <TextField
-                                        type="date"
-                                        variant="outlined"
-                                        sx={{ mt: 1.5, padding: 0 }}
-
-                                    />
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <TextField
-                                        type="date"
-                                        variant="outlined"
-                                        sx={{ mt: 1.5, padding: 0 }}
-
-                                    />
-                                </TableCell>
-                                <TableCell>
-
-                                    <TextField
-                                        type='small'
-                                        margin="normal"
-                                        fullWidth
-                                        label="Work Experience(Years)"
-                                        variant="outlined"
-                                        style={{ width: "150px", padding: 0 }}
-
-                                    />
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-                                        Upload
-                                        <VisuallyHiddenInput type="file" />
-                                    </Button>
-                                </TableCell>
-
-
-                                <TableCell>
-                                    <IconButton onClick={() => handleDeleteRow(index)}>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </TableCell>
-
-
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
-            <Button variant="contained" color="primary" onClick={handleAddRow}
-                sx={{ margin: 2 }}
-            >
-
-                ADD
-            </Button>
-
-        </>
-    );
-};
-
-
 const PageThree = ({ onButtonClick }) => {
-    const [showCard, setShowCard] = useState(false);
-    const [experiences, setExperiences] = useState([
-        createNewExperience(),
-    ]);
+
+    const [value, setValue] = React.useState(dayjs());
     const [hasExperience, setHasExperience] = useState('no');
     const [hasOtherExperience, setHasOtherExperience] = useState('no');
+    const [departmentList, setDepartmentList] = useState([]);
+    const [departmentpreviousList, setDepartmentpreviousList] = useState([]);
+    const [designationList, setDesignationList] = useState([]);
+    const [designationpreviousList, setDesignationpreviousList] = useState([]);
+    const [experience, setExperience] = React.useState(calculateWork(value));
+    
+    const user = useSelector((state) => state.loginReducer);
 
+    const [openToast, setOpenToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastSeverity, setToastSeverity] = useState("info");
+
+    const formik = useFormik({
+        initialValues: {
+            Dapartment: "",
+            Designation: "",
+            fromDate: "",
+            toDate: "",
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            // Handle form submission here
+            console.log("Form submitted with values:", values);
+        }
+    });
+    const [rows, setRows] = useState([
+        {
+            id: 1,
+            OrganizationName: "",
+            DepartmentPrevious: "",
+            DesignationPrevious: "",
+            percentage: "",
+            fromDate: "",
+            toDate: "",
+            workExperience: "",
+            attachments:"",
+            actionqualifications: ""
+
+        },
+    ]);
+    const [rows2, setRows2] = useState([
+        {
+            id: 1,
+            OrganizationName: "",
+            Location: "",
+            Designation: "",
+            percentage: "",
+            fromDate: "",
+            toDate: "",
+            workExperience: "",
+            attachments:"",
+            actionqualifications: ""
+        },
+    ]);
+   
+    const columns = [
+        {
+            field: "id",
+            headerClassName: "super-app-theme--header",
+            headerName: "Sl No.",
+            width: 60,
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+            hide: true
+        },
+       
+        {
+            width: 250,
+            //flex: 1,
+            editable: true,
+            headerName: "OrganizationName",
+            field: "OrganizationName",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                
+                <TextField
+    
+                    margin="normal"
+                    fullWidth
+                    id="OrganizationName"
+                    variant="outlined"
+                   
+                    defaultValue=" Dr. YSR Aarogyasri Health Care Trust"
+                    sx={{ width: "100%", mt: 2 }}
+                    rows={1}
+                    name="OrganizationName"
+                    size="small"
+                    onChange={(e, value) => {
+                        formik.setFieldValue("OrganizationName", value);
+                        handlefieldchange(params.row.id, "OrganizationName", value);
+                    }}
+
+                />
+               
+
+                
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+        {
+            width: 200,
+            headerName: "Department",
+            field: "DepartmentPrevious",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Autocomplete
+                    margin="normal"
+                    fullWidth
+                    size="small"
+                    id="DepartmentPrevious"
+                    name="DepartmentPrevious"
+                    options={departmentpreviousList}
+                    
+                    value={params.value || null}
+                    // value={departmentpreviousList.find(
+                    //     (option) => option.valueId === formik.values.DepartmentPrevious?.valueId
+                    // ) || null}
+                    // getOptionLabel={(option) => option.label}
+                    getOptionLabel={(value) => value.valueName}
+
+                    onChange={(e, value) => {
+                        console.log(value)
+                        if (value === null) {
+                            formik.setFieldValue("DepartmentPrevious", null)
+                            handlefieldchange(params.row.id, "DepartmentPrevious", null);
+                        }else {
+                            formik.setFieldValue("DepartmentPrevious", value);
+                            handlefieldchange(params.row.id, "DepartmentPrevious", value);
+                        }
+                    }}
+                    sx={{ width: "100%", mt: 2 }}
+                    renderInput={(params) => <TextField {...params} />}
+
+                />
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+        {
+            width: 200,
+            headerName: "Designation",
+            field: "DesignationPrevious",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Autocomplete
+                    margin="normal"
+                    fullWidth
+                    size="small"
+                    id="DesignationPrevious"
+                    name="DesignationPrevious"
+                    options={designationpreviousList}
+                    value={params.value || null}
+                    // value={designationpreviousList.find(
+                    //     (option) => option.valueName === formik.values.DesignationPrevious?.valueName
+                    // ) || null}
+                    getOptionLabel={(value) => value.valueName}
+
+                    onChange={(e, value) => {
+                        console.log(value)
+                        if (value === null) {
+                            formik.setFieldValue("DesignationPrevious", null)
+                            handlefieldchange(params.row.id, "DesignationPrevious", null);
+                           }else {
+                            formik.setFieldValue("DesignationPrevious", value);
+                            handlefieldchange(params.row.id, "DesignationPrevious", value);
+                        }
+                    }}
+
+                    sx={{ width: "100%", mt: 2 }}
+                    renderInput={(params) => <TextField {...params} />}
+                />
+
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+
+        {
+            width: 200,
+            headerName: "From Date",
+            field: "fromDate",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        label="From Date"
+                        inputFormat="MM/DD/YYYY"
+                        name="fromDate"
+                        value={formik.values.fromDate}
+                        onChange={(date) => {
+
+                            formik.setFieldValue("fromDate", date);
+                        }}
+
+                        renderInput={(params) => (
+                            <TextField
+                                size="small"
+                                fullWidth
+                                sx={{ width: "100%", mt: 2 }}
+                                {...params}
+                                error={
+                                    formik.touched.fromDate &&
+                                    Boolean(formik.errors.fromDate)
+                                }
+                                helperText={
+                                    formik.touched.fromDate &&
+                                    formik.errors.fromDate
+                                }
+                            />
+                        )}
+                    />
+                </LocalizationProvider>
+
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+
+        {
+            width: 200,
+            headerName: "To Date",
+            field: "toDate",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        label="To Date"
+                        inputFormat="MM/DD/YYYY"
+                        name="toDate"
+                        value={formik.values.toDate}
+                        onChange={(date) => {
+
+                            formik.setFieldValue("toDate", date);
+                        }}
+
+                        renderInput={(params) => (
+                            <TextField
+                                size="small"
+                                fullWidth
+                                sx={{ width: "100%", mt: 2 }}
+                                {...params}
+                                error={
+                                    formik.touched.toDate &&
+                                    Boolean(formik.errors.toDate)
+                                }
+                                helperText={
+                                    formik.touched.toDate &&
+                                    formik.errors.toDate
+                                }
+                            />
+                        )}
+                    />
+                </LocalizationProvider>
+
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+        
+        {
+            width: 200,
+            headerName: "WorkExperience",
+            field: "workExperience",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <TextField
+                    multiline
+                    margin="normal"
+                    fullWidth
+                    id="workExperience"
+                 
+                    sx={{ width: "100%", mt: 2 }}
+                    rows={1}
+                    name="workExperience"
+                    size="small"
+                    value={params.value}
+                    onChange={(e, value) => {
+
+                        formik.setFieldValue("workExperience",  e.target.value);
+                        handlefieldchange(params.row.id, "workExperience", e.target.value);
+
+                    }}
+                />
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+
+
+        {
+            width: 250,
+            headerName: "Add Attachments",
+            field: "attachments",
+            headerClassName: "super-app-theme--header",
+            sortable: false,
+
+            disableClickEventBubbling: true,
+            renderCell: (params) => {
+                return (
+                    <TextField
+                        fullWidth
+                        sx={{ width: "100%", mt: 2 }}
+                        type="file"
+                        name="attachments"
+                        size="small"
+                        required
+
+                        onChange={(event) => {
+                            console.log(event.target.files)
+                            if (event.target.files[0]) {
+                                const selectedFile = event.target.files[0];
+                                console.log(selectedFile);
+                                handlefieldchange(params.row.id, "attachments", event.target.value);
+                                formik.setFieldValue("attachments",event.target.files[0])
+                                uploadEducationalAttachment(event.target.files[0], params.row.id)
+                            } else {
+                               
+                            }
+                        }}
+                 
+                    >
+                        <InputLabel htmlFor="attachments" required>File Name*</InputLabel>
+                    </TextField>
+                );
+            },
+        },
+        {
+            field: "actionqualification",
+            headerName: "Action",
+            width: 140,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => {
+                return (
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        sx={{ mb:1 }}
+                        value={params.value}
+                        onChange={(e) => handleRowChange(e, params.row.id, "actionqualification")}
+                        onClick={() => handleDelete(params.row.id)}
+                    >
+                        Delete
+                    </Button>
+                );
+            },
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+    ];
+     const columnstwo = [
+        {
+            field: "id",
+            headerClassName: "super-app-theme--header",
+            headerName: "Sl No.",
+            width: 60,
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+            hide: true
+        },
+
+        {
+            width: 250,
+            //flex: 1,
+            editable: true,
+            headerName: "OrganizationName",
+            field: "OrganizationName",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <TextField
+                    multiline
+                    margin="normal"
+                    fullWidth
+                    id="OrganizationName"                  
+                    sx={{ width: "100%", mt: 2 }}
+                    rows={1}
+                    name="OrganizationName"
+                    size="small"
+                    value={params.value}
+                    onChange={(e, value) => {
+
+                        handlefieldchange2(params.row.id, "OrganizationName", e.target.value);
+
+                    }}
+                />
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+        {
+            width: 200,
+            headerName: "Location",
+            field: "Location",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <TextField
+                    multiline
+                    margin="normal"
+                    fullWidth
+                    id="Location"
+                    sx={{ width: "100%", mt: 2 }}
+                    rows={1}
+                    name="Location"
+                    size="small"
+                    value={params.value}
+                    onChange={(e, value) => {
+
+
+                        handlefieldchange2(params.row.id, "Location", e.target.value);
+
+                    }}
+                />
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+        {
+            width: 200,
+            headerName: "Designation",
+            field: "Designation",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <TextField
+                multiline
+                margin="normal"
+                fullWidth
+                id="Designation"
+                sx={{ width: "100%", mt: 2 }}
+                rows={1}
+                name="Designation"
+                size="small"
+                value={params.value}
+                onChange={(e, value) => {
+
+
+                    handlefieldchange2(params.row.id, "Designation", e.target.value);
+
+                }}
+            />
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+
+        {
+            width: 200,
+            headerName: "From Date",
+            field: "fromDate",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        label="From Date"
+                        inputFormat="MM/DD/YYYY"
+                        name="fromDate"
+                        value={formik.values.fromDate}
+                        onChange={(date) => {
+
+                            formik.setFieldValue("fromDate", date);
+                        }}
+
+                        renderInput={(params) => (
+                            <TextField
+                                size="small"
+                                fullWidth
+                                sx={{ width: "100%", mt: 2 }}
+                                {...params}
+                                error={
+                                    formik.touched.fromDate &&
+                                    Boolean(formik.errors.fromDate)
+                                }
+                                helperText={
+                                    formik.touched.fromDate &&
+                                    formik.errors.fromDate
+                                }
+                            />
+                        )}
+                    />
+                </LocalizationProvider>
+
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+
+        {
+            width: 200,
+            headerName: "To Date",
+            field: "toDate",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        label="To Date"
+                        inputFormat="MM/DD/YYYY"
+                        name="toDate"
+                        value={formik.values.toDate}
+                        onChange={(date) => {
+
+                            formik.setFieldValue("toDate", date);
+                        }}
+
+                        renderInput={(params) => (
+                            <TextField
+                                size="small"
+                                fullWidth
+                                sx={{ width: "100%", mt: 2 }}
+                                {...params}
+                                error={
+                                    formik.touched.toDate &&
+                                    Boolean(formik.errors.toDate)
+                                }
+                                helperText={
+                                    formik.touched.toDate &&
+                                    formik.errors.toDate
+                                }
+                            />
+                        )}
+                    />
+                </LocalizationProvider>
+
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+        
+        {
+            width: 200,
+            headerName: "WorkExperience",
+            field: "workExperience",
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <TextField
+                    multiline
+                    margin="normal"
+                    fullWidth
+                    id="workExperience"
+                 
+                    sx={{ width: "100%", mt: 2 }}
+                    rows={1}
+                    name="workExperience"
+                    size="small"
+                    value={params.value}
+                    onChange={(e, value) => {
+
+
+                        handlefieldchange2(params.row.id, "workExperience", e.target.value);
+
+                    }}
+                />
+            ),
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+
+
+        {
+            width: 250,
+            headerName: "Add Attachments",
+            field: "attachments",
+            headerClassName: "super-app-theme--header",
+            sortable: false,
+
+            disableClickEventBubbling: true,
+            renderCell: (params) => {
+                return (
+                    <TextField
+                        fullWidth
+                        sx={{ width: "100%", mt: 2 }}
+                        type="file"
+                        name="attachments"
+                        size="small"
+                        required
+
+                        onChange={(event) => {
+                            console.log(event.target.files)
+                            if (event.target.files[0]) {
+                                const selectedFile = event.target.files[0];
+                                console.log(selectedFile);
+                                handlefieldchange2(params.row.id, "attachments", event.target.value);
+                                uploadAttachment(event.target.files[0], params.row.id)
+                            } else {
+                               
+                            }
+                        }}
+                 
+                    >
+                        <InputLabel htmlFor="attachments" required>File Name*</InputLabel>
+                    </TextField>
+                );
+            },
+        },
+        {
+            field: "actionqualification",
+            headerName: "Action",
+            width: 140,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => {
+                return (
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        sx={{ mb:1 }}
+                        value={params.value}
+                        onChange={(e) => handleRowChange2(e, params.row.id, "actionqualification")}
+                        onClick={() => handleDelete2(params.row.id)}
+                    >
+                        Delete
+                    </Button>
+                );
+            },
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+        },
+    ];
+  
+    const addRow = () => {
+        const newRow = {
+            id: rows.length + 1,
+            OrganizationName: "",
+            DepartmentPrevious: "",
+            DesignationPrevious: "",
+            percentage: "",
+            fromDate: "",
+            toDate: "",
+            workExperience: "",
+            attachments:"",
+            actionqualifications: ""
+        };
+        setRows([...rows, newRow]);
+        console.log(rows);
+    };
+    const handleRowChange = (e, id, field) => {
+        const updatedRows = rows.map((row) => {
+            if (row.id === id) {
+                return { ...row, [field]: e.target.value };
+            }
+            return row;
+        });
+        setRows(updatedRows);
+    };
+    const handleDelete = (id) => {
+     
+        const updatedRows = rows.filter((row) => row.id !== id);
+        setRows(updatedRows.map((row, id) => ({ ...row, id: id + 1 })));
+    };
+    const handlefieldchange = (id, field, value) => {
+        rows.map((row) => {
+          if (row.id == id) {
+            row[field] = value;
+          }
+        });
+        setRows([...rows]);
+      };
+      const addRow2 = () => {
+        const newRow2 = {
+            id: rows2.length + 1,
+            OrganizationName: "",
+            Location: "",
+            Designation: "",
+            percentage: "",
+            fromDate: "",
+            toDate: "",
+            workExperience: "",
+            attachments:"",
+            actionqualifications: ""
+        };
+        setRows2([...rows2, newRow2]);
+    };
+    const handleRowChange2 = (e, id, field) => {
+        const updatedRows2 = rows2.map((row) => {
+            if (row.id === id) {
+                return { ...row, [field]: e.target.value };
+            }
+            return row;
+        });
+        setRows2(updatedRows2);
+    };
+    const handleDelete2 = (id) => {
+
+        const updatedRows2 = rows2.filter((row) => row.id !== id);
+        setRows2(updatedRows2.map((row, id) => ({ ...row, id: id + 1 })));
+    };
+    const handlefieldchange2 = (id, field, value) => {
+        rows2.map((row) => {
+            if (row.id == id) {
+                row[field] = value;
+            }
+        });
+        setRows2([...rows2]);
+    };
 
     const handleExperienceChange = (event) => {
         setHasExperience(event.target.value);
@@ -360,47 +836,212 @@ const PageThree = ({ onButtonClick }) => {
         setHasOtherExperience(event.target.value);
     };
 
-    const departmentList = [
-        'Admin',
-        'IT',
-    ];
+       
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
 
-    const designatinonList = [
-        'General Manager',
-        'DGM',
-    ];
+        setOpenToast(false);
+    };
 
-    function createNewExperience() {
-        return {
-            jobTitle: "",
-            organizationName: "",
-            location: "",
-            current: false,
-            fromDate: null,
-            toDate: null,
-        };
+    function calculateWork(workexperience) {
+        const today = new Date();
+        const birthDate = new Date(workexperience);
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+            age--;
+        }
+
+        let ageString = "";
+
+        if (age > 0) {
+            ageString += age === 1 ? "1 year" : `${age} years`;
+        }
+
+        if (monthDiff > 0) {
+            if (ageString !== "") {
+                ageString += ", ";
+            }
+            ageString += monthDiff === 1 ? "1 month" : `${monthDiff} months`;
+        }
+
+        if (dayDiff > 0) {
+            if (ageString !== "") {
+                ageString += ", ";
+            }
+            ageString += dayDiff === 1 ? "1 day" : `${dayDiff} days`;
+        }
+
+        return ageString;
     }
 
-    function addExperience() {
-        setExperiences([...experiences, createNewExperience()]);
-    }
 
-    function deleteExperience(index) {
-        setExperiences(experiences.filter((_, i) => i !== index));
-    }
+    useEffect(() => {
+        axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/initiate-dropdown`).then(response => {
+            let sortedDesignationData = response.data.result.Designation.map((value) => {
+                value.Designation = value.Designation
+                return value;
 
-    function handleChange(index, field, value) {
-        setExperiences((prev) =>
-            prev.map((exp, i) => (i === index ? { ...exp, [field]: value } : exp))
-        );
-    }
+            })
+            console.log(sortedDesignationData);
+            setDesignationList(sortedDesignationData);
+            setDesignationpreviousList(sortedDesignationData)
+
+
+            let sortedDepartmentData = response.data.result.Department.map((value) => {
+                value.Department = value.Department
+                return value;
+            })
+            console.log(sortedDepartmentData);
+            setDepartmentList(sortedDepartmentData);
+            setDepartmentpreviousList(sortedDepartmentData)
+        })
+            .catch(error => {
+                setDesignationList([]);
+                setDepartmentList([]);
+                setDepartmentpreviousList([]);
+                setDesignationpreviousList([]);
+                
+                console.log(error);
+            });
+    }, []);
+
+
+    let selectedFile = null;
+
+    const uploadEducationalAttachment = async (file, rowId) => {
+        const config = { headers: { "Content-Type": "multipart/form-data" } };
+        var bodyFormData = new FormData();
+        console.log(selectedFile)
+        bodyFormData.append("file", file);
+
+
+
+        try {
+            const res = await axios.post(
+                "http://10.48.158.197:8099/usermanagementapi/employee-enrollment/uploadAttachment",
+                bodyFormData,
+                config
+            );
+            console.log(res);
+            console.log(res.data.result);
+
+            if (res.data.statusCode == 200) {
+                console.log("uploaded successfully")
+
+                setToastMessage("File Uploaded Successfully")
+                setToastSeverity("success");
+                setOpenToast(true);
+
+                rows.map((row) => {
+                    console.log("manasa")
+                    console.log(row.id)
+                    console.log(rowId)
+                  
+                    //row["certificates"] = res.data.result[file.name];
+
+
+                    if (row.id == rowId) {
+                        console.log("manasa1")
+                        row["attachments"] = res.data.result[file.name];
+                    }
+                });
+                setRows([...rows]);
+
+
+                // handlefieldchange2(rowId, "certificates",res.data.result[file.name]);
+
+
+                // console.log(openToast)
+
+                //   showSnackbar(res.data.message,"success");
+                // callConfirmDialogMessage("Uplosded Successfully");
+                // alert("successfully uploaded");
+                // handleResult("Success");
+                // onFileUpload(res.data.result.filePath);
+                //onFileUpload(files, uploadedFiles[0].name)
+            } else {
+                console.log('bad request');
+            }
+        } catch (error) {
+            // setLoadingInd(false);
+            console.log(error.message);
+        }
+    };
+
+
+    const uploadAttachment = async (file, rowId) => {
+        const config = { headers: { "Content-Type": "multipart/form-data" } };
+        var bodyFormData = new FormData();
+        console.log(selectedFile)
+        bodyFormData.append("file", file);
+
+
+
+        try {
+            const res = await axios.post(
+                "http://10.48.158.197:8099/usermanagementapi/employee-enrollment/uploadAttachment",
+                bodyFormData,
+                config
+            );
+            console.log(res);
+            console.log(res.data.result);
+
+            if (res.data.statusCode == 200) {
+                console.log("uploaded successfully")
+
+                setToastMessage("File Uploaded Successfully")
+                setToastSeverity("success");
+                setOpenToast(true);
+
+                rows2.map((row) => {
+                    console.log("manasa")
+                    console.log(row.id)
+                    console.log(rowId)
+                    //row["certificates"] = res.data.result[file.name];
+
+
+                    if (row.id == rowId) {
+                        console.log("manasa1")
+                        row["certificates"] = res.data.result[file.name];
+                    }
+                });
+                setRows2([...rows2]);
+
+            } else {
+                console.log('bad request');
+            }
+        } catch (error) {
+            // setLoadingInd(false);
+            console.log(error.message);
+        }
+    };
 
     return (
-        <>
+        <form onSubmit={formik.handleSubmit}>
+             <div>
+                <Snackbar
+                    open={openToast}
+                    autoHideDuration={6000}
+                    anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                    onClose={handleClose}
+                    TransitionComponent={TransitionLeft}
+                >
+                    <Alert onClose={handleClose} severity={toastSeverity} sx={{ width: '100%', padding: { sm: '15px', xs: '10px' }, borderRadius: '15px', fontSize: { sm: '16px', xs: '14px' }, boxShadow: "0 0 10px #999", marginTop: { sm: '25px', xs: '20px' } }}>
+                        {toastMessage}
+                    </Alert>
+                </Snackbar>
+            </div>
+
             <div>
                 <FormControl component="fieldset" sx={{ paddingLeft: 3 }}>
                     <Typography variant="h7" gutterBottom>
-                        Do you have previous experience in Current Organization?
+                    Do you have previous experience in Dr. YSR Aarogyasri Health Care Trust?
                     </Typography>
                     <RadioGroup
                         aria-label="experience"
@@ -417,18 +1058,41 @@ const PageThree = ({ onButtonClick }) => {
                 {hasExperience === 'yes' && (
 
                     <Grid >
-                        <Box sx={{ overflow: "auto", my: 2 }} component={Paper} elevation={2}>
-                            <Box sx={{
-                                width: "100%",
-                                height: "auto",
-                                display: "table",
-                                tableLayout: "fixed",
-                            }}
+                    <Box sx={{ overflow: "auto", my: 2 }} component={Paper} elevation={2}>
+                                    <Box sx={{
+                                        width: "100%",
+                                        height: "auto",
+                                        display: "table",
+                                        tableLayout: "fixed",
+                                    }}
+                                    >
+                                       
+                                        <SearchTable
+                                        columns={columns}
+                                        isCheckbox={false}
+                                        isHideDensity={false}
+                                        isHideExport={false}
+                                        isHideFilter={false}
+                                        isHideColumn={false}
+                                        isHidePaging={true}
+                                        data={rows}
+                                        name="abc"
+                                        id="hjjh"
+                                    ></SearchTable>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        minWidth={150}
+                                        onClick={addRow}
 
-                            >
-                                <MyTableOne></MyTableOne>
-                            </Box>
-                        </Box>
+                                    // disabled={disableinvestgation}
+                                    >
+                                        Add
+                                    </Button>
+                                   
+                                    </Box>
+
+                                </Box>
 
                     </Grid>
 
@@ -438,7 +1102,7 @@ const PageThree = ({ onButtonClick }) => {
             <div>
                 <FormControl component="fieldset" sx={{ paddingLeft: 3 }}>
                     <Typography variant="h7" gutterBottom>
-                        Do you have previous experience in Other Organization?
+                        Do you have previous experience in any Other Organization?
                     </Typography>
                     <RadioGroup
                         aria-label="experience"
@@ -455,19 +1119,41 @@ const PageThree = ({ onButtonClick }) => {
                 {hasOtherExperience === 'yes' && (
 
                     <Grid >
-                        <Box sx={{ overflow: "auto", my: 2 }} component={Paper} elevation={2}>
-                            <Box sx={{
-                                width: "100%",
-                                height: "auto",
-                                display: "table",
-                                tableLayout: "fixed",
-                            }}
+                    <Box sx={{ overflow: "auto", my: 2 }} component={Paper} elevation={2}>
+                                    <Box sx={{
+                                        width: "100%",
+                                        height: "auto",
+                                        display: "table",
+                                        tableLayout: "fixed",
+                                    }}
+                                    >
+                                       
+                                        <SearchTable
+                                        columns={columnstwo}
+                                        isCheckbox={false}
+                                        isHideDensity={false}
+                                        isHideExport={false}
+                                        isHideFilter={false}
+                                        isHideColumn={false}
+                                        isHidePaging={true}
+                                        data={rows2}
+                                        name="abc"
+                                        id="hjjh"
+                                    ></SearchTable>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        minWidth={150}
+                                        onClick={addRow2}
 
-                            >
-                                <MyTableTwo></MyTableTwo>
-                            </Box>
+                                    // disabled={disableinvestgation}
+                                    >
+                                        Add
+                                    </Button>
+                                   
+                                    </Box>
 
-                        </Box>
+                                </Box>
 
                     </Grid>
 
@@ -502,38 +1188,75 @@ const PageThree = ({ onButtonClick }) => {
                                     variant="outlined"
                                     label="Organization Name"
                                     defaultValue="Dr.YSR Aarogyasri Health Care Trust"
-                                    disabled
+
 
 
                                 />
                             </Grid>
+
+
                             <Grid item xs={12} sm={4} md={4} lg={4}>
                                 <Autocomplete
                                     disablePortal
-                                    margin="normal"
+                                    margin="0"
                                     fullWidth
-                                    id="combo-box-demo"
+                                    id="Department"
+                                    name="Department"
                                     options={departmentList}
+                                    value={departmentList.find(
+                                        (option) => option.valueName === formik.values.Department?.valueName
+                                    ) || null}
+                                    onChange={(e, value) => {
+                                        console.log(value)
+                                        if (value === null) {
+                                            formik.setFieldValue("Department", null)
+                                        }
+                                        else
+                                            formik.setFieldValue("Department", value)
+                                    }}
+                                    getOptionLabel={(value) => value.valueName}
                                     sx={{ width: "100%", mt: 2 }}
                                     renderInput={(params) => (
-                                        <TextField required {...params} label="Department" />
+                                        <TextField {...params}
+                                            label="Department"
+                                            onBlur={formik.handleBlur}
+                                            helperText={formik.errors.Department && formik.touched.Department ? formik.errors.Department : null}
+                                            error={formik.errors.Department && formik.touched.Department ? true : false}
+                                        />
                                     )}
-                                    disabled
                                 />
                             </Grid>
 
                             <Grid item xs={12} sm={4} md={4} lg={4}>
                                 <Autocomplete
                                     disablePortal
-                                    margin="normal"
+                                    margin="0"
                                     fullWidth
-                                    id="combo-box-demo"
-                                    options={designatinonList}
+
+                                    id="Designation"
+                                    name="Designation"
+                                    options={designationList}
+                                    value={designationList.find(
+                                        (option) => option.valueName === formik.values.Designation?.valueName
+                                    ) || null}
+                                    onChange={(e, value) => {
+                                        console.log(value)
+                                        if (value === null) {
+                                            formik.setFieldValue("Designation", null)
+                                        }
+                                        else
+                                            formik.setFieldValue("Designation", value)
+                                    }}
+                                    getOptionLabel={(value) => value.valueName}
                                     sx={{ width: "100%", mt: 2 }}
                                     renderInput={(params) => (
-                                        <TextField required {...params} label="Designation" />
+                                        <TextField {...params}
+                                            label="Designation"
+                                            onBlur={formik.handleBlur}
+                                            helperText={formik.errors.Designation && formik.touched.Designation ? formik.errors.Designation : null}
+                                            error={formik.errors.Designation && formik.touched.Designation ? true : false}
+                                        />
                                     )}
-                                    disabled
                                 />
 
                             </Grid>
@@ -550,78 +1273,59 @@ const PageThree = ({ onButtonClick }) => {
 
                         >
 
-
                             <Grid item xs={12} sm={3} md={3} lg={4}>
 
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                                    <DatePicker
-                                        label="From"
-                                        inputFormat="26-09-2022"
-                                        sx={{ width: "100%" }}
-
-                                        renderInput={(params) => (
-                                            <TextField
-                                                sx={{ width: "100%", mt: 1 }}
-                                                fullWidth
-                                                {...params}
-                                                disabled
-
-                                            />
-                                        )}
-                                    />
-
-                                </LocalizationProvider>
+                            <LocalizationProvider
+                                        dateAdapter={AdapterDayjs}
+                                        adapterLocale={"en-gb"}
+                                    >
+                                        <DatePicker
+                                            label="From Date"
+                                            inputFormat="DD-MM-YYYY"
+                                            maxDate={new Date()}
+                                            id="calculateWork"
+                                            name="calculateWork"
+                                            value={formik.values.calculateWork}
+                                            onChange={(value) => {
+                                                formik.setFieldValue("calculateWork", Date.parse(value));
+                                                const ageString = calculateWork(value);
+                                                formik.setFieldValue("calculateWork", ageString);
+                                            }}
+                                            // disabled={isDisabled}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                   
+                                                    fullWidth
+                                                    {...params}
+                                                    required
+                                                    error={formik.touched.calculateWork && Boolean(formik.errors.calculateWork)}
+                                                    helperText={formik.touched.calculateWork && formik.errors.calculateWork}
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                />
+                                            )}
+                                        />
+                                    </LocalizationProvider>
                             </Grid>
                             <Grid item xs={12} sm={3} md={3} lg={4}>
-
-                                <LocalizationProvider
-                                    dateAdapter={AdapterDayjs}>
-
-                                    <DatePicker
-                                        label="To"
-                                        inputFormat="DD-MM-YYYY"
-                                        sx={{ width: "100%" }}
-
-                                        renderInput={(params) => (
-                                            <TextField
-                                                sx={{ width: "100%", mt: 1 }}
-                                                fullWidth
-                                                {...params}
-                                                disabled
-
-                                            />
-                                        )}
-                                    />
-
-                                </LocalizationProvider>
-                            </Grid>
-                            <Grid item xs={12} sm={3} md={3} lg={4}>
+                              
                                 <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="outlined-basic"
-                                    variant="outlined"
-                                    label="Work Experience"
-                                    defaultValue="1 year, 1 month, 14 days"
-                                    disabled
-                                    sx={{ width: "100%", mt: 1 }}
-                                />
+                                        margin="0"
+                                        required
+                                        fullWidth
+                                        id="calculateWork"
+                                        label="Work Experience"
+                                        InputLabelProps={{ shrink: true }}
+                                        name="calculateWork"
+                                        
+                                        value={formik.values.calculateWork || ""}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        error={formik.touched.calculateWork && Boolean(formik.errors.calculateWork)}
+                                        helperText={formik.touched.calculateWork && formik.errors.calculateWork}
+                                        disabled={true}
+                                    />
                             </Grid>
-
-                        </Grid>
-
-                        <Grid
-                            container
-                            direction="row"
-                            rowSpacing={0}
-                            columnSpacing={2}
-                            justify="flex-end"
-                            alignItems="center"
-                            sx={{ mb: 2 }}
-
-                        >
 
                             <Grid item xs={12} sm={3} md={3} lg={4}>
                                 <TextField
@@ -636,7 +1340,10 @@ const PageThree = ({ onButtonClick }) => {
                                     sx={{ width: "100%", mt: 1 }}
                                 />
                             </Grid>
+
                         </Grid>
+
+       
 
                         <CardActions>
 
@@ -675,7 +1382,7 @@ const PageThree = ({ onButtonClick }) => {
                     <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
                 </Button>
             </Box>
-        </>
+        </form>
     );
 };
 
