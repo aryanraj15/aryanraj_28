@@ -1,37 +1,36 @@
- const savePersonalDetails = async (data) => {
-  
-        try {
-          let body = {
-            userId:4,
-            accNo: formik.values.accountNumber,
-            empAccountType: formik.values.AccountTypes.valueId,
-            accHolderName: formik.values.accholdername,
-            ifscCode: "UBIN0902411",
-            crtBy: user.data.userdetails.user.userId,
-            updBy: user.data.userdetails.user.userId,
- 
+const saveColumn2Data = async () => {
+  try {
+    const payloadList = rows2.map(row => ({
+      userId: user.userId, // Assuming user is the logged-in user object from Redux
+      designation: row.Designation,
+      filePath: row.attachments, // Assuming attachments field contains the file path
+      organization: row.OrganizationName,
+      startDate: dayjs(row.fromDate).format("YYYY-MM-DD"),
+      endDate: dayjs(row.toDate).format("YYYY-MM-DD"),
+      crtBy: user.userId, // Assuming user is the logged-in user object from Redux
+      updBy: user.userId, // Assuming user is the logged-in user object from Redux
+    }));
 
-          };
+    console.log("The saved column2 data payload:", payloadList);
 
-       
-          console.log("the saved details  body", body);
-          const res = await axios.post(
-            "http://localhost:8099/usermanagementapi/employee-enrollment/saveBankDetail",
-   
-            body
-          );
-          console.log("the saved details  areeeeee", res);
-          if (res.data.statusCode == 200) {
-            console.log("the result ", res.data.result);
-            //setPatientId("The Registered Patient Id is " + res.data.result);
-            onButtonClick("pagetwo")
-            //handleClickOpen();
-            //showSnackbar(res.data.result, "success");
-          }
-        } catch (error) {
-          alert("Data has not saved", error);
-          console.log(error.message);
-        }
-      };
+    const res = await axios.post(
+      'http://10.48.158.197:8099/usermanagementapi/employee-enrollment/savePreviousExpDetails',
+      payloadList
+    );
 
-      
+    console.log('Save API Response:', res.data);
+
+    if (res.data.statusCode === 200) {
+      // Handle success, e.g., navigate to the next page
+      onButtonClick('pagefour');
+    } else {
+      // Handle the case where the save API returns an error
+      console.error('Error in save API:', res.data.message);
+      // You might want to show a notification to the user
+    }
+  } catch (error) {
+    console.error('Error in save API:', error);
+    // Handle error or display an error notification
+  }
+};
+
