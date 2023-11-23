@@ -1,298 +1,39 @@
-import React, { useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Button,
-  Input,
-  Autocomplete,
-  TextField // Import TextField
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-const qualifications = [
-  "Bachelor's Degree",
-  "Master's Degree",
-  "Ph.D.",
-  "Diploma",
-  "Other"
-];
+const updateWorkExperience = (fromDate, toDate) => {
+    const fromDateObj = dayjs(fromDate);
+    const toDateObj = dayjs(toDate);
 
-const WorkExperienceTable = () => {
-  const validationSchema = Yup.object().shape({
-    data: Yup.array().of(
-      Yup.object().shape({
-        organizationName: Yup.string().required("Organization Name is required"),
-        designation: Yup.string().required("Designation is required"),
-        fromDate: Yup.date().required("From Date is required"),
-        toDate: Yup.date().required("To Date is required"),
-        workExperience: Yup.string().required("Work Experience is required"),
-        qualification: Yup.string().required("Qualification is required"),
-        identificationMarks: Yup.string().required("Identification Mark is required"
-        )
-      })
-    )
-  });
+    // Calculate the difference in years, months, and days
+    const duration = toDateObj.diff(fromDateObj);
+    const durationObject = dayjs.duration(duration);
 
-  const formik = useFormik({
-    initialValues: {
-      data: [
-        {
-          organizationName: "",
-          designation: "",
-          qualification: "",
-          fromDate: "",
-          toDate: "",
-          workexperience: ""
-        }
-      ]
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      // Handle form submission here
-      console.log("Form submitted with values:", values);
-    }
-  });
+    // Extract years, months, and days
+    const years = durationObject.years();
+    const months = durationObject.months();
+    const days = durationObject.days();
 
-  const handleDelete = (index) => {
-    formik.values.data.splice(index, 1);
-    formik.setValues({ ...formik.values });
-  };
+    // Format the result
+    const formattedWorkExperience = `${years} years, ${months} months, ${days} days`;
 
-  const handleAdd = () => {
-    formik.values.data.push({
-      organizationName: "",
-      designation: "",
-      qualification: "",
-      fromDate: "",
-      toDate: "",
-      workexperience: ""
-    });
-    formik.setValues({ ...formik.values });
-  };
-
-  const VisuallyHiddenInput = styled("input")({
-    clip: "rect(0 0 0 0)",
-    clipPath: "inset(50%)",
-    height: 1,
-    overflow: "hidden",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    whiteSpace: "nowrap",
-    width: 1
-  });
-
-  return (
-    <form onSubmit={formik.handleSubmit}>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Organization Name</TableCell>
-              <TableCell>Designation</TableCell>
-              <TableCell>Qualification</TableCell>
-              <TableCell>From Date</TableCell>
-              <TableCell>To Date</TableCell>
-              <TableCell>Work Experience(Years)</TableCell>
-              <TableCell>Upload</TableCell>
-              <TableCell>Action</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {formik.values.data.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <TextField
-                    margin="dense"
-                    required
-                    sx={{ width: "150px" }}
-                    fullWidth
-                    type="text"
-                    name={`data[${index}].organizationName`}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.data[index].organizationName}
-                    error={
-                      formik.touched.organizationName &&
-                      !!formik.errors.organizationName
-                    }
-                    helperText={
-                      formik.touched.organizationName &&
-                      formik.errors.organizationName
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    margin="dense"
-                    required
-                    fullWidth
-                    sx={{ width: "150px" }}
-                    type="text"
-                    name={`data[${index}].designation`}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.data[index].designation}
-                    error={
-                      formik.touched.designation && !!formik.errors.designation
-                    }
-                    helperText={
-                      formik.touched.designation && formik.errors.designation
-                    }
-                  />
-                </TableCell>
-                {/* ... (similarly update other table cells with TextField) */}
-                <TableCell>
-                  {/* Qualification as Autocomplete */}
-                  <Autocomplete
-                    options={qualifications}
-                    getOptionLabel={(option) => option}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        name={`data[${index}].qualification`}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        sx={{ width: "150px" }}
-                        value={formik.values.data[index].qualification}
-                        helperText={
-                          formik.errors.qualification &&
-                          formik.touched.qualification
-                            ? formik.errors.qualification
-                            : null
-                        }
-                        error={
-                          formik.errors.qualification &&
-                          formik.touched.qualification
-                            ? true
-                            : false
-                        }
-                        placeholder="Qualification"
-                      />
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="To Date"
-                      id="DateofBirth"
-                      name="DateofBirth"
-                      sx={{ width: "150px", mt: 1 }}
-                      renderInput={(params) => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          size="small"
-                          required
-                          error={
-                            formik.touched.DateofBirth &&
-                            Boolean(formik.errors.DateofBirth)
-                          }
-                          helperText={
-                            formik.touched.DateofBirth &&
-                            formik.errors.DateofBirth
-                          }
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                        />
-                      )}
-                    />
-                  </LocalizationProvider>
-                </TableCell>
-                <TableCell>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="From Date"
-                      id="DateofBirth"
-                      name="DateofBirth"
-                      sx={{ width: "150px" }}
-                      renderInput={(params) => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          size="small"
-                          required
-                          error={
-                            formik.touched.DateofBirth &&
-                            Boolean(formik.errors.DateofBirth)
-                          }
-                          helperText={
-                            formik.touched.DateofBirth &&
-                            formik.errors.DateofBirth
-                          }
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                        />
-                      )}
-                    />
-                  </LocalizationProvider>
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    margin="dense"
-                    required
-                    fullWidth
-                    sx={{ width: "150px" }}
-                    type="text"
-                    name={`data[${index}].workexperience`}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.data[index].workexperience}
-                    error={
-                      formik.touched.workexperience &&
-                      !!formik.errors.workexperience
-                    }
-                    helperText={
-                      formik.touched.workexperience &&
-                      formik.errors.workexperience
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button
-                    sx={{ mb: 2 }}
-                    component="label"
-                    variant="contained"
-                    startIcon={<CloudUploadIcon />}
-                  >
-                    Upload
-                    <VisuallyHiddenInput type="file" />
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleDelete(index)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Button
-        type="button"
-        variant="contained"
-        color="primary"
-        onClick={handleAdd}
-      >
-        Add
-      </Button>
-    </form>
-  );
+    formik.setFieldValue("workExperience", formattedWorkExperience);
+    handlefieldchange(params.row.id, "workExperience", formattedWorkExperience);
 };
 
-export default WorkExperienceTable;
+
+
+const handlefieldchange = (rowId, fieldName, value) => {
+    // Assuming you have a state variable named 'data' representing your form or table data
+    const updatedData = data.map((row) => {
+        if (row.id === rowId) {
+            return {
+                ...row,
+                [fieldName]: value,
+            };
+        }
+        return row;
+    });
+
+    // Update the state with the modified data
+    setData(updatedData);
+
+    // You might have additional logic here based on your application needs
+};
