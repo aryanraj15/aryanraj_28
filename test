@@ -68,3 +68,23 @@
                         )}
                     />
                 </LocalizationProvider>
+
+
+ <TextField
+                    multiline
+                    margin="normal"
+                    fullWidth
+                    id="workExperience"
+
+                    sx={{ width: "100%", mt: 2 }}
+                    rows={1}
+                    name="workExperience"
+                    size="small"
+                    value={params.value}
+                    onChange={(e, value) => {
+
+                        formik.setFieldValue("workExperience", e.target.value);
+                        handlefieldchange(params.row.id, "workExperience", e.target.value);
+
+                    }}
+                />
