@@ -1,90 +1,12 @@
-   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                        label="From Date"
-                        inputFormat="MM/DD/YYYY"
-                        name="fromDate"
-                        value={params.value}
-                        onChange={(date) => {
-                            
-                            formik.setFieldValue("fromDate", dayjs(date).format("YYYY-MM-DD"))
-                            console.log(dayjs(date).format("YYYY-MM-DD"))
-                            setFromDate(dayjs(date).format("YYYY-MM-DD"))
-                            // formik.setFieldValue("admissionDate", date);
-                            handlefieldchange(params.row.id, "fromDate", dayjs(date).format("YYYY-MM-DD"));
-                        }}
-
-                        renderInput={(params) => (
-                            <TextField
-                                size="small"
-                                fullWidth
-                                sx={{ width: "100%", mt: 2 }}
-                                {...params}
-                                error={
-                                    formik.touched.fromDate &&
-                                    Boolean(formik.errors.fromDate)
-                                }
-                                helperText={
-                                    formik.touched.fromDate &&
-                                    formik.errors.fromDate
-                                }
-                            />
-                        )}
-                    />
-                </LocalizationProvider>
+dob: Yup.string()
+  .matches(
+    /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-(19|20)\d\d$/,
+    "Invalid Date of Birth. Please enter a valid date in DD-MM-YYYY format."
+  )
+  .required("Date of Birth is required")
+  .nullable(),
 
 
-
-
-<LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                        label="To Date"
-                        inputFormat="MM/DD/YYYY"
-                        name="toDate"
-                        value={params.value}
-                        onChange={(date) => {
-
-                            formik.setFieldValue("toDate", dayjs(date).format("YYYY-MM-DD"))
-                            console.log(dayjs(date).format("YYYY-MM-DD"))
-                            setToDate(dayjs(date).format("YYYY-MM-DD"))
-                            // formik.setFieldValue("admissionDate", date);
-                            handlefieldchange(params.row.id, "toDate", dayjs(date).format("YYYY-MM-DD"));
-                        }}
-
-                        renderInput={(params) => (
-                            <TextField
-                                size="small"
-                                fullWidth
-                                sx={{ width: "100%", mt: 2 }}
-                                {...params}
-                                error={
-                                    formik.touched.toDate &&
-                                    Boolean(formik.errors.toDate)
-                                }
-                                helperText={
-                                    formik.touched.toDate &&
-                                    formik.errors.toDate
-                                }
-                            />
-                        )}
-                    />
-                </LocalizationProvider>
-
-
- <TextField
-                    multiline
-                    margin="normal"
-                    fullWidth
-                    id="workExperience"
-
-                    sx={{ width: "100%", mt: 2 }}
-                    rows={1}
-                    name="workExperience"
-                    size="small"
-                    value={params.value}
-                    onChange={(e, value) => {
-
-                        formik.setFieldValue("workExperience", e.target.value);
-                        handlefieldchange(params.row.id, "workExperience", e.target.value);
-
-                    }}
-                />
+emailid: Yup.string()
+  .email("Enter a valid email address")
+  .required("Email ID is required"),
