@@ -1,16 +1,25 @@
- const handleButtonClickPwd = () => {
+const handleFileChange3 = (event) => {
 
-        fileInputRefPwd.current.click();
+        const File = event.target.files[0];
+        console.log(File.name)
+        //  setSelectedFile(File)
+
+        selectedFile = event.target.files[0];
+        // setAttachmentId(98)
+        attachmentId = 98
+        setPanUploadedFile(selectedFile)
+        if (selectedFile) {
+            uploadAttachment()
+        }
     }
 
- <VisuallyHiddenInput
+ <Button sx={{ mb: 3 }} component="label" variant="contained" startIcon={<CloudUploadIcon />} onClick={handleButtonClick3} >
+                                Upload PAN Card
+                            </Button>
+                            {/* <VisuallyHiddenInput type="file" /> */}
+                            <VisuallyHiddenInput
 
                                 ref={fileInputRef3}
                                 type="file"
                                 onChange={handleFileChange3}
                             />
-
-
-                            {panUploadedFile && (
-                                <Typography>Uploaded File: {panUploadedFile.name}</Typography>
-                            )}
