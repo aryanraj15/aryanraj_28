@@ -1,12 +1,87 @@
-// ... (your existing imports)
+import * as React from "react";
+import { styled } from "@mui/material/styles";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Link from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Typography from "@mui/material/Typography";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { sha256 } from 'js-sha256';
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../redux/actions/LoginAction";
+import { useFormik } from "formik";
 
-import backgroundImg from "../../assets/images/background.jpg"; // Replace with your background image
-import loginImg from "../../assets/images/login.png"; // Replace with your login image
+// Placeholder images
+import backgroundImg from "../../assets/images/background.jpg";
+import loginImg from "../../assets/images/login.png";
 
-// ... (your existing code)
+const drawerWidth = 280;
+
+const Footer = styled('div', {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(['margin', 'width'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  width: '100%',
+  position: 'fixed',
+  top: 'unset',
+  bottom: 0,
+  color: 'white',
+  backgroundColor: 'black',
+  textAlign: 'center',
+  size: '8px',
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
 
 export default function Login() {
-  // ... (your existing code)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const data = useSelector((state) => state.loginReducer);
+
+  // Formik for Newapplicant
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      aadharNum: "",
+      mobileNumber: "",
+    },
+    onSubmit: (values) => {
+      // Your logic for submitting new applicant form
+    },
+  });
+
+  // Formik for ExistingApplicant
+  const formik2 = useFormik({
+    initialValues: {
+      applicantid: "",
+      otp: "",
+    },
+    onSubmit: (values) => {
+      // Your logic for submitting existing applicant form
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Your logic for handling form submission
+  };
 
   return (
     <Grid
@@ -14,7 +89,7 @@ export default function Login() {
       component="main"
       sx={{
         height: "100vh",
-        backgroundImage: `url(${backgroundImg})`, // Set background image
+        backgroundImage: `url(${backgroundImg})`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -35,7 +110,6 @@ export default function Login() {
               alignItems: 'center',
             }}
           >
-            {/* Add your logo or image here */}
             <img src={loginImg} alt="Login Logo" style={{ maxWidth: '100%', maxHeight: '100%' }} />
           </Grid>
           <Grid
@@ -49,17 +123,50 @@ export default function Login() {
               borderRadius: "0 5px 5px 0",
             }}
           >
+            {/* Form for New Applicant */}
             <Box component="form" onSubmit={formik.handleSubmit} noValidate>
-              {/* ... (your existing form code) */}
+              <Grid m={4}>
+                {/* ... (your existing form code) */}
+                <TextField
+                  id="name"
+                  label="Name"
+                  size="small"
+                  name="name"
+                  sx={{ width: "100%", mt: 1 }}
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  error={formik.touched.name && Boolean(formik.errors.name)}
+                  helperText={formik.touched.name && formik.errors.name}
+                />
+                {/* Add other form fields as needed */}
+                <Button type="submit">Submit</Button>
+              </Grid>
             </Box>
 
+            {/* Form for Existing Applicant */}
             <Box component="form" onSubmit={formik2.handleSubmit} noValidate>
-              {/* ... (your existing form code) */}
+              <Grid m={4}>
+                {/* ... (your existing form code) */}
+                <TextField
+                  id="applicantid"
+                  label="Enter Application Number"
+                  size="small"
+                  name="applicantid"
+                  sx={{ width: "100%", mt: 1 }}
+                  value={formik2.values.applicantid}
+                  onChange={formik2.handleChange}
+                  error={formik2.touched.applicantid && Boolean(formik2.errors.applicantid)}
+                  helperText={formik2.touched.applicantid && formik2.errors.applicantid}
+                />
+                {/* Add other form fields as needed */}
+                <Button type="submit">Submit</Button>
+              </Grid>
             </Box>
           </Grid>
         </Grid>
       </Grid>
 
+      {/* Footer */}
       <Footer position='fixed'>
         <Typography noWrap component="div">
           &copy; Site maintained by KPMG Advisory Services Pvt. Ltd. The contents are owned by Govt. Of AP, India.
