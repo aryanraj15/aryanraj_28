@@ -1,177 +1,263 @@
-import * as React from "react";
-import { styled } from "@mui/material/styles";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
-import Paper from "@mui/material/Paper";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import { sha256 } from 'js-sha256';
-import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../redux/actions/LoginAction";
-import { useFormik } from "formik";
+<Grid item xs={12} sm={4} md={4} lg={6}>
+                                                                    <FormControl fullWidth >
 
-// Placeholder images
-import backgroundImg from "../../assets/images/background.jpg";
-import loginImg from "../../assets/images/login.png";
+                                                                        <Autocomplete
+                                                                            disablePortal
+                                                                            margin="0"
+                                                                            size="small"
+                                                                            fullWidth
+                                                                            id="state"
+                                                                            name="state"
+                                                                            options={stateList}
+                                                                            disabled={isReadable}
+                                                                            value={stateList.find(
+                                                                                (option) => option.id === formik.values.state?.id
+                                                                            ) || null}
+                                                                            onChange={(e, value) => {
 
-const drawerWidth = 280;
+                                                                                if (value === null) {
+                                                                                    formik.setFieldValue("state", null)
+                                                                                }
+                                                                                else {
+                                                                                    formik.setFieldValue("state", value)
+                                                                                    axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/user/getDistrictList/${value.state}`).then(response => {
+                                                                                        let sortedDistrictData = response.data.result.map((value) => {
+                                                                                            value.label = value.label.toUpperCase();
+                                                                                            return value;
+                                                                                        })
 
-const Footer = styled('div', {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  width: '100%',
-  position: 'fixed',
-  top: 'unset',
-  bottom: 0,
-  color: 'white',
-  backgroundColor: 'black',
-  textAlign: 'center',
-  size: '8px',
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
+                                                                                        sortedDistrictData = sortedDistrictData.sort((a, b) => a.label.localeCompare(b.label));
 
-export default function Login() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const data = useSelector((state) => state.loginReducer);
+                                                                                        setIsDistrictDisabled(false);
+                                                                                        setDistrictList(sortedDistrictData);
+                                                                                        console.log(sortedDistrictData);
+                                                                                    })
+                                                                                        .catch(error => {
+                                                                                            setDistrictList([]);
+                                                                                            console.log(error);
+                                                                                        });
 
-  // Formik for Newapplicant
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      email: "",
-      aadharNum: "",
-      mobileNumber: "",
+                                                                                }
+                                                                            }}
+                                                                            getOptionLabel={(value) => value.label}
+                                                                            sx={{ width: "100%", mt: 2, mb: 1 }}
+                                                                            renderInput={(params) => (
+                                                                                <TextField {...params}
+                                                                                    label="State Name"
+                                                                                    onBlur={formik.handleBlur}
+                                                                                    helperText={formik.errors.state && formik.touched.state ? formik.errors.state : null}
+                                                                                    error={formik.errors.state && formik.touched.state ? true : false}
+                                                                                />
+                                                                            )}
+                                                                        />
+                                                                    </FormControl>
+                                                                </Grid>
+
+
+
+
+{
+  "status": true,
+  "message": "State List Fetched Successfully!!",
+  "result": [
+    {
+      "label": "ANDAMAN AND NICOBAR ISLANDS",
+      "id": 25
     },
-    onSubmit: (values) => {
-      // Your logic for submitting new applicant form
+    {
+      "label": "ANDHRA PRADESH",
+      "id": 30
     },
-  });
-
-  // Formik for ExistingApplicant
-  const formik2 = useFormik({
-    initialValues: {
-      applicantid: "",
-      otp: "",
+    {
+      "label": "ARUNACHAL PRADESH",
+      "id": 21
     },
-    onSubmit: (values) => {
-      // Your logic for submitting existing applicant form
+    {
+      "label": "ASSAM",
+      "id": 15
     },
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Your logic for handling form submission
-  };
-
-  return (
-    <Grid
-      container
-      component="main"
-      sx={{
-        height: "100vh",
-        backgroundImage: `url(${backgroundImg})`,
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <Grid display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Grid container xs={12} sm={10} lg={10} md={10} m={8}>
-          <Grid
-            item
-            xs={8}
-            md={5}
-            sx={{
-              spacing: 0,
-              backgroundColor: "#F1F8FF",
-              borderRadius: "5px 0 0 5px",
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <img src={loginImg} alt="Login Logo" style={{ maxWidth: '100%', maxHeight: '100%' }} />
-          </Grid>
-          <Grid
-            item
-            xs={8}
-            md={7}
-            sx={{
-              spacing: 0,
-              backgroundColor: "#F1F8FF",
-              borderRight: "1px solid #CDE6FF",
-              borderRadius: "0 5px 5px 0",
-            }}
-          >
-            {/* Form for New Applicant */}
-            <Box component="form" onSubmit={formik.handleSubmit} noValidate>
-              <Grid m={4}>
-                {/* ... (your existing form code) */}
-                <TextField
-                  id="name"
-                  label="Name"
-                  size="small"
-                  name="name"
-                  sx={{ width: "100%", mt: 1 }}
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  error={formik.touched.name && Boolean(formik.errors.name)}
-                  helperText={formik.touched.name && formik.errors.name}
-                />
-                {/* Add other form fields as needed */}
-                <Button type="submit">Submit</Button>
-              </Grid>
-            </Box>
-
-            {/* Form for Existing Applicant */}
-            <Box component="form" onSubmit={formik2.handleSubmit} noValidate>
-              <Grid m={4}>
-                {/* ... (your existing form code) */}
-                <TextField
-                  id="applicantid"
-                  label="Enter Application Number"
-                  size="small"
-                  name="applicantid"
-                  sx={{ width: "100%", mt: 1 }}
-                  value={formik2.values.applicantid}
-                  onChange={formik2.handleChange}
-                  error={formik2.touched.applicantid && Boolean(formik2.errors.applicantid)}
-                  helperText={formik2.touched.applicantid && formik2.errors.applicantid}
-                />
-                {/* Add other form fields as needed */}
-                <Button type="submit">Submit</Button>
-              </Grid>
-            </Box>
-          </Grid>
-        </Grid>
-      </Grid>
-
-      {/* Footer */}
-      <Footer position='fixed'>
-        <Typography noWrap component="div">
-          &copy; Site maintained by KPMG Advisory Services Pvt. Ltd. The contents are owned by Govt. Of AP, India.
-        </Typography>
-      </Footer>
-    </Grid>
-  );
+    {
+      "label": "BIHAR",
+      "id": 22
+    },
+    {
+      "label": "CHANDIGARH",
+      "id": 26
+    },
+    {
+      "label": "CHHATTISGARH",
+      "id": 8
+    },
+    {
+      "label": "DDD",
+      "id": 36
+    },
+    {
+      "label": "DELHI",
+      "id": 9
+    },
+    {
+      "label": "edit test",
+      "id": 45
+    },
+    {
+      "label": "GOA",
+      "id": 1
+    },
+    {
+      "label": "GUJARAT",
+      "id": 2
+    },
+    {
+      "label": "HARYANA",
+      "id": 27
+    },
+    {
+      "label": "HIMACHAL PRADESH",
+      "id": 3
+    },
+    {
+      "label": "JAMMU AND KASHMIR",
+      "id": 4
+    },
+    {
+      "label": "JHARKHAND",
+      "id": 16
+    },
+    {
+      "label": "KARNATAKA",
+      "id": 10
+    },
+    {
+      "label": "KERALA",
+      "id": 11
+    },
+    {
+      "label": "LADAKH",
+      "id": 5
+    },
+    {
+      "label": "LAKSHADWEEP",
+      "id": 17
+    },
+    {
+      "label": "MADHYA PRADESH",
+      "id": 23
+    },
+    {
+      "label": "MAHARASHTRA",
+      "id": 32
+    },
+    {
+      "label": "MANIPUR",
+      "id": 33
+    },
+    {
+      "label": "MEGHALAYA",
+      "id": 12
+    },
+    {
+      "label": "MIZORAM",
+      "id": 18
+    },
+    {
+      "label": "NAGALAND",
+      "id": 19
+    },
+    {
+      "label": "ODISHA",
+      "id": 28
+    },
+    {
+      "label": "Province",
+      "id": 44
+    },
+    {
+      "label": "PUDUCHERRY",
+      "id": 31
+    },
+    {
+      "label": "PUNJAB",
+      "id": 29
+    },
+    {
+      "label": "RAJASTHAN",
+      "id": 6
+    },
+    {
+      "label": "SIKKIM",
+      "id": 24
+    },
+    {
+      "label": "ssatriiaditya",
+      "id": 42
+    },
+    {
+      "label": "ssatriing99",
+      "id": 41
+    },
+    {
+      "label": "state11-test",
+      "id": 38
+    },
+    {
+      "label": "striing12",
+      "id": 46
+    },
+    {
+      "label": "stringg333",
+      "id": 47
+    },
+    {
+      "label": "TAMIL NADU",
+      "id": 13
+    },
+    {
+      "label": "TELANGANA",
+      "id": 34
+    },
+    {
+      "label": "Test 2",
+      "id": 43
+    },
+    {
+      "label": "Testing",
+      "id": 49
+    },
+    {
+      "label": "testing new save 123",
+      "id": 39
+    },
+    {
+      "label": "testingStates12312",
+      "id": 40
+    },
+    {
+      "label": "testr",
+      "id": 48
+    },
+    {
+      "label": "THE DADRA AND NAGAR HAVELI AND DAMAN AND DIU",
+      "id": 37
+    },
+    {
+      "label": "TRIPURA",
+      "id": 35
+    },
+    {
+      "label": "UTTARAKHAND",
+      "id": 20
+    },
+    {
+      "label": "UTTAR PRADESH",
+      "id": 7
+    },
+    {
+      "label": "WEST BENGAL",
+      "id": 14
+    }
+  ],
+  "statusCode": 200
 }
+
+http://10.48.158.197:8054/jobapi/recruitment/state
