@@ -1,129 +1,245 @@
-import React, { useState } from "react";
+http://10.48.158.197:8099/usermanagementapi/user/getStatelist
 
-//mui
-import {
-  Card,
-  CardContent,
-  Autocomplete,
-  Typography,
-  TextField,
-  Grid,
-  Checkbox,
-  RadioGroup,
-  Radio,
-  FormControl,
-  FormControlLabel,
-  Stack,
-  FormHelperText,
-  Paper,
-} from "@mui/material";
-
-import FormGroup from "@mui/material/FormGroup";
-import Button from "@mui/material/Button";
-
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Slide from "@mui/material/Slide";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import CloseIcon from "@mui/icons-material/Close";
-import { useDispatch } from "react-redux";
-import { useTheme } from "@emotion/react";
-import { DropzoneArea, DropzoneDialog } from "react-mui-dropzone";
-import CardActions from "@mui/material/CardActions";
-import Box from "@mui/material/Box";
-import { bool } from "yup";
-
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-
-const LabInvestigation = ({data, rows, setRows, rows2, setRows2, rows3, setRows3, rows4, setRows4, isReadOnly, isDisabled}) => {
-    
-  const {showSnackbar} = useSnackbar();
-
-  const theme = useTheme();
-
-const handlefieldchangePreOp = (id, field, value) => {
-  // alert(100)
-   rows.map((row) => {
-     if (row.id === id) {
-       row[field] = value;
-     }
-   });
-   setRows([...rows]);
- };
-
- const addRowPreOp = () => {
-  const newRow = {
-    id: rows.length+1,
-    namePreOp: "",
-    pricePreOp: "",
-    actionPreOp: "",
-  };
-  setRows([...rows, newRow]);
-  //setCC(cc+1)
-  console.log(rows);
-};
-
-const handleRowChangePreOP = (e, id, field) => {
-  const updatedRows = rows.map((row) => {
-    if (row.id === id) {
-      return { ...row, [field]: e.target.value };
+{
+  "status": true,
+  "message": "Details fetched successfully",
+  "result": [
+    {
+      "stateName": "TRIPURA",
+      "stateCode": 16,
+      "stateId": 36
+    },
+    {
+      "stateName": "THE DADRA AND NAGAR HAVELI AND DAMAN AND DIU",
+      "stateCode": 38,
+      "stateId": 35
+    },
+    {
+      "stateName": "TELANGANA",
+      "stateCode": 36,
+      "stateId": 34
+    },
+    {
+      "stateName": "MANIPUR",
+      "stateCode": 14,
+      "stateId": 33
+    },
+    {
+      "stateName": "MAHARASHTRA",
+      "stateCode": 27,
+      "stateId": 32
+    },
+    {
+      "stateName": "PUDUCHERRY",
+      "stateCode": 34,
+      "stateId": 31
+    },
+    {
+      "stateName": "ANDHRA PRADESH",
+      "stateCode": 28,
+      "stateId": 30
+    },
+    {
+      "stateName": "PUNJAB",
+      "stateCode": 3,
+      "stateId": 29
+    },
+    {
+      "stateName": "ODISHA",
+      "stateCode": 21,
+      "stateId": 28
+    },
+    {
+      "stateName": "HARYANA",
+      "stateCode": 6,
+      "stateId": 27
+    },
+    {
+      "stateName": "CHANDIGARH",
+      "stateCode": 4,
+      "stateId": 26
+    },
+    {
+      "stateName": "ANDAMAN AND NICOBAR ISLANDS",
+      "stateCode": 35,
+      "stateId": 25
+    },
+    {
+      "stateName": "SIKKIM",
+      "stateCode": 11,
+      "stateId": 24
+    },
+    {
+      "stateName": "MADHYA PRADESH",
+      "stateCode": 23,
+      "stateId": 23
+    },
+    {
+      "stateName": "BIHAR",
+      "stateCode": 10,
+      "stateId": 22
+    },
+    {
+      "stateName": "ARUNACHAL PRADESH",
+      "stateCode": 12,
+      "stateId": 21
+    },
+    {
+      "stateName": "UTTARAKHAND",
+      "stateCode": 5,
+      "stateId": 20
+    },
+    {
+      "stateName": "NAGALAND",
+      "stateCode": 13,
+      "stateId": 19
+    },
+    {
+      "stateName": "MIZORAM",
+      "stateCode": 15,
+      "stateId": 18
+    },
+    {
+      "stateName": "LAKSHADWEEP",
+      "stateCode": 31,
+      "stateId": 17
+    },
+    {
+      "stateName": "JHARKHAND",
+      "stateCode": 20,
+      "stateId": 16
+    },
+    {
+      "stateName": "ASSAM",
+      "stateCode": 18,
+      "stateId": 15
+    },
+    {
+      "stateName": "WEST BENGAL",
+      "stateCode": 19,
+      "stateId": 14
+    },
+    {
+      "stateName": "TAMIL NADU",
+      "stateCode": 33,
+      "stateId": 13
+    },
+    {
+      "stateName": "MEGHALAYA",
+      "stateCode": 17,
+      "stateId": 12
+    },
+    {
+      "stateName": "KERALA",
+      "stateCode": 32,
+      "stateId": 11
+    },
+    {
+      "stateName": "KARNATAKA",
+      "stateCode": 29,
+      "stateId": 10
+    },
+    {
+      "stateName": "DELHI",
+      "stateCode": 7,
+      "stateId": 9
+    },
+    {
+      "stateName": "CHHATTISGARH",
+      "stateCode": 22,
+      "stateId": 8
+    },
+    {
+      "stateName": "UTTAR PRADESH",
+      "stateCode": 9,
+      "stateId": 7
+    },
+    {
+      "stateName": "RAJASTHAN",
+      "stateCode": 8,
+      "stateId": 6
+    },
+    {
+      "stateName": "LADAKH",
+      "stateCode": 37,
+      "stateId": 5
+    },
+    {
+      "stateName": "JAMMU AND KASHMIR",
+      "stateCode": 1,
+      "stateId": 4
+    },
+    {
+      "stateName": "HIMACHAL PRADESH",
+      "stateCode": 2,
+      "stateId": 3
+    },
+    {
+      "stateName": "GUJARAT",
+      "stateCode": 24,
+      "stateId": 2
+    },
+    {
+      "stateName": "GOA",
+      "stateCode": 30,
+      "stateId": 1
     }
-    return row;
-  });
-  setRows(updatedRows);
-};
-
-const handleDeletePreOp = (id) => {
-  if (id === 1) {
-    // Prevent deleting the first row
-    return;
-  }
-  const updatedRows = rows.filter((row) => row.id !== id);
-  setRows(updatedRows);
-};
-
-
-return (
-  <>
-  <div style={{display:'flex', justifyContent:'flex-end', alignItems:'flex-start', padding:'24px', zIndex:9999}}>
-    {snackbarOpen && 
-    <Snackbar open={snackbarOpen} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{paddingTop:8, paddingRight: 4}} autoHideDuration={3000} onClose={() => setSnackBarOpen(false)}>
-            <Alert severity="error" sx={{color:'red'}} onClose={() => setSnackBarOpen(false)}>
-              {error}
-            </Alert>
-          </Snackbar>
-    }
-  </div>
-    <Grid container columnSpacing={2}>
-        <Grid item xs={12} sm={6} md={6} lg={6} >
-            <Paper sx={{padding:2, mt:2}} >
-                <Grid style={{borderBottom: "1px solid black",}}>
-                    <H4 sx={{fontSize:'20px'}} variant='subtitle1' align="center">Pre-OP</H4>
-                </Grid>
-                
-                <SearchTable
-                columns={columnsPreOp}
-                isTableHeaderColor = {true}
-                isCheckbox={false}
-                isHideDensity={false}
-                isHideExport={false}
-                isHideFilter={false}
-                isHideColumn={false}
-                isHidePaging={true}
-                data={rows}
-                name="abc"
-                id="hjjh"
-                ></SearchTable>
-       </Grid>
-      </>
-    );
+  ],
+  "statusCode": 200
 }
 
-export default LabInvestigation
+
+ <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <FormControl fullWidth >
+
+                                                    <Autocomplete
+                                                        disablePortal
+                                                        margin="0"
+                                                        size="small"
+                                                        fullWidth
+                                                        id="stateId"
+                                                        name="stateId"
+                                                        options={stateList}
+                                                        disabled={isReadable}
+                                                        value={stateList.find(
+                                                            (option) => option.stateId === formik.values.stateId?.stateId
+                                                        ) || null}
+                                                        onChange={(e, value) => {
+
+                                                            if (value === null) {
+                                                                formik.setFieldValue("stateId", null)
+                                                            }
+                                                            else {
+                                                                formik.setFieldValue("stateId", value)
+                                                                axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getDistrictList/${value.stateId}`).then(response => {
+                                                                    let sortedDistrictData = response.data.result.map((value) => {
+                                                                        value.districtName = value.districtName.toUpperCase();
+                                                                        return value;
+                                                                    })
+
+                                                                    sortedDistrictData = sortedDistrictData.sort((a, b) => a.districtName.localeCompare(b.districtName));
+
+                                                                    setIsDistrictDisabled(false);
+                                                                    setDistrictList(sortedDistrictData);
+                                                                    console.log(sortedDistrictData);
+                                                                })
+                                                                    .catch(error => {
+                                                                        setDistrictList([]);
+                                                                        console.log(error);
+                                                                    });
+
+                                                            }
+                                                        }}
+                                                        getOptionLabel={(value) => value.stateName}
+                                                        sx={{ width: "100%", mt: 2, mb: 1 }}
+                                                        renderInput={(params) => (
+                                                            <TextField {...params}
+                                                                label="State Name"
+                                                                onBlur={formik.handleBlur}
+                                                                helperText={formik.errors.stateId && formik.touched.stateId ? formik.errors.stateId : null}
+                                                                error={formik.errors.stateId && formik.touched.stateId ? true : false}
+                                                            />
+                                                        )}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
