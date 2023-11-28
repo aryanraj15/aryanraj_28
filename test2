@@ -1,16 +1,44 @@
- const nationalityValue = response.data.result.nationalityId
-      ? {
-          label: response.data.result.nationalityId.typeName,
-          value: response.data.result.nationalityId.typeId
-        }
-      : null;
-
-
-value={
-      response.data.result.nationalityId
-        ? {
-            label: response.data.result.nationalityId.typeName,
-            value: response.data.result.nationalityId.typeId
-          }
-        : null
-    }
+ <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <Autocomplete
+                          disablePortal
+                          margin="normal"
+                          size="small"
+                          id="nationality"
+                          name="nationality"
+                          options={nationalityList}
+                          value={
+                            nationalityList.find(
+                              (option) =>
+                                option.label ===
+                                formik.values.nationality?.label
+                            ) || null
+                          }
+                          onChange={(e, value) => {
+                            if (value === null) {
+                              formik.setFieldValue("nationality", null);
+                            } else formik.setFieldValue("nationality", value);
+                          }}
+                          getOptionLabel={(value) => value.typeName}
+                          sx={{ width: "100%" }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Nationality"
+                              required
+                              onBlur={formik.handleBlur}
+                              helperText={
+                                formik.errors.nationality &&
+                                  formik.touched.nationality
+                                  ? formik.errors.nationality
+                                  : null
+                              }
+                              error={
+                                formik.errors.nationality &&
+                                  formik.touched.nationality
+                                  ? true
+                                  : false
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
