@@ -1,350 +1,51 @@
- axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/recruitment/personalDetails/${34}`).then(response => {
-          
+   axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/recruitment/personalDetails/${34}`).then(response => {
+        
+      if (response.data.statusCode === 200) {
+      
+        let sortedData =  response.data.result.map((value) => {
 
-        console.log("one",response.data.result)
-        //   console.log(response.data.result[1].branchId.branchName)
-          formik.setFieldValue("Name",response.data.result.fullName)
-          formik.setFieldValue("motherName",response.data.result.motherName)
-          formik.setFieldValue("religion",response.data.result.religionId.typeName)
-          formik.setFieldValue("fatherName",response.data.result.fatherName)
-         formik.setFieldValue("Age",response.data.result.fullName)
-         formik.setFieldValue("identificationMarks",response.data.result.identificationMarks1)
-         formik.setFieldValue("identificationMarks2",response.data.result.identificationMarks2)
-         formik.setFieldValue("contactNumber",response.data.result.contactNumber)
-         formik.setFieldValue("emergencyContact",response.data.result.alternateNumber)
-         formik.setFieldValue("officialemailid",response.data.result.officialEmail)
-         formik.setFieldValue("personalemail",response.data.result.personalEmail)
-         formik.setFieldValue("houseNumberCard",response.data.result.presentHouseNo)
-         formik.setFieldValue("houseNumberComm",response.data.result.permanentHouseNo)
-         formik.setFieldValue("pincodeCard",response.data.result.presentPincode)
-         formik.setFieldValue("pincodecomm",response.data.result.permanentPincode)
-         formik.setFieldValue("Aadhaar",response.data.result.aadhaarNo)
+          let myobject={
+            typeName:value.nationalityId.typeName,
+            typeId:value.nationalityId.typeId
+          }
+                       
+          let newVal = {
+            nationality:myobject
+          };
+
+       
+          return newVal;
+        });
+        setNationalityList(sortedData);
+        console.log(sortedData)
+      }
+        // console.log("one",response.data.result)
+        // //   console.log(response.data.result[1].branchId.branchName)
+        //   formik.setFieldValue("Name",response.data.result.fullName)
+        //   formik.setFieldValue("motherName",response.data.result.motherName)
+        //   formik.setFieldValue("religion",response.data.result.religionId.typeName)
+        //   formik.setFieldValue("fatherName",response.data.result.fatherName)
+        //  formik.setFieldValue("Age",response.data.result.fullName)
+        //  formik.setFieldValue("identificationMarks",response.data.result.identificationMarks1)
+        //  formik.setFieldValue("identificationMarks2",response.data.result.identificationMarks2)
+        //  formik.setFieldValue("contactNumber",response.data.result.contactNumber)
+        //  formik.setFieldValue("emergencyContact",response.data.result.alternateNumber)
+        //  formik.setFieldValue("officialemailid",response.data.result.officialEmail)
+        //  formik.setFieldValue("personalemail",response.data.result.personalEmail)
+        //  formik.setFieldValue("houseNumberCard",response.data.result.presentHouseNo)
+        //  formik.setFieldValue("houseNumberComm",response.data.result.permanentHouseNo)
+        //  formik.setFieldValue("pincodeCard",response.data.result.presentPincode)
+        //  formik.setFieldValue("pincodecomm",response.data.result.permanentPincode)
+        //  formik.setFieldValue("Aadhaar",response.data.result.aadhaarNo)
+        //  formik.setFieldValue("nationality",response.data.result.nationalityId.typeId)
+
+        //  console.log(response.data.result.nationalityId)
+
+
+
         })
             .catch(error => {
             //    setBranchName("")
             //    setBankName("")
                 console.log(error);
             });
-
-{
-    "status": true,
-    "message": "User Details Fetched Successfully!!",
-    "result": {
-        "applicantId": 34,
-        "applicationNum": "APTRUST/2023/00025",
-        "postId": {
-            "postId": 1,
-            "designation": "Executive",
-            "description": "Executive",
-            "location": "Mangalagiri",
-            "postOpeningdt": 1700918437155,
-            "postClosingDt": 1701350437155,
-            "isActive": true,
-            "crtOn": 1700918437155,
-            "updOn": null,
-            "fileName": "1699284156814_-_Recruitment_Notification.pdf",
-            "filePath": "http://10.48.158.197:8081/examples/1699284156814_-_Recruitment_Notification.pdf"
-        },
-        "fullName": "TEST",
-        "fatherName": "sa",
-        "motherName": "vanaja",
-        "gender": {
-            "typeId": 3,
-            "typeName": "Female",
-            "typeDesc": "GENDER",
-            "isActive": true,
-            "displayOrder": null,
-            "parentTypeId": null
-        },
-        "dob": 1326499200000,
-        "nationalityId": {
-            "typeId": 28,
-            "typeName": "Angolan",
-            "typeDesc": "NATIONALITY",
-            "isActive": true,
-            "displayOrder": null,
-            "parentTypeId": null
-        },
-        "religionId": {
-            "typeId": 253,
-            "typeName": "Muslim",
-            "typeDesc": "RELIGION",
-            "isActive": true,
-            "displayOrder": null,
-            "parentTypeId": null
-        },
-        "maritalStatusId": {
-            "typeId": 248,
-            "typeName": "Single",
-            "typeDesc": "MARITAL STATUS",
-            "isActive": true,
-            "displayOrder": null,
-            "parentTypeId": null
-        },
-        "identificationMarks1": "12",
-        "identificationMarks2": "11",
-        "caste": {
-            "typeId": 11,
-            "typeName": "BC",
-            "typeDesc": "CASTE",
-            "isActive": true,
-            "displayOrder": null,
-            "parentTypeId": null
-        },
-        "subCaste": {
-            "typeId": 13,
-            "typeName": "BC A",
-            "typeDesc": "SUB-CASTE",
-            "isActive": true,
-            "displayOrder": null,
-            "parentTypeId": {
-                "typeId": 11,
-                "typeName": "BC",
-                "typeDesc": "CASTE",
-                "isActive": true,
-                "displayOrder": null,
-                "parentTypeId": null
-            }
-        },
-        "differentlyAbledPerson": false,
-        "typeOfDisability": "Pain",
-        "percentageOfDisability": null,
-        "presentHouseNo": "11",
-        "presentAddress": "true",
-        "presentDistrict": {
-            "distId": 8,
-            "districtCode": 750,
-            "districtName": "Bapatla",
-            "stateId": {
-                "stateId": 30,
-                "stateCode": 28,
-                "stateName": "ANDHRA PRADESH",
-                "isStateActive": true
-            },
-            "isDistrictActive": true
-        },
-        "presentMandal": {
-            "mandalId": 382,
-            "mandalCode": "5093",
-            "distId": {
-                "distId": 8,
-                "districtCode": 750,
-                "districtName": "Bapatla",
-                "stateId": {
-                    "stateId": 30,
-                    "stateCode": 28,
-                    "stateName": "ANDHRA PRADESH",
-                    "isStateActive": true
-                },
-                "isDistrictActive": true
-            },
-            "mandalName": "Bapatla - R",
-            "isActive": true
-        },
-        "presentVillage": {
-            "villageId": 58136,
-            "villageCode": "670100",
-            "villageName": "Chinnamudnur",
-            "mandalId": {
-                "mandalId": 382,
-                "mandalCode": "5093",
-                "distId": {
-                    "distId": 8,
-                    "districtCode": 750,
-                    "districtName": "Bapatla",
-                    "stateId": {
-                        "stateId": 30,
-                        "stateCode": 28,
-                        "stateName": "ANDHRA PRADESH",
-                        "isStateActive": true
-                    },
-                    "isDistrictActive": true
-                },
-                "mandalName": "Bapatla - R",
-                "isActive": true
-            },
-            "isActive": true
-        },
-        "presentState": {
-            "stateId": 30,
-            "stateCode": 28,
-            "stateName": "ANDHRA PRADESH",
-            "isStateActive": true
-        },
-        "presentPincode": 111111,
-        "isPresentPermanentAddressSame": true,
-        "permanentHouseNo": "11",
-        "permanentAddress": "true",
-        "permanentDistrict": {
-            "distId": 8,
-            "districtCode": 750,
-            "districtName": "Bapatla",
-            "stateId": {
-                "stateId": 30,
-                "stateCode": 28,
-                "stateName": "ANDHRA PRADESH",
-                "isStateActive": true
-            },
-            "isDistrictActive": true
-        },
-        "permanentMandal": {
-            "mandalId": 382,
-            "mandalCode": "5093",
-            "distId": {
-                "distId": 8,
-                "districtCode": 750,
-                "districtName": "Bapatla",
-                "stateId": {
-                    "stateId": 30,
-                    "stateCode": 28,
-                    "stateName": "ANDHRA PRADESH",
-                    "isStateActive": true
-                },
-                "isDistrictActive": true
-            },
-            "mandalName": "Bapatla - R",
-            "isActive": true
-        },
-        "permanentVillage": {
-            "villageId": 58136,
-            "villageCode": "670100",
-            "villageName": "Chinnamudnur",
-            "mandalId": {
-                "mandalId": 382,
-                "mandalCode": "5093",
-                "distId": {
-                    "distId": 8,
-                    "districtCode": 750,
-                    "districtName": "Bapatla",
-                    "stateId": {
-                        "stateId": 30,
-                        "stateCode": 28,
-                        "stateName": "ANDHRA PRADESH",
-                        "isStateActive": true
-                    },
-                    "isDistrictActive": true
-                },
-                "mandalName": "Bapatla - R",
-                "isActive": true
-            },
-            "isActive": true
-        },
-        "permanentState": {
-            "stateId": 30,
-            "stateCode": 28,
-            "stateName": "ANDHRA PRADESH",
-            "isStateActive": true
-        },
-        "permanentPincode": 111111,
-        "contactNumber": 9014787248,
-        "alternateNumber": 9014787246,
-        "aadhaarNo": 398894740487,
-        "personalEmail": "vanaja@gmail.com",
-        "officialEmail": "sa@gmail.com",
-        "isApplicantActive": true,
-        "applicantStatusId": {
-            "typeId": 265,
-            "typeName": "Save As Draft",
-            "typeDesc": "APPLICANT STATUS",
-            "isActive": true,
-            "displayOrder": null,
-            "parentTypeId": null
-        },
-        "transactionId": null,
-        "transactionTime": 1701007609370,
-        "paymentStatus": null,
-        "crtOn": 1701007609370,
-        "updOn": 1701010455651,
-        "transactionResponse": null
-    },
-    "statusCode": 200
-}
-
-
-
-
-
-
-
-
-
-
-
-<Grid item xs={12} sm={4} md={4} lg={4}>
-                        <TextField
-                          margin="normal"
-                          required
-                          fullWidth
-                          type="text"
-                          id="identificationMarks2"
-                          name="identificationMarks2"
-                          label="Identification Mark 2(Acc to SSC)"
-                          size="small"
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          value={formik.values.identificationMarks2}
-                          error={
-                            formik.touched.identificationMarks2 &&
-                            !!formik.errors.identificationMarks2
-                          }
-                          helperText={
-                            formik.touched.identificationMarks2 &&
-                            formik.errors.identificationMarks2
-                          }
-                        />
-                      </Grid>
-                    </Grid>
-
-                    <Grid
-                      container
-                      direction="row"
-                      rowSpacing={0}
-                      columnSpacing={2}
-                      justify="flex-end"
-                      alignItems="center"
-                      sx={{ mb: 1 }}
-                    >
-                      <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <Autocomplete
-                          disablePortal
-                          margin="normal"
-                          size="small"
-                          id="nationality"
-                          name="nationality"
-                          options={nationalityList}
-                          value={
-                            nationalityList.find(
-                              (option) =>
-                                option.label ===
-                                formik.values.nationality?.label
-                            ) || null
-                          }
-                          onChange={(e, value) => {
-                            if (value === null) {
-                              formik.setFieldValue("nationality", null);
-                            } else formik.setFieldValue("nationality", value);
-                          }}
-                          getOptionLabel={(value) => value.label}
-                          sx={{ width: "100%" }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Nationality"
-                              required
-                              onBlur={formik.handleBlur}
-                              helperText={
-                                formik.errors.nationality &&
-                                  formik.touched.nationality
-                                  ? formik.errors.nationality
-                                  : null
-                              }
-                              error={
-                                formik.errors.nationality &&
-                                  formik.touched.nationality
-                                  ? true
-                                  : false
-                              }
-                            />
-                          )}
-                        />
-</grid>
