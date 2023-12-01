@@ -1,45 +1,1656 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
+import AccountCircleTwoToneIcon from "@mui/icons-material/AccountCircleTwoTone";
+import PersonAdd from "@mui/icons-material/PersonAdd";
+import PinDropTwoToneIcon from "@mui/icons-material/PinDropTwoTone";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    Checkbox,
+    Divider,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    Grid,
+    Radio,
+    RadioGroup,
+    TextField,
+    Typography
+} from "@mui/material";
+import { Box, Paper } from '@mui/material';
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import { styled } from '@mui/material/styles';
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import SearchTable from "../../components/SearchTableAlt";
+import PageTitle from "../../layouts/PageTitle";
+import DownloadButton from "./DownloadButton";
+import ProfilePhotoCard from "./ProfilePhotoCard";
+import { makeStyles } from "@mui/styles";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CloseIcon from "@mui/icons-material/Close";
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import SchoolIcon from '@mui/icons-material/School';
+const useStyles = makeStyles({
+    accordianRoot: { border: "1px solid #B7E2FF" },
+});
+
+const PersonalDetailsView = ({ onButtonClick, applicantId, }) => {
+    applicantId = 34;
+    const [personalDetailsData, setPersonalDetailsData] = useState(null);
+    const [attachmentRows, setAttachmentRows] = useState([]);
+    const [profilePhoto, setProfilePhoto] = useState("");
+    const [resume, setResume] = useState([]);
+    const classes = useStyles();
+    const [expand, setExpand] = useState(false);
+    const [educationalRows, setEducationalRows] = useState([]);
+    const [certificateRows, setCertificateRows] = useState([]);
+    const [ExperienceRows, setExperienceRows] = useState([]);
+
+
+    useEffect(() => {
+
+        axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/recruitment/personalDetails/${applicantId}`)
+            .then(response => {
+                if (response.data.statusCode === 200) {
+                    setPersonalDetailsData(response.data?.result);
+
+                    const data =
+                    {
+                        applicationNum: response.data?.result.applicationNum,
+                        fullName: response.data?.result.fullName,
+                        mobileNo: response.data?.result.contactNumber,
+                        applicantId: response.data?.result.applicantId
+                    }
+
+
+
+                }
+                else
+                    throw new Error(`${response.data.message}`)
+            })
+            .catch(error => {
+                console.log(error);
+                alert(error);
+            })
+
+        axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/recruitment/attachmentDetails/${applicantId}`)
+            .then(response => {
+                let i = 1;
+
+                let sortedData = response.data?.result.filter(item => item.attachmentId?.typeId !== 7);
+
+                const profilePhotoData = response.data?.result.find(item => item.attachmentId.typeId === 7);
+                if (profilePhotoData) {
+                    setProfilePhoto(profilePhotoData.filePath);
+                }
+
+                sortedData = sortedData.sort((a, b) => {
+                    const typeNameA = a.attachmentId.typeName.toUpperCase();
+                    const typeNameB = b.attachmentId.typeName.toUpperCase();
+
+                    if (typeNameA < typeNameB) {
+                        return -1;
+                    }
+                    if (typeNameA > typeNameB) {
+                        return 1;
+                    }
+                    return 0;
+                });
+
+                sortedData = sortedData.map((value) => {
+                    let newVal = { ...value, index: i };
+                    i++;
+                    return newVal;
+                });
+
+                setAttachmentRows(sortedData)
+            })
+            .catch(error => {
+                console.log(error);
+                setAttachmentRows([]);
+                alert(error);
+            })
+
+
+    }, [applicantId]);
+    useEffect(() => {
+
+
+        axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/recruitment/educationalDetails/${applicantId}`).then(response => {
+            // const sortedData = response.data?.result.sort((a, b) => a.bankId - b.bankId);
+            let i = 1;
+            let sortedEducationalData = response.data?.result?.map((value) => {
+                let newVal = { ...value, index: i };
+                i++;
+                return newVal;
+            });
+
+            setEducationalRows(sortedEducationalData);
+            console.log(sortedEducationalData);
+        })
+            .catch(error => {
+                alert(error);
+                setEducationalRows([]);
+            });
+
+        axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/recruitment/certificationDetails/${applicantId}`).then(response => {
+            // const sortedData = response.data?.result.sort((a, b) => a.bankId - b.bankId);
+            let i = 1;
+            let sortedCertificationDetails = response.data?.result?.map((value) => {
+                let newVal = { ...value, index: i };
+                i++;
+                return newVal;
+            });
+
+            setCertificateRows(sortedCertificationDetails);
+            console.log(sortedCertificationDetails);
+        })
+            .catch(error => {
+                alert(error);
+                setCertificateRows([]);
+            });
+
+        axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/recruitment/attachmentDetails/${applicantId}`)
+            .then(response => {
+                let i = 1;
+
+                let sortedData = response.data?.result.filter(item => item.attachmentId?.typeId === 275);
+
+                sortedData = sortedData.sort((a, b) => {
+                    const typeNameA = a.attachmentId.typeName.toUpperCase();
+                    const typeNameB = b.attachmentId.typeName.toUpperCase();
+
+                    if (typeNameA < typeNameB) {
+                        return -1;
+                    }
+                    if (typeNameA > typeNameB) {
+                        return 1;
+                    }
+                    return 0;
+                });
+
+                sortedData = sortedData.map((value) => {
+                    let newVal = { ...value, index: i };
+                    i++;
+                    return newVal;
+                });
+
+                setResume(sortedData)
+            })
+            .catch(error => {
+                console.log(error);
+                setResume([]);
+                alert(error);
+            })
+
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [applicantId]);
+
+    const CardTitle = styled((props) => (
+        <Typography component="span" {...props} />
+    ))(() => ({
+        fontWeight: 600,
+        display: "flex",
+        alignItems: "center",
+    }));
+
+
+    const columns = [
+        {
+            field: "index",
+            headerName: "S.No",
+            flex: 0.1,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "attachmentId",
+            headerName: "Document Type",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => params.row.attachmentId?.typeName,
+        },
+        {
+            field: "fileName",
+            headerName: "Document Name",
+            flex: 0.3,
+            minWidth: 350,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => {
+                return (
+
+                    <DownloadButton fileName={params.row.fileName} filePath={params.row.filePath} />
+
+                );
+            },
+        },
+
+    ]
+    const educationalColumns = [
+        {
+            field: "index",
+            headerName: "S.No",
+            flex: 0.1,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "qualification",
+            headerName: "Qualification",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => params.row.qualification.typeName,
+
+        },
+        {
+            field: "instituteName",
+            headerName: "Institute",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "boardOrUniversity",
+            headerName: "Board/University",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "course",
+            headerName: "Course",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "marksCgpaId",
+            headerName: "Marks/CGPA",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => params.row.marksCgpaId.typeName,
+        },
+        {
+            field: "marksSecured",
+            headerName: "Marks Secured",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "totalMarks",
+            headerName: "Total Marks",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "percentage",
+            headerName: "Percentage",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => {
+                if (params.row.marksSecured == null || params.row.totalMarks == null)
+                    return "NA";
+                else {
+                    return parseFloat(params.row.marksSecured / params.row.totalMarks,).toFixed(2) * 100;
+                }
+            }
+        },
+        {
+            field: "cgpa",
+            headerName: "CGPA",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "admissionDate",
+            headerName: "Admission Date",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => {
+                const adDate = new Date(params.row.admissionDate);
+                const date = adDate.getDate();
+                const month = adDate.getMonth() + 1;
+                const year = adDate.getFullYear();
+
+                return `${date}/${month}/${year}`;
+            },
+        },
+        {
+            field: "completionDate",
+            headerName: "Completion Date",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => {
+                const compDate = new Date(params.row.completionDate);
+                const date = compDate.getDate();
+                const month = compDate.getMonth() + 1;
+                const year = compDate.getFullYear();
+
+                return `${date}/${month}/${year}`;
+            },
+
+        },
+        {
+            field: "courseDuration",
+            headerName: "Course Duration",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => {
+                return calculateDuration(params.row.admissionDate, params.row.completionDate)
+            }
+        },
+        {
+            field: "filePath",
+            headerName: "Document",
+            flex: 0.3,
+            minWidth: 350,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => {
+                return (
+                    <DownloadButton fileName={params.row.fileName} filePath={params.row.filePath} />
+                );
+            },
+        },
+
+
+
+
+    ];
+    const certificateColumns = [
+        {
+            field: "index",
+            headerName: "S.No",
+            flex: 0.1,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "certificationName",
+            headerName: "Certification Name",
+            flex: 0.3,
+            minWidth: 150,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "courseStartDate",
+            headerName: "Course Start Date",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => {
+                const coStDare = new Date(params.row.courseStartDate);
+                const date = coStDare.getDate();
+                const month = coStDare.getMonth() + 1;
+                const year = coStDare.getFullYear();
+
+                return `${date}/${month}/${year}`;
+            },
+        },
+        {
+            field: "courseEndDate",
+            headerName: "Course End Date",
+            flex: 0.3,
+            minWidth: 150,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => {
+                const coEdDate = new Date(params.row.courseEndDate);
+                const date = coEdDate.getDate();
+                const month = coEdDate.getMonth() + 1;
+                const year = coEdDate.getFullYear();
+
+                return `${date}/${month}/${year}`;
+            },
+        },
+        {
+            field: "certificationDuration",
+            headerName: "Certification Duration",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => {
+                return calculateDuration(params.row.courseStartDate, params.row.courseEndDate)
+            }
+        },
+        {
+            field: "filePath",
+            headerName: "Document",
+            flex: 0.3,
+            minWidth: 350,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => {
+                return (
+                    <DownloadButton fileName={params.row.fileName} filePath={params.row.filePath} />
+                );
+            },
+        },
+    ];
+    const ResumeColumn = [
+
+        {
+            field: "attachmentId",
+            headerName: "Document Type",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+            valueGetter: (params) => params.row.attachmentId?.typeName,
+        },
+        {
+            field: "fileName",
+            headerName: "Document Name",
+            flex: 0.3,
+            minWidth: 350,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => {
+                return (
+
+                    <DownloadButton fileName={params.row.fileName} filePath={params.row.filePath} />
+
+                );
+            },
+        },
+    ]
+
+    function calculateDuration(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = endDate ? new Date(endDate) : new Date();
+
+        let years = end.getFullYear() - start.getFullYear();
+        let months = end.getMonth() - start.getMonth();
+        let days = end.getDate() - start.getDate();
+
+        // Adjust for negative months or days
+        if (days < 0) {
+            const lastMonth = new Date(end.getFullYear(), end.getMonth(), 0);
+            days += lastMonth.getDate();
+            months--;
+        }
+
+        if (months < 0) {
+            months += 12;
+            years--;
+        }
+
+        return `${years} years, ${months} months, ${days} days`;
+    }
+
+    function calculateAge(dateOfBirth) {
+        const today = new Date();
+        const birthDate = new Date(dateOfBirth);
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+            age--;
+        }
+
+        let ageString = "";
+
+        if (age > 0) {
+            ageString += age === 1 ? "1 year" : `${age} years`;
+        }
+
+        if (monthDiff > 0) {
+            if (ageString !== "") {
+                ageString += ", ";
+            }
+            ageString += monthDiff === 1 ? "1 month" : `${monthDiff} months`;
+        }
+
+        if (dayDiff > 0) {
+            if (ageString !== "") {
+                ageString += ", ";
+            }
+            ageString += dayDiff === 1 ? "1 day" : `${dayDiff} days`;
+        }
+
+        return ageString;
+    }
+
+    function calculateWorkExperience(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = endDate ? new Date(endDate) : new Date();
+
+        let years = end.getFullYear() - start.getFullYear();
+        let months = end.getMonth() - start.getMonth();
+        let days = end.getDate() - start.getDate();
+
+        // Adjust for negative months or days
+        if (days < 0) {
+            const lastMonth = new Date(end.getFullYear(), end.getMonth(), 0);
+            days += lastMonth.getDate();
+            months--;
+        }
+
+        if (months < 0) {
+            months += 12;
+            years--;
+        }
+
+        return `${years} years, ${months} months, ${days} days`;
+    }
+
+    const Experience = ({ applicantId }) => {
+
+        const [ExperienceRows, setExperienceRows] = useState([]);
+
+        useEffect(() => {
+
+            axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/recruitment/expDetails/${applicantId}`).then(response => {
+                // const sortedData = response.data?.result.sort((a, b) => a.bankId - b.bankId);
+                let i = 1;
+                let sortedPrevExperienceData = response.data?.result?.map((value) => {
+                    let newVal = { ...value, index: i };
+                    i++;
+                    return newVal;
+                });
+
+                setExperienceRows(sortedPrevExperienceData);
+                console.log(sortedPrevExperienceData);
+            })
+                .catch(error => {
+                    alert(error);
+                    setExperienceRows([]);
+                });
+
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [applicantId]);
+
+
+        const ExperienceColumns = [
+            {
+                field: "index",
+                headerName: "S.No",
+                flex: 0.1,
+                minWidth: 100,
+                headerClassName: "super-app-theme--header",
+            },
+
+            {
+                field: "orgName",
+                headerName: "Organization Name",
+                flex: 0.3,
+                minWidth: 200,
+                headerClassName: "super-app-theme--header",
+
+            },
+            {
+                field: "designation",
+                headerName: "Designation",
+                flex: 0.3,
+                minWidth: 200,
+                headerClassName: "super-app-theme--header",
+
+            },
+            {
+                field: "startDate",
+                headerName: "From Date",
+                flex: 0.3,
+                minWidth: 200,
+                headerClassName: "super-app-theme--header",
+                valueGetter: (params) => {
+                    const adDate = new Date(params.row.startDate);
+                    const date = adDate.getDate();
+                    const month = adDate.getMonth() + 1;
+                    const year = adDate.getFullYear();
+
+                    return `${date}/${month}/${year}`;
+                },
+            },
+            {
+                field: "endDate",
+                headerName: "To Date",
+                flex: 0.3,
+                minWidth: 200,
+                headerClassName: "super-app-theme--header",
+                valueGetter: (params) => {
+                    const compDate = new Date(params.row.endDate);
+                    const date = compDate.getDate();
+                    const month = compDate.getMonth() + 1;
+                    const year = compDate.getFullYear();
+
+                    return `${date}/${month}/${year}`;
+                },
+
+            },
+            {
+                field: "workExperience",
+                headerName: "Work Experience",
+                flex: 0.3,
+                minWidth: 200,
+                headerClassName: "super-app-theme--header",
+                valueGetter: (params) => {
+                    return calculateWorkExperience(params.row.startDate, params.row.endDate)
+                }
+            },
+            {
+                field: "filePath",
+                headerName: "Document",
+                flex: 0.3,
+                minWidth: 350,
+                headerClassName: "super-app-theme--header",
+                renderCell: (params) => {
+                    return (
+                        <DownloadButton fileName={params.row.fileName} filePath={params.row.filePath} />
+                    );
+                },
+            },
+
+        ];
+
+        return (
+            <>
+                {
+                    ExperienceRows.length !== 0 ?
+                        (
+                            <>
+
+                                {/* <PageTitle name="Work Experience" /> */}
+
+                                <SearchTable
+                                    columns={ExperienceColumns}
+                                    isCheckbox={false}
+                                    isHideDensity={false}
+                                    isHideExport={false}
+                                    isHideFilter={false}
+                                    isHideColumn={false}
+                                    isHidePaging={true}
+                                    data={ExperienceRows}
+                                    name="Experience"
+                                    id="Experience"
+                                />
+
+                            </>
+                        )
+                        :
+                        null
+                }
+
+            </>
+        );
+    };
+
+
+    return (
+
+        <>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    '& > :not(style)': {
+                        m: 6,
+                        width: 1250,
+                        //   height: 3500,
+                    },
+                }}
+            >
+                <Paper elevation={4}>
+                    <CloseIcon></CloseIcon>
+                    <Box sx={{ padding: "0px 60px", mt: 4 }}>
+                        <Card sx={{ boxShadow: "none" }}>
+                            <CardContent>
+
+                                <h3 lineHeight={2.2}>
+                                    <PersonAdd sx={{ mr: 1 }} />
+                                    Personal Details
+                                </h3>
+                                <Divider />
+
+
+                                <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center" sx={{ mb: 1 }}>
+                                    <Grid item xs={12} sm={4} md={4} lg={8}>
+
+                                        <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center" sx={{ mb: 1 }}>
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <TextField
+
+                                                    fullWidth
+                                                    id="Name"
+                                                    name="Name"
+                                                    label="Full Name"
+                                                    size="small"
+                                                    margin="normal"
+                                                    variant="standard"
+                                                    value={personalDetailsData?.fullName || ""}
+                                                    InputProps={{ readOnly: true }}
+                                                />
+                                            </Grid>
+                                        </Grid>
+
+                                        <Grid
+                                            container
+                                            direction="row"
+                                            rowSpacing={0}
+                                            columnSpacing={2}
+                                            justify="flex-end"
+                                            alignItems="center"
+                                            sx={{ mb: 1 }}
+
+                                        >
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+
+                                                <TextField
+                                                    margin="0"
+                                                    fullWidth
+                                                    type="text"
+                                                    id="motherName"
+                                                    name="motherName"
+                                                    label="Mother Name"
+                                                    variant="standard"
+                                                    autoComplete="email"
+                                                    size="small"
+                                                    value={personalDetailsData?.motherName || ""}
+                                                    InputProps={{ readOnly: true }}
+
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+
+                                                <TextField
+                                                    margin="0"
+                                                    fullWidth
+                                                    type="text"
+                                                    id="fatherName"
+                                                    name="fatherName"
+                                                    variant="standard"
+                                                    label="Father Name"
+                                                    size="small"
+                                                    value={personalDetailsData?.fatherName || ""}
+                                                    InputProps={{ readOnly: true }}
+
+                                                />
+                                            </Grid>
+
+                                        </Grid>
+
+
+                                        <Grid
+                                            container
+                                            direction="row"
+                                            rowSpacing={0}
+                                            columnSpacing={2}
+                                            justify="flex-end"
+                                            alignItems="center"
+                                            sx={{ mb: 1 }}
+                                        >
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                <LocalizationProvider
+                                                    dateAdapter={AdapterDayjs}
+                                                    adapterLocale={"en-gb"}
+                                                >
+                                                    <DatePicker
+                                                        label="Date of Birth"
+                                                        inputFormat="DD-MM-YYYY"
+                                                        maxDate={new Date()}
+                                                        id="dob"
+                                                        name="dob"
+                                                        value={personalDetailsData?.dob ? new Date(personalDetailsData?.dob) : ""}
+                                                        readOnly
+                                                        renderInput={(params) => (
+                                                            <TextField
+                                                                size="small"
+                                                                fullWidth
+                                                                variant="standard"
+                                                                {...params}
+                                                                InputProps={{ readOnly: true }}
+
+                                                            />
+                                                        )}
+                                                    />
+                                                </LocalizationProvider>
+                                            </Grid>
+
+                                            <Grid item xs={12} sm={4} md={4} lg={6}>
+
+                                                <TextField
+                                                    margin="0"
+                                                    fullWidth
+                                                    id="age"
+                                                    variant="standard"
+                                                    label="Age"
+                                                    InputLabelProps={{ shrink: true }}
+                                                    name="age"
+                                                    size="small"
+                                                    value={calculateAge(personalDetailsData?.dob ? new Date(personalDetailsData?.dob) : "") || ""}
+                                                    InputProps={{ readOnly: true }}
+
+                                                />
+                                            </Grid>
+
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                                        <ProfilePhotoCard filePath={profilePhoto} />
+                                    </Grid>
+
+                                </Grid>
+
+                                <Grid
+                                    container
+                                    direction="row"
+                                    rowSpacing={0}
+                                    columnSpacing={2}
+                                    justify="flex-end"
+                                    alignItems="center"
+
+                                >
+
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                        <TextField
+                                            margin="0"
+                                            fullWidth
+                                            size="small"
+                                            id="Gender"
+                                            variant="standard"
+                                            name="Gender"
+                                            label="Gender"
+                                            value={personalDetailsData?.gender?.typeName || ""}
+                                            InputProps={{ readOnly: true }}
+                                        />
+
+
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                                        <TextField
+                                            margin="0"
+                                            fullWidth
+                                            type="text"
+                                            variant="standard"
+                                            id="identificationMarks"
+                                            name="identificationMarks"
+                                            label="Identification Mark 1(Acc to SSC)"
+                                            size="small"
+                                            value={personalDetailsData?.identificationMarks1 || ""}
+                                            InputProps={{ readOnly: true }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                                        <TextField
+                                            margin="0"
+                                            fullWidth
+                                            type="text"
+                                            variant="standard"
+                                            id="identificationMarks2"
+                                            name="identificationMarks2"
+                                            label="Identification Mark 2(Acc to SSC)"
+                                            size="small"
+                                            value={personalDetailsData?.identificationMarks2 || ""}
+                                            InputProps={{ readOnly: true }}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            size="small"
+                                            variant="standard"
+                                            id="nationality"
+                                            name="nationality"
+                                            label="Nationality"
+                                            value={personalDetailsData?.nationalityId?.typeName || ""}
+                                            InputProps={{ readOnly: true }}
+                                        />
+
+
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            size="small"
+                                            id="religion"
+                                            variant="standard"
+                                            name="religion"
+                                            label="Religion"
+                                            value={personalDetailsData?.religionId?.typeName || ""}
+                                            InputProps={{ readOnly: true }}
+                                        />
+
+
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            size="small"
+                                            id="maritalStatus"
+                                            name="maritalStatus"
+                                            variant="standard"
+                                            label="Marital Status"
+                                            value={personalDetailsData?.maritalStatusId?.typeName || ""}
+                                            InputProps={{ readOnly: true }}
+                                        />
+
+
+                                    </Grid>
+                                </Grid>
+
+                                <Grid
+                                    container
+                                    direction="row"
+                                    rowSpacing={0}
+                                    columnSpacing={2}
+                                    justify="flex-end"
+                                    alignItems="center"
+
+                                >
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            id="caste"
+                                            variant="standard"
+                                            name="caste"
+                                            size="small"
+                                            label="Caste"
+                                            value={personalDetailsData?.caste?.typeName || ""}
+                                            InputProps={{ readOnly: true }}
+                                        />
+
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                                        <TextField
+                                            margin="normal"
+                                            size="small"
+                                            fullWidth
+                                            id="subcaste"
+                                            name="subcaste"
+                                            variant="standard"
+                                            label="Sub Caste"
+                                            value={personalDetailsData?.subCaste?.typeName || ""}
+                                            InputProps={{ readOnly: true }}
+
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+
+
+                                    </Grid>
+
+                                </Grid>
+                                <Grid
+                                    container
+                                    direction="row"
+                                    rowSpacing={0}
+                                    columnSpacing={2}
+                                    justify="flex-end"
+                                    alignItems="center"
+                                    sx={{ mb: 1 }}
+                                >
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                                        <div>
+                                            <FormControl>
+                                                <FormLabel id="demo-row-radio-buttons-group-label">
+                                                    Physically Handicapped
+                                                </FormLabel>
+
+                                                <RadioGroup
+                                                    row
+                                                    aria-labelledby="demo-row-radio-buttons-group-label"
+                                                    name="physicallyHandicapped"
+                                                    value={personalDetailsData?.differentlyAbledPerson ? "true" : "false" || "false"}
+                                                >
+                                                    <FormControlLabel value={"true"}
+                                                        control={<Radio />}
+                                                        label="Yes" />
+                                                    <FormControlLabel value={"false"}
+                                                        control={<Radio />}
+                                                        label="No" />
+
+                                                </RadioGroup>
+
+
+
+
+                                            </FormControl>
+                                        </div>
+                                    </Grid>
+                                    {/* <Grid item xs={12} sm={4} md={4} lg={8}> */}
+                                    {personalDetailsData?.differentlyAbledPerson && (
+                                        <>
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                                <TextField
+                                                    margin="0"
+                                                    fullWidth
+                                                    type="text"
+                                                    variant="standard"
+                                                    id="physicallyHandicappedperc"
+                                                    name="physicallyHandicappedperc"
+                                                    label="Physically Handicapped Percentage"
+                                                    size="small"
+                                                    value={personalDetailsData?.percentageOfDisability || ""}
+                                                    InputProps={{ readOnly: true }}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                                <TextField
+                                                    margin="0"
+                                                    fullWidth
+                                                    type="text"
+                                                    id="typeOfDisability"
+                                                    name="typeOfDisability"
+                                                    variant="standard"
+                                                    label="Type Of Disability"
+                                                    size="small"
+                                                    value={personalDetailsData?.typeOfDisability || ""}
+                                                    InputProps={{ readOnly: true }}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                               
+                                            </Grid>
+                                        </>
+
+                                    )}
+
+                                    {/* </Grid> */}
+
+                                </Grid>
+
+                                <Card sx={{ margin: 0, boxShadow: "none" }}>
+                                    <Grid container direction="row" rowSpacing={0} columnSpacing={2}>
+                                        <Grid item xs={12} sm={6} md={6} lg={6}>
+                                            {/* <H4 lineHeight={3.2}>Card Address</H4> */}
+                                            <Card sx={{ height: "442px", border: "1px solid black" }}>
+                                                <CardHeader
+                                                    title={
+                                                        <CardTitle>
+                                                            <AccountCircleTwoToneIcon sx={{ mr: 1 }} />
+                                                            Present Address
+                                                        </CardTitle>
+                                                    }
+                                                />
+                                                <Divider />
+                                                <CardContent>
+                                                    <Grid
+                                                        container
+                                                        direction="row"
+                                                        rowSpacing={0}
+                                                        columnSpacing={2}
+                                                    >
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                margin="normal"
+                                                                fullWidth
+                                                                id="houseNumberCard"
+                                                                label="House No./Building Name"
+                                                                name="houseNumberCard"
+                                                                variant="standard"
+                                                                size="small"
+                                                                value={personalDetailsData?.presentHouseNo || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+
+
+
+                                                        <Grid item xs={12} sm={8} md={8} lg={6}>
+                                                            <TextField
+                                                                margin="normal"
+                                                                fullWidth
+                                                                id="streetCard"
+                                                                label="Street"
+                                                                name="streetCard"
+                                                                variant="standard"
+                                                                size="small"
+                                                                value={personalDetailsData?.presentAddress || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <FormControl fullWidth sx={{ mt: 2 }}>
+                                                                <TextField
+                                                                    label="Pincode"
+                                                                    size="small"
+                                                                    fullWidth
+                                                                    autoComplete="email"
+                                                                    placeholder={"999999"}
+                                                                    mask={"######"}
+                                                                    id="pincodeCard"
+                                                                    variant="standard"
+                                                                    name="pincodeCard"
+                                                                    value={personalDetailsData?.presentPincode || ""}
+                                                                    InputProps={{
+                                                                        readOnly: true
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                fullWidth
+                                                                margin="normal"
+                                                                size="small"
+                                                                id="stateId"
+                                                                variant="standard"
+                                                                name="stateId"
+                                                                label="State Name"
+                                                                value={personalDetailsData?.presentState?.stateName || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                fullWidth
+                                                                margin="normal"
+                                                                size="small"
+                                                                id="distId"
+                                                                name="distId"
+                                                                variant="standard"
+                                                                label="District Name"
+                                                                value={personalDetailsData?.presentDistrict?.districtName || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                margin="normal"
+                                                                size="small"
+                                                                fullWidth
+                                                                id="mandalId"
+                                                                name="mandalId"
+                                                                label="Mandal Name"
+                                                                variant="standard"
+                                                                value={personalDetailsData?.presentMandal?.mandalName || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                fullWidth
+                                                                margin="normal"
+                                                                size="small"
+                                                                id="villageId"
+                                                                name="villageId"
+                                                                variant="standard"
+                                                                label="Village Name"
+                                                                value={personalDetailsData?.presentVillage?.villageName || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+
+                                                    </Grid>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={6} md={6} lg={6}>
+                                            <Card sx={{ border: "1px solid black" }}>
+                                                <CardHeader
+                                                    title={
+                                                        <CardTitle>
+                                                            <PinDropTwoToneIcon sx={{ mr: 1 }} /> Permanent Address
+
+                                                        </CardTitle>
+                                                    }
+                                                />
+                                                <Divider />
+                                                <CardContent>
+                                                    <Grid
+                                                        container
+                                                        direction="row"
+                                                        rowSpacing={0}
+                                                        columnSpacing={2}
+                                                        justify="flex-end"
+                                                        alignItems="center"
+
+                                                    >
+                                                        <Grid item xs={12} sm={12} md={12} lg={12}>
+                                                            <FormControlLabel
+                                                                sx={{ margin: 0 }}
+                                                                control={
+                                                                    <Checkbox
+                                                                        value="remember"
+                                                                        checked={personalDetailsData?.isPresentPermanentAddressSame || ""}
+                                                                        color="primary"
+                                                                    />
+                                                                }
+                                                                label="If Present address and Permanent address are same"
+                                                            />
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                margin="normal"
+                                                                fullWidth
+                                                                id="houseNumberComm"
+                                                                label="House No./Building Name"
+                                                                variant="standard"
+                                                                name="houseNumberComm"
+                                                                size="small"
+                                                                value={personalDetailsData?.permanentHouseNo || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={8} md={8} lg={6}>
+                                                            <TextField
+                                                                margin="normal"
+                                                                fullWidth
+                                                                id="streetcomm"
+                                                                label="Street"
+                                                                name="streetcomm"
+                                                                variant="standard"
+                                                                size="small"
+                                                                value={personalDetailsData?.permanentAddress || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <FormControl fullWidth sx={{ mt: 2 }}>
+                                                                <TextField
+                                                                    label="Pincode"
+                                                                    size="small"
+                                                                    fullWidth
+                                                                    placeholder={"999999"}
+                                                                    mask={"######"}
+                                                                    variant="standard"
+                                                                    id="pincodecomm"
+                                                                    name="pincodecomm"
+                                                                    value={personalDetailsData?.permanentPincode || ""}
+                                                                    InputProps={{
+                                                                        readOnly: true
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                fullWidth
+                                                                margin="normal"
+                                                                size="small"
+                                                                id="stateId"
+                                                                variant="standard"
+                                                                name="stateId"
+                                                                label="State Name"
+                                                                value={personalDetailsData?.permanentState?.stateName || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                fullWidth
+                                                                margin="normal"
+                                                                size="small"
+                                                                id="distId"
+                                                                name="distId"
+                                                                variant="standard"
+                                                                label="District Name"
+                                                                value={personalDetailsData?.permanentDistrict?.districtName || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                margin="normal"
+                                                                size="small"
+                                                                fullWidth
+                                                                id="mandalId"
+                                                                name="mandalId"
+                                                                variant="standard"
+                                                                label="Mandal Name"
+                                                                value={personalDetailsData?.permanentMandal?.mandalName || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+
+                                                        <Grid item xs={12} sm={4} md={4} lg={6}>
+                                                            <TextField
+                                                                fullWidth
+                                                                margin="normal"
+                                                                size="small"
+                                                                id="villageId"
+                                                                name="villageId"
+                                                                variant="standard"
+                                                                label="Village Name"
+                                                                value={personalDetailsData?.permanentVillage?.villageName || ""}
+                                                                InputProps={{
+                                                                    readOnly: true
+                                                                }}
+                                                            />
+                                                        </Grid>
+
+
+                                                    </Grid>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    </Grid>
+                                </Card>
+
+
+                                <Grid
+                                    container
+                                    direction="row"
+                                    rowSpacing={0}
+                                    columnSpacing={2}
+                                    justify="flex-end"
+                                    alignItems="center"
+                                    sx={{ my: 3 }}
+                                >
+
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                        <TextField
+                                            margin="0"
+                                            fullWidth
+                                            type="text"
+                                            id="contactNumber"
+                                            variant="standard"
+                                            name="contactNumber"
+                                            label="Contact Number"
+                                            size="small"
+                                            value={personalDetailsData?.contactNumber || ""}
+                                            InputProps={{
+                                                readOnly: true
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                        <TextField
+                                            margin="0"
+                                            fullWidth
+                                            type="text"
+                                            id="emergencyContact"
+                                            name="emergencyContact"
+                                            variant="standard"
+                                            label="Emergency(Family) Number"
+                                            size="small"
+                                            value={personalDetailsData?.alternateNumber || ""}
+                                            InputProps={{
+                                                readOnly: true
+                                            }}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                        <TextField
+                                            margin="0"
+                                            fullWidth
+                                            type="text"
+                                            id="personalemail"
+                                            name="personalemail"
+                                            variant="standard"
+                                            label="Personal Email ID"
+                                            size="small"
+                                            value={personalDetailsData?.personalEmail || ""}
+                                            InputProps={{
+                                                readOnly: true
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+
+                                <Grid
+                                    container
+                                    direction="row"
+                                    rowSpacing={0}
+                                    columnSpacing={2}
+                                    justify="flex-end"
+                                    alignItems="center"
+                                    sx={{ mb: 1 }}
+                                >
+
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                        <TextField
+                                            margin="0"
+                                            fullWidth
+                                            type="text"
+                                            id="emailid"
+                                            name="emailid"
+                                            variant="standard"
+                                            label="Official Email ID"
+                                            size="small"
+                                            value={personalDetailsData?.officialEmail || ""}
+                                            InputProps={{
+                                                readOnly: true
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                                        <TextField
+                                            margin="0"
+                                            fullWidth
+                                            type="text"
+                                            id="Aadhaar"
+                                            name="Aadhaar"
+                                            variant="standard"
+                                            label="Aadhaar Number"
+                                            size="small"
+                                            value={personalDetailsData?.aadhaarNo || ""}
+                                            InputProps={{
+                                                readOnly: true
+                                            }}
+                                        />
+                                    </Grid>
+
+
+                                </Grid>
+
+
+
+                                <Card>
+                                    <CardContent>
+                                        <PageTitle name={"Personal Details Attachment"} />
+                                        <SearchTable
+                                            columns={columns}
+                                            data={attachmentRows}
+                                            isCheckbox={false}
+                                            isHideDensity={false}
+                                            isHideExport={true}
+                                            isHideFilter={true}
+                                            isHideColumn={true}
+                                            isHidePaging={false}
+                                            name="userDetails"
+                                            id="userDetails"
+                                        />
+                                    </CardContent>
+                                </Card>
+
+
+                            </CardContent >
+
+                        </Card >
+                    </Box>
+
+                    <Box sx={{ padding: "0px 60px", mt: 4 }}>
+                        <h3 lineHeight={2.2}>
+                            <SchoolIcon sx={{ mr: 1 }} />
+                            Educational Details
+                        </h3>
+                        <Divider />
+
+
+
+                        <AccordionDetails>
+
+
+                            <Grid>
+                                <Box sx={{ overflow: "auto", my: 2 }} component={Paper} elevation={2}>
+                                    <Box sx={{
+                                        width: "100%",
+                                        height: "auto",
+                                        display: "table",
+                                        tableLayout: "fixed",
+                                    }}
+                                    >
+
+                                        <SearchTable
+                                            columns={educationalColumns}
+                                            isCheckbox={false}
+                                            isHideDensity={false}
+                                            isHideExport={false}
+                                            isHideFilter={false}
+                                            isHideColumn={false}
+                                            isHidePaging={true}
+                                            data={educationalRows}
+                                            name="education"
+                                            id="education"
+                                        ></SearchTable>
+
+                                    </Box>
+
+                                </Box>
+                            </Grid>
+
+
+                        </AccordionDetails>
+
+                    </Box>
+
+
+                    <Box sx={{ padding: "0px 60px", mt: 2 }}>
+
+                        <AccordionSummary
+                            sx={{ m: 0 }}
+
+                            style={{
+
+                                color: expand === true ? "white" : "#2169B2",
+                                fontWeight: "bold",
+                                margin: "auto",
+                            }}
+                        >
+                            <Typography sx={{ fontWeight: "bold" }}>CERTIFICATIONS</Typography>
+                        </AccordionSummary>
+
+
+                        <AccordionDetails>
+
+                            <div>
+                                <Grid >
+
+                                    <SearchTable
+                                        columns={certificateColumns}
+                                        isCheckbox={false}
+                                        isHideDensity={false}
+                                        isHideExport={false}
+                                        isHideFilter={false}
+                                        isHideColumn={false}
+                                        isHidePaging={true}
+                                        data={certificateRows}
+                                        name="certificate"
+                                        id="certificate"
+                                    ></SearchTable>
+
+                                </Grid>
+
+                            </div>
+
+                        </AccordionDetails>
+
+                    </Box>
+
+                    <Box sx={{ padding: "0px 60px", my: 2 }}>
+
+                        <AccordionSummary
+                            sx={{ m: 0 }}
+
+                            style={{
+
+                                color: expand === true ? "white" : "#2169B2",
+                                fontWeight: "bold",
+                                margin: "auto",
+                            }}
+                        >
+                            <Typography sx={{ fontWeight: "bold" }}> RESUME </Typography>
+                        </AccordionSummary>
+
+                        <AccordionDetails>
+
+
+                            {/* <PageTitle name={""} /> */}
+                            <SearchTable
+                                columns={ResumeColumn}
+                                data={resume}
+                                isCheckbox={false}
+                                isHideDensity={false}
+                                isHideExport={false}
+                                isHideFilter={false}
+                                isHideColumn={false}
+                                isHidePaging={true}
+                                name="userDetails"
+                                id="userDetails"
+                            />
+
+
+                        </AccordionDetails>
+
+                    </Box>
+
+                    <Box sx={{ padding: "0px 60px", mt: 4 }}>
+                        <h3 lineHeight={2.2}>
+                            <BusinessCenterIcon sx={{ mr: 1 }} />
+                            Work Experience
+                        </h3>
+                        <Divider />
+
+                        <Experience
+                            applicantId={applicantId}
+                        />
+                    </Box>
+                </Paper>
+            </Box>
+        </>
+
+    );
 };
 
-export default function KeepMountedModal() {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+export default PersonalDetailsView;
 
-  return (
-    <div>
-      <Button onClick={handleOpen}>Open\sss modal</Button>
-      <Modal
-        keepMounted
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="keep-mounted-modal-title"
-        aria-describedby="keep-mounted-modal-description"
-      >
-        <Box sx={style}>
-          <Typography id="keep-mounted-modal-title" variant="h6" component="h2">
-            Text in a modal
-          </Typography>
-          <Typography id="keep-mounted-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
-        </Box>
-      </Modal>
-    </div>
-  );
-}
