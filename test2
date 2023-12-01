@@ -85,7 +85,54 @@ function Payumoney(props) {
                 Payment Redirection Page
               </Typography>
             </Grid>
-            {/* ... (existing code) */}
+            <Grid container display={"flex"} spacing={2} marginTop={3}>
+              <Grid item md={6} sm={6} textAlign={"end"}>
+                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
+                  Application Number :
+                </Typography>
+              </Grid>
+              <Grid item md={6} sm={6} justifyItems={"start"}>
+                <Typography marginLeft={2} fontSize={16}>
+                  {applicationnum}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container display={"flex"} spacing={2}>
+              <Grid item md={6} sm={6} textAlign={"end"}>
+                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
+                  Name :
+                </Typography>
+              </Grid>
+              <Grid item md={6} sm={6} justifyItems={"start"}>
+                <Typography marginLeft={2} fontSize={16}>
+                  {username}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container display={"flex"} spacing={2}>
+              <Grid item md={6} sm={6} textAlign={"end"}>
+                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
+                  Amount :
+                </Typography>
+              </Grid>
+              <Grid item md={6} sm={6} justifyItems={"start"}>
+                <Typography marginLeft={2} fontSize={16}>
+                  {paymentdetails.amount}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container display={"flex"} spacing={2}>
+              <Grid item md={6} sm={6} textAlign={"end"}>
+                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
+                  Mobile Number :
+                </Typography>
+              </Grid>
+              <Grid item md={6} sm={6} justifyItems={"start"} s>
+                <Typography marginLeft={2} fontSize={16}>
+                  {mobilenumber}
+                </Typography>
+              </Grid>
+            </Grid>
           </Grid>
           <form
             onSubmit={isAmountZero ? handleSubmitClick : handlePayClick}
