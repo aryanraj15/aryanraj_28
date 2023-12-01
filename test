@@ -1,51 +1,230 @@
-   axios.get(`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/recruitment/personalDetails/${34}`).then(response => {
-        
-      if (response.data.statusCode === 200) {
-      
-        let sortedData =  response.data.result.map((value) => {
+import React, { useState, useEffect, useRef } from "react";
+// import PayUmoney from "payumoney-node";
+import { Link, useLocation } from "react-router-dom";
+import axios from "axios";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Grid,
+  Box,
+  Typography,
+} from "@mui/material";
+import { margin, maxWidth } from "@mui/system";
+import { useDispatch, useSelector } from "react-redux";
+import { Payment } from "@mui/icons-material";
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import Checkbox from '@mui/material/Checkbox';
+import FormGroup from '@mui/material/FormGroup';
+import Modal from "./applicationViewdetails.js";
+function Payumoney(props) {
+  const { applicationnum, mobilenumber, username, totalpayamount, applicationid } = props;
+  console.log(totalpayamount);
+  const [paymentdetails, setpaymentdetails] = useState({});
+  const [totalpayamountmain, settotalpayamountmain] = useState(0);
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
 
-          let myobject={
-            typeName:value.nationalityId.typeName,
-            typeId:value.nationalityId.typeId
-          }
-                       
-          let newVal = {
-            nationality:myobject
-          };
 
-       
-          return newVal;
-        });
-        setNationalityList(sortedData);
-        console.log(sortedData)
+  const handleCheckboxChange = () => {
+    setCheckboxChecked(!checkboxChecked);
+  };
+
+  const isPayButtonDisabled = !checkboxChecked;
+
+
+  const handleSubmit = (event) => {
+    console.log("Under handle submit");
+    event.preventDefault();
+    const form = event.target;
+    form.action = "https://secure.payu.in/_payment";
+    console.log("form.action");
+    form.submit();
+  };
+
+  let hash = "";
+  let txnId = "";
+  let amount = ""
+  let emails = "vigneshsurela@gmail.com";
+
+  const getpaymentinitiate = async () => {
+    try {
+      let body = {
+        // amount: totalpayamount,
+        // amount: 1,
+        firstName: username,
+        // phoneNumber: mobilenumber,
+        email: emails,
+        applicantNo: applicationnum,
+      };
+      // paymentdata.firstName = username;
+      // paymentdata.phoneNumber = mobilenumber;
+      // paymentdata.email = emails;
+      // paymentdata.applicantNo = applicationnum;
+      const res = await axios.post(
+        `${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/initiate`,
+        body
+      );
+      console.log("Save API Response:", res.data.result);
+      txnId = res.data.result.txnId;
+      hash = res.data.result.hash;
+      amount = res.data.result.amount
+      setpaymentdetails({
+        txnId: txnId,
+        hash: hash,
+        amount: amount
+      });
+      console.log(paymentdetails);
+      console.log(txnId);
+      console.log(hash);
+
+      if (res.data.statusCode === 200) {
+      } else {
+        console.error("Error in save API:", res.data.message);
       }
-        // console.log("one",response.data.result)
-        // //   console.log(response.data.result[1].branchId.branchName)
-        //   formik.setFieldValue("Name",response.data.result.fullName)
-        //   formik.setFieldValue("motherName",response.data.result.motherName)
-        //   formik.setFieldValue("religion",response.data.result.religionId.typeName)
-        //   formik.setFieldValue("fatherName",response.data.result.fatherName)
-        //  formik.setFieldValue("Age",response.data.result.fullName)
-        //  formik.setFieldValue("identificationMarks",response.data.result.identificationMarks1)
-        //  formik.setFieldValue("identificationMarks2",response.data.result.identificationMarks2)
-        //  formik.setFieldValue("contactNumber",response.data.result.contactNumber)
-        //  formik.setFieldValue("emergencyContact",response.data.result.alternateNumber)
-        //  formik.setFieldValue("officialemailid",response.data.result.officialEmail)
-        //  formik.setFieldValue("personalemail",response.data.result.personalEmail)
-        //  formik.setFieldValue("houseNumberCard",response.data.result.presentHouseNo)
-        //  formik.setFieldValue("houseNumberComm",response.data.result.permanentHouseNo)
-        //  formik.setFieldValue("pincodeCard",response.data.result.presentPincode)
-        //  formik.setFieldValue("pincodecomm",response.data.result.permanentPincode)
-        //  formik.setFieldValue("Aadhaar",response.data.result.aadhaarNo)
-        //  formik.setFieldValue("nationality",response.data.result.nationalityId.typeId)
+    } catch (error) {
+      console.error("Error in save API:", error);
+    }
+  };
 
-        //  console.log(response.data.result.nationalityId)
+  // useEffect(() => {
+  //   getpaymentinitiate();
+  // }, [totalpayamount]);
+  useEffect(() => {
+    getpaymentinitiate();
+  }, []);
+  useEffect(() => {
+    // This useEffect will log the updated paymentdetails state
+    console.log(paymentdetails);
+  }, [paymentdetails]);
+  return (
+    <>
+      {/* <Header /> */}
+      <Card sx={{ borderRadius: 5, boxShadow: 4, margin: 1, maxWidth: "auto" }}>
+        <CardContent>
+          <Grid conatiner margin={3}>
+            <Grid item textAlign={"center"}>
+              <Typography fontWeight={"bold"} fontSize={16}>
+                Payment Redirection Page
+              </Typography>
+            </Grid>
+            <Grid container display={"flex"} spacing={2} marginTop={3}>
+              <Grid item md={6} sm={6} textAlign={"end"}>
+                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
+                  Application Number :
+                </Typography>
+              </Grid>
+              <Grid item md={6} sm={6} justifyItems={"start"}>
+                <Typography marginLeft={2} fontSize={16}>
+                  {applicationnum}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container display={"flex"} spacing={2}>
+              <Grid item md={6} sm={6} textAlign={"end"}>
+                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
+                  Name :
+                </Typography>
+              </Grid>
+              <Grid item md={6} sm={6} justifyItems={"start"}>
+                <Typography marginLeft={2} fontSize={16}>
+                  {username}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container display={"flex"} spacing={2}>
+              <Grid item md={6} sm={6} textAlign={"end"}>
+                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
+                  Amount :
+                </Typography>
+              </Grid>
+              <Grid item md={6} sm={6} justifyItems={"start"}>
+                <Typography marginLeft={2} fontSize={16}>
+                  {paymentdetails.amount}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container display={"flex"} spacing={2}>
+              <Grid item md={6} sm={6} textAlign={"end"}>
+                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
+                  Mobile Number :
+                </Typography>
+              </Grid>
+              <Grid item md={6} sm={6} justifyItems={"start"} s>
+                <Typography marginLeft={2} fontSize={16}>
+                  {mobilenumber}
+                </Typography>
+              </Grid>
+            </Grid>
 
+            <Grid item display={"flex"} justifyContent={"center"} marginTop={2}>
+              <form
+                onSubmit={handleSubmit}
+                action="https://secure.payu.in/_payment"
+                method="post"
+              >
+                <input type="hidden" name="key" value={"CpXw8g"} />
+                <input
+                  type="hidden"
+                  name="txnid"
+                  value={paymentdetails.txnId}
+                />
+                <input type="hidden" name="productinfo" value="test" />
+                <input type="hidden" name="amount" value={paymentdetails.amount} />
+                <input type="hidden" name="email" value={emails} />
+                <input type="hidden" name="firstname" value={username} />
+                <input type="hidden" name="lastname" value={username} />
+                <input
+                  type="hidden"
+                  name="surl"
+                  value={`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/getfeedback`}
+                />
+                <input
+                  type="hidden"
+                  name="furl"
+                  value={`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/getfeedback`}
+                />
+                <input type="hidden" name="phonenumber" value={mobilenumber} />
+                <input type="hidden" name="hash" value={paymentdetails.hash} />
+                
+                <Modal applicationid={applicationid}/>
+                
+                <Button
+                  sx={{ borderRadius: "5px" }}
+                  id="button"
+                  type="submit"
+                  variant="contained"
+                  disabled={isPayButtonDisabled}
+                >
+                  Pay
+                </Button>
+              </form>
 
+            </Grid>
+            <Grid item display={"flex"} justifyContent={"center"} marginTop={2}>
 
-        })
-            .catch(error => {
-            //    setBranchName("")
-            //    setBankName("")
-                console.log(error);
-            });
+              <FormControl component="fieldset">
+                <FormGroup aria-label="position" row>
+
+                  <FormControlLabel
+                    value="end"
+                    control={<Checkbox 
+                      checked={checkboxChecked}
+                      onChange={handleCheckboxChange}
+                    />}
+                    label="I hereby agree that all the information provided above are true to my knowledge."
+                    labelPlacement="end"
+                  />
+                </FormGroup>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+    </>
+  );
+}
+
+export default Payumoney;
