@@ -1,291 +1,87 @@
-import React, { useState, useCallback } from "react";
-import { useTheme, Card, CardContent, Button, Stack } from "@mui/material";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import TextField from "@mui/material/TextField";
-import Checkbox from "@mui/material/Checkbox";
-import FormGroup from "@mui/material/FormGroup";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
-import DeleteIcon from "@mui/icons-material/Delete";
-import DateRangePicker from "@mui/lab/DateRangePicker";
-import Autocomplete from "@mui/material/Autocomplete";
-import Grid from "@mui/material/Grid";
-import { H3 } from "../Components/Typography";
-import SearchTable from "../../src/Components/SearchTable";
-import Navbar from "../Components/Navbar";
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  FormControl,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
+} from "@mui/material";
+import Modal from "./two.js";
 
-function YourComponent() {
-  const name = "Your Component";
-  const theme = useTheme();
+function Payumoney(props) {
+  const { applicationnum, mobilenumber, username } = props;
 
-  const [rows, setRows] = useState([]);
-  const [index, setIndex] = useState(1);
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [paymentdetails, setpaymentdetails] = useState({});
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
 
-  const validationSchema = Yup.object({
-    qualification: Yup.string().required("Qualification is required"),
-    institute: Yup.string().required("Institute is required"),
-    board: Yup.string().required("Board is required"),
-    fromDate: Yup.date().required("From Date is required"),
-    toDate: Yup.date().required("To Date is required"),
-    percentage: Yup.number().required("Percentage is required"),
-    document: Yup.string().required("Document name is required"),
-  });
+  const handleCheckboxChange = () => {
+    setCheckboxChecked(!checkboxChecked);
+  };
 
-  const formik = useFormik({
-    initialValues: {
-      qualification: "",
-      institute: "",
-      board: "",
-      fromDate: null,
-      toDate: null,
-      percentage: "",
-      document: "",
-      isMandatory: false,
-      isActive: false,
-    },
-    validationSchema,
-    onSubmit: (values) => {
-      setSelectedRow(null);
-      if (selectedRow !== null) {
-        setRows((prevValue) => {
-          const updatedRows = [...prevValue];
-          updatedRows[selectedRow] = values;
-          return updatedRows;
-        });
-      } else {
-        setRows((prevValue) => [...prevValue, { ...values, index }]);
-        setIndex((prevValue) => prevValue + 1);
-      }
+  const isPayButtonDisabled = !checkboxChecked;
 
-      formik.resetForm();
-    },
-  });
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const form = event.target;
+    form.action = "https://secure.payu.in/_payment";
+    form.submit();
+  };
 
-  const handleCancel = useCallback(() => {
-    setSelectedRow(null);
-    formik.resetForm();
-  }, []);
-
-  const handleEdit = useCallback(
-    (index) => () => {
-      setSelectedRow(index);
-      formik.setValues(rows[index - 1]);
-    },
-    [rows]
-  );
-
-  const handleDelete = useCallback(
-    (index) => () => {
-      setRows((prevValue) => prevValue.filter((_, i) => i !== index - 1));
-      setSelectedRow(null);
-      formik.resetForm();
-    },
-    []
-  );
-
-  const columns = [
-    { field: "index", headerName: "S.No", width: 200 },
-    { field: "qualification", headerName: "Qualification", width: 200 },
-    { field: "institute", headerName: "Institute", width: 200 },
-    { field: "board", headerName: "Board", width: 200 },
-    { field: "fromDate", headerName: "From Date", width: 200 },
-    { field: "toDate", headerName: "To Date", width: 200 },
-    { field: "percentage", headerName: "Percentage", width: 200 },
-    { field: "document", headerName: "Document", width: 200 },
-    {
-      field: "action",
-      headerName: "Action",
-      width: 200,
-      renderCell: (params) => {
-        return (
-          <Stack direction="row" spacing={2}>
-            <Button
-              variant="outlined"
-              color="inherit"
-              size="small"
-              onClick={handleEdit(params.row.index)}
-            >
-              EDIT
-            </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              size="small"
-              onClick={handleDelete(params.row.index)}
-              startIcon={<DeleteIcon />}
-            >
-              DELETE
-            </Button>
-          </Stack>
-        );
-      },
-    },
-  ];
+  // ... (rest of your code)
 
   return (
     <>
-      <Navbar name={name}></Navbar>
-      <Card sx={{ mt: 2, backgroundColor: theme.palette.primary[100] }}>
+      <Card sx={{ borderRadius: 5, boxShadow: 4, margin: 1, maxWidth: "auto" }}>
         <CardContent>
-          <H3 lineHeight={2.2} sx={{ ml: 62 }}>
-            YOUR TITLE
-          </H3>
-          <form onSubmit={formik.handleSubmit}>
-            <Grid container direction="column" spacing={2}>
-              <Grid item>
-                <Autocomplete
-                  id="qualification"
-                  options={["Option 1", "Option 2", "Option 3"]}
-                  fullWidth
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Qualification"
-                      error={
-                        formik.touched.qualification &&
-                        Boolean(formik.errors.qualification)
-                      }
-                      helperText={
-                        formik.touched.qualification && formik.errors.qualification
-                      }
-                    />
-                  )}
-                  value={formik.values.qualification}
-                  onChange={(_, value) =>
-                    formik.setFieldValue("qualification", value)
-                  }
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  fullWidth
-                  id="institute"
-                  name="institute"
-                  label="Institute"
-                  value={formik.values.institute}
-                  onChange={formik.handleChange}
-                  error={formik.touched.institute && Boolean(formik.errors.institute)}
-                  helperText={formik.touched.institute && formik.errors.institute}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  fullWidth
-                  id="board"
-                  name="board"
-                  label="Board"
-                  value={formik.values.board}
-                  onChange={formik.handleChange}
-                  error={formik.touched.board && Boolean(formik.errors.board)}
-                  helperText={formik.touched.board && formik.errors.board}
-                />
-              </Grid>
-              <Grid item>
-                <DateRangePicker
-                  startText="From Date"
-                  endText="To Date"
-                  value={[formik.values.fromDate, formik.values.toDate]}
-                  onChange={(newValue) => {
-                    formik.setFieldValue("fromDate", newValue[0]);
-                    formik.setFieldValue("toDate", newValue[1]);
-                  }}
-                  renderInput={(startProps, endProps) => (
-                    <>
-                      <TextField {...startProps} fullWidth margin="normal" />
-                      <TextField {...endProps} fullWidth margin="normal" />
-                    </>
-                  )}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  fullWidth
-                  id="percentage"
-                  name="percentage"
-                  label="Percentage"
-                  type="number"
-                  value={formik.values.percentage}
-                  onChange={formik.handleChange}
-                  error={formik.touched.percentage && Boolean(formik.errors.percentage)}
-                  helperText={formik.touched.percentage && formik.errors.percentage}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  fullWidth
-                  id="document"
-                  name="document"
-                  label="Document"
-                  value={formik.values.document}
-                  onChange={formik.handleChange}
-                  error={formik.touched.document && Boolean(formik.errors.document)}
-                  helperText={formik.touched.document && formik.errors.document}
-                />
-              </Grid>
-              <Grid item>
-                <FormGroup row>
+          <Grid container margin={3}>
+            {/* ... (rest of your code) */}
+
+            <Grid item display={"flex"} justifyContent={"center"} marginTop={2}>
+              <form
+                onSubmit={handleSubmit}
+                action="https://secure.payu.in/_payment"
+                method="post"
+              >
+                {/* ... (rest of your form inputs) */}
+
+                <Button
+                  sx={{ borderRadius: "5px" }}
+                  id="button"
+                  type="submit"
+                  variant="contained"
+                  disabled={isPayButtonDisabled}
+                >
+                  Pay
+                </Button>
+              </form>
+            </Grid>
+
+            <Grid item display={"flex"} justifyContent={"center"} marginTop={2}>
+              <FormControl component="fieldset">
+                <FormGroup aria-label="position" row>
                   <FormControlLabel
+                    value="end"
                     control={
                       <Checkbox
-                        checked={formik.values.isMandatory}
-                        onChange={(_, checked) =>
-                          formik.setFieldValue("isMandatory", checked)
-                        }
+                        checked={checkboxChecked}
+                        onChange={handleCheckboxChange}
                       />
                     }
-                    label="Is Mandatory"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formik.values.isActive}
-                        onChange={(_, checked) =>
-                          formik.setFieldValue("isActive", checked)
-                        }
-                      />
-                    }
-                    label="Active"
+                    label="I hereby agree that all the information provided above are true to my knowledge."
+                    labelPlacement="end"
                   />
                 </FormGroup>
-              </Grid>
+              </FormControl>
             </Grid>
-            <Stack direction="row" spacing={2} sx={{ mt: 2, ml: theme.spacing(6) }}>
-              <Button variant="contained" type="submit" size="large">
-                SAVE <AttachFileIcon />
-              </Button>
-              <Button
-                type="button"
-                onClick={handleCancel}
-                variant="outlined"
-                sx={{ minWidth: 100, ml: 1 }}
-                size="large"
-              >
-                CANCEL
-              </Button>
-            </Stack>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent>
-          <SearchTable
-            columns={columns}
-            data={rows}
-            isCheckbox={false}
-            isHideDensity={false}
-            isHideExport={true}
-            isHideFilter={true}
-            isHideColumn={true}
-            isHidePaging={false}
-            name="your-component"
-            id="your-component"
-          />
+          </Grid>
         </CardContent>
       </Card>
     </>
   );
 }
 
-export default YourComponent;
+export default Payumoney;
