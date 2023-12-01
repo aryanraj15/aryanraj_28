@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Button, Card, CardContent, Grid, Typography } from "@mui/material";
+import axios from "axios";
+import {
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+} from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import Checkbox from "@mui/material/Checkbox";
-import FormGroup from "@mui/material/FormGroup";
-import Modal from "./applicationViewdetails.js";
 
 function Payumoney(props) {
   const {
@@ -17,73 +22,121 @@ function Payumoney(props) {
 
   const [paymentdetails, setpaymentdetails] = useState({});
   const [checkboxChecked, setCheckboxChecked] = useState(false);
+  const [isAmountZero, setIsAmountZero] = useState(false);
+
+  useEffect(() => {
+    if (totalpayamount === 0) {
+      setIsAmountZero(true);
+    } else {
+      setIsAmountZero(false);
+    }
+  }, [totalpayamount]);
 
   const handleCheckboxChange = () => {
     setCheckboxChecked(!checkboxChecked);
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const form = event.target;
-    form.action = "https://secure.payu.in/_payment";
-    form.submit();
+  const handleSubmitClick = () => {
+    alert("Hello");
+    // You can perform any other actions on form submission here
   };
 
-  const isPayButtonDisabled = !checkboxChecked;
+  const handlePayClick = () => {
+    // Implement your logic for handling the "Pay" button click
+    // You may want to redirect to the payment gateway or perform other actions
+    console.log("Pay button clicked");
+  };
 
-  const renderButton = () => {
-    if (totalpayamount === 0) {
-      return (
-        <Button
-          sx={{ borderRadius: "5px" }}
-          type="submit"
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={isPayButtonDisabled}
-        >
-          Submit
-        </Button>
+  const getpaymentinitiate = async () => {
+    try {
+      const body = {
+        firstName: username,
+        email: "vigneshsurela@gmail.com",
+        applicantNo: applicationnum,
+      };
+
+      const res = await axios.post(
+        `${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/initiate`,
+        body
       );
-    } else {
-      return (
-        <Button
-          sx={{ borderRadius: "5px" }}
-          type="submit"
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={isPayButtonDisabled}
-        >
-          Pay
-        </Button>
-      );
+
+      if (res.data.statusCode === 200) {
+        const { txnId, hash, amount } = res.data.result;
+        setpaymentdetails({ txnId, hash, amount });
+      } else {
+        console.error("Error in save API:", res.data.message);
+      }
+    } catch (error) {
+      console.error("Error in save API:", error);
     }
   };
 
   useEffect(() => {
-    // Your existing code for fetching payment details
+    getpaymentinitiate();
   }, []);
 
   return (
     <>
       <Card sx={{ borderRadius: 5, boxShadow: 4, margin: 1, maxWidth: "auto" }}>
         <CardContent>
-          {/* Your existing code for displaying application details */}
-
-          <Grid item display={"flex"} justifyContent={"center"} marginTop={2}>
-            <form
-              onSubmit={handleSubmit}
-              action="https://secure.payu.in/_payment"
-              method="post"
-            >
-              {/* Your existing code for input fields */}
-
-              <Modal applicationid={applicationid} />
-
-              {renderButton()}
-            </form>
+          <Grid container margin={3}>
+            <Grid item textAlign={"center"}>
+              <Typography fontWeight={"bold"} fontSize={16}>
+                Payment Redirection Page
+              </Typography>
+            </Grid>
+            {/* ... (existing code) */}
           </Grid>
+          <form
+            onSubmit={isAmountZero ? handleSubmitClick : handlePayClick}
+            action={isAmountZero ? undefined : "https://secure.payu.in/_payment"}
+            method="post"
+          >
+            <input type="hidden" name="key" value={"CpXw8g"} />
+            <input type="hidden" name="txnid" value={paymentdetails.txnId} />
+            <input type="hidden" name="productinfo" value="test" />
+            <input type="hidden" name="amount" value={paymentdetails.amount} />
+            <input type="hidden" name="email" value="vigneshsurela@gmail.com" />
+            <input type="hidden" name="firstname" value={username} />
+            <input type="hidden" name="lastname" value={username} />
+            <input
+              type="hidden"
+              name="surl"
+              value={`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/getfeedback`}
+            />
+            <input
+              type="hidden"
+              name="furl"
+              value={`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/getfeedback`}
+            />
+            <input type="hidden" name="phonenumber" value={mobilenumber} />
+            <input type="hidden" name="hash" value={paymentdetails.hash} />
 
-          {/* Your existing code for displaying the checkbox */}
+            <Button
+              sx={{ borderRadius: "5px" }}
+              id="button"
+              type="submit"
+              variant="contained"
+              disabled={isAmountZero ? false : !checkboxChecked}
+            >
+              {isAmountZero ? "Submit" : "Pay"}
+            </Button>
+          </form>
+          <Grid item display={"flex"} justifyContent={"center"} marginTop={2}>
+            <FormControl component="fieldset">
+              <FormControlLabel
+                value="end"
+                control={
+                  <Checkbox
+                    checked={checkboxChecked}
+                    onChange={handleCheckboxChange}
+                  />
+                }
+                label="I hereby agree that all the information provided above are true to my knowledge."
+                labelPlacement="end"
+              />
+            </FormControl>
+          </Grid>
         </CardContent>
       </Card>
     </>
