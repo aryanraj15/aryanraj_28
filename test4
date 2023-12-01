@@ -1,78 +1,63 @@
-// ... (Your existing imports)
+import React, { Component } from 'react';
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
-function Payumoney(props) {
-  const { applicationnum, mobilenumber, username, totalpayamount } = props;
-  const [paymentdetails, setpaymentdetails] = useState({});
-  const [loading, setLoading] = useState(false);
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
-  useEffect(() => {
-    const getpaymentinitiate = async () => {
-      try {
-        // Your existing code for fetching payment details...
-        setLoading(true);
-        const res = await axios.post(
-          `${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/initiate`,
-          body
-        );
-        // Your existing code for setting payment details...
-      } catch (error) {
-        console.error("Error in save API:", error);
-      } finally {
-        setLoading(false);
-      }
+class KeepMountedModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
     };
+  }
 
-    getpaymentinitiate();
-  }, []);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const form = event.target;
-    form.action = "https://secure.payu.in/_payment";
-    form.submit();
+  handleOpen = () => {
+    this.setState({ open: true });
   };
 
-  return (
-    <>
-      <Card sx={{ borderRadius: 5, boxShadow: 4, margin: 1, maxWidth: "auto" }}>
-        <CardContent>
-          <Grid container margin={3}>
-            {/* Your existing code for displaying details... */}
-            <Grid item display={"flex"} justifyContent={"center"} marginTop={2}>
-              {loading ? (
-                <Typography variant="body1">Loading...</Typography>
-              ) : totalpayamount === 0 ? (
-                <Button
-                  sx={{ borderRadius: "5px" }}
-                  id="submitNowButton"
-                  type="submit"
-                  variant="contained"
-                >
-                  Submit Now
-                </Button>
-              ) : (
-                <form
-                  onSubmit={handleSubmit}
-                  action="https://secure.payu.in/_payment"
-                  method="post"
-                >
-                  {/* Your existing input fields... */}
-                  <Button
-                    sx={{ borderRadius: "5px" }}
-                    id="payButton"
-                    type="submit"
-                    variant="contained"
-                  >
-                    Pay
-                  </Button>
-                </form>
-              )}
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-    </>
-  );
+  handleClose = () => {
+    this.setState({ open: false });
+  };
+
+  render() {
+    const { open } = this.state;
+
+    return (
+      <div>
+        <Button onClick={this.handleOpen}>Open modal</Button>
+        <Modal
+          keepMounted
+          open={open}
+          onClose={this.handleClose}
+          aria-labelledby="keep-mounted-modal-title"
+          aria-describedby="keep-mounted-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="keep-mounted-modal-title" variant="h6" component="h2">
+              Text in a modal
+            </Typography>
+            <Typography id="keep-mounted-modal-description" sx={{ mt: 2 }}>
+              Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+            </Typography>
+          </Box>
+        </Modal>
+      </div>
+    );
+  }
 }
 
-export default Payumoney;
+export default KeepMountedModal;
+
