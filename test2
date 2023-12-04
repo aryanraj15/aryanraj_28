@@ -1,193 +1,39 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import {
-  Button,
-  Card,
-  CardContent,
-  Grid,
-  Typography,
-} from "@mui/material";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import Checkbox from "@mui/material/Checkbox";
+import React from 'react';
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import Typography from '@mui/material/Typography';
 
-function Payumoney(props) {
-  const {
-    applicationnum,
-    mobilenumber,
-    username,
-    totalpayamount,
-    applicationid,
-  } = props;
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
-  const [paymentdetails, setpaymentdetails] = useState({});
-  const [checkboxChecked, setCheckboxChecked] = useState(false);
-  const [isAmountZero, setIsAmountZero] = useState(false);
-
-  useEffect(() => {
-    if (totalpayamount === 0) {
-      setIsAmountZero(true);
-    } else {
-      setIsAmountZero(false);
-    }
-  }, [totalpayamount]);
-
-  const handleCheckboxChange = () => {
-    setCheckboxChecked(!checkboxChecked);
-  };
-
-  const handleSubmitClick = () => {
-    alert("Hello");
-    // You can perform any other actions on form submission here
-  };
-
-  const handlePayClick = () => {
-    // Implement your logic for handling the "Pay" button click
-    // You may want to redirect to the payment gateway or perform other actions
-    console.log("Pay button clicked");
-  };
-
-  const getpaymentinitiate = async () => {
-    try {
-      const body = {
-        firstName: username,
-        email: "vigneshsurela@gmail.com",
-        applicantNo: applicationnum,
-      };
-
-      const res = await axios.post(
-        `${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/initiate`,
-        body
-      );
-
-      if (res.data.statusCode === 200) {
-        const { txnId, hash, amount } = res.data.result;
-        setpaymentdetails({ txnId, hash, amount });
-      } else {
-        console.error("Error in save API:", res.data.message);
-      }
-    } catch (error) {
-      console.error("Error in save API:", error);
-    }
-  };
-
-  useEffect(() => {
-    getpaymentinitiate();
-  }, []);
-
+const MyModal = ({ open, handleClose }) => {
   return (
-    <>
-      <Card sx={{ borderRadius: 5, boxShadow: 4, margin: 1, maxWidth: "auto" }}>
-        <CardContent>
-          <Grid container margin={3}>
-            <Grid item textAlign={"center"}>
-              <Typography fontWeight={"bold"} fontSize={16}>
-                Payment Redirection Page
-              </Typography>
-            </Grid>
-            <Grid container display={"flex"} spacing={2} marginTop={3}>
-              <Grid item md={6} sm={6} textAlign={"end"}>
-                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
-                  Application Number :
-                </Typography>
-              </Grid>
-              <Grid item md={6} sm={6} justifyItems={"start"}>
-                <Typography marginLeft={2} fontSize={16}>
-                  {applicationnum}
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container display={"flex"} spacing={2}>
-              <Grid item md={6} sm={6} textAlign={"end"}>
-                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
-                  Name :
-                </Typography>
-              </Grid>
-              <Grid item md={6} sm={6} justifyItems={"start"}>
-                <Typography marginLeft={2} fontSize={16}>
-                  {username}
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container display={"flex"} spacing={2}>
-              <Grid item md={6} sm={6} textAlign={"end"}>
-                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
-                  Amount :
-                </Typography>
-              </Grid>
-              <Grid item md={6} sm={6} justifyItems={"start"}>
-                <Typography marginLeft={2} fontSize={16}>
-                  {paymentdetails.amount}
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container display={"flex"} spacing={2}>
-              <Grid item md={6} sm={6} textAlign={"end"}>
-                <Typography fontWeight={"bold"} fontSize={16} color={"blue"}>
-                  Mobile Number :
-                </Typography>
-              </Grid>
-              <Grid item md={6} sm={6} justifyItems={"start"} s>
-                <Typography marginLeft={2} fontSize={16}>
-                  {mobilenumber}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Grid>
-          <form
-            onSubmit={isAmountZero ? handleSubmitClick : handlePayClick}
-            action={isAmountZero ? undefined : "https://secure.payu.in/_payment"}
-            method="post"
-          >
-            <input type="hidden" name="key" value={"CpXw8g"} />
-            <input type="hidden" name="txnid" value={paymentdetails.txnId} />
-            <input type="hidden" name="productinfo" value="test" />
-            <input type="hidden" name="amount" value={paymentdetails.amount} />
-            <input type="hidden" name="email" value="vigneshsurela@gmail.com" />
-            <input type="hidden" name="firstname" value={username} />
-            <input type="hidden" name="lastname" value={username} />
-            <input
-              type="hidden"
-              name="surl"
-              value={`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/getfeedback`}
-            />
-            <input
-              type="hidden"
-              name="furl"
-              value={`${process.env.REACT_APP_JOBAPPLICATION_API_URL}/payment/getfeedback`}
-            />
-            <input type="hidden" name="phonenumber" value={mobilenumber} />
-            <input type="hidden" name="hash" value={paymentdetails.hash} />
-
-            <Button
-              sx={{ borderRadius: "5px" }}
-              id="button"
-              type="submit"
-              variant="contained"
-              disabled={isAmountZero ? false : !checkboxChecked}
-            >
-              {isAmountZero ? "Submit" : "Pay"}
-            </Button>
-          </form>
-          <Grid item display={"flex"} justifyContent={"center"} marginTop={2}>
-            <FormControl component="fieldset">
-              <FormControlLabel
-                value="end"
-                control={
-                  <Checkbox
-                    checked={checkboxChecked}
-                    onChange={handleCheckboxChange}
-                  />
-                }
-                label="I hereby agree that all the information provided above are true to my knowledge."
-                labelPlacement="end"
-              />
-            </FormControl>
-          </Grid>
-        </CardContent>
-      </Card>
-    </>
+    <Modal
+      keepMounted
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="keep-mounted-modal-title"
+      aria-describedby="keep-mounted-modal-description"
+    >
+      <Box sx={style}>
+        <Typography id="keep-mounted-modal-title" variant="h6" component="h2">
+          Text in a modal
+        </Typography>
+        <Typography id="keep-mounted-modal-description" sx={{ mt: 2 }}>
+          Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+        </Typography>
+      </Box>
+    </Modal>
   );
-}
+};
 
-export default Payumoney;
+export default MyModal;
