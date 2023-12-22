@@ -1,26 +1,5 @@
-// PageComponent.js
-import React, { useEffect, useState } from 'react';
-import ScrollDialog from './ScrollDialog'; // Replace with the correct path to your ScrollDialog component
-
-function PageComponent() {
-  const [showDialog, setShowDialog] = useState(false);
-
-  useEffect(() => {
-    // Open the dialog when the component mounts
-    setShowDialog(true);
-
-    // Cleanup: Close the dialog when the component unmounts
-    return () => {
-      setShowDialog(false);
-    };
-  }, []);
-
-  return (
-    <div>
-      <h1>Your Page Content Here</h1>
-      {showDialog && <ScrollDialog />}
-    </div>
-  );
-}
-
-export default PageComponent;
+const validationSchema = Yup.object().shape({
+  accountNumber: Yup.string()
+    .matches(/^[0-9]{9,18}$/, 'Invalid account number')
+    .required('Account number is required'),
+});
