@@ -1,39 +1,70 @@
-import React from 'react';
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-import Typography from '@mui/material/Typography';
+import axios, { AxiosHeaders } from "axios";
+import Cookies from "js-cookie";
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
+export const getOrganizations = () => {
+  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/organization`,{
+    headers:{
+        Authorization: `Bearer ${Cookies.get("token")}`
+    }
+});
 };
 
-const MyModal = ({ open, handleClose }) => {
-  return (
-    <Modal
-      keepMounted
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="keep-mounted-modal-title"
-      aria-describedby="keep-mounted-modal-description"
-    >
-      <Box sx={style}>
-        <Typography id="keep-mounted-modal-title" variant="h6" component="h2">
-          Text in a modal
-        </Typography>
-        <Typography id="keep-mounted-modal-description" sx={{ mt: 2 }}>
-          Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-        </Typography>
-      </Box>
-    </Modal>
+export const getDropdowns = () => {
+  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/initiate-dropdown`,{
+    headers:{
+        Authorization: `Bearer ${Cookies.get("token")}`
+    }
+});
+};
+
+export const getRegularOrIncharge = () => {
+  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/regularOrIncharge`,{
+    headers:{
+        Authorization: `Bearer ${Cookies.get("token")}`
+    }
+});
+};
+
+export const getSchemeList = () => {
+  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getSchemeList`,{
+    headers:{
+        Authorization: `Bearer ${Cookies.get("token")}`
+    }
+});
+};
+
+export const getExperienceDetails = () => {
+  return axios.get(
+    `${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/experienceDetails/${localStorage.getItem(
+      "userId"
+    )}`,{
+      headers:{
+          Authorization: `Bearer ${Cookies.get("token")}`
+      }
+  }
   );
 };
 
-export default MyModal;
+export const AddExperienceData = (body) => {
+  return axios.post(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/experienceDetails`, body,{
+    headers:{
+        Authorization: `Bearer ${Cookies.get("token")}`
+    }
+});
+};
+
+export const GetActionsButtons = () => {
+  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/admin-actions`,{
+    headers:{
+        Authorization: `Bearer ${Cookies.get("token")}`
+    }
+});
+};
+
+export const SaveDYAdminAction = (body) => {
+  return axios.post(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/admin-action-response`, body,{
+    headers:{
+        Authorization: `Bearer ${Cookies.get("token")}`
+    }
+});
+};
