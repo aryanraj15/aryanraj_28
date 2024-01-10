@@ -1,5 +1,114 @@
-const validationSchema = Yup.object().shape({
-  accountNumber: Yup.string()
-    .matches(/^[0-9]{9,18}$/, 'Invalid account number')
-    .required('Account number is required'),
-});
+import { Box, Grid, TextField, Typography, Stack, Button } from "@mui/material";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import DownloadButton from "./DownloadButton";
+import Cookies from "js-cookie";
+import {
+  GetActionsButtons,
+  SaveDYAdminAction,
+} from "../../services/employee.services";
+
+const Action = ({ onButtonClick, userId, empdetailId }) => {
+  const [remarks, setRemarks] = useState("");
+  const [clicked, setClicked] = useState(false);
+  const [buttonArr, setButtonArr] = useState([]);
+  const remarksMaxLength = 300;
+
+  const getActionButton = async () => {
+    try {
+      let res = await GetActionsButtons();
+      console.log("res", res.data.result);
+      setButtonArr(res.data.result);
+    } catch (error) {
+      console.error("Error fetching action buttons:", error.message);
+    }
+  };
+
+  const handleSave = async (id) => {
+    try {
+      let res = await SaveDYAdminAction([
+        {
+          empDtlId: empdetailId,
+          actionId: id,
+        },
+      ]);
+
+      const apiResponse = res.data;
+
+      if (apiResponse.status && apiResponse.result && apiResponse.result.length > 0) {
+        const stepDesc = apiResponse.result[0].stepDesc;
+        alert(`Action successful!\n${stepDesc}`);
+      } else {
+        alert("Action successful, but stepDesc not available in the API response.");
+      }
+
+      console.log("API Response:", apiResponse);
+    } catch (error) {
+      console.error("Error:", error.message);
+      alert("An error occurred while performing the action. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    getActionButton();
+  }, []);
+
+  return (
+    <>
+      <Box sx={{ padding: "0px 60px", my: 5 }}>
+        <Grid
+          container
+          direction="row"
+          rowSpacing={0}
+          columnSpacing={2}
+          justify="flex-end"
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <TextField
+            required
+            margin="dense"
+            id="remarks"
+            label="Remarks"
+            fullWidth
+            value={remarks}
+            onChange={(e) => {
+              setRemarks(e.target.value);
+              console.log("Remarks:", e.target.value);
+            }}
+            multiline
+            rows={4}
+            inputProps={{ maxLength: remarksMaxLength }}
+            helperText={
+              clicked && remarks.length === 0 ? (
+                <Typography sx={{ fontWeight: "bold" }}>
+                  Remarks are mandatory
+                </Typography>
+              ) : remarks.length >= remarksMaxLength - 150 ? (
+                `${remarksMaxLength - remarks.length} characters remaining`
+              ) : null
+            }
+          />
+          <Stack direction="row" spacing={2} justifyContent="center">
+            {buttonArr.map((item) => (
+              <Button
+                key={item.id}
+                onClick={() => {
+                  setClicked(true);
+                  if (remarks.length >= 1) {
+                    handleSave(item.id);
+                  }
+                }}
+                variant="contained"
+              >
+                {item?.label}
+              </Button>
+            ))}
+          </Stack>
+        </Grid>
+      </Box>
+    </>
+  );
+};
+
+export default Action;
