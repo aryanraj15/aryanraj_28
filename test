@@ -1,110 +1,39 @@
-import { Box, Grid, TextField, Typography, Stack, Button } from "@mui/material";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import DownloadButton from "./DownloadButton";
-import Cookies from "js-cookie";
-import {
-  GetActionsButtons,
-  SaveDYAdminAction,
-} from "../../services/employee.services";
+https://uat.ysraarogyasri.ap.gov.in/usermanagementapi/employee-enrollment/emp-code-dropdown
+ 
+Response:
+{
+    "status": true,
+    "message": "Employee Codes fetched successfully!",
+    "result": [
+        "EMP215616",
+        "EMP214134",
+        "EMp123",
+        "EMP12334"
+    ],
+    "statusCode": 200
+}
 
-const Action = ({ onButtonClick, userId, empdetailId }) => {
 
-  const [remarks, setRemarks] = useState("");
-  const [clicked, setClicked] = useState(false);
-  const [buttonArr, setButtonArr] = useState([]);
-  const remarksMaxLength = 300;
 
-  const getActionButton = async () => {
-    let res = await GetActionsButtons();
-    console.log("res", res.data.result);
-    setButtonArr(res.data.result);
-  };
 
-  const handleSave = async (id) => {
-    let res = await SaveDYAdminAction([
-      {
-        empDtlId: empdetailId,
-        actionId: id,
-      },
-    ]);
-     console.log("res", res.data.result);
-  };
 
-  useEffect(() => {
-    getActionButton();
-  }, []);
-  return (
-    <>
-      <Box sx={{ padding: "0px 60px", my: 5 }}>
-        <Grid
-          container
-          direction="row"
-          rowSpacing={0}
-          columnSpacing={2}
-          justify="flex-end"
-          alignItems="center"
-          sx={{ mb: 2 }}
-        >
-          <TextField
-            required
-            margin="dense"
-            id="remarks"
-            label="Remarks"
-            fullWidth
-            //variant="standard"
-            value={remarks}
-            onChange={(e) => {
-              setRemarks(e.target.value);
-              console.log("Remarks:", e.target.value);
-            }}
-            multiline
-            rows={4}
-            inputProps={{ maxLength: remarksMaxLength }}
-            helperText={
-              clicked && remarks.length === 0 ? (
-                <Typography sx={{ fontWeight: "bold" }}>
-                  Remarks are mandatory
-                </Typography>
-              ) : remarks.length >= remarksMaxLength - 150 ? (
-                `${remarksMaxLength - remarks.length} characters remaining`
-              ) : null
-            }
-          />
-          <Stack direction="row" spacing={2} justifyContent="center">
-            {buttonArr.map((item) => {
-              return (
-                <>
-                  <Button
-                    onClick={() => {
-                      setClicked(true);
-                      if (remarks.length >= 1) {
-                        handleSave(item.id);
-                      }
-                    }}
-                    variant="contained"
-                  >
-                    {item?.label}
-                  </Button>
-                </>
-              );
-            })}
 
-            {/* <Button
-              onClick={() => {
-                setClicked(true);
-                if (remarks.length >= 1) {
-                  // handleAction(true);
+
+ axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/emp-code-dropdown`, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`
                 }
-              }}
-              variant="contained"
-            >
-              Approve
-            </Button> */}
-          </Stack>
-        </Grid>
-      </Box>
-    </>
-  );
-};
-export default Action;
+            }).then(response => {
+                let sortedEmpCode = response.data.result.map((value) => {
+                    value = value
+                    return value;
+    
+                })
+                console.log(sortedEmpCode);
+                setPosts(sortedEmpCode)
+    
+            })
+                .catch(error => {
+                    setPosts([]);
+                    console.log(error);
+                });
