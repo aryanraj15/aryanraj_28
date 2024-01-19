@@ -37,3 +37,41 @@ Response:
                     setPosts([]);
                     console.log(error);
                 });
+
+
+
+
+
+
+
+<Grid item xs={12} sm={4} md={3} lg={2.4}>
+                                <Autocomplete
+                                    size="small"
+                                    fullWidth
+                                    id="post"
+                                    options={posts}
+                                    value={
+                                        posts.find((option) => option.id === formik.values.post) ||
+                                        null
+                                    }
+                                    onChange={(e, value) => {
+                                        formik.setFieldValue("post", value?.id ?? null);
+                                    }}
+                                    getOptionLabel={(value) => value.label}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Employee Code"
+                                            name="post"
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                inputProps: {
+                                                    ...params.inputProps,
+                                                    maxLength: 50,
+                                                },
+                                            }}
+
+                                        />
+                                    )}
+                                />
+                            </Grid>
