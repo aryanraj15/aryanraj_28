@@ -1,70 +1,63 @@
-import axios, { AxiosHeaders } from "axios";
-import Cookies from "js-cookie";
+<Grid item xs={12} sm={4} md={3} lg={2.4}>
+    <Autocomplete
+        size="small"
+        fullWidth
+        id="employeeCode"  // Change the ID to a more appropriate one
+        options={posts}  // Assuming `posts` is the array of employee codes from the API response
+        value={formik.values.post}  // Assuming `post` is the field in your formik values
+        onChange={(e, value) => {
+            formik.setFieldValue("post", value ?? null);
+        }}
+        getOptionLabel={(value) => value}  // Assuming employee codes are strings
+        renderInput={(params) => (
+            <TextField
+                {...params}
+                label="Employee Code"
+                name="post"
+                InputProps={{
+                    ...params.InputProps,
+                    inputProps: {
+                        ...params.inputProps,
+                        maxLength: 50,
+                    },
+                }}
+            />
+        )}
+    />
+</Grid>
 
-export const getOrganizations = () => {
-  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/organization`,{
-    headers:{
+
+
+
+
+
+
+
+axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/emp-code-dropdown`, {
+    headers: {
         Authorization: `Bearer ${Cookies.get("token")}`
     }
-});
-};
+})
+    .then(response => {
+        // Check if the API response has the expected structure
+        if (response.data && response.data.status === true && response.data.result) {
+            // Assuming the result is an array of employee codes
+            const employeeCodes = response.data.result;
 
-export const getDropdowns = () => {
-  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/initiate-dropdown`,{
-    headers:{
-        Authorization: `Bearer ${Cookies.get("token")}`
-    }
-});
-};
+            // Log the retrieved employee codes
+            console.log("Employee Codes:", employeeCodes);
 
-export const getRegularOrIncharge = () => {
-  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/regularOrIncharge`,{
-    headers:{
-        Authorization: `Bearer ${Cookies.get("token")}`
-    }
-});
-};
+            // Set the employee codes in the state
+            setPosts(employeeCodes);
+        } else {
+            // Log an error if the response structure is unexpected
+            console.error("Unexpected API response structure:", response.data);
+            setPosts([]);
+        }
+    })
+    .catch(error => {
+        // Log the error and setPosts to an empty array
+        console.error("API Error:", error);
+        setPosts([]);
+    });
 
-export const getSchemeList = () => {
-  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/user/getSchemeList`,{
-    headers:{
-        Authorization: `Bearer ${Cookies.get("token")}`
-    }
-});
-};
-
-export const getExperienceDetails = () => {
-  return axios.get(
-    `${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/experienceDetails/${localStorage.getItem(
-      "userId"
-    )}`,{
-      headers:{
-          Authorization: `Bearer ${Cookies.get("token")}`
-      }
-  }
-  );
-};
-
-export const AddExperienceData = (body) => {
-  return axios.post(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/experienceDetails`, body,{
-    headers:{
-        Authorization: `Bearer ${Cookies.get("token")}`
-    }
-});
-};
-
-export const GetActionsButtons = () => {
-  return axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/admin-actions`,{
-    headers:{
-        Authorization: `Bearer ${Cookies.get("token")}`
-    }
-});
-};
-
-export const SaveDYAdminAction = (body) => {
-  return axios.post(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/admin-action-response`, body,{
-    headers:{
-        Authorization: `Bearer ${Cookies.get("token")}`
-    }
-});
-};
