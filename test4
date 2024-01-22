@@ -42,10 +42,14 @@ const handleFetchApplicants = async (values, reset) => {
             } else {
                 showSnackbar("Data fetched successfully", "success");
             }
-        } else {
-            // Handle the case when no data is found
+        } else if (response.data.statusCode === 404) {
+            // Handle the case when the status code is 404 (No data found)
             setRows([]);
             showSnackbar("No data found", "info");
+        } else {
+            // Handle other cases
+            setRows([]);
+            showSnackbar("An error occurred", "error");
         }
     } catch (error) {
         console.error("An error occurred:", error);
@@ -54,3 +58,4 @@ const handleFetchApplicants = async (values, reset) => {
         showSnackbar("Oops, something went wrong", "error");
     }
 };
+
