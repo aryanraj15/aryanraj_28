@@ -1,22 +1,65 @@
-https://uat.ysraarogyasri.ap.gov.in/usermanagementapi/employee-enrollment/admin-action-response
-
-[
-    {
-        "empDtlId":16,
-        "actionId":1
-    }
-]
-
 {
-    "status": true,
-    "message": "Enrollment Status updated successfully for provided forms!",
-    "result": [
-        {
-            "stepDesc": "DyEO Admin approved. At JEO Admin for approval.",
-            "stepId": 28,
-            "empDtlId": 16
-        }
-    ],
-    "statusCode": 200
+    "data": {
+        "status": true,
+        "message": "User Details Fetched Successfully!",
+        "result": [
+            {
+                "username": "Ram",
+                "loginName": "adminuser",
+                "dob": "2001-01-09",
+                "emailId": "admin1@gmail.com",
+                "empCode": "EMP11116",
+                "enrollmentStatus": "At DyEO Admin for approval."
+            },
+            {
+                "username": "chirag",
+                "loginName": "chirag",
+                "dob": "2001-01-01",
+                "emailId": "chirag@gmail.com",
+                "empCode": "EMp123",
+                "enrollmentStatus": "JEO Admin sent back the form to the employee."
+            }
+        ],
+        "statusCode": 200
+    },
+    "status": 200,
+    "statusText": "",
+    "headers": {
+        "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+        "content-type": "application/json",
+        "expires": "0",
+        "pragma": "no-cache"
+    },
+    "config": {
+        "transitional": {
+            "silentJSONParsing": true,
+            "forcedJSONParsing": true,
+            "clarifyTimeoutError": false
+        },
+        "adapter": [
+            "xhr",
+            "http"
+        ],
+        "transformRequest": [
+            null
+        ],
+        "transformResponse": [
+            null
+        ],
+        "timeout": 0,
+        "xsrfCookieName": "XSRF-TOKEN",
+        "xsrfHeaderName": "X-XSRF-TOKEN",
+        "maxContentLength": -1,
+        "maxBodyLength": -1,
+        "env": {},
+        "headers": {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoxLCJzdWIiOiJkeWVvYWRtaW51c2VyIiwiaWF0IjoxNzA1OTA0MTQwLCJleHAiOjE3MDU5MDc3NDB9.bW8Meuji8Vg6B-XHPqP3ZN0ry39GtXN3GSVlS71CjB6PTmCTDx8ad1Uw9sJATZvtj3TXVSf1Ik7123l-k-lc1Q"
+        },
+        "method": "post",
+        "url": "https://uat.ysraarogyasri.ap.gov.in/usermanagementapi/employee-enrollment/user-details-admin",
+        "data": "{\"loginName\":\"\",\"userName\":\"\",\"empCode\":null,\"enrollmentStatusId\":null}"
+    },
+    "request": {}
 }
-
