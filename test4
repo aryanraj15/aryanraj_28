@@ -1,114 +1,56 @@
-import { Box, Grid, TextField, Typography, Stack, Button } from "@mui/material";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import DownloadButton from "./DownloadButton";
-import Cookies from "js-cookie";
-import {
-  GetActionsButtons,
-  SaveDYAdminAction,
-} from "../../services/employee.services";
-
-const Action = ({ onButtonClick, userId, empdetailId }) => {
-  const [remarks, setRemarks] = useState("");
-  const [clicked, setClicked] = useState(false);
-  const [buttonArr, setButtonArr] = useState([]);
-  const remarksMaxLength = 300;
-
-  const getActionButton = async () => {
+const handleFetchApplicants = async (values, reset) => {
+    setLoading(true);
     try {
-      let res = await GetActionsButtons();
-      console.log("res", res.data.result);
-      setButtonArr(res.data.result);
-    } catch (error) {
-      console.error("Error fetching action buttons:", error.message);
-    }
-  };
+        console.log("Fetching applicants details for:", values);
+        const payload = {
+            loginName: values.loginName,
+            userName: values.userName,
+            empCode: values.empCode,
+            enrollmentStatusId: values.enrollmentStatus,
+        };
+        console.log("Payload for fetching applicants:", payload);
 
-  const handleSave = async (id) => {
-    try {
-      let res = await SaveDYAdminAction([
-        {
-          empDtlId: empdetailId,
-          actionId: id,
-        },
-      ]);
-
-      const apiResponse = res.data;
-
-      if (apiResponse.status && apiResponse.result && apiResponse.result.length > 0) {
-        const stepDesc = apiResponse.result[0].stepDesc;
-        alert(`Action successful!\n${stepDesc}`);
-      } else {
-        alert("Action successful, but stepDesc not available in the API response.");
-      }
-
-      console.log("API Response:", apiResponse);
-    } catch (error) {
-      console.error("Error:", error.message);
-      alert("An error occurred while performing the action. Please try again.");
-    }
-  };
-
-  useEffect(() => {
-    getActionButton();
-  }, []);
-
-  return (
-    <>
-      <Box sx={{ padding: "0px 60px", my: 5 }}>
-        <Grid
-          container
-          direction="row"
-          rowSpacing={0}
-          columnSpacing={2}
-          justify="flex-end"
-          alignItems="center"
-          sx={{ mb: 2 }}
-        >
-          <TextField
-            required
-            margin="dense"
-            id="remarks"
-            label="Remarks"
-            fullWidth
-            value={remarks}
-            onChange={(e) => {
-              setRemarks(e.target.value);
-              console.log("Remarks:", e.target.value);
-            }}
-            multiline
-            rows={4}
-            inputProps={{ maxLength: remarksMaxLength }}
-            helperText={
-              clicked && remarks.length === 0 ? (
-                <Typography sx={{ fontWeight: "bold" }}>
-                  Remarks are mandatory
-                </Typography>
-              ) : remarks.length >= remarksMaxLength - 150 ? (
-                `${remarksMaxLength - remarks.length} characters remaining`
-              ) : null
+        const response = await axios.post(
+            `${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/user-details-admin`,
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`,
+                },
             }
-          />
-          <Stack direction="row" spacing={2} justifyContent="center">
-            {buttonArr.map((item) => (
-              <Button
-                key={item.id}
-                onClick={() => {
-                  setClicked(true);
-                  if (remarks.length >= 1) {
-                    handleSave(item.id);
-                  }
-                }}
-                variant="contained"
-              >
-                {item?.label}
-              </Button>
-            ))}
-          </Stack>
-        </Grid>
-      </Box>
-    </>
-  );
-};
+        );
 
-export default Action;
+        setLoading(false);
+
+        if (response.data.status && response.data.result.length > 0) {
+            setRows(
+                response.data.result.map((item, index) =>
+                    createData(
+                        index + 1,
+                        item.loginName,
+                        item.username,
+                        item.enrollmentStatus,
+                        item.dob,
+                        item.empCode,
+                        item.emailId
+                    )
+                )
+            );
+
+            if (reset) {
+                showSnackbar("Reset successful", "info");
+            } else {
+                showSnackbar("Data fetched successfully", "success");
+            }
+        } else {
+            // Handle the case when no data is found
+            setRows([]);
+            showSnackbar("No data found", "info");
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+        setRows([]);
+        setLoading(false);
+        showSnackbar("Oops, something went wrong", "error");
+    }
+};
