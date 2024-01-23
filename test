@@ -1,77 +1,25 @@
-https://uat.ysraarogyasri.ap.gov.in/usermanagementapi/employee-enrollment/emp-code-dropdown
- 
-Response:
-{
-    "status": true,
-    "message": "Employee Codes fetched successfully!",
-    "result": [
-        "EMP215616",
-        "EMP214134",
-        "EMp123",
-        "EMP12334"
-    ],
-    "statusCode": 200
+import * as React from 'react';
+import TextField from '@mui/material/TextField';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import TimePicker from '@mui/lab/TimePicker';
+
+export default function BasicTimePicker() {
+  const [selectedTime, setSelectedTime] = React.useState(new Date());
+
+  const handleTimeChange = (newTime) => {
+    setSelectedTime(newTime);
+  };
+
+  return (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <TimePicker
+        label="Select Time"
+        value={selectedTime}
+        onChange={handleTimeChange}
+        renderInput={(params) => <TextField {...params} />}
+      />
+    </LocalizationProvider>
+  );
 }
 
-
-
-
-
-
-
- axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/emp-code-dropdown`, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            }).then(response => {
-                let sortedEmpCode = response.data.result.map((value) => {
-                    value = value
-                    return value;
-    
-                })
-                console.log(sortedEmpCode);
-                setPosts(sortedEmpCode)
-    
-            })
-                .catch(error => {
-                    setPosts([]);
-                    console.log(error);
-                });
-
-
-
-
-
-
-
-<Grid item xs={12} sm={4} md={3} lg={2.4}>
-                                <Autocomplete
-                                    size="small"
-                                    fullWidth
-                                    id="post"
-                                    options={posts}
-                                    value={
-                                        posts.find((option) => option.id === formik.values.post) ||
-                                        null
-                                    }
-                                    onChange={(e, value) => {
-                                        formik.setFieldValue("post", value?.id ?? null);
-                                    }}
-                                    getOptionLabel={(value) => value.label}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Employee Code"
-                                            name="post"
-                                            InputProps={{
-                                                ...params.InputProps,
-                                                inputProps: {
-                                                    ...params.inputProps,
-                                                    maxLength: 50,
-                                                },
-                                            }}
-
-                                        />
-                                    )}
-                                />
-                            </Grid>
