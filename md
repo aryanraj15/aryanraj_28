@@ -1,291 +1,122 @@
-import React, { useEffect, useState } from 'react'
-import { useParams ,useLocation,Link} from 'react-router-dom'
-import { allDistrictList } from 'services/dashboardService';
-import { useSelector ,useDispatch} from 'react-redux';
-import {loader} from "redux/type";
-import {Box,Breadcrumbs} from "@mui/material"
-import { dashboard } from 'redux/type';
-import DataTable from 'react-data-table-component';
-import DeptVsDBTBenAnalytics from '../dashboard/charts/DeptVsDBTBenAnalytics';
-import DeptVsDBTageWise from '../dashboard/charts/DeptVsDBTAgeWise';
-import DeptVsDBTCommunity from '../dashboard/charts/DeptVsDBTCommunity';
-import DeptVsDBTGenderDist from '../dashboard/charts/DeptVsDBTGenderDist';
-import RangeWiseSchemeData from '../dashboard/charts/RangeWiseSchemeData';
-const District=()=>{
- 
-    let [dbtTotal,setDbt]=useState(0);
-    let [benTotal,setBen]=useState(0);
-    let [deptTotal,setDept]=useState(0);
-    const [data, setData] = useState([]);
-    let rows=[];
-  let columns=[
-    // {
-    //   name:"S.no",
-    //   selector:row=>row.sno,
-    //   width:'10%',
-    //   center:true,
-    //   sortable: false,
-     
-    // },
-    {
-      name: 'District',
-      selector:row=>row.district,
-      width:'15%',
-      left:true,
-      // Cell: ({ row }) => (
-      //       <Link to="/scheme" >{row.department}</Link>)
-     
-    },
-    {
-      name:'Beneficiaries',
-      selector:row=>row.benificary,
-      sortable: true,
-      right:'true',
-      width:'13%'
-    },
-    {
-      name: 'Amount Disbursed(Cr)',
-      selector:row=>row.amount,
-      sortable: true,
-      right:'true',
-      width:'20%'
-    },
-    {
-      name:'Aadhaar Share Of Transactions(%)',
-      selector:row=>row.transaction,
-      sortable: true,
-      right:'true'
-    },
-    {
-      name:'Aadhaar Share Of DBT Amount(%)',
-      selector:row=>row.dbtTransaction,
-      sortable: true,
-      right:'true'
-    }
- 
-  ]
-   
- 
-    const fyear = useSelector((state)=>state.dashboard.fy)
-  const [fy, setFy] = useState(fyear);
-  const setFinancialYear = (fy) => {
-    setFy(fy);
-    dispatch({ type: dashboard.fy, payload: fy });
-  }
-    const schemeId=useLocation().state.schemeId;
-    const schemeName=useLocation().state.schemeName;
-    const deptId=useLocation().state.deptId;
-    const [districtList,setDistrictList]=useState([])
-    const dispatch = useDispatch();
- 
-    useEffect(()=>{
-        districtListApi();
-        },[fy,schemeId]);
- 
-        const analyticData={
-          from:'district',
-          id:schemeId,
-        };
-        const rangeData={
-          id:schemeId
-        }
-    function districtListApi(){
-        dispatch({type: loader.startLoader});
-        allDistrictList(fy,schemeId,(res)=>{
-            if(res.status){
-                let dbtTemp=0;
-                let benTemp=0;
-                let temp=[];
-                temp=res.result;
-                setDept(res.result.length)
-                let i=0;
-                temp.forEach(element => {
-                    element.dbtValue=(Math.round(element.dbtValue*100)/100)
-                    dbtTemp+=element.dbtValue;
-                     benTemp+=element.benCount;
-                     rows.push({'sno':i+1,'district':element.objectName,'benificary':element.benCount,'amount':element.dbtValue,'transaction':element.percentAadhaarTransaction,'dbtTransaction':element.percentAadhaarTransactionAmount})
-                     i++;
-                });
-                setDistrictList(res.result);
-                setBen(benTemp);
-                setDbt(dbtTemp);
-                console.log("hbjhbb",res.result)
-                rows.push({'district':<b>Total</b>,'benificary':<b>{benTemp}</b>,'amount':<b>{Math.round(dbtTemp * 100) / 100}</b>})
-                setData(rows)
-            }
-            dispatch({ type: loader.stopLoader });
-        })
-    }
-    const customStyle={
-      headCells:{
-        style:{
-          fontWeight:'bold',
-         
-        }
-      },
-    }
-   
-    return(
+import React, { useState } from 'react';
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Card, CardContent } from "@mui/material";
+import Modal from "@mui/material/Modal";
+import Typography from "@mui/material/Typography";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import useTitle from '../../../hooks/useTitle';
+import { useNavigate } from 'react-router-dom';
+import { H3 } from '../../../components/Typography';
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 300,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
+const BoardRoomBooking = () => {
+  const [openModal, setOpenModal] = useState(false);
+  const [formData, setFormData] = useState({
+    conferenceType: '',
+    date: null,
+    startTime: '',
+    endTime: '',
+    participants: '',
+    purpose: '',
+  });
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const valuesMeeting = [
+    { id: 1, label: "Board Room Booking" },
+    { id: 2, label: "Conference Room Booking" },
+  ];
+
+  const navigate = useNavigate();
+
+  const handleRedirect = () => {
+    // Open the modal before navigating
+    handleOpenModal();
+  };
+
+  const handleConfirmSubmit = () => {
+    // You can handle form submission logic here
+    // For now, let's just close the modal
+    handleCloseModal();
+    // Simulate a delay (you can customize this)
+    setTimeout(() => {
+      navigate('/viewboardroombookings');
+    }, 2000);
+  };
+
+  const title = "Board Room Booking";
+  useTitle(title);
+
+  return (
     <>
-    <div className="welcome-info"><b>List of District's</b></div>
-    <Box m={1}>
-      <Breadcrumbs aria-label='breadcrumb' separator='|' >
-      <Link to='/dashboard' underline='hover' style={{color:"cornflowerblue"}}>Dashboard</Link>
-      <Link to='/department' underline='hover' style={{color:"cornflowerblue"}}>Department</Link>
-      <Link to='/scheme' state={{deptId:deptId}} underline='hover' style={{color:"cornflowerblue"}}>Scheme</Link>
-      </Breadcrumbs>
-    </Box>
- 
-    <div className='select-bar'>
-            <span>Financial Year</span>
-            <div style={{ 'width': 260 }}>
-              <select name="fincialYear" className='form-select financial-select' value={fy} onChange={(e) => setFinancialYear(e.target.value)}>
-                <option value="-1">Select Financial Year</option>
-                <option value="2018">2017-2018</option>
-                <option value="2019">2018-2019</option>
-                <option value="2020">2019-2020</option>
-                <option value="2021">2020-2021</option>
-                <option value="2022">2021-2022</option>
-                <option value="2023">2022-2023</option>
-                <option value="2024">2023-2024</option>
-              </select>
- 
-            </div>
+      <Card>
+        <CardContent>
+          <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
+            <MeetingRoomIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+            <H3 sx={{ fontSize: "17px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Book a Board Room</H3>
           </div>
-    <div className="chart-box m-0" style={{'backgroundColor':'#F9FEFA'}}>
-              {/* <h3 className="sub_heading"><b>District Insights</b></h3> */}
-              <div className='card' style={{ background:'darkgreen',width:'100%',color:'white',marginTop:'-15px'}}><div style={{color:'white',fontSize:'20px'}}> {schemeName} <b>District Insights</b> For FY  {parseInt(fy)-1}-{fy}</div></div>
-              <div className="row" style={{justifyContent:'space-around'}}>
-              <div className="col-sm-3" style={{backgroundColor:'#E4FFD0'}}>
-            <div className="card cardEffect">  
-           
-                <div className="card-head"  >
-                     Districts
-                </div>
-                <div className="card-value" >
-                    {deptTotal.toLocaleString("en-IN")}
-                </div>
- 
-                <div className="card-icon">
-                    <i className="fa fa-building"></i>
-                </div>
-            </div>
- 
-           
-        </div>
-        <div className="col-sm-3" style={{backgroundColor:'#E4FFD0'}}>
-            <div className="card cardEffect">  
-           
-                <div className="card-head"  >
-                     Beneficiaries
-                </div>
-                <div className="card-value" >
-                    {benTotal.toLocaleString("en-IN")}
-                </div>
- 
-                <div className="card-icon">
-                    <i className="fa fa-user"></i>
-                </div>
-            </div>
- 
-           
-        </div>
-        <div className="col-sm-3" style={{backgroundColor:'#E4FFD0'}}>
-            <div className="card cardEffect">  
-           
-                <div className="card-head"  >
-                     Amount Disbursed
-                </div>
-                <div className="card-value" >
-                    {dbtTotal.toLocaleString("en-IN")} Cr
-                </div>
- 
-                <div className="card-icon">
-                    <i className="fa fa-inr"></i>
-                </div>
-            </div>
- 
-           
-        </div>
-      </div>
-      </div>
-      <div className="row dbt-insight" style={{ marginTop: '-20px' }}>
- 
-<div className="col-sm-12 top-design">
-  <div className="chart-box m-0" style={{ 'backgroundColor': '#F9FEFA' }}>
-    <div className='card' style={{ background: 'darkgreen', width: '100%', color: 'white', marginTop: '-20px', height: '50px' }}><div style={{ color: 'white', fontSize: '19px', textAlign: 'center' }}> <b>UDDP Analytics</b>  For FY  {parseInt(fy) - 1}-{fy}</div></div>
-    {/* <div className='card' style={{ background:'darkgreen',width:'100%',color:'white'}}><div style={{textAlign:'center'}} > <h3 ><b style={{color:'white',fontSize:'20px'}}>DBT Insights For FY  {fy}-{parseInt(fy)+1}</b></h3></div></div> */}
-    {/* <h3 className="sub_heading"><b>DBT Insights For FY  {fy}-{parseInt(fy)+1}</b></h3> */}
-    <div className="row">
- 
-    <DeptVsDBTBenAnalytics data={analyticData}/>
-      <div className="row">
-        <div className=" col-3">
- 
-          <DeptVsDBTageWise data={analyticData}/>
-          {/* <SchemeWiseDbtDist /> */}
-        </div>
-        <div className=" col-3">
-          <DeptVsDBTCommunity data={analyticData} />
- 
-          {/* <PerFamilyWiseDBT /> */}
-        </div>
-        <div className=" col-3">
-          <DeptVsDBTGenderDist data={analyticData} />
-        </div>
-        <div className=" col-3">
-          <RangeWiseSchemeData data={rangeData}/>
-        </div>
-      </div>
-     
-     
- 
-    </div>
-  </div>
-</div>
-</div>
-    <div className='card'>
- 
-    <DataTable
-        columns={columns}
-        data={data}
-        striped={true}
-        fixedHeader
-        pagination
-        dense
-        customStyles={customStyle}
-        />
-    {/* <table class="table table-bordered table-hover">
-      <thead >
-        <tr>
-          <th>S.no</th>
-          <th>District</th>
-          <th>No of Beneficiaries</th>
-          <th>Amount Disbursed(cr)</th>
-        </tr>
-      </thead>
-      <tbody>
-      {districtList.map((val, key) => {
-                    return (
-                        <tr key={key}>
-                            <td>{key+1}</td>
-                            <td style={{'fontWeight':'bold',textAlign:"left",underline:"hover"}}>{val.objectName}</td>
-                            <td style={{textAlign:"right"}}>{(val.benCount).toLocaleString("en-IN")}</td>
-                            <td style={{textAlign:"right"}}>{(val.dbtValue).toLocaleString("en-IN")}</td>
-                        </tr>
-                    )
-                   
-                })}
-        <tr>
-          <td></td>
-          <td style={{'fontWeight':'bold'}}>Total</td>
-          <td style={{textAlign:"right"}}>{benTotal.toLocaleString("en-IN")}</td>
-          <td style={{textAlign:"right"}}>{dbtTotal.toLocaleString("en-IN")}<sub>cr</sub></td>
-        </tr>
-      </tbody>
-    </table> */}
-    </div>
+          <Grid container spacing={2} direction="row" alignItems="center">
+            {/* ... (other form fields) */}
+          </Grid>
+          <Grid item xs={12} sm={12} md={12} lg={12} sx={{ width: '100%' }}>
+            <Button variant="contained" sx={{ float: 'right', borderRadius: '4px' }} onClick={handleRedirect}>
+              Submit
+            </Button>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Modal for Confirmation */}
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Are you sure you want to submit the form?
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-around', mt: 2 }}>
+            <Button variant="contained" onClick={handleCloseModal}>
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={handleConfirmSubmit}>
+              Okay
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </>
-    )
-}
-export default District
+  );
+};
+
+export default BoardRoomBooking;
