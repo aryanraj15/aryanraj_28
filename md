@@ -257,3 +257,40 @@ const ForgotPassword = () => {
 }
 
 export default ForgotPassword;
+
+
+
+
+
+
+
+POST (axios.post):
+URL:
+https://uat.ysraarogyasri.ap.gov.in/usermanagementapi/user/forget-password/sendotp/{username}
+ 
+Response:
+{
+    "status": true,
+    "message": "OTP Sent to registered Mobile No. - ",
+    "result": "XXXXXX340",
+    "statusCode": 200
+}
+ 
+PUT(axios.put):
+URL:
+https://uat.ysraarogyasri.ap.gov.in/usermanagementapi/user/forget-password/validateotp
+ 
+Payload:
+{
+    "username": "chirag",
+    "password": "abc123",
+    "otp": 123456
+}
+ 
+Response:
+{
+    "status": true,
+    "message": "Password Updated Successfully!",
+    "result": null,
+    "statusCode": 200
+}
