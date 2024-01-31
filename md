@@ -30,6 +30,9 @@ const ForgotPassword = () => {
     const [openToast, setOpenToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastSeverity, setToastSeverity] = useState("info");
+    const [showotherfield, setShowotherfields] = useState(false);
+    const [showusernamefield, setUsernamefields] = useState(true);
+    const [showsendotpButton, setSendopButton] = useState(true);
     const navigate = useNavigate();
     const title = "Forgot Password";
     useTitle(title);
@@ -41,17 +44,17 @@ const ForgotPassword = () => {
         userName: Yup.string().required("User Name is required"),
         currentPassword: Yup.string().required("Current Password is required").nullable(),
         newPassword: Yup.string().required("New Password is required"),
-        confirmPassword: Yup.string().required("Confirm Password is required"),
+        otp: Yup.string().required("Otp Password is required"),
 
 
     });
 
     const formik = useFormik({
         initialValues: {
-            userName: '',
+            userName: null,
             currentPassword: '',
             newPassword: '',
-            confirmPassword: '',
+            otp: '',
 
             // Add initial values for other fields
         },
@@ -62,8 +65,15 @@ const ForgotPassword = () => {
     });
 
     const handleRedirect = () => {
+
         callConfirmDialog();
     }
+    const handleOtpButton = () => {
+        setShowotherfields(true);
+        setUsernamefields(false);
+        setSendopButton(false);
+    }
+
 
     const callConfirmDialog = async () => {
         console.log('kp-confirm');
@@ -94,7 +104,7 @@ const ForgotPassword = () => {
                 userName: formik.values.userName,
                 currentPassword: formik.values.currentPassword,
                 newPassword: formik.values.newPassword,
-                confirmPassword: formik.values.confirmPassword,
+                otp: formik.values.otp,
 
 
             };
@@ -127,7 +137,7 @@ const ForgotPassword = () => {
     return (
         <>
 
-            <Box>
+            <Box >
                 <Grid
                     display="flex"
                     justifyContent="center"
@@ -148,104 +158,136 @@ const ForgotPassword = () => {
                                 direction="row"
                                 alignItems="center"
                             >
+                                {showusernamefield && (
+                                    <Grid item xs={12} sm={6} md={6} lg={12}>
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            id="userName"
+                                            label="User Name"
+                                            name="userName"
+                                            value={formik.values.userName || ""}
+                                            size="small"
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            error={
+                                                formik.touched.userName &&
+                                                Boolean(formik.errors.userName)
+                                            }
+                                            helperText={
+                                                formik.touched.userName &&
+                                                formik.errors.userName
+                                            }
 
-                                <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField
-                                        margin="normal"
-                                        required
-                                        fullWidth
-                                        id="userName"
-                                        label="User Name"
-                                        name="userName"
-                                        value={formik.values.userName || ""}
-                                        size="small"
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        error={
-                                            formik.touched.userName &&
-                                            Boolean(formik.errors.userName)
-                                        }
-                                        helperText={
-                                            formik.touched.userName &&
-                                            formik.errors.userName
-                                        }
+                                        />
+                                    </Grid>
+                                )}
+                                {showotherfield && (
+                                    <>
+                                        <Grid item xs={12} sm={6} md={6} lg={6}>
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="currentPassword"
+                                                label="Current Password"
+                                                name="currentPassword"
+                                                value={formik.values.currentPassword || ""}
+                                                size="small"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                error={
+                                                    formik.touched.currentPassword &&
+                                                    Boolean(formik.errors.currentPassword)
+                                                }
+                                                helperText={
+                                                    formik.touched.currentPassword &&
+                                                    formik.errors.currentPassword
+                                                }
 
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField
-                                        margin="normal"
-                                        required
-                                        fullWidth
-                                        id="currentPassword"
-                                        label="Current Password"
-                                        name="currentPassword"
-                                        value={formik.values.currentPassword || ""}
-                                        size="small"
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        error={
-                                            formik.touched.currentPassword &&
-                                            Boolean(formik.errors.currentPassword)
-                                        }
-                                        helperText={
-                                            formik.touched.currentPassword &&
-                                            formik.errors.currentPassword
-                                        }
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={6} lg={6}>
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="newPassword"
+                                                label="New Password"
+                                                name="newPassword"
+                                                value={formik.values.newPassword || ""}
+                                                size="small"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                error={
+                                                    formik.touched.newPassword &&
+                                                    Boolean(formik.errors.newPassword)
+                                                }
+                                                helperText={
+                                                    formik.touched.newPassword &&
+                                                    formik.errors.newPassword
+                                                }
 
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField
-                                        margin="normal"
-                                        required
-                                        fullWidth
-                                        id="newPassword"
-                                        label="New Password"
-                                        name="newPassword"
-                                        value={formik.values.newPassword || ""}
-                                        size="small"
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        error={
-                                            formik.touched.newPassword &&
-                                            Boolean(formik.errors.newPassword)
-                                        }
-                                        helperText={
-                                            formik.touched.newPassword &&
-                                            formik.errors.newPassword
-                                        }
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={6} lg={6}>
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="otp"
+                                                label="OTP"
+                                                name="otp"
+                                                value={formik.values.otp || ""}
+                                                size="small"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                error={
+                                                    formik.touched.otp &&
+                                                    Boolean(formik.errors.otp)
+                                                }
+                                                helperText={
+                                                    formik.touched.otp &&
+                                                    formik.errors.otp
+                                                }
 
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField
-                                        margin="normal"
-                                        required
-                                        fullWidth
-                                        id="confirmPassword"
-                                        label="Confirm Password"
-                                        name="confirmPassword"
-                                        value={formik.values.confirmPassword || ""}
-                                        size="small"
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        error={
-                                            formik.touched.confirmPassword &&
-                                            Boolean(formik.errors.confirmPassword)
-                                        }
-                                        helperText={
-                                            formik.touched.confirmPassword &&
-                                            formik.errors.confirmPassword
-                                        }
+                                            />
+                                        </Grid>
 
-                                    />
-                                </Grid>
+                                        <Box
+                                            spacing={2}
+                                            sx={{ margin: 1, textAlign: 'center' }}
+                                        >
+
+                                            <Button type="Submit" variant="contained"
+                                                sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                                                onClick={handleRedirect}
+
+
+                                            >SUBMIT</Button>
+
+                                        </Box>
+                                    </>
+                                )}
                             </Grid>
 
-                            <Grid item xs={12} sm={12} md={12} lg={12} sx={{ width: '100%' }}>
-                                <Button type="submit" variant="contained" sx={{ float: 'right', borderRadius: '4px' }} onClick={handleRedirect}>Submit</Button>
-                            </Grid>
+                            {showsendotpButton && (
+
+                                <Box
+                                    spacing={2}
+                                    sx={{ margin: 1, textAlign: 'center' }}
+                                >
+
+                                    <Button type="Submit" variant="contained"
+                                        sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                                        //  onClick={handleRedirect}
+                                        onClick={handleOtpButton}
+
+                                    >Send OTP</Button>
+
+                                </Box>
+                            )}
                             {/* </Grid> */}
                         </CardContent>
                     </Card>
@@ -257,9 +299,6 @@ const ForgotPassword = () => {
 }
 
 export default ForgotPassword;
-
-
-
 
 
 
