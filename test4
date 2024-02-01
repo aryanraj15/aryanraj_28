@@ -482,3 +482,7 @@ const ForgotPassword = () => {
 }
 
 export default ForgotPassword;
+
+
+
+{"status":false,"message":"Wrong OTP!","result":null,"statusCode":404}
