@@ -1,488 +1,252 @@
-import React , { useEffect, useRef } from 'react'
+import React, { useState } from 'react'
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
-import { useState } from "react";
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { Card, CardContent } from "@mui/material";
-import useTitle from '../../hooks/useTitle';
-import PageTitle from '../../layouts/PageTitle';
+import useTitle from '../../../hooks/useTitle';
+import PageTitle from '../../../layouts/PageTitle';
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useNavigate } from 'react-router-dom';
-import { H3 } from '../../components/Typography';
+import { H3 } from '../../../components/Typography';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
-// import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import AlertConfirm from "react-alert-confirm";
-import { useSnackbar } from "../../components/Snackbar";
+import { useSnackbar } from "../../../components/Snackbar";
 import "react-alert-confirm/lib/style.css";
-import LockResetIcon from '@mui/icons-material/LockReset';
-import axios from 'axios';
-import Cookies from "js-cookie";
-import blue_bg from "../../assets/images/BLUE_BG.jpg";
-import Divider from '@mui/material/Divider';
-const ForgotPassword = () => {
-    const { showSnackbar } = useSnackbar();
-    const [openToast, setOpenToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastSeverity, setToastSeverity] = useState("info");
-    const [showotherfield, setShowotherfields] = useState(false);
-    const [showusernamefield, setUsernamefields] = useState(true);
-    const [showsendotpButton, setSendopButton] = useState(true);
-    const navigate = useNavigate();
-    const title = "Forgot Password";
-    useTitle(title);
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
+import dayjs from 'dayjs';
 
+const BoardRoomBooking = () => {
+  const { showSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
-    const validationSchema = Yup.object().shape({
+  const valuesMeeting = [
+    {
+      id: 1,
+      label: "Board Room Booking",
+    },
+    {
+      id: 2,
+      label: "Conference Room Booking",
+    },
+  ];
 
+  const [dateTimePairs, setDateTimePairs] = useState([
+    {startDateAndTime:null, endDateAndTime:null},
+  ]);
 
-        userName: Yup.string().required("User Name is required").nullable(),
-        confirmPassword: Yup.string().required("Confirm Password is required").nullable(),
-        password: Yup.string().required("password is required").nullable(),
-        otp: Yup.number().required("Otp Password is required").nullable(),
+  const handleAddField = () => {
+    const newFields =[
+      {startDateAndTime:null, endDateAndTime:null},
+    ]
+    setDateTimePairs([...dateTimePairs, ...newFields])
+    // setFieldValues([...fieldValues, ...Array(newFields.length).fill('')]);
+  }
 
+  const handleRemoveRow = (index) => {
+    if(dateTimePairs.length === 1) return;
+    // const updatedFields = [...fields];
+    // updatedFields.splice(index,1);
+    const updatedFields = [...dateTimePairs];
+    updatedFields.splice(index,1);
+    setDateTimePairs(updatedFields);
+  }
+  console.log('kp-fields', dateTimePairs)
+  const title = "Slot Availability/Booking";
+  useTitle(title);
 
+  const handleRedirect = () => {
+    callConfirmDialog();
+  }
+
+  const callConfirmDialog = async () => {
+    console.log('kp-confirm');
+    const [action] = await AlertConfirm({
+      title: "Confirm",
+      desc: "Are you sure, you want to submit?",
     });
-
-    const formik = useFormik({
-        initialValues: {
-            userName: null,
-            confirmPassword: '',
-            password: '',
-            otp: '',
-
-            // Add initial values for other fields
-        },
-        validationSchema: validationSchema,
-        onSubmit: (values) => {
-            // Handle form submission or API integration here
-        },
+    AlertConfirm.config({
+      okText: "Submit",
+      cancelText: "Cancel",
     });
-
-    const handleRedirect = () => {
-
-        if(formik.values.password !== formik.values.confirmPassword){
-            alert("New Password and Confirm Password should be Same");
-            return;
-        }
-
-        callConfirmDialog();
+    if (action) {
+      console.log('kp-saved');
+      showSnackbar("Saved Successfully", 'success');
+      navigate('/viewboardroombookings')
+      // submitDetails(values, resetForm);
+    } else {
+      //   setIsSubmit(false);
+      showSnackbar('Did not save!', 'error')
     }
-    
-    const handleOtpButton = async () => {
-        setIsTimerRunning(true)
-        try {
+  };
+  return (
+    <>
+      <Card>
+        <CardContent>
+          {/* <PageTitle name={"Book Board Room"} /> */}
+          <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
+            <MeetingRoomIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+            <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Slot Availability/Booking</H3>
+          </div>
+          <Grid
+            container
+            spacing={2}
+            direction="row"
+            alignItems="center"
+          // justifyContent="center"
+          // sx={{}}
+          >
+            <Grid item xs={12} sm={4} md={4} lg={4}>
+              <Autocomplete
+                id="combo-box-demo"
+                options={valuesMeeting}
+                sx={{}}
+                size="small"
+                fullWidth
+                // defaultValue={valuesMeeting[0]}
+                renderInput={(params) => <TextField {...params} label="Type of conference" />}
+              />
+            </Grid>
+
             
-            const response = await axios.post(
-                `https://uat.ysraarogyasri.ap.gov.in/usermanagementapi/user/forget-password/sendotp/${formik.values.userName}`
+            {/* <Grid sx={{display:'flex', alignItems:'center'}}> */}
+            <Grid item xs={12} sm={4} md={4} lg={4}>
+              <TextField
+                size="small"
+                sx={{ width: "100%" }}
+                label="Total no.of speakers and participants"
+                // defaultValue="60"
                 
-            );
-    
-            if (response.data.statusCode === 200) {
-                showSnackbar(response.data.message, 'success');
-                
-                
-                console.log("OTP Sent: ", response.data.result);
-                setShowotherfields(true);
-                setUsernamefields(false);
-                setSendopButton(false);
-            } else {
-                // Show error message if API call was not successful
-                showSnackbar(response.data.message, 'error');
-            }
-        } catch (error) {
-            // Handle API call failure
-            console.error("Error sending OTP: ", error);
-            showSnackbar('Failed to send OTP', 'error');
-        }
-    };
+                // InputProps={{
+                //   readOnly: true,
+                // }}
 
-
-    const callConfirmDialog = async () => {
-        console.log('kp-confirm');
-        const [action] = await AlertConfirm({
-            title: "Confirm",
-            desc: "Are you sure, you want to submit?",
-        });
-        AlertConfirm.config({
-            okText: "Submit",
-            cancelText: "Cancel",
-        });
-        if (action) {
-            saveForgotPassword();
-          
-        } else {
-            //   setIsSubmit(false);
-            showSnackbar('Did not save!', 'error')
-        }
-    };
-
-
-    const saveForgotPassword = async (data) => {
-        try {
-            let body = {
-                username: formik.values.userName,
-                password: formik.values.password,
-                otp: parseInt(formik.values.otp ,10) ,
-            };
-            const response = await axios.put(
-                "https://uat.ysraarogyasri.ap.gov.in/usermanagementapi/user/forget-password/validateotp",
-                body,
-                
-            );
-    
-            if (response.data.statusCode === 200) {
-                 console.log("the result ", response.data.result);
-                // setToastMessage(response.data.message)
-                alert(response.data.message);
-                setToastSeverity("success");
-                setOpenToast(true);
-                navigate('/');
-            } else {
-                
-                showSnackbar(response.data.message, 'error');
-            }
-        } catch (error) {
-            console.error("Error validating OTP and updating password: ", error);
-            // showSnackbar('Failed to validate OTP and update password', 'error');
-            alert("Please fill the correct OTP", error);
-
-        }
-    };
-
-    const [statusmessage, setStatusMessage] = useState("OTP Expires in : ");
-    const [timer, setTimer] = useState(600);
-    const [second, setSecond] = useState(0);
-    const [minute, setMinute] = useState(10);
-    const [status, setStatus] = useState(true);
-    const [isTimerRunning, setIsTimerRunning] = useState(false)
-    const id = useRef(null);
-    const clear = () => {
-        window.clearInterval(id.current);
-    };
-    useEffect(() => {
-        console.log(isTimerRunning)
-        let interval;
-        if (isTimerRunning === true && timer > 0) {
-            id.current = window.setInterval(() => {
-                setTimer((time) => time - 1);
-            }, 1000);
-            //    interval = setInterval(()=>{
-            //     setTimer((timer) => timer-1)
-            //    },1000)
-
-        }
-        return () => clear();
-
-    }, [isTimerRunning, timer]);
-
-    useEffect(() => {
-        console.log(timer);
-        console.log(minute);
-        console.log(second);
-        console.log(statusmessage)
-        if (timer === 0 || minute < 0 || second === -1) {
-            setStatusMessage("Want to Resend OTP?");
-            setIsTimerRunning(false)
-            clear();
-        }
-        if (second > 0) {
-            setSecond(second - 1);
-        }
-        if (timer === 0) {
-            setStatus(false);
-        }
-    }, [timer]);
-
-    function calculator(seconds) {
-        if (second === 0) {
-            setSecond(59);
-            if (minute >= 0) {
-                setMinute(minute - 1);
-            }
-        }
-        //console.log(minute + ":" + second);
-        if (minute > 1) {
-            return minute + " Mins " + second + " Seconds";
-        } else {
-            return minute + " Min " + second + " Seconds";
-        }
-    }
-    console.log(timer)
-
-
-    return (
-        <>
-
-            <Box 
-             sx={{
-                backgroundImage: `url(${blue_bg})`,
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-                <Grid
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    height="100vh"
-                    sx={{ mx: 3 }}
-                >
-                    <Card
-                    >
-                        <CardContent>
-
-                            <div >
-                                <H3 sx={{color:"#2596be"}}><LockResetIcon />&nbsp;Forgot Password</H3>
-                            </div>
-                            <Divider/>
-                            <Grid
-                                container
-                                spacing={2}
-                                direction="row"
-                                alignItems="center"
-                            >
-                                {showusernamefield && (
-                                    <Grid item xs={12} sm={12} md={12} lg={12}>
-                                        <TextField
-                                            margin="normal"
-                                            required
-                                            fullWidth
-                                            id="userName"
-                                            label="User Name"
-                                            name="userName"
-                                            value={formik.values.userName || ""}
-                                            size="small"
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            error={
-                                                formik.touched.userName &&
-                                                Boolean(formik.errors.userName)
-                                            }
-                                            helperText={
-                                                formik.touched.userName &&
-                                                formik.errors.userName
-                                            }
-
-                                        />
-                                    </Grid>
-                                )}
-                                {showotherfield && (
-                                    <>
-                                        
-                                        <Grid item xs={12} sm={6} md={6} lg={6}>
-                                            <TextField
-                                                margin="normal"
-                                                required
-                                                fullWidth
-                                                id="password"
-                                                label="New Password"
-                                                name="password"
-                                                value={formik.values.password || ""}
-                                                size="small"
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
-                                                error={
-                                                    formik.touched.password &&
-                                                    Boolean(formik.errors.password)
-                                                }
-                                                helperText={
-                                                    formik.touched.password &&
-                                                    formik.errors.password
-                                                }
-
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6} md={6} lg={6}>
-                                            <TextField
-                                                margin="normal"
-                                                required
-                                                fullWidth
-                                                id="confirmPassword"
-                                                label="Confirm Password"
-                                                name="confirmPassword"
-                                                value={formik.values.confirmPassword || ""}
-                                                size="small"
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
-                                                error={
-                                                    formik.touched.confirmPassword &&
-                                                    Boolean(formik.errors.confirmPassword)
-                                                }
-                                                helperText={
-                                                    formik.touched.confirmPassword &&
-                                                    formik.errors.confirmPassword
-                                                }
-
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={3} md={3} lg={3}>
-                                            <TextField
-                                                margin="normal"
-                                                required
-                                                fullWidth
-                                                id="otp"
-                                                label="OTP"
-                                                name="otp"
-                                                value={formik.values.otp || ""}
-                                                size="small"
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
-                                                error={
-                                                    formik.touched.otp &&
-                                                    Boolean(formik.errors.otp)
-                                                }
-                                                helperText={
-                                                    formik.touched.otp &&
-                                                    formik.errors.otp
-                                                }
-
-                                            />
-                                        </Grid>
-
-                                        <Box
-                                            spacing={2}
-                                            sx={{ margin: 1, textAlign: 'center' }}
-                                        >
-
-                                            <Button type="Submit" variant="contained"
-                                                sx={{ minWidth: 100, ml: 1, mt: 2 , borderRadius: '4px' }}
-                                                onClick={handleRedirect}
-                                                //onClick={saveForgotPassword}
-
-
-                                            >Verify</Button>
-
-                                        </Box>
-                                        { statusmessage === "OTP Expires in : " ?(
-                                        <Grid item xs={12} sm={3} md={3} lg={3} style={{ color: "red" }}
-                                        fontSize={"12px"}
-                                    >
-                                       
-                                            <>
-                                                {statusmessage}
-                                                {calculator(timer)}
-                                            </>
-                                       
-                                    
-                                    </Grid>
-                                        ):
-                                        <Box
-                                        spacing={2}
-                                        sx={{ margin: 1, textAlign: 'center' }}
-                                    >
-                                        <Button
-                                            variant="contained"
-                                            size="small"
-                                           // disabled={status}
-                                            sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 },padding:0.8 }}
-                                            onClick={() => {
-                                                // setIsTimerRunning(true)
-                                        
-                                             
-                                                const config = {
-                                                    headers: {
-                                                        Authorization: `Bearer ${Cookies.get("token")}`
-                                                    }
-                                                }
-                                                const url = `$https://uat.ysraarogyasri.ap.gov.in/usermanagementapi/user/forget-password/sendotp/${formik.values.userName}`;
-                                                axios
-                                                    .post(
-                                                        url
-                                                    )
-                                                    .then(function (response) {
-                                                        //casedetails.length = 0;
-                                                        console.log(response)
-                                                        if (response.data.statusCode === 200) {
-                                                            if (response.data.message) {
-                                                              
-                                                                setToastSeverity("success");
-                                                                setOpenToast(true);
-                                        
-                                        
-                                        
-                                                            } else {
-                                                                // Handle the case where the message is undefined
-                                                                console.error("Received a response with no message:", response.data);
-                                                            }
-                                                            console.log("the result ", response.data.result);
-                                                        } else {
-                                                            // Check for the specific condition in the payload
-                                                            if (response.data.statusCode === 400) {
-                                                                alert("Please enter a valid OTP");
-                                                            } else {
-                                                                // Display a generic error message if the condition is not met
-                                                                alert("Data has not saved. Unexpected response from the server.");
-                                                            }
-                                                        }
-                                                    })
-                                                    .catch(function (error) {
-                                                        console.log(error);
-                                                    });
-                                                setStatus(true);
-                                                setTimer(600)
-                                                setMinute(10)
-                                                setSecond(0)
-                                                setIsTimerRunning(true)
-                                                setStatusMessage("OTP Expires in : ")
-                                                // setStatusMessage("OTP resent successfully");
-                                            }}
-                                        
-                                        >
-                                            Resend OTP
-                                        </Button>
-                                        </Box>
-                                        }
-       
-
-
-</>
-
-)}
-</Grid>
-
-                                 
+              />
+            </Grid>
+            <Grid item xs={12} sm={4} md={4} lg={4}>
+              <TextField
+                size="small"
+                sx={{ width: "100%" }}
+                label="Title of the Meeting"
+                // maxRows={10}
+                // minRows={2}
+                // defaultValue="Annual Meeting"
+                // InputProps={{
+                //   readOnly: true,
+                // }}
+              />
+            </Grid>
+            {/* <Grid item xs={12} sm={4} md={4} lg={4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label=" Date"
+                  // maxDate={new Date()}
+                  sx={{ width: "100%", marginTop:2 }}
+                  inputFormat="DD/MM/YYYY"
+                  renderInput={(params) => (
+                    <TextField
+                      size="small"
+                      {...params}
                     
+                    />
 
-                            {showsendotpButton && (
-
-                                <Box
-                                    spacing={2}
-                                    sx={{ margin: 1, textAlign: 'center' }}
-                                >
-
-                                    <Button type="Submit" variant="contained"
-                                        sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } , borderRadius: '4px'}}
-                                        //  onClick={handleRedirect}
-                                        onClick={handleOtpButton}
-
-                                    >Send OTP</Button>
-
-                                </Box>
-                            )}
-                            {/* </Grid> */}
-                        </CardContent>
-                    </Card>
+                  )}
+                />
+              </LocalizationProvider>
+            </Grid> */}
+            {/* <Grid item xs={12} sm={4} md={4} lg={4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['TimePicker']}>
+                  <TimePicker sx={{ width: "100%" }} size="small" label="Start Time" />
+                </DemoContainer>
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={12} sm={4} md={4} lg={4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['TimePicker']}>
+                  <TimePicker sx={{ width: "100%" }} size="small" label="End Time" />
+                </DemoContainer>
+              </LocalizationProvider>
+            </Grid> */}
+            {dateTimePairs.map((dateTimePairs, index) => (
+              <Grid container direction="row" spacing={2} alignItems="center" sx={{width:'100%', paddingLeft:'16px'}} key={index}>
+                <Grid item xs={12} sm={4} md={4} lg={4}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                    <DateTimePicker
+                      label="Select Start Date and Time"
+                      key={index}
+                      value={dateTimePairs.startDateAndTime}
+                      onChange={(newValue) => {
+                        setDateTimePairs((prevPairs) => 
+                          prevPairs.map((p, i) => 
+                            i === index ? {...p, startDateAndTime: dayjs(newValue).format("YYYY-MM-DD HH:mm:ss")} : p
+                          )
+                        )
+                      }}
+                      viewRenderers={{
+                        hours: renderTimeViewClock,
+                        minutes: renderTimeViewClock,
+                        seconds: renderTimeViewClock,
+                      }}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                    <DateTimePicker
+                      label="Select End Date and Time"
+                      // value={field.endDateAndTime}
+                      key={index+1}
+                      value={dateTimePairs.endDateAndTime}
+                      onChange={(newValue) => {
+                        setDateTimePairs((prevPairs) => 
+                          prevPairs.map((p, i) => 
+                            i === index ? {...p, endDateAndTime: dayjs(newValue).format("YYYY-MM-DD HH:mm:ss")} : p
+                          )
+                        )
+                      }}
+                      viewRenderers={{
+                        hours: renderTimeViewClock,
+                        minutes: renderTimeViewClock,
+                        seconds: renderTimeViewClock,
+                      }}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+              </Grid>
+              {index > 0 && (
+                <Grid item xs={1} sm={1} sx={{marginTop:'8px'}}>
+                  <Button sx={{height:'48px', width:'105px',borderRadius:'4px'}} variant='outlined' startIcon={<DeleteOutlineIcon />} onClick={() => handleRemoveRow(index)}>REMOVE</Button>
                 </Grid>
+              )}
+            </Grid>
+            ))}
+          </Grid>
 
-            </Box>
-        </>
-    )
+          <Grid item xs={12} sm={12} md={12} lg={12} sx={{ width: '100%', paddingTop:2, paddingBottom:2 }}>
+            <Button type="submit" variant="contained" sx={{ float: 'right', borderRadius: '4px' }} onClick={handleRedirect}>Submit</Button>
+            <Button type="button" variant="outlined" sx={{float:'left', borderRadius:'4px'}} onClick={handleAddField}>
+              Add More
+            </Button>
+          </Grid>
+          {/* </Grid> */}
+        </CardContent>
+      </Card>
+    </>
+  )
 }
 
-export default ForgotPassword;
-
-
-
-{"status":false,"message":"Wrong OTP!","result":null,"statusCode":404}
+export default BoardRoomBooking;
