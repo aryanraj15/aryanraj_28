@@ -48,3 +48,7 @@
                   />}
                 />
               </Grid>
+
+              onChange={(event, newValue) => {
+      formik.setFieldValue('Leave', newValue); // Set the field value in Formik
+    }}
