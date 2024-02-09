@@ -52,3 +52,17 @@
               onChange={(event, newValue) => {
       formik.setFieldValue('Leave', newValue); // Set the field value in Formik
     }}
+
+
+
+
+  const values = [
+    {
+      id: 1,
+      label: "Sick Leave",
+    },
+    {
+      id: 2,
+      label: " Normal Leave",
+    },
+  ];
