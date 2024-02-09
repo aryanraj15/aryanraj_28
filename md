@@ -20,3 +20,31 @@
                   )}
                 />
               </LocalizationProvider>
+
+
+
+<Grid item xs={12} sm={4} md={4} lg={4}>
+                <Autocomplete
+                  margin="0"
+                  id="Leave"
+                  name="Leave"
+                  options={values}
+                  sx={{ width: "100%" }}
+                  required
+                  fullWidth
+                  onChange={formik.handleChange}
+                  renderInput={(params) => 
+                  <TextField 
+                    {...params}
+                    label="Leave"
+                    required
+                    onBlur={formik.handleBlur}
+                    helperText={
+                      formik.errors.Leave && formik.touched.Leave ? formik.errors.Leave : null
+                    }
+                    error={
+                      formik.errors.Leave && formik.touched.Leave ? true : false
+                    }
+                  />}
+                />
+              </Grid>
