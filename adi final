@@ -25,11 +25,11 @@ const Leave = () => {
   const handleDateChange = (fieldName) => (date) => {
     formik.setFieldValue(fieldName, date);
 
-    const startDate = new Date(formik.values.LeaveStartDate);
-    const endDate = new Date(formik.values.LeaveEndDate);
+    const startDate = dayjs(formik.values.LeaveStartDate);
+    const endDate = dayjs(formik.values.LeaveEndDate);
 
-    if (!isNaN(startDate) && !isNaN(endDate)) {
-      const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    if (startDate.isValid() && endDate.isValid()) {
+      const daysDifference = endDate.diff(startDate, 'day') + 1;
       setNumberOfDays(daysDifference);
     }
   };
