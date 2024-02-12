@@ -1,59 +1,80 @@
-const [numberOfDays, setNumberOfDays] = React.useState(0);
-<DatePicker
-  margin="0"
-  id="LeaveStartDate"
-  name="LeaveStartDate"
-  minDate={today}
-  label="Leave Start Date"
-  sx={{ width: "100%" }}
-  inputFormat="DD/MM/YYYY"
-  renderInput={(params) => (
-    <TextField
-      fullWidth
-      margin="0"
-      required
-      {...params}
-      onChange={(e) => {
-        formik.handleChange(e);
-        const startDate = new Date(e.target.value);
-        const endDate = new Date(formik.values.LeaveEndDate);
-        const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-        setNumberOfDays(daysDifference);
-      }}
-    />
-  )}
-/>
+import React, { useState } from "react";
+import { TextField } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-<DatePicker
-  margin="0"
-  id="LeaveEndDate"
-  name="LeaveEndDate"
-  minDate={today}
-  label="Leave End Date"
-  sx={{ width: "100%" }}
-  inputFormat="DD/MM/YYYY"
-  renderInput={(params) => (
+const Leave = () => {
+  const [numberOfDays, setNumberOfDays] = useState(0);
+
+  const handleDateChange = (e, fieldName) => {
+    formik.handleChange(e);
+    const startDate = new Date(fieldName === "LeaveStartDate" ? e.target.value : formik.values.LeaveStartDate);
+    const endDate = new Date(fieldName === "LeaveEndDate" ? e.target.value : formik.values.LeaveEndDate);
+    const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    setNumberOfDays(daysDifference);
+  };
+
+  return (
+    // Your existing code...
+
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DatePicker
+        margin="0"
+        id="LeaveStartDate"
+        name="LeaveStartDate"
+        minDate={today}
+        label="Leave Start Date"
+        sx={{ width: "100%" }}
+        inputFormat="DD/MM/YYYY"
+        renderInput={(params) => (
+          <TextField
+            fullWidth
+            margin="0"
+            required
+            {...params}
+            onChange={(e) => handleDateChange(e, "LeaveStartDate")}
+          />
+        )}
+      />
+    </LocalizationProvider>
+
+    // Your existing code...
+
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DatePicker
+        margin="0"
+        id="LeaveEndDate"
+        name="LeaveEndDate"
+        minDate={today}
+        label="Leave End Date"
+        sx={{ width: "100%" }}
+        inputFormat="DD/MM/YYYY"
+        renderInput={(params) => (
+          <TextField
+            margin="0"
+            required
+            {...params}
+            onChange={(e) => handleDateChange(e, "LeaveEndDate")}
+          />
+        )}
+      />
+    </LocalizationProvider>
+
+    // Your existing code...
+
     <TextField
       margin="0"
-      required
-      {...params}
-      onChange={(e) => {
-        formik.handleChange(e);
-        const startDate = new Date(formik.values.LeaveStartDate);
-        const endDate = new Date(e.target.value);
-        const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-        setNumberOfDays(daysDifference);
-      }}
+      id="numberOfDays"
+      name="numberOfDays"
+      label="Number of Days"
+      value={numberOfDays}
+      sx={{ width: "100%" }}
+      disabled
     />
-  )}
-/>
 
-<TextField
-  margin="0"
-  id="numberOfDays"
-  name="numberOfDays"
-  label="Number of Days"
-  value={numberOfDays}
-  sx={{ width: "100%" }}
-  disabled
-/>
+    // Your existing code...
+  );
+};
+
+export default Leave;
