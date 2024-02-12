@@ -1,68 +1,41 @@
-<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+import React, { useState, useEffect } from "react";
+// ... (your other imports)
 
-                <DatePicker
-                  margin="0"
-                  id="LeaveStartDate"
-                  name="LeaveStartDate"
-                  minDate={today}
-                  shouldDisableDate={isWeekend}
-                  label="Leave Start Date"
-                  sx={{ width: "100%" }}
-                  // maxDate={new Date()}
-                  inputFormat="DD/MM/YYYY"
-                  renderInput={(params) => (
-                    <TextField
-                      fullWidth
-                      margin="0"
-                      required
-                      {...params}
-                    />
-                  )}
-                />
-              </LocalizationProvider>
+function Leave() {
+  const [numberOfDays, setNumberOfDays] = useState(0);
 
+  // ... (rest of your code)
 
+  useEffect(() => {
+    // Calculate the difference in days when dates change
+    const startDate = dayjs(formik.values.LeaveStartDate, "DD/MM/YYYY");
+    const endDate = dayjs(formik.values.LeaveEndDate, "DD/MM/YYYY");
 
-<Grid item xs={12} sm={4} md={4} lg={4}>
-                <Autocomplete
-                  margin="0"
-                  id="Leave"
-                  name="Leave"
-                  options={values}
-                  sx={{ width: "100%" }}
-                  required
-                  fullWidth
-                  onChange={formik.handleChange}
-                  renderInput={(params) => 
-                  <TextField 
-                    {...params}
-                    label="Leave"
-                    required
-                    onBlur={formik.handleBlur}
-                    helperText={
-                      formik.errors.Leave && formik.touched.Leave ? formik.errors.Leave : null
-                    }
-                    error={
-                      formik.errors.Leave && formik.touched.Leave ? true : false
-                    }
-                  />}
-                />
-              </Grid>
+    const daysDifference = endDate.diff(startDate, "day");
+    setNumberOfDays(daysDifference);
+  }, [formik.values.LeaveStartDate, formik.values.LeaveEndDate]);
 
-              onChange={(event, newValue) => {
-      formik.setFieldValue('Leave', newValue); // Set the field value in Formik
-    }}
+  // ... (rest of your code)
 
+  return (
+    <>
+      {/* ... (rest of your code) */}
 
+      <Grid item xs={12} sm={4} md={4} lg={4}>
+        <TextField
+          margin="0"
+          id="NumberOfDays"
+          name="NumberOfDays"
+          label="Number of Days"
+          value={numberOfDays}
+          disabled
+          sx={{ width: "100%" }}
+        />
+      </Grid>
 
+      {/* ... (rest of your code) */}
+    </>
+  );
+}
 
-  const values = [
-    {
-      id: 1,
-      label: "Sick Leave",
-    },
-    {
-      id: 2,
-      label: " Normal Leave",
-    },
-  ];
+export default Leave;
