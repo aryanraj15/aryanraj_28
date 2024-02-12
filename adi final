@@ -1,79 +1,88 @@
 import React, { useState } from "react";
-import { TextField } from "@mui/material";
+import { TextField, Typography, Grid, Avatar, Button } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import { useFormik } from "formik";
+import dayjs from "dayjs";
+
+const today = dayjs();
 
 const Leave = () => {
   const [numberOfDays, setNumberOfDays] = useState(0);
 
-  const handleDateChange = (e, fieldName) => {
-    formik.handleChange(e);
-    const startDate = new Date(fieldName === "LeaveStartDate" ? e.target.value : formik.values.LeaveStartDate);
-    const endDate = new Date(fieldName === "LeaveEndDate" ? e.target.value : formik.values.LeaveEndDate);
-    const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-    setNumberOfDays(daysDifference);
+  const formik = useFormik({
+    initialValues: {
+      LeaveStartDate: "",
+      LeaveEndDate: "",
+      // other form fields...
+    },
+    // add your validation schema and onSubmit logic here...
+  });
+
+  const handleDateChange = (fieldName) => (date) => {
+    formik.setFieldValue(fieldName, date);
+
+    const startDate = new Date(formik.values.LeaveStartDate);
+    const endDate = new Date(formik.values.LeaveEndDate);
+
+    if (!isNaN(startDate) && !isNaN(endDate)) {
+      const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+      setNumberOfDays(daysDifference);
+    }
   };
 
   return (
-    // Your existing code...
+    <Box sx={{ flexGrow: 1 }}>
+      {/* Your existing code for Grid container */}
 
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker
-        margin="0"
-        id="LeaveStartDate"
-        name="LeaveStartDate"
-        minDate={today}
-        label="Leave Start Date"
-        sx={{ width: "100%" }}
-        inputFormat="DD/MM/YYYY"
-        renderInput={(params) => (
-          <TextField
-            fullWidth
+      <Grid item xs={12} sm={4} md={4} lg={4}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
             margin="0"
-            required
-            {...params}
-            onChange={(e) => handleDateChange(e, "LeaveStartDate")}
+            id="LeaveStartDate"
+            name="LeaveStartDate"
+            minDate={today}
+            label="Leave Start Date"
+            sx={{ width: "100%" }}
+            inputFormat="DD/MM/YYYY"
+            value={formik.values.LeaveStartDate}
+            onChange={handleDateChange("LeaveStartDate")}
+            renderInput={(params) => <TextField fullWidth margin="0" required {...params} />}
           />
-        )}
-      />
-    </LocalizationProvider>
-
-    // Your existing code...
-
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker
-        margin="0"
-        id="LeaveEndDate"
-        name="LeaveEndDate"
-        minDate={today}
-        label="Leave End Date"
-        sx={{ width: "100%" }}
-        inputFormat="DD/MM/YYYY"
-        renderInput={(params) => (
-          <TextField
+        </LocalizationProvider>
+      </Grid>
+      <Grid item xs={12} sm={4} md={4} lg={4}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
             margin="0"
-            required
-            {...params}
-            onChange={(e) => handleDateChange(e, "LeaveEndDate")}
+            id="LeaveEndDate"
+            name="LeaveEndDate"
+            minDate={today}
+            label="Leave End Date"
+            sx={{ width: "100%" }}
+            inputFormat="DD/MM/YYYY"
+            value={formik.values.LeaveEndDate}
+            onChange={handleDateChange("LeaveEndDate")}
+            renderInput={(params) => <TextField fullWidth margin="0" required {...params} />}
           />
-        )}
-      />
-    </LocalizationProvider>
-
-    // Your existing code...
-
-    <TextField
-      margin="0"
-      id="numberOfDays"
-      name="numberOfDays"
-      label="Number of Days"
-      value={numberOfDays}
-      sx={{ width: "100%" }}
-      disabled
-    />
-
-    // Your existing code...
+        </LocalizationProvider>
+      </Grid>
+      <Grid item xs={12} sm={4} md={4} lg={4}>
+        <TextField
+          margin="0"
+          id="numberOfDays"
+          name="numberOfDays"
+          label="Number of Days"
+          value={numberOfDays}
+          sx={{ width: "100%" }}
+          disabled
+        />
+      </Grid>
+      {/* ... Your existing code for other form fields ... */}
+    </Box>
   );
 };
 
