@@ -1,39 +1,85 @@
-import React, { useState, useEffect } from "react";
-// ... (your other imports)
+import React, { useState } from "react";
+// ... (other imports)
 
 function Leave() {
-  const [numberOfDays, setNumberOfDays] = useState(0);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [numberOfDays, setNumberOfDays] = useState(null);
 
-  // ... (rest of your code)
+  // ... (rest of the component)
 
-  useEffect(() => {
-    // Calculate the difference in days when dates change
-    const startDate = dayjs(formik.values.LeaveStartDate, "DD/MM/YYYY");
-    const endDate = dayjs(formik.values.LeaveEndDate, "DD/MM/YYYY");
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+    calculateNumberOfDays(date, endDate);
+  };
 
-    const daysDifference = endDate.diff(startDate, "day");
-    setNumberOfDays(daysDifference);
-  }, [formik.values.LeaveStartDate, formik.values.LeaveEndDate]);
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+    calculateNumberOfDays(startDate, date);
+  };
 
-  // ... (rest of your code)
+  const calculateNumberOfDays = (start, end) => {
+    if (start && end) {
+      const diffInMilliseconds = Math.abs(end - start);
+      const diffInDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
+      setNumberOfDays(diffInDays);
+    }
+  };
+
+  // ... (rest of the component)
 
   return (
     <>
-      {/* ... (rest of your code) */}
-
-      <Grid item xs={12} sm={4} md={4} lg={4}>
-        <TextField
-          margin="0"
-          id="NumberOfDays"
-          name="NumberOfDays"
-          label="Number of Days"
-          value={numberOfDays}
-          disabled
-          sx={{ width: "100%" }}
-        />
-      </Grid>
-
-      {/* ... (rest of your code) */}
+      <Card>
+        <CardContent>
+          {/* ... (your existing code) */}
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Start Date"
+                inputFormat="DD/MM/YYYY"
+                renderInput={(params) => (
+                  <TextField
+                    size="small"
+                    sx={{ width: "100%" }}
+                    required
+                    {...params}
+                    onChange={(e) => handleStartDateChange(e)}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="End Date"
+                inputFormat="DD/MM/YYYY"
+                renderInput={(params) => (
+                  <TextField
+                    size="small"
+                    sx={{ width: "100%" }}
+                    required
+                    {...params}
+                    onChange={(e) => handleEndDateChange(e)}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <TextField
+              size="small"
+              sx={{ width: "100%" }}
+              required
+              label="Number of Days"
+              value={numberOfDays}
+              disabled
+            />
+          </Grid>
+          {/* ... (rest of the code) */}
+        </CardContent>
+      </Card>
     </>
   );
 }
