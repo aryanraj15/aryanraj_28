@@ -1,291 +1,59 @@
-// import { Box, Grid, TextField, Typography, Stack, Button } from "@mui/material";
-// import axios from "axios";
-// import React, { useEffect, useState } from "react";
-// import DownloadButton from "./DownloadButton";
-// import Cookies from "js-cookie";
-// import {
-//   GetActionsButtons,
-//   SaveDYAdminAction,
-// } from "../../services/employee.services";
+const [numberOfDays, setNumberOfDays] = React.useState(0);
+<DatePicker
+  margin="0"
+  id="LeaveStartDate"
+  name="LeaveStartDate"
+  minDate={today}
+  label="Leave Start Date"
+  sx={{ width: "100%" }}
+  inputFormat="DD/MM/YYYY"
+  renderInput={(params) => (
+    <TextField
+      fullWidth
+      margin="0"
+      required
+      {...params}
+      onChange={(e) => {
+        formik.handleChange(e);
+        const startDate = new Date(e.target.value);
+        const endDate = new Date(formik.values.LeaveEndDate);
+        const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        setNumberOfDays(daysDifference);
+      }}
+    />
+  )}
+/>
 
-// const Action = ({ onButtonClick, userId, empdetailId }) => {
+<DatePicker
+  margin="0"
+  id="LeaveEndDate"
+  name="LeaveEndDate"
+  minDate={today}
+  label="Leave End Date"
+  sx={{ width: "100%" }}
+  inputFormat="DD/MM/YYYY"
+  renderInput={(params) => (
+    <TextField
+      margin="0"
+      required
+      {...params}
+      onChange={(e) => {
+        formik.handleChange(e);
+        const startDate = new Date(formik.values.LeaveStartDate);
+        const endDate = new Date(e.target.value);
+        const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        setNumberOfDays(daysDifference);
+      }}
+    />
+  )}
+/>
 
-//   const [remarks, setRemarks] = useState("");
-//   const [clicked, setClicked] = useState(false);
-//   const [buttonArr, setButtonArr] = useState([]);
-//   const remarksMaxLength = 300;
-
-//   const getActionButton = async () => {
-//     let res = await GetActionsButtons();
-//     console.log("res", res.data.result);
-//     setButtonArr(res.data.result);
-//   };
-
-//   const handleSave = async (id) => {
-//     let res = await SaveDYAdminAction([
-//       {
-//         empDtlId: empdetailId,
-//         actionId: id,
-//       },
-//     ]);
-//      console.log("res", res.data.result);
-//   };
-
-//   useEffect(() => {
-//     getActionButton();
-//   }, []);
-//   return (
-//     <>
-//       <Box sx={{ padding: "0px 60px", my: 5 }}>
-//         <Grid
-//           container
-//           direction="row"
-//           rowSpacing={0}
-//           columnSpacing={2}
-//           justify="flex-end"
-//           alignItems="center"
-//           sx={{ mb: 2 }}
-//         >
-//           <TextField
-//             required
-//             margin="dense"
-//             id="remarks"
-//             label="Remarks"
-//             fullWidth
-//             //variant="standard"
-//             value={remarks}
-//             onChange={(e) => {
-//               setRemarks(e.target.value);
-//               console.log("Remarks:", e.target.value);
-//             }}
-//             multiline
-//             rows={4}
-//             inputProps={{ maxLength: remarksMaxLength }}
-//             helperText={
-//               clicked && remarks.length === 0 ? (
-//                 <Typography sx={{ fontWeight: "bold" }}>
-//                   Remarks are mandatory
-//                 </Typography>
-//               ) : remarks.length >= remarksMaxLength - 150 ? (
-//                 `${remarksMaxLength - remarks.length} characters remaining`
-//               ) : null
-//             }
-//           />
-//           <Stack direction="row" spacing={2} justifyContent="center">
-//             {buttonArr.map((item) => {
-//               return (
-//                 <>
-//                   <Button
-//                     onClick={() => {
-//                       setClicked(true);
-//                       if (remarks.length >= 1) {
-//                         handleSave(item.id);
-//                       }
-//                     }}
-//                     variant="contained"
-//                   >
-//                     {item?.label}
-//                   </Button>
-//                 </>
-//               );
-//             })}
-
-//             {/* <Button
-//               onClick={() => {
-//                 setClicked(true);
-//                 if (remarks.length >= 1) {
-//                   // handleAction(true);
-//                 }
-//               }}
-//               variant="contained"
-//             >
-//               Approve
-//             </Button> */}
-//           </Stack>
-//         </Grid>
-//       </Box>
-//     </>
-//   );
-// };
-// export default Action;
-
-import {
-  Box,
-  Grid,
-  TextField,
-  Typography,
-  Stack,
-  Button,
-  Slide,
-  Alert,
-} from "@mui/material";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import DownloadButton from "./DownloadButton";
-import Cookies from "js-cookie";
-import {
-  GetActionsButtons,
-  SaveDYAdminAction,
-} from "../../services/employee.services";
-import Snackbar from "@mui/material/Snackbar";
-import { useNavigate } from "react-router-dom";
-function TransitionLeft(props) {
-  return <Slide {...props} direction="left" />;
-}
-const Action = ({ onButtonClick, userId, empdetailId }) => {
-  const [remarks, setRemarks] = useState("");
-  const [clicked, setClicked] = useState(false);
-  const [buttonArr, setButtonArr] = useState([]);
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastSeverity, setToastSeverity] = useState("info");
-  const remarksMaxLength = 300;
-  const navigate = useNavigate();
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenToast(false);
-  };
-
-  const getActionButton = async () => {
-    try {
-      let res = await GetActionsButtons();
-      console.log("res", res.data.result);
-      setButtonArr(res.data.result);
-    } catch (error) {
-      console.error("Error fetching action buttons:", error.message);
-    }
-  };
-
-  const handleSave = async (id) => {
-    try {
-      let res = await SaveDYAdminAction([
-        {
-          empDtlId: empdetailId,
-          actionId: id,
-          remarks: remarks,
-        },
-      ]);
-
-      const apiResponse = res.data;
-
-      if (
-        apiResponse.status &&
-        apiResponse.result &&
-        apiResponse.result.length > 0
-      ) {
-        const stepDesc = apiResponse.result[0].stepDesc;
-        setToastMessage(`Action successful!\n${stepDesc}`);
-        setToastSeverity("success");
-        setOpenToast(true);
-        // alert(`Action successful!\n${stepDesc}`);
-        setTimeout(() => {
-          navigate("/manage-employeeEnrollment");
-        }, 2000);
-        // navigate('/manage-employeeEnrollment')
-      }
-      // else {
-      //   alert("Action successful, but stepDesc not available in the API response.");
-      // }
-
-      console.log("API Response:", apiResponse);
-    } catch (error) {
-      console.error("Error:", error.message);
-      alert("An error occurred while performing the action. Please try again.");
-      setToastMessage(
-        "An error occurred while performing the action. Please try again"
-      );
-      setToastSeverity("error");
-      setOpenToast(true);
-    }
-  };
-
-  useEffect(() => {
-    getActionButton();
-  }, []);
-
-  return (
-    <>
-      <div>
-        <Snackbar
-          open={openToast}
-          autoHideDuration={6000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          onClose={handleClose}
-          TransitionComponent={TransitionLeft}
-        >
-          <Alert
-            onClose={handleClose}
-            severity={toastSeverity}
-            sx={{
-              width: "100%",
-              padding: { sm: "15px", xs: "10px" },
-              borderRadius: "15px",
-              fontSize: { sm: "16px", xs: "14px" },
-              boxShadow: "0 0 10px #999",
-              marginTop: { sm: "25px", xs: "20px" },
-            }}
-          >
-            {toastMessage}
-          </Alert>
-        </Snackbar>
-      </div>
-      <Box sx={{ padding: "0px 60px", my: 5 }}>
-        <Grid
-          container
-          direction="row"
-          rowSpacing={0}
-          columnSpacing={2}
-          justify="flex-end"
-          alignItems="center"
-          sx={{ mb: 2 }}
-        >
-          <TextField
-            required
-            margin="dense"
-            id="remarks"
-            label="Remarks"
-            fullWidth
-            value={remarks}
-            onChange={(e) => {
-              setRemarks(e.target.value);
-              console.log("Remarks:", e.target.value);
-            }}
-            multiline
-            rows={4}
-            inputProps={{ maxLength: remarksMaxLength }}
-            helperText={
-              clicked && remarks.length === 0 ? (
-                <Typography sx={{ fontWeight: "bold" }}>
-                  Remarks are mandatory
-                </Typography>
-              ) : remarks.length >= remarksMaxLength - 150 ? (
-                `${remarksMaxLength - remarks.length} characters remaining`
-              ) : null
-            }
-          />
-          <Stack direction="row" spacing={2} justifyContent="center">
-            {buttonArr.map((item) => (
-              <Button
-                key={item.id}
-                onClick={() => {
-                  setClicked(true);
-                  if (remarks.length >= 1) {
-                    handleSave(item.id);
-                  }
-                }}
-                variant="contained"
-              >
-                {item?.label}
-              </Button>
-            ))}
-          </Stack>
-        </Grid>
-      </Box>
-    </>
-  );
-};
-
-export default Action;
+<TextField
+  margin="0"
+  id="numberOfDays"
+  name="numberOfDays"
+  label="Number of Days"
+  value={numberOfDays}
+  sx={{ width: "100%" }}
+  disabled
+/>
