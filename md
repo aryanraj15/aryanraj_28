@@ -83,3 +83,45 @@ const Leave = () => {
 };
 
 export default Leave;
+
+
+
+ function calculateAge(dateOfBirth) {
+        const today = new Date();
+        const birthDate = new Date(dateOfBirth);
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+            age--;
+        }
+
+        let ageString = "";
+
+        if (age > 0) {
+            ageString += age === 1 ? "1 year" : `${age} years`;
+        }
+
+        if (monthDiff > 0) {
+            if (ageString !== "") {
+                ageString += ", ";
+            }
+            ageString += monthDiff === 1 ? "1 month" : `${monthDiff} months`;
+        }
+
+        if (dayDiff > 0) {
+            if (ageString !== "") {
+                ageString += ", ";
+            }
+            ageString += dayDiff === 1 ? "1 day" : `${dayDiff} days`;
+        }
+
+        return {
+            years: age,
+            months: monthDiff,
+            days: dayDiff,
+            ageString: ageString,
+        };
+    }
