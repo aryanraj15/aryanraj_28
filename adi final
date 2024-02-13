@@ -24,3 +24,33 @@
                   />
                 </LocalizationProvider>
               </Grid>
+
+
+
+
+
+
+// Assuming formik is an instance of Formik
+<Grid item xs={12} sm={4} md={4} lg={4}>
+  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+    <DatePicker
+      margin="0"
+      id="LeaveStartDate"
+      name="LeaveStartDate"
+      minDate={today}
+      label="Leave Start Date"
+      sx={{ width: "100%" }}
+      inputFormat="DD/MM/YYYY"
+      value={formik.values.LeaveStartDate} // Set the value from Formik
+      onChange={(date) => formik.setFieldValue("LeaveStartDate", date)} // Handle date change and update Formik values
+      renderInput={(params) => (
+        <TextField
+          fullWidth
+          margin="0"
+          required
+          {...params}
+        />
+      )}
+    />
+  </LocalizationProvider>
+</Grid>
