@@ -1,29 +1,35 @@
-console.log(formik.values.LeaveStartDate);
-console.log(formik.values.LeaveEndDate);
+<Grid item xs={12} sm={4} md={4} lg={4}>
+  <Autocomplete
+    margin="0"
+    id="LeavestartTime"
+    name="LeavestartTime"
+    options={time}
+    getOptionLabel={(option) => option.label}
+    sx={{ width: "100%" }}
+    required
+    fullWidth
+    value={time.find((option) => option.id === formik.values.LeavestartTime)}
+    onChange={(_, newValue) => {
+      formik.setFieldValue("LeavestartTime", newValue ? newValue.id : "");
+    }}
+    renderInput={(params) => <TextField {...params} label="Time" required />}
+  />
+</Grid>
 
-const numberofDays = getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate);
-
-function getNumberOfDays(start, end) {
-  const date1 = new Date(start);
-  const date2 = new Date(end);
-
-  // One day in milliseconds
-  const oneDay = 1000 * 60 * 60 * 24;
-
-  // Check if the dates are the same
-  if (date1.toDateString() === date2.toDateString()) {
-    // If the dates are the same, return 1 day
-    return 1;
-  } else {
-    // Calculating the time difference between two dates
-    const diffInTime = date2.getTime() - date1.getTime();
-
-    // Calculating the no. of days between two dates
-    const diffInDays = Math.round(diffInTime / oneDay);
-
-    // Return the calculated difference plus 1
-    return diffInDays + 1;
-  }
-}
-
-console.log(numberofDays);
+<Grid item xs={12} sm={4} md={4} lg={4}>
+  <Autocomplete
+    margin="0"
+    id="LeaveEndTime"
+    name="LeaveEndTime"
+    options={time}
+    getOptionLabel={(option) => option.label}
+    sx={{ width: "100%" }}
+    required
+    fullWidth
+    value={time.find((option) => option.id === formik.values.LeaveEndTime)}
+    onChange={(_, newValue) => {
+      formik.setFieldValue("LeaveEndTime", newValue ? newValue.id : "");
+    }}
+    renderInput={(params) => <TextField {...params} label="Time" required />}
+  />
+</Grid>
