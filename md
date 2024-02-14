@@ -1,31 +1,62 @@
-const validationSchema = Yup.object().shape({
-  // ... other validations
+import React, { useState } from "react";
+// other imports...
 
-  LeaveStartDate: Yup.string()
-    .required("Leave Start Date is required")
-    .nullable()
-    .test('start-date', 'Leave End Date must be greater than or equal to Leave Start Date', function (value) {
-      const { LeaveEndDate } = this.parent;
+const Leave = () => {
+  const [selectedLeaveStartDate, setSelectedLeaveStartDate] = useState(null);
+  // ... rest of your code
 
-      // Check if both dates are not null
-      if (value && LeaveEndDate) {
-        // Convert the dates to JavaScript Date objects
-        const startDate = new Date(value);
-        const endDate = new Date(LeaveEndDate);
+  return (
+    <>
+      {/* ... your existing code ... */}
+      <Grid item xs={12} sm={4} md={4} lg={4}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+          <DatePicker
+            margin="0"
+            id="LeaveStartDate"
+            name="LeaveStartDate"
+            minDate={today}
+            label="Leave Start Date"
+            sx={{ width: "100%" }}
+            inputFormat="DD/MM/YYYY"
+            value={formik.values.LeaveStartDate}
+            onChange={(date) => {
+              const formattedDate = dayjs(date).format("MM-DD-YYYY");
+              formik.setFieldValue("LeaveStartDate", formattedDate);
+              setSelectedLeaveStartDate(date);
+            }}
+            renderInput={(params) => (
+              <TextField fullWidth margin="0" required {...params} />
+            )}
+          />
+        </LocalizationProvider>
+      </Grid>
+      <Grid item xs={12} sm={4} md={4} lg={4}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+          <DatePicker
+            margin="0"
+            id="LeaveEndDate"
+            name="LeaveEndDate"
+            minDate={today}
+            shouldDisableDate={(date) =>
+              selectedLeaveStartDate ? date < selectedLeaveStartDate : false
+            }
+            label="Leave End Date"
+            sx={{ width: "100%" }}
+            inputFormat="DD/MM/YYYY"
+            value={formik.values.LeaveEndDate}
+            onChange={(date) => {
+              const formattedDate = dayjs(date).format("MM-DD-YYYY");
+              formik.setFieldValue("LeaveEndDate", formattedDate);
+            }}
+            renderInput={(params) => (
+              <TextField margin="0" required {...params} />
+            )}
+          />
+        </LocalizationProvider>
+      </Grid>
+      {/* ... rest of your code ... */}
+    </>
+  );
+};
 
-        // Check if LeaveEndDate is greater than or equal to LeaveStartDate
-        if (endDate >= startDate) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-
-      // If either date is null, return true (validation passes)
-      return true;
-    }),
-
-  LeaveEndDate: Yup.string()
-    .required("Leave End Date is required")
-    .nullable(),
-});
+export default Leave;
