@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -54,7 +54,7 @@ const Item = styled(Paper)(({ theme }) => ({
 
 
 const Leave = () => {
-
+  const [selectedLeaveStartDate, setSelectedLeaveStartDate] = useState(null);
   const validationSchema = Yup.object().shape({
     Leave: Yup.string().required("Leave is Required").nullable(),
     ApplyingDueToAnyEmergency: Yup.string().required("Applying Due To Any Emergency is Required").nullable(),
@@ -74,9 +74,9 @@ const Leave = () => {
       Leave: '',
       ApplyingDueToAnyEmergency: '',
       StationLeave: '',
-      LeaveStartDate: null,
+      LeaveStartDate: "",
       LeavestartTime: '',
-      LeaveEndDate: '',
+      LeaveEndDate: "",
       LeaveEndTime: '',
       Prefix: '',
       Suffix: '',
@@ -92,22 +92,23 @@ const Leave = () => {
   console.log(formik.values.LeaveStartDate);
   console.log(formik.values.LeaveEndDate);
 
+  const numberofDays = getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate);
+
   function getNumberOfDays(start, end) {
     const date1 = new Date(start);
     const date2 = new Date(end);
-
-    // One day in milliseconds
     const oneDay = 1000 * 60 * 60 * 24;
-
-    // Calculating the time difference between two dates
-    const diffInTime = date2.getTime() - date1.getTime();
-
-    // Calculating the no. of days between two dates
-    const diffInDays = Math.round(diffInTime / oneDay);
-
-    return diffInDays;
-}
-console.log(getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate ))
+  
+    if (date1.toDateString() === date2.toDateString()) {
+      return 1;
+    } else {
+      const diffInTime = date2.getTime() - date1.getTime();
+      const diffInDays = Math.round(diffInTime / oneDay);
+  
+      return diffInDays + 1;
+    }
+  }
+  console.log(numberofDays)
 
   const values = [
     {
@@ -246,7 +247,7 @@ console.log(getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEnd
                         Absence Duration
                       </Typography>
                       <Typography variant="h6" gutterBottom>
-                        1 DAYS
+                        {numberofDays} DAYS
                       </Typography>
 
                     </Grid>
@@ -363,7 +364,7 @@ console.log(getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEnd
                   />
                 </LocalizationProvider>
               </Grid> */}
-              <Grid item xs={12} sm={4} md={4} lg={4}>
+              {/* <Grid item xs={12} sm={4} md={4} lg={4}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
                   <DatePicker
                     margin="0"
@@ -373,10 +374,11 @@ console.log(getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEnd
                     label="Leave Start Date"
                     sx={{ width: "100%" }}
                     inputFormat="DD/MM/YYYY"
-                    value={formik.values.LeaveStartDate} // Set the value from Formik
+                    value={formik.values.LeaveStartDate}
                     onChange={(date) => {
-                      const formattedDate = moment(date).format('DD/MM/YYYY');
-                      formik.setFieldValue("LeaveStartDate", formattedDate)} }// Handle date change and update Formik values
+                      const formattedDate = (dayjs(date).format("MM-DD-YYYY"));
+                      formik.setFieldValue("LeaveStartDate", formattedDate)
+                    }}
                     renderInput={(params) => (
                       <TextField
                         fullWidth
@@ -387,7 +389,30 @@ console.log(getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEnd
                     )}
                   />
                 </LocalizationProvider>
+              </Grid> */}
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+                  <DatePicker
+                    margin="0"
+                    id="LeaveStartDate"
+                    name="LeaveStartDate"
+                    minDate={today}
+                    label="Leave Start Date"
+                    sx={{ width: "100%" }}
+                    inputFormat="DD/MM/YYYY"
+                    value={formik.values.LeaveStartDate}
+                    onChange={(date) => {
+                      const formattedDate = dayjs(date).format("MM-DD-YYYY");
+                      formik.setFieldValue("LeaveStartDate", formattedDate);
+                      setSelectedLeaveStartDate(date);
+                    }}
+                    renderInput={(params) => (
+                      <TextField fullWidth margin="0" required {...params} />
+                    )}
+                  />
+                </LocalizationProvider>
               </Grid>
+
               <Grid item xs={12} sm={4} md={4} lg={4}>
                 <Autocomplete
                   margin="0"
@@ -411,6 +436,38 @@ console.log(getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEnd
             // sx={{}}
             >
 
+              {/* <Grid item xs={12} sm={4} md={4} lg={4}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+                  <DatePicker
+                    margin="0"
+                    id="LeaveEndDate"
+                    name="LeaveEndDate"
+                    // minDate={formik.values.LeaveStartDate}
+                    shouldDisableDate={(day) =>{
+                      return dayjs(day).isBefore(formik.values.LeaveStartDate,'day');
+                    }}
+                    // shouldDisableDate={isWeekend}
+                    label="Leave End Date"
+                    sx={{ width: "100%" }}
+                    // maxDate={new Date()}
+                    inputFormat="DD/MM/YYYY"
+                    value={formik.values.LeaveEndDate}
+                    onChange={(date) => {
+                      const formatDate = (dayjs(date).format("MM-DD-YYYY"));
+                      formik.setFieldValue("LeaveEndDate", formatDate)
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        margin="0"
+                        required
+
+                        {...params}
+
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+              </Grid> */}
               <Grid item xs={12} sm={4} md={4} lg={4}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
                   <DatePicker
@@ -418,21 +475,19 @@ console.log(getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEnd
                     id="LeaveEndDate"
                     name="LeaveEndDate"
                     minDate={today}
-                    // shouldDisableDate={isWeekend}
+                    shouldDisableDate={(date) =>
+                      selectedLeaveStartDate ? date < selectedLeaveStartDate : false
+                    }
                     label="Leave End Date"
                     sx={{ width: "100%" }}
-                    // maxDate={new Date()}
                     inputFormat="DD/MM/YYYY"
-                    value={formik.values.LeaveEndDate} // Set the value from Formik
-                    onChange={(date1) => formik.setFieldValue("LeaveEndDate", moment(date1).format('DD/MM/YYYY'))}
+                    value={formik.values.LeaveEndDate}
+                    onChange={(date) => {
+                      const formattedDate = dayjs(date).format("MM-DD-YYYY");
+                      formik.setFieldValue("LeaveEndDate", formattedDate);
+                    }}
                     renderInput={(params) => (
-                      <TextField
-                        margin="0"
-                        required
-
-                        {...params}
-                       
-                      />
+                      <TextField margin="0" required {...params} />
                     )}
                   />
                 </LocalizationProvider>
