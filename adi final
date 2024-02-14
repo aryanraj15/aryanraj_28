@@ -1,88 +1,21 @@
-<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                  <DatePicker
-                    margin="0"
-                    id="LeaveStartDate"
-                    name="LeaveStartDate"
-                    minDate={today}
-                    label="Leave Start Date"
-                    sx={{ width: "100%" }}
-                    inputFormat="DD/MM/YYYY"
-                    value={formik.values.LeaveStartDate} // Set the value from Formik
-                    onChange={(date) => {
-                      const formattedDate = moment(date).format('DD/MM/YYYY');
-                      formik.setFieldValue("LeaveStartDate", formattedDate)} }// Handle date change and update Formik values
-                    renderInput={(params) => (
-                      <TextField
-                        fullWidth
-                        margin="0"
-                        required
-                        {...params}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
+  console.log(formik.values.LeaveStartDate);
+  console.log(formik.values.LeaveEndDate);
 
+ 
 
+  function getNumberOfDays(start, end) {
+    const date1 = new Date(start);
+    const date2 = new Date(end);
 
+    // One day in milliseconds
+    const oneDay = 1000 * 60 * 60 * 24;
 
+    // Calculating the time difference between two dates
+    const diffInTime = date2.getTime() - date1.getTime();
 
+    // Calculating the no. of days between two dates
+    const diffInDays = Math.round(diffInTime / oneDay);
 
-
-// ... (previous imports)
-
-import { useFormik } from 'formik';
-import dayjs from 'dayjs';  // Import dayjs
-
-// ... (other constants and styled components)
-
-const Leave = () => {
-  // ... (other constants and functions)
-
-  const formik = useFormik({
-    initialValues: {
-      // ... (other initial values)
-      LeaveStartDate: null,
-      LeaveEndDate: '',
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      handleRedirect();
-    },
-  });
-
-  // Handle date changes and update Formik values
-  const handleDateChange = (date, field) => {
-    const formattedDate = dayjs(date).format('DD/MM/YYYY');
-    formik.setFieldValue(field, formattedDate);
-  };
-
-  return (
-    // ... (JSX structure)
-    <Grid item xs={12} sm={4} md={4} lg={4}>
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-        <DatePicker
-          margin="0"
-          id="LeaveStartDate"
-          name="LeaveStartDate"
-          minDate={today}
-          label="Leave Start Date"
-          sx={{ width: "100%" }}
-          inputFormat="DD/MM/YYYY"
-          value={formik.values.LeaveStartDate}
-          onChange={(date) => handleDateChange(date, 'LeaveStartDate')}
-          renderInput={(params) => (
-            <TextField
-              fullWidth
-              margin="0"
-              required
-              {...params}
-            />
-          )}
-        />
-      </LocalizationProvider>
-    </Grid>
-    // ... (continue with other components)
-  );
+    return diffInDays;
 }
-
-export default Leave;
+console.log(getNumberOfDays("2/15/2024", "3/10/2024"))
