@@ -1,62 +1,21 @@
-import React, { useState } from "react";
-// other imports...
+console.log(formik.values.LeaveStartDate);
+  console.log(formik.values.LeaveEndDate);
 
-const Leave = () => {
-  const [selectedLeaveStartDate, setSelectedLeaveStartDate] = useState(null);
-  // ... rest of your code
+  const numberofDays = getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate);
 
-  return (
-    <>
-      {/* ... your existing code ... */}
-      <Grid item xs={12} sm={4} md={4} lg={4}>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-          <DatePicker
-            margin="0"
-            id="LeaveStartDate"
-            name="LeaveStartDate"
-            minDate={today}
-            label="Leave Start Date"
-            sx={{ width: "100%" }}
-            inputFormat="DD/MM/YYYY"
-            value={formik.values.LeaveStartDate}
-            onChange={(date) => {
-              const formattedDate = dayjs(date).format("MM-DD-YYYY");
-              formik.setFieldValue("LeaveStartDate", formattedDate);
-              setSelectedLeaveStartDate(date);
-            }}
-            renderInput={(params) => (
-              <TextField fullWidth margin="0" required {...params} />
-            )}
-          />
-        </LocalizationProvider>
-      </Grid>
-      <Grid item xs={12} sm={4} md={4} lg={4}>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-          <DatePicker
-            margin="0"
-            id="LeaveEndDate"
-            name="LeaveEndDate"
-            minDate={today}
-            shouldDisableDate={(date) =>
-              selectedLeaveStartDate ? date < selectedLeaveStartDate : false
-            }
-            label="Leave End Date"
-            sx={{ width: "100%" }}
-            inputFormat="DD/MM/YYYY"
-            value={formik.values.LeaveEndDate}
-            onChange={(date) => {
-              const formattedDate = dayjs(date).format("MM-DD-YYYY");
-              formik.setFieldValue("LeaveEndDate", formattedDate);
-            }}
-            renderInput={(params) => (
-              <TextField margin="0" required {...params} />
-            )}
-          />
-        </LocalizationProvider>
-      </Grid>
-      {/* ... rest of your code ... */}
-    </>
-  );
-};
+  function getNumberOfDays(start, end) {
+    const date1 = new Date(start);
+    const date2 = new Date(end);
 
-export default Leave;
+    // One day in milliseconds
+    const oneDay = 1000 * 60 * 60 * 24;
+
+    // Calculating the time difference between two dates
+    const diffInTime = date2.getTime() - date1.getTime();
+
+    // Calculating the no. of days between two dates
+    const diffInDays = Math.round(diffInTime / oneDay);
+
+    return diffInDays;
+  }
+  console.log(numberofDays)
