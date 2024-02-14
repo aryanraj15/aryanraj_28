@@ -95,6 +95,9 @@ const Leave = () => {
   const numberofDays = getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate);
 
   function getNumberOfDays(start, end) {
+    if(!start || !end){
+      return 0;
+    }
     const date1 = new Date(start);
     const date2 = new Date(end);
     const oneDay = 1000 * 60 * 60 * 24;
@@ -418,7 +421,6 @@ const Leave = () => {
                   margin="0"
                   id="LeavestartTime"
                   name="LeavestartTime"
-
                   options={time}
                   sx={{ width: "100%" }}
                   required
