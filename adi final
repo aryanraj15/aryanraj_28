@@ -1,40 +1,28 @@
 import React, { useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { DateRangePicker } from 'react-dates';
+import 'react-dates/lib/css/_datepicker.css';
+import 'react-dates/initialize';
 
-const DateRangePicker = () => {
+const DateRangePickerComponent = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  const handleDateChange = (date, isStartDate) => {
-    if (isStartDate) {
-      setStartDate(date);
-    } else {
-      setEndDate(date);
-    }
+  const handleDateChange = ({ startDate, endDate }) => {
+    setStartDate(startDate);
+    setEndDate(endDate);
   };
 
   return (
-    <div>
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => handleDateChange(date, true)}
-        selectsStart
-        startDate={startDate}
-        endDate={endDate}
-        placeholderText="Start Date"
-      />
-      <DatePicker
-        selected={endDate}
-        onChange={(date) => handleDateChange(date, false)}
-        selectsEnd
-        startDate={startDate}
-        endDate={endDate}
-        minDate={startDate}
-        placeholderText="End Date"
-      />
-    </div>
+    <DateRangePicker
+      startDate={startDate}
+      startDateId="start_date_id"
+      endDate={endDate}
+      endDateId="end_date_id"
+      onDatesChange={handleDateChange}
+      focusedInput={null} // or 'startDate' or 'endDate'
+      onFocusChange={() => {}} // needed, but you can leave it as an empty function
+    />
   );
 };
 
-export default DateRangePicker;
+export default DateRangePickerComponent;
