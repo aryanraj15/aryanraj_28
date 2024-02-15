@@ -1,49 +1,29 @@
-<Autocomplete
-                    margin="normal"
-                    fullWidth
-                    size="small"
-                    id="Department"
-                    name="Department"
-                    options={departmentList}
-                    
-                    value={params.value || null}
-                    getOptionLabel={(option) => option.label}
-                    onChange={(e, value) => {
+import React, { useState } from 'react';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 
-                        handlefieldchange(params.row.id, "qualification", value);
-                    }}
-                    sx={{ width: "100%", mt: 1 }}
-                    renderInput={(params) => <TextField {...params} />}
-                />
-                              
-<Autocomplete
-                                    disablePortal
-                                    margin="0"
-                                    fullWidth
-                                    id="Department"
-                                    name="Department"
-                                    options={departmentList}
-                                    value={departmentList.find(
-                                        (option) => option.valueName === formik.values.Department?.valueName
-                                    ) || null}
-                                    onChange={(e, value) => {
-                                        console.log(value)
-                                        if (value === null) {
-                                            formik.setFieldValue("Department", null)
-                                        }
-                                        else
-                                            formik.setFieldValue("Department", value)
-                                    }}
-                                    getOptionLabel={(value) => value.valueName}
-                                    sx={{ width: "100%", mt: 2 }}
-                                    renderInput={(params) => (
-                                        <TextField {...params}
-                                            label="Department"
-                                            onBlur={formik.handleBlur}
-                                            helperText={formik.errors.Department && formik.touched.Department ? formik.errors.Department : null}
-                                            error={formik.errors.Department && formik.touched.Department ? true : false}
-                                        />
-                                    )}
-                                />
+export default function RangeDatePicker() {
+  const [dateRange, setDateRange] = useState([null, null]);
 
+  const handleDateChange = (newDateRange) => {
+    setDateRange(newDateRange);
+  };
 
+  return (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <DateRangePicker
+        startText="Start Date"
+        endText="End Date"
+        value={dateRange}
+        onChange={handleDateChange}
+        renderInput={(startProps, endProps) => (
+          <>
+            <input {...startProps} placeholder="Start Date" />
+            <input {...endProps} placeholder="End Date" />
+          </>
+        )}
+      />
+    </LocalizationProvider>
+  );
+}
