@@ -1,23 +1,41 @@
-function getNumberOfDays(start, end, startTimeId, endTimeId) {
-    if (!start || !end) {
-        return 0;
-    }
+// Add this function to filter values based on the condition
+const filterEndTimeValues = (startTimeId) => {
+  if (startTimeId === 2) {
+    // If starttimeId is 2, filter out the value with id 2 from time2
+    return time2.filter((value) => value.id !== 2);
+  }
+  return time2; // Otherwise, return the original time2 array
+};
 
-    const date1 = new Date(start);
-    const date2 = new Date(end);
-    const oneDay = 1000 * 60 * 60 * 24;
-
-    const diffInTime = date2.getTime() - date1.getTime();
-    let diffInDays = Math.round(diffInTime / oneDay);
-
-    // Check if the dates are the same
-    if (date1.toDateString() === date2.toDateString()) {
-        // Check additional conditions for modifying diffInDays
-        if (startTimeId === 1 && endTimeId === 2) {
-            // Modify diffInDays
-            diffInDays -= 0.5;
-        }
-    }
-
-    return diffInDays + 1;
-}
+// Inside the component, update the Autocomplete component for LeaveEndTime
+<Grid item xs={12} sm={4} md={4} lg={4}>
+  <Autocomplete
+    margin="0"
+    id="LeaveEndTime"
+    name="LeaveEndTime"
+    options={filterEndTimeValues(formik.values.LeavestartTime)} // Use the filtered values
+    sx={{ width: "100%" }}
+    required
+    fullWidth
+    value={time2.find(
+      (option) => option.id === formik.values.LeaveEndTime
+    ) || null}
+    onChange={(e, value) => {
+      if (value === null) {
+        formik.setFieldValue("LeaveEndTime", null)
+      }
+      else
+        formik.setFieldValue("LeaveEndTime", value.id)
+    }}
+    getOptionLabel={(value) => value.label}
+    renderInput={(params) =>
+      <TextField
+        {...params}
+        label="Time"
+        required
+        onBlur={formik.handleBlur}
+        helperText={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? formik.errors.LeaveEndTime : null}
+        error={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? true : false}
+      />}
+  />
+</Grid>
