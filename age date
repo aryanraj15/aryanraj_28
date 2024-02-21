@@ -1,43 +1,31 @@
-import React, { useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+                <Grid item xs={12} sm={4} md={4} lg={4}>
+                  <Autocomplete
+                    margin="0"
+                    id="ApplyingDueToAnyEmergency"
+                    name="ApplyingDueToAnyEmergency"
+                    options={values5}
+                    sx={{ width: "100%" }}
+                    required
+                    fullWidth
+                    value={values4.find(
+                      (option) => option.id === formik.values.ApplyingDueToAnyEmergency
+                    ) || null}
+                    onChange={(e, value) => {
+                      if (value === null) {
+                        formik.setFieldValue("ApplyingDueToAnyEmergency", null)
+                      }
+                      else
 
-const AgeCalculator = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-  };
-
-  const calculateAge = () => {
-    if (!selectedDate) {
-      return "";
-    }
-
-    const now = new Date();
-    const diff = now - selectedDate;
-
-    const ageDate = new Date(diff);
-    const years = ageDate.getUTCFullYear() - 1970;
-    const months = ageDate.getUTCMonth();
-    const days = ageDate.getUTCDate() - 1;
-
-    return `${years} years, ${months} months, ${days} days`;
-  };
-
-  return (
-    <div>
-      <label>Select Date of Birth:</label>
-      <DatePicker selected={selectedDate} onChange={handleDateChange} />
-
-      <div>
-        <label>Age:</label>
-        <input type="text" 
-        value={calculateAge()} 
-        readOnly />
-      </div>
-    </div>
-  );
-};
-
-export default AgeCalculator;
+                        formik.setFieldValue("ApplyingDueToAnyEmergency", value.id)
+                    }}
+                    getOptionLabel={(value) => value.label}
+                    renderInput={(params) =>
+                      <TextField {...params}
+                        label="Applying due to any emergency?"
+                        required
+                        onBlur={formik.handleBlur}
+                        helperText={formik.errors.ApplyingDueToAnyEmergency && formik.touched.ApplyingDueToAnyEmergency ? formik.errors.ApplyingDueToAnyEmergency : null}
+                        error={formik.errors.ApplyingDueToAnyEmergency && formik.touched.ApplyingDueToAnyEmergency ? true : false}
+                      />}
+                  />
+                </Grid>
