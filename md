@@ -777,3 +777,38 @@ export default Leave;
                 "userId": 83,
             },
         },
+
+
+
+
+
+        // ... (existing imports)
+
+const Leave = () => {
+  // ... (existing code)
+
+  useEffect(() => {
+    // Function to make the POST request
+    const fetchData = async () => {
+      try {
+        const response = await axios.post(
+          "http://129.154.229.83:8095/leavemanagement/get-user-details",
+          {
+            userId: 83,
+          }
+        );
+        // Handle the response data as needed
+        console.log(response.data);
+      } catch (error) {
+        // Handle errors
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    // Call the function when the component is mounted
+    fetchData();
+  }, []); // The empty dependency array ensures the effect runs only once on mount
+
+  // ... (remaining code)
+};
+
