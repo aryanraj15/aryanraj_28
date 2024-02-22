@@ -1,41 +1,36 @@
-// Add this function to filter values based on the condition
-const filterEndTimeValues = (startTimeId) => {
-  if (startTimeId === 2) {
-    // If starttimeId is 2, filter out the value with id 2 from time2
-    return time2.filter((value) => value.id !== 2);
+// Modify the part where you set the link after uploading the document
+const uploadFile = async () => {
+  // ... (existing code)
+
+  try {
+    const res = await axios.post(
+      `http://129.154.229.83:8095/leavemanagement/uploadAttachment`,
+      bodyFormData,
+    );
+
+    if (res.data.statusCode === 200) {
+      formik.setFieldValue("LeaveFile", selectedFile);
+      formik.setFieldValue("LeaveFileName", selectedFile.name);
+      formik.setFieldValue("LeaveVirtualPath", res.data.result[selectedFile.name]);
+
+      setToastSeverity("success");
+      setOpenToast(true);
+    } else {
+      console.log('bad request');
+    }
+  } catch (error) {
+    console.log(error.message);
   }
-  return time2; // Otherwise, return the original time2 array
 };
 
-// Inside the component, update the Autocomplete component for LeaveEndTime
-<Grid item xs={12} sm={4} md={4} lg={4}>
-  <Autocomplete
-    margin="0"
-    id="LeaveEndTime"
-    name="LeaveEndTime"
-    options={filterEndTimeValues(formik.values.LeavestartTime)} // Use the filtered values
-    sx={{ width: "100%" }}
-    required
-    fullWidth
-    value={time2.find(
-      (option) => option.id === formik.values.LeaveEndTime
-    ) || null}
-    onChange={(e, value) => {
-      if (value === null) {
-        formik.setFieldValue("LeaveEndTime", null)
-      }
-      else
-        formik.setFieldValue("LeaveEndTime", value.id)
-    }}
-    getOptionLabel={(value) => value.label}
-    renderInput={(params) =>
-      <TextField
-        {...params}
-        label="Time"
-        required
-        onBlur={formik.handleBlur}
-        helperText={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? formik.errors.LeaveEndTime : null}
-        error={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? true : false}
-      />}
-  />
-</Grid>
+// Display the name of the uploaded file as a clickable link
+{formik.values.LeaveFileName && (
+  <Link href={formik.values.LeaveVirtualPath} underline="none" target="_blank">
+    <Typography>{formik.values.LeaveFileName}</Typography>
+  </Link>
+)}
+
+// Ensure that you have a button to trigger the file upload
+<Button variant="contained" onClick={handleButtonClick}>
+  Upload Document
+</Button>
