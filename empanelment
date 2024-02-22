@@ -1,0 +1,922 @@
+import React from "react";
+import {
+  Paper,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { makeStyles } from "@mui/styles";
+// import { useState, useRef, useEffect } from "react";
+import { Field, Form, Formik, ErrorMessage, useFormik } from "formik";
+import * as Yup from "yup";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Button from "@mui/material/Button";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import AddIcon from "@mui/icons-material/Add";
+import { useState , useRef} from "react";
+import FormHelperText from "@mui/material/FormHelperText";
+import Box from "@mui/material/Box";
+import Autocomplete from "@mui/material/Autocomplete";
+import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
+import "../../App.css";
+import Attachment from "../../components/Attachment";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate,useParams } from "react-router-dom";
+import { isValid } from "date-fns";
+import { useSnackbar } from "../../components/Snackbar";
+import axios from "../../utils/axios";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { IconButton } from '@mui/material';
+import FileUploadSharpIcon from "@mui/icons-material/FileUploadSharp";
+
+export default function M10SpecialityInfrastructure(props) {
+  // const [section, setSection] = useState(false);
+  // const data = [
+  //   {id: "MB5a.1",content: "OPD with registers",details: "area",attachment: "yes",},
+  //   {id: "MB5a.2",content: "Advanced lab services",details: "availability2",attachment: "yes",},
+  //   {id: "MB5a.3",content: "Physiotherapy support",details: "availability2",attachment: "yes",},
+  //   {id: "MB5a.4",content: "AMC and ICU With all equipments",details: "availability2",attachment: "yes",},
+  //   {id: "MB5a.5",content: "Immunoassay",details: "availability2",attachment: "yes",},
+  //   {id: "MB5a.6",content: "Hormonal assay",details: "availability2",attachment: "yes",},
+  //   {id: "MB5a.7",content: "Genetical assay",details: "availability2",attachment: "yes",},
+  //   {id: "MB5a.8",content: "Ventilators",details: "numbers",attachment: "yes",},
+  //   {id: "MB5a.9",content: "Male ward",details: "area",attachment: "yes",},
+  //   {id: "MB5a.10",content: "Female ward",details: "area",attachment: "yes",},
+    
+    
+    
+  // ];
+  // const options1 = [
+  //   { label: "Yes", id: 1 },
+    
+  // ];
+  // const options2 = [
+  //   { label: "Yes", id: 1 },
+  //   { label: "No", id: 2 },
+  // ];
+
+  const actorEmpanlId = props.basicId
+  const hospitalLoginId = props.hospitalUserLogin
+
+  let loginStatus = {};
+
+  if (actorEmpanlId == undefined) {
+    loginStatus = hospitalLoginId
+  }
+  else if (hospitalLoginId == undefined) {
+    loginStatus = actorEmpanlId
+
+  }
+
+  const empnlId = loginStatus;
+
+  const [section, setSection] = useState(false);
+  const dispatch = useDispatch();
+  const { showSnackbar } = useSnackbar();
+  const [vpath, setVpath] = useState("");
+  // const [filePath, setViewvpath] = useState("");
+  var filePath = "";
+  const [qid, setQid] = useState("");
+  const [upImage, setUpImage] = useState([]);
+  const [isAttached, setIsAttached] = useState(false)
+  const [loading, setLoading] = useState(false);
+  let availabilityDropdownData = [];
+
+  const columnDropdownData = useSelector((state) => state.dropdown.data);
+
+
+
+  if (Object.keys(columnDropdownData).length !== 0) {
+
+    if (columnDropdownData.result !== null && columnDropdownData.result.availability !== undefined) {
+      availabilityDropdownData = columnDropdownData.result.availability.map((item) => ({
+        value: item.typeName,
+        id: item.typeId,
+      }));
+    }
+
+
+  }
+  
+  const formRef = useRef();
+  
+const dataObjmajor = useSelector((state) => state.speciality.data)
+  console.log("general data", dataObjmajor);
+  const [isSaved, setIsSaved] = useState(false);
+
+
+
+  
+
+  let dataObj = []
+
+  let dataMedmajor = [];
+  if (Object.keys(dataObjmajor).length !== 0) {
+    dataMedmajor = dataObjmajor.result.filter((item) => item.specialityId === 15)
+
+    dataMedmajor.map((item) => dataObj.push(item.qstDTOList[0]));
+
+  }
+
+  console.log("data obj speciality", dataMedmajor);
+  const labelId = 106;
+
+  let data = [];
+
+  const files = [];
+
+  let dataMed = [];
+  if (Object.keys(dataMedmajor).length !== 0) {
+    dataMed = dataMedmajor.filter((item) => item.lableId === 106)
+
+    dataMed.map((item) => data.push(item.qstDTOList[0]));
+
+  }
+console.log(data,"specialitydata")
+const initialValues = data.reduce((acc, item) => {
+  const fieldSuffix = `-${item.subItemNo}`;
+
+  if (item.availability === "Y") {
+    let itemValue = availabilityDropdownData.find(option => option.id === item.colValResponse.find(col =>
+      col.colName === 'availability')?.valId)
+    if (itemValue == undefined || itemValue == null) {
+      acc[`availability-${item.subItemNo}`] = "";
+    }
+
+    if (item.colValResponse.length > 0 && ((item.colValResponse[0].valId !== null) && (item.colValResponse[0].valId !== "")) && !isSaved) {
+      setIsSaved(true);
+    }
+
+  }
+  if (item.numbers === "Y") {
+    acc[`numbers-${item.subItemNo}`] = ""
+  }
+  if (item.area === "Y") {
+    acc[`area-${item.subItemNo}`] = "";
+  }
+  if (item.attachments === "Y") {
+    acc[`attachments${fieldSuffix}`] = ""; // Initialize as null for date fields
+    // acc[`attachments${fieldSuffix}`] = item.colValResponse.find(innerItem => innerItem.colName === "attachments")?.attachmentPath || ""
+
+  }
+  console.log(fieldSuffix);
+  console.log(vpath);
+  if (fieldSuffix.includes(qid)) {
+    if (vpath !== null && vpath !== '') {
+
+      console.log(upImage);
+      for (var i in upImage) {
+        if (upImage[i].id.includes(qid)) {
+          upImage[i].path = vpath;
+          break;
+        }
+      }
+      setVpath("");
+    }
+  }
+  else {
+    acc[`filePath${fieldSuffix}`] = "";
+  }
+
+  return acc;
+}, {});
+
+console.log(upImage)
+
+
+const fileInputRef = useRef();
+
+
+
+const handleFilePicker = () => {
+  fileInputRef.current.click();
+
+
+}
+
+const validationSchema = Yup.object().shape(
+  data.reduce((acc, item) => {
+    const fieldSuffix = `-${item.subItemNo}`;
+    const availabilityField = `availability${fieldSuffix}`;
+    const numbersField = `numbers${fieldSuffix}`;
+    const areaField = `area${fieldSuffix}`;
+    const attachments = `attachments${fieldSuffix}`;
+    
+
+      if (item.availability === "Y") {
+        acc[availabilityField] = Yup.string().required(`Required`).nullable();
+      }
+      if (item.numbers === "Y") {
+        acc[numbersField] = Yup.number().typeError("Must be a number").required(`Required`);
+      }
+      if (item.area === "Y") {
+        acc[areaField] = Yup.number().typeError("Area must be a number").required(`Required`);
+      }
+    
+      if (item.attachments === "Y") {
+        acc[attachments] = Yup.mixed();
+      }
+
+
+      return acc;
+    }, {})
+  );
+
+  let data1 = [];
+  const formik = useFormik({
+    initialValues: {
+      initialValues
+    },
+    
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+    
+      console.log("Form submitted with values:", values);
+    },
+
+  });
+
+  const getDataDetails = async () => {
+   
+    let body;
+    body = {
+      empanlId: empnlId,
+      specialityId:15,
+      lableId: 106
+    };
+    const res = await axios.post('fetchLabelDataSpecs', body);
+ 
+    for (let i = 0; i < res.data.result.length; i++) {
+      data1.push(res.data.result[i].qstDTOList[0]);
+    }
+    console.log(data1);
+
+
+
+    for (let k = 0; k < data1.length; k++) {
+
+      console.log(data1);
+      let item = data1[k];
+      console.log(item);
+      const fieldSuffix = `-${item.subItemNo}`;
+      console.log(item.colValResponse);
+      if (item.availability === "Y") {
+        
+        let itemValue = availabilityDropdownData.find(option => option.id === item.colValResponse.find(col =>
+          col.colName === 'availability')?.valId)
+        console.log(itemValue);
+        if (itemValue == undefined || itemValue == null) {
+          formik.setFieldValue(`availability-${item.subItemNo}`, "");
+        }
+        else {
+          formik.setFieldValue(`availability-${item.subItemNo}`, itemValue.id);
+
+        }
+        if (item.colValResponse.length > 0 && ((item.colValResponse[0].valId !== null) && (item.colValResponse[0].valId !== "")) && !isSaved) {
+          setIsSaved(true);
+        }
+
+      }
+      if (item.numbers === "Y") {
+        formik.setFieldValue(`numbers-${item.subItemNo}`, item.colValResponse.find(innerItem => innerItem.colName === "numbers")?.textValues || "");
+      }
+      if (item.area === "Y") {
+        formik.setFieldValue(`area-${item.subItemNo}`, item.colValResponse.find(innerItem => innerItem.colName === "area")?.textValues || "");
+      }
+      if (item.attachments === "Y") {
+        formik.setFieldValue(`attachments${fieldSuffix}`, item.colValResponse.find(innerItem => innerItem.colName === "attachments")?.attachmentPath);
+        console.log(item.colValResponse.find(innerItem => innerItem.colName === "attachments")?.attachmentPath)
+        let existId = upImage.filter((it) => it.id === item.subItemNo)
+        console.log(existId)
+        if (existId.length <= 0) {
+          upImage.push({ id: item.subItemNo, path: item.colValResponse.find(innerItem => innerItem.colName === "attachments")?.attachmentPath })
+        }
+      }
+      console.log(fieldSuffix);
+      console.log(vpath);
+      if (fieldSuffix.includes(qid)) {
+        if (vpath !== null && vpath !== '') {
+          //alert("up")
+          console.log(upImage);
+          for (var j in upImage) {
+            if (upImage[j].id.includes(qid)) {
+              upImage[j].path = vpath;
+              break;
+            }
+          }
+
+
+          setVpath("");
+        }
+      }
+      else {
+        formik.setFieldValue(`filePath${fieldSuffix}`, "");
+        
+      }
+    }
+
+
+  }
+
+
+  const getImageDetails = async () => {
+    
+    let data2 = [];
+  
+    let body;
+    body = {
+      empanlId: empnlId,
+      specialityId:15,
+      lableId: 106
+    };
+    const res = await axios.post('fetchLabelDataSpecs', body);
+   
+    for (let i = 0; i < res.data.result.length; i++) {
+      data2.push(res.data.result[i].qstDTOList[0]);
+    }
+    console.log(data2);
+
+
+
+    for (let k = 0; k < data2.length; k++) {
+
+      let item = data2[k];
+      const fieldSuffix = `-${item.subItemNo}`;
+
+
+      if (item.attachments === "Y") {
+        let existId = upImage.filter((it) => it.id === item.subItemNo)
+        console.log(upImage)
+        console.log(existId)
+      
+
+        for (var j in upImage) {
+          let fileId = upImage[j].id;
+          console.log(fileId + "****" + existId)
+          console.log(existId)
+          if (upImage[j].id === existId[0].id) {
+          
+            upImage[j].path = item.colValResponse.find(innerItem => innerItem.colName === "attachments")?.attachmentPath;
+            break;
+          }
+          
+        }
+
+      }
+
+    }
+
+
+  }
+  useEffect(() => {
+    console.log();
+    getDataDetails();
+  }, []);
+
+  const handleRowClick = async (e, rowData) => {
+    //setViewvpath("")
+
+    // Access the data of the clicked TableRow
+    // console.log('Clicked row data:', e.target.id);
+    console.log('Clicked row data:', rowData);
+    console.log(rowData.subItemNo);
+    setIsAttached(false);
+    setQid(rowData.subItemNo)
+
+
+    upImage.forEach(
+      function (d) {
+        if (rowData.subItemNo === d.id) {
+          console.log(d.path)
+          filePath = d.path;
+          setIsAttached(true);
+        }
+      }
+    );
+    console.log(filePath, "viewpath1")
+    if (e.target.value.includes("viewattachment" + rowData.subItemNo)) {
+      if (filePath !== null && filePath !== "") {
+
+        const res = await axios.post(`general-equipments/download`, null, {
+          params: {
+            filePath
+          },
+          responseType: 'blob',
+          headers: {
+            Accept: 'application/octet-stream',
+          },
+        });
+        console.log(res.data);
+        const viewblob = new Blob([res.data], { type: 'application/pdf' });
+        const url = URL.createObjectURL(viewblob);
+        console.log(url, "url")
+
+        const newWindow = window.open(url, '_blank');
+        formik.setFieldValue(`checkbox-${rowData.subItemNo}`, true);
+
+      }
+    }
+
+  };
+
+   const handleFileUpload = async (file, qstId) => {
+    console.log(file.size,"file size")
+    if(file.size>204800){
+      showSnackbar("File size should not be more than 200 KB","warning")
+      return;
+    }
+    setLoading(true)
+
+    const File = file;
+    console.log(qstId)
+    console.log(qid)
+    //console.log(file);
+    // file pass to api for virtual path
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    var bodyFormData = new FormData();
+    bodyFormData.append("file", file)
+    const res = await axios.post('general-equipments/uploadAttachment', bodyFormData, config);
+    console.log(res.data.result, "-------ress");
+
+    // --------------------------------------------------
+
+
+    if (res.data.statusCode === 200) {
+      console.log(res.data.result[0].virtualPath);
+
+      console.log(data);
+      setVpath(res.data.result[0]?.virtualPath);
+      // setViewvpath(res.data.result[0]?.virtualPath)
+      showSnackbar("File Uploaded Successfully", "success");
+  
+    } else {
+      showSnackbar("File Not Uploaded. Try Again", "warning");
+      console.log("bad request");
+    }
+    setLoading(false);
+  }
+
+  const params = useParams()
+
+
+
+
+  const getFile = (file) => {
+
+    files.push(file)
+    console.log(files)
+
+  }
+
+
+
+
+  const getValueFromList = (list, value) => {
+    console.log(value)
+    // console.log(value1)
+    console.log(list)
+    if (value !== undefined || value !== null) {
+      // console.log(availabilityDropdownData.find(option => option.id === value.id)?.value)
+
+      return availabilityDropdownData.find(option => option.id === value) ?? null;
+    }
+    else {
+
+      return availabilityDropdownData.find(option => option.id === value) ?? null;
+    }
+
+
+
+
+
+  }
+
+  const SaveData = async (values) => {
+    // event.preventDefault();
+    const touched = Object.keys(formik.initialValues).reduce((result, item) => {
+      result[item] = true;
+      return result;
+    }, {});
+    // Touch all fields without running validations
+    formik.setTouched(touched, false);
+    formik.setSubmitting(true);
+
+    formik
+      .validateForm()
+      .then((formErrors) => {
+        if (Object.keys(formErrors).length > 0) {
+
+          showSnackbar("Please enter all required fields", "error");
+        } else {
+          submitFormData(values);
+        }
+      })
+      .catch((err) => {
+        formik.setSubmitting(false);
+      });
+
+
+  };
+  
+  const submitFormData = async (values) => {
+
+    let finalPayload = [];
+    data.map((item) => {
+
+      for (const key of Object.keys(values)) {
+        if (item.subItemNo === key.split("-")[1]) {
+          let payload = {
+            "lableId": labelId,
+            "empanlId": empnlId,
+            "typeId": 140,
+            "crtBy": 1,
+          }
+          if (item.colValResponse != null) {
+            let ItemId = "";
+            item.colValResponse.map((innerItem) => {
+              ItemId = innerItem.colName + '-' + item.subItemNo
+              if (key.toString() === ItemId.toString()) {
+                payload.sqstColId = innerItem.sqstColId;
+                if (innerItem.valId === 13) {
+                  payload.valId = innerItem.valId;
+                  payload.textValues = values[key]
+                  finalPayload.push(payload);
+                }
+                else if (innerItem.valId === 14) {
+
+                  payload.valId = innerItem.valId;
+                  upImage.forEach(
+                    function(d){
+                      if(key.includes(d.id))
+                      {
+                        console.log(d.path)
+                        payload.filePath  = d.path
+                      }
+                     }
+                  );
+
+                  finalPayload.push(payload);
+
+                }
+                else {
+                  payload.valId = values[key];
+                  finalPayload.push(payload);
+                }
+              }
+            })
+          }
+        }
+      }
+      console.log(finalPayload);
+    });
+
+    const formData = new FormData();
+    console.log(finalPayload)
+    if (finalPayload !== null) {
+      formData.append(
+        "data",
+        new Blob([JSON.stringify(finalPayload)], { type: "application/json" })
+      );
+      for (let i = 0; i < files.length; i++) {
+        formData.append("files", files[i]);
+
+      }
+      console.log(formData, "formData")
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      };
+      try {
+        const res = await axios.post('m10/save-m10-speciality-details', formData, config);
+
+        console.log(res.data.statusCode, "s2infrastructure")
+        formik.setSubmitting(false);
+        if (res.data.statusCode == 200 && res.data.status === true) {
+
+          showSnackbar("Saved Successfully", "success");
+          setIsSaved(true);
+          getImageDetails();
+
+        } else if (
+          res.data.statusCode == 204 &&
+          res.data.status === false
+        ) {
+
+          showSnackbar(res.data.message, "warning");
+          setIsSaved(false);
+        }
+      } catch (error) {
+        showSnackbar("Oops something went wrong", "error");
+        console.log(error.message);
+        setIsSaved(false);
+      }
+    }
+
+};
+
+
+  return (
+    <Accordion
+      style={{ boxShadow: "none" }}
+      onChange={() => setSection(!section)}
+      disableGutters={true}
+    >
+      <AccordionSummary>
+    {section ? (
+      <IndeterminateCheckBoxIcon style={{ color: isSaved ? "#288C28" : "#2169B2" }} />
+    ) : (
+      <AddBoxIcon style={{ color: isSaved ? "#288C28" : "#444444" }} />
+    )}
+    <Typography
+      sx={{
+        color: isSaved ? "#288C28" : section ? "#2169B2" : "#444444",
+        paddingLeft: "6px",
+        fontWeight: "bold",
+        fontSize: "15px",
+      }}
+    >
+          Speciality Infrastructure
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+      <form onSubmit={formik.handleSubmit}>
+                  <Typography>
+                  <Box sx={{ overflow: "auto" }}>
+          <Box
+            sx={{
+              width: "100%",
+              height: "auto",
+              display: "table",
+              tableLayout: "fixed",
+            }}
+          >
+                  <TableContainer component={Paper}>
+                    <Table aria-aria-label="simple table">
+                      <TableHead>
+                      <TableRow>
+                      <TableCell className="TableHeading" sx={{ width: "9%" }}>
+                        <p className="HeadingData">Sub Item No </p>
+                      </TableCell>
+                      <TableCell className="TableHeading" sx={{ width: "40.5%" }}>
+                        <p className="HeadingData"> Speciality Infrastructure</p>
+                      </TableCell>
+                      <TableCell className="TableHeading" sx={{ width: "12.5%" }}>
+                        <p className="HeadingData"> Enter Details</p>
+                      </TableCell>
+                      <TableCell className="TableHeading" sx={{ width: "9%" }}>
+                        <p className="HeadingData">Attachment</p>
+                      </TableCell>
+                      {actorEmpanlId !== undefined  &&
+                        <TableCell className="TableHeading" sx={{ width: "9%" }}>
+                          <p className="HeadingData">Verify</p>
+                        </TableCell>
+                          }
+                    </TableRow>
+                      </TableHead>
+                      <TableBody>
+                      {data.map((item) => (
+                            <TableRow onClick={(e) => handleRowClick(e, item)} key={item.id}>
+                              <TableCell className="BodyBorder">
+                                <p className="TableData">{item.id}</p>
+                              </TableCell>
+                              <TableCell className="BodyBorder">
+                                <p className="TableData"> {item.content}</p>
+                              </TableCell>
+                              <TableCell className="BodyBorder">
+                            {/* for availability field */}
+
+                            {item.availability === "Y" && (
+
+                              <Autocomplete
+                                disablePortal
+                                margin="normal"
+                                name={`availability-${item.subItemNo}`}
+                                fullWidth
+                                size="small"
+                                disabled={props.disableStatus}
+                                id={`availability-${item.subItemNo}`}
+                                options={availabilityDropdownData}
+
+                                getOptionLabel={(option) => option.value || ''}
+                                value={getValueFromList(availabilityDropdownData, formik.values[`availability-${item.subItemNo}`]) || ""}
+                                onChange={(event, newValue) => {
+                                  console.log(newValue)
+                                  if (newValue === null) {
+                                    formik.setFieldValue(`availability-${item.subItemNo}`, null);
+                                  }
+                                  else {
+                                    formik.setFieldValue(`availability-${item.subItemNo}`, newValue.id);
+                                  }
+                                }}
+
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Availability"
+                                    required
+                                    error={formik.touched[`availability-${item.subItemNo}`] && Boolean(formik.errors[`availability-${item.subItemNo}`])}
+                                    helperText={formik.touched[`availability-${item.subItemNo}`] && formik.errors[`availability-${item.subItemNo}`]}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                  />
+                                )}
+                              />
+
+                            )}
+
+                            
+
+                            {/* for number field */}
+                            {item.numbers === "Y" && (
+
+                              <TextField
+                                
+                                margin="0"
+                                label="Numbers"
+                                required
+                                fullWidth
+                                name={`numbers-${item.subItemNo}`}
+                                value={formik.values[`numbers-${item.subItemNo}`] || ''}
+                                error={formik.touched[`numbers-${item.subItemNo}`] && Boolean(formik.errors[`numbers-${item.subItemNo}`])}
+                                helperText={formik.touched[`numbers-${item.subItemNo}`] && formik.errors[`numbers-${item.subItemNo}`]}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                disabled={props.disableStatus}
+                                size="small"
+                              />
+                            )}
+                            
+
+
+                            {/* for area field */}
+
+                            {item.area === "Y" && (
+
+                              <TextField
+                                
+                                margin="0"
+                                label="Area in Sq Ft"
+                                fullWidth
+                                name={`area-${item.subItemNo}`}
+                                size="small"
+                                required
+                                value={formik.values[`area-${item.subItemNo}`] || ''}
+                                error={formik.touched[`area-${item.subItemNo}`] && Boolean(formik.errors[`area-${item.subItemNo}`])}
+                                helperText={formik.touched[`area-${item.subItemNo}`] && formik.errors[`area-${item.subItemNo}`]}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                disabled={props.disableStatus}
+                              />
+                            )}
+                            
+                          </TableCell>
+
+                          <TableCell className="BodyBorder">
+
+                            {item.attachments === "Y" && (
+                              <div>
+                                {!props.disableStatus ?
+                                  <div display="flex">
+                                    <input
+                                      name="upload-service"
+                                      type="file"
+                                      hidden
+                                      ref={fileInputRef}
+                                      onChange={(e) => {
+                                        console.log(item.subItemNo);
+                                        console.log(item.id);
+                                        console.log(qid)
+                                        handleFileUpload(e.target.files[0], item.id)
+                                        console.log(vpath);
+                                      }}
+                                      required
+                                      accept="image/*,.pdf"
+                                    />
+
+                                    <IconButton color="primary" variant="filled" onClick={handleFilePicker}>
+
+                                      <FileUploadSharpIcon />
+                                    </IconButton>
+
+
+
+
+
+                                    {upImage.map((d) => {
+                                      console.log(item)
+                                      if (d.id === item.subItemNo && d.path !== null) {
+                                        return (<Button variant="contained" value={"viewattachment" + item.subItemNo}  >view</Button >);
+
+                                      }
+                                      else {
+                                        return (<></>);
+                                      }
+
+                                    })}
+
+
+                                  </div>
+                                  :
+
+                                  <div>
+
+
+
+                                    {upImage.map((d) => {
+                                      console.log(item)
+                                      if (d.id === item.subItemNo && d.path !== null) {
+                                        return (<Button variant="contained" value={"viewattachment" + item.subItemNo}  >view</Button >);
+
+                                      }
+                                      else {
+                                        return (<></>);
+                                      }
+
+                                    })}
+
+
+                                  </div>
+
+                                }
+
+
+
+                              </div>
+                            )}
+                            
+                            </TableCell>
+                            {actorEmpanlId !== undefined  && 
+                <TableCell className="BodyBorder">
+                   {item.attachments === "Y" && (
+                      <input
+                      type="checkbox"
+                      style={{
+                        cursor: 'not-allowed',
+                        width: '15px', 
+                        height: '15px', 
+                        pointerEvents: 'none',
+                        ...(formik.values[`checkbox-${item.subItemNo}`] ? { color: '#2169B2' } : {})
+                       
+                      }}
+                      checked={formik.values[`checkbox-${item.subItemNo}`]}
+                    />
+                    
+                  )}
+                        </TableCell>
+                          }
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            </Box>
+          </Typography>
+          {!props.disableStatus ? 
+            <Grid container alignItems="center" justifyContent="center" marginTop="10px" marginBottom="10px">
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    SaveData(formik.values);
+                  }}
+                >
+                  Save
+                </Button>
+              </Grid>
+
+            </Grid>
+            : 
+            <Grid container alignItems="center" justifyContent="center" marginTop="10px" marginBottom="10px">
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                >
+                  Verify
+                </Button>
+              </Grid>
+
+            </Grid>
+            }
+             
+        </form >
+
+
+
+      </AccordionDetails>
+    </Accordion>
+  );
+}
