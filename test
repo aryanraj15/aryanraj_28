@@ -1,36 +1,20 @@
-// Modify the part where you set the link after uploading the document
-const uploadFile = async () => {
-  // ... (existing code)
-
-  try {
-    const res = await axios.post(
-      `http://129.154.229.83:8095/leavemanagement/uploadAttachment`,
-      bodyFormData,
-    );
-
-    if (res.data.statusCode === 200) {
-      formik.setFieldValue("LeaveFile", selectedFile);
-      formik.setFieldValue("LeaveFileName", selectedFile.name);
-      formik.setFieldValue("LeaveVirtualPath", res.data.result[selectedFile.name]);
-
-      setToastSeverity("success");
-      setOpenToast(true);
-    } else {
-      console.log('bad request');
-    }
-  } catch (error) {
-    console.log(error.message);
-  }
-};
-
-// Display the name of the uploaded file as a clickable link
-{formik.values.LeaveFileName && (
-  <Link href={formik.values.LeaveVirtualPath} underline="none" target="_blank">
-    <Typography>{formik.values.LeaveFileName}</Typography>
-  </Link>
-)}
-
-// Ensure that you have a button to trigger the file upload
-<Button variant="contained" onClick={handleButtonClick}>
-  Upload Document
-</Button>
+<Grid item xs={12} sm={4} md={4} lg={4} sx={{ mb: '15px' }}>
+  {formik.values.LeaveFile && (
+    <>
+      {showLink === true ? (
+        <Link
+          href={formik.values.LeaveVirtualPath}
+          underline="none"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Typography>Uploaded File: {formik.values.LeaveFileName}</Typography>
+        </Link>
+      ) : (
+        <Typography sx={{ color: 'green', fontSize: '12px' }}>
+          Uploaded File: {formik.values.LeaveFileName}
+        </Typography>
+      )}
+    </>
+  )}
+</Grid>
