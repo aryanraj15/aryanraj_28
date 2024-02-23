@@ -1,3 +1,15 @@
+{
+    "status": true,
+    "message": "",
+    "result": [
+        {
+            "fileName": "10888865-d7aa-44ea-9a54-0a0ec32c7216.jpg",
+            "virtualPath": "cZz/DfVlyRnqKVLw7X040XBuDPOvndo9Wcwhpv0HxdzjG89zhYWDZI9nFWQp1oRX6c66vfhcvydKCRZKP0Ell9PlzuriP0sP794TipIDARty0JKrOHV8Xev0iuPbMgrypFRQk65fwZJlFYQVVzFEPA=="
+        }
+    ],
+    "statusCode": 200
+}
+
 import React, { useEffect, useState, useRef } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
