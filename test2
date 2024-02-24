@@ -865,3 +865,39 @@ const Leave = () => {
 }
 
 export default Leave;
+
+
+
+
+
+
+
+
+
+
+
+const handleRedirect = async () => {
+  // Trigger form validation
+  await formik.validateForm();
+
+  // Check if the form is valid
+  if (formik.isValid) {
+    // Form is valid, proceed with redirection
+    callConfirmDialog();
+  } else {
+    // Form is not valid, you can display an error message or take appropriate action
+    console.log("Form is not valid");
+  }
+};
+
+
+
+
+
+const formik = useFormik({
+  initialValues: {
+    // ... your initial values
+  },
+  validationSchema: validationSchema,
+  onSubmit: handleRedirect, // Set onSubmit to handleRedirect
+});
