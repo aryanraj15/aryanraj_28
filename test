@@ -1,20 +1,59 @@
-<Grid item xs={12} sm={4} md={4} lg={4} sx={{ mb: '15px' }}>
-  {formik.values.LeaveFile && (
-    <>
-      {showLink === true ? (
-        <Link
-          href={formik.values.LeaveVirtualPath}
-          underline="none"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Typography>Uploaded File: {formik.values.LeaveFileName}</Typography>
-        </Link>
-      ) : (
-        <Typography sx={{ color: 'green', fontSize: '12px' }}>
-          Uploaded File: {formik.values.LeaveFileName}
-        </Typography>
-      )}
-    </>
-  )}
-</Grid>
+import React, { useState } from 'react';
+
+const UserTable = () => {
+  const initialUsers = [
+    { id: 1, name: 'John Doe', userId: 'john.doe', password: 'password1' },
+    { id: 2, name: 'Jane Doe', userId: 'jane.doe', password: 'password2' },
+    // Add more users as needed
+  ];
+
+  const [users, setUsers] = useState(initialUsers);
+  const [editableRow, setEditableRow] = useState(null);
+
+  const handleEdit = (id) => {
+    setEditableRow(id);
+  };
+
+  const handleDelete = (id) => {
+    setUsers(users.filter(user => user.id !== id));
+  };
+
+  const handleSave = (id) => {
+    setEditableRow(null);
+    // Add logic to save edited data if needed
+  };
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>User ID</th>
+          <th>Password</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map(user => (
+          <tr key={user.id}>
+            <td>{editableRow === user.id ? <input type="text" value={user.name} /> : user.name}</td>
+            <td>{editableRow === user.id ? <input type="text" value={user.userId} /> : user.userId}</td>
+            <td>{editableRow === user.id ? <input type="text" value={user.password} /> : user.password}</td>
+            <td>
+              {editableRow === user.id ? (
+                <button onClick={() => handleSave(user.id)}>Save</button>
+              ) : (
+                <>
+                  <button onClick={() => handleEdit(user.id)}>Edit</button>
+                  <button onClick={() => handleDelete(user.id)}>Delete</button>
+                </>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+export default UserTable;
