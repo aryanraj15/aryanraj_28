@@ -228,3 +228,108 @@ export class VennDiagramComponent implements OnInit {
  
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="page-title">
+  <h4 style="text-transform: capitalize;color: #158b40;font-weight: 800;">{{'rep.crossSchStat.title'|translate}}</h4>
+  <div class="row">
+  <div class="col-md-4">
+    <div class="form-group">
+        <label>{{'label.department'|translate}} <span class="required">*</span></label>
+        <select [(ngModel)]="scheme1" class="form-control" style="font-weight: 800;color: black;" #required>
+ 
+          <option *ngFor="let ag of schemeLis" value="{{ag?.id}}">{{ag?.name}}</option>
+        </select>
+    </div>
+    </div>
+ 
+    <div class="col-md-4">
+      <div class="form-group">
+          <label>{{'label.scheme'|translate}} <span class="required">*</span></label>
+          <select [(ngModel)]="scheme2" class="form-control" style="font-weight: 800;color: black;" #required>
+            <option value="-1" disabled>Select Scheme</option>
+            <option *ngFor="let ag of schemeLis"  value="{{ag?.id}}">{{ag?.name}}</option>
+          </select>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-info button butcolor" style="margin-top:30px; color: #fafafa;" (click)="check();overlap()">{{'btn.showoverlap'|translate}}</button>
+      <button class="btn btn-primary" style="margin-top:30px;" *ngIf="cheBox" (click)="exportPdf()"><i class="fa fa-file-pdf-o"></i> Export</button>
+  </div>
+</div>
+ 
+ 
+ 
+</div>
+ 
+<!-- <div class="row" *ngIf="scheme1 > 0 && scheme2 > 0 && int12cnt > 0" >
+  <div class="col-md-4">{{scheme2name}} : {{scheme2cnt}}</div>
+  <div class="col-md-4">{{scheme1name}} : {{scheme1cnt}}</div>
+  <div class="col-md-4">Common Beneficiaries : {{int12cnt}}</div>
+</div> -->
+ 
+<!-- <div #vennChart></div> -->
+ 
+<!--
+<canvas id="vennChartJS" #VennchartJS></canvas> -->
+ 
+<div id="divChart" style="width: 1000px; margin:20px auto 0;" class="d-none" #vennChartJS>
+  <canvas id="myChart" #chartCanvas></canvas>
+</div>
+<div class="row">
+<div class="col-12 col-lg-4 card-type" *ngIf="cheBox==true" >
+  <a (click)="printExcel()">
+  <div class="box red">
+     <div class="leftbox">
+       
+       <h2>{{scheme1cnt}}</h2><h6>{{scheme1name}}</h6>
+     </div>
+     <div class="rightbox">
+       <div class="icon"><i class="fa fa-book" aria-hidden="true"></i></div>
+     </div>
+   </div>
+   </a>
+</div>
+<div class="col-12 col-lg-4  card-type" *ngIf="cheBox" >
+  <a (click)="printExcel()">
+  <div class="box orange">
+     <div class="leftbox">
+       <h2>{{int12cnt}}</h2><h6>{{'rep.crossSchStat.commonBen'|translate}}</h6>
+     </div>
+     <div class="rightbox">
+       <div class="icon"><i class="fa fa-book" aria-hidden="true"></i></div>
+     </div>
+   </div>
+   </a>
+</div>
+<div class="col-12 col-lg-4 card-type" *ngIf="cheBox" >
+  <a (click)="printExcel()">
+  <div class="box blue">
+     <div class="leftbox">
+       
+       <h2>{{scheme2cnt}}</h2><h6>{{scheme2name}}</h6>
+     </div>
+     <div class="rightbox">
+       <div class="icon"><i class="fa fa-book" aria-hidden="true"></i></div>
+     </div>
+   </div>
+  </a>
+</div>
+</div>
