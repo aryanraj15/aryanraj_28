@@ -88,3 +88,73 @@ export default LeadgerCard;
         "isAvailable": "Y"
     }
 ]
+
+
+
+
+
+
+
+
+
+import React from 'react';
+import { Grid, Paper, Typography, Avatar } from '@mui/material';
+import { styled } from "@mui/material/styles";
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import { green } from '@mui/material/colors';
+
+const LeadgerCard = (props) => {
+    const { resData } = props;
+    const Icon = resData?.typeIcon;
+
+    const Item = styled(Paper)(({ theme }) => ({
+        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+        ...theme.typography.body2,
+        padding: theme.spacing(1),
+        margin: 3,
+        borderRadius: "10px",
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+    }));
+
+    const renderIcon = () => {
+        if (Icon) {
+            // Render dynamically fetched icon
+            const DynamicIcon = Icon;
+            return <DynamicIcon />;
+        } else {
+            // Render default icon if typeIcon is not available
+            return <AssignmentIcon />;
+        }
+    };
+
+    return (
+        <>
+            <Grid item xs={5}>
+                <Item>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm container>
+                            <Grid item xs container direction="column" spacing={2}>
+                                <Grid item xs>
+                                    <Typography gutterBottom component="div">
+                                        {resData?.typeName}
+                                    </Typography>
+                                    <Typography variant="h6" gutterBottom>
+                                        {resData?.balance} DAYS
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                            <Grid item>
+                                <Avatar sx={{ bgcolor: green[500] }}>
+                                    {renderIcon()}
+                                </Avatar>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Item>
+            </Grid>
+        </>
+    );
+};
+
+export default LeadgerCard;
