@@ -1,0 +1,90 @@
+
+import React, { useState, useEffect } from 'react'
+import { Grid, Box, Card, CardContent, IconButton, Stack, Link, Button, TextField, CardActions, Paper } from '@mui/material';
+import { styled } from "@mui/material/styles";
+import "react-alert-confirm/lib/style.css";
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import { green, pink } from '@mui/material/colors';
+import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
+
+
+const LeadgerCard = (props) => {
+    const {resData} =props;
+    const Icon = (resData?.typeIcon);
+     console.log(Icon)
+    // console.log(resData.typeName)
+    //  console.log(resData.balance)
+
+
+    const Item = styled(Paper)(({ theme }) => ({
+        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+        ...theme.typography.body2,
+        padding: theme.spacing(1),
+        margin: 3,
+        borderRadius: "10px",
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+    }));
+    return (
+        <>
+
+                <Grid item xs={5}>
+                    <Item>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm container>
+                                <Grid item xs container direction="column" spacing={2}>
+                                    <Grid item xs>
+                                        <Typography gutterBottom component="div">
+                                           {resData?.typeName} 
+                                                                               
+                                   </Typography>
+                                        <Typography variant="h6" gutterBottom>
+                                           {resData?.balance} DAYS
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                                <Grid item>
+                                    <Avatar sx={{ bgcolor: green[500] }}>
+                                        <AssignmentIcon />
+                                    </Avatar>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Item>
+                </Grid>
+
+        </>
+
+    )
+}
+
+export default LeadgerCard;
+
+
+[
+    {
+        "typeId": 1,
+        "typeName": "Casual Leave",
+        "typeIcon": "AssignmentIcon",
+        "typeColor": "4CAF50",
+        "balance": 15,
+        "isAvailable": "Y"
+    },
+    {
+        "typeId": 5,
+        "typeName": "Optional Holiday",
+        "typeIcon": "MoreTimeIcon",
+        "typeColor": "ffa726",
+        "balance": 5,
+        "isAvailable": "Y"
+    },
+    {
+        "typeId": 6,
+        "typeName": "Earned Leaves",
+        "typeIcon": "SupervisedUserCircleIcon",
+        "typeColor": "E91E63",
+        "balance": 29.25,
+        "isAvailable": "Y"
+    }
+]
