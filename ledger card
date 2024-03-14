@@ -95,65 +95,63 @@ export default LeadgerCard;
 
 
 
-
-
 import React from 'react';
 import { Grid, Paper, Typography, Avatar } from '@mui/material';
-import { styled } from "@mui/material/styles";
+import { styled } from '@mui/material/styles';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import { green } from '@mui/material/colors';
+import MoreTimeIcon from '@mui/icons-material/MoreTime';
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
+import { green, orange, pink } from '@mui/material/colors';
 
-const LeadgerCard = (props) => {
-    const { resData } = props;
-    const Icon = resData?.typeIcon;
-
+const LeadgerCard = ({ resData }) => {
     const Item = styled(Paper)(({ theme }) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
         ...theme.typography.body2,
         padding: theme.spacing(1),
         margin: 3,
-        borderRadius: "10px",
+        borderRadius: '10px',
         textAlign: 'center',
         color: theme.palette.text.secondary,
     }));
 
-    const renderIcon = () => {
-        if (Icon) {
-            // Render dynamically fetched icon
-            const DynamicIcon = Icon;
-            return <DynamicIcon />;
-        } else {
-            // Render default icon if typeIcon is not available
-            return <AssignmentIcon />;
+    // Define a function to render the appropriate icon based on typeIcon value
+    const renderIcon = (typeIcon) => {
+        switch (typeIcon) {
+            case 'AssignmentIcon':
+                return <AssignmentIcon />;
+            case 'MoreTimeIcon':
+                return <MoreTimeIcon />;
+            case 'SupervisedUserCircleIcon':
+                return <SupervisedUserCircleIcon />;
+            default:
+                return null; // Return null if no matching icon found
         }
     };
 
     return (
-        <>
-            <Grid item xs={5}>
-                <Item>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm container>
-                            <Grid item xs container direction="column" spacing={2}>
-                                <Grid item xs>
-                                    <Typography gutterBottom component="div">
-                                        {resData?.typeName}
-                                    </Typography>
-                                    <Typography variant="h6" gutterBottom>
-                                        {resData?.balance} DAYS
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-                            <Grid item>
-                                <Avatar sx={{ bgcolor: green[500] }}>
-                                    {renderIcon()}
-                                </Avatar>
+        <Grid item xs={5}>
+            <Item>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm container>
+                        <Grid item xs container direction="column" spacing={2}>
+                            <Grid item xs>
+                                <Typography gutterBottom component="div">
+                                    {resData?.typeName}
+                                </Typography>
+                                <Typography variant="h6" gutterBottom>
+                                    {resData?.balance} DAYS
+                                </Typography>
                             </Grid>
                         </Grid>
+                        <Grid item>
+                            <Avatar sx={{ bgcolor: resData?.typeColor }}>
+                                {renderIcon(resData?.typeIcon)} {/* Render the dynamic icon */}
+                            </Avatar>
+                        </Grid>
                     </Grid>
-                </Item>
-            </Grid>
-        </>
+                </Grid>
+            </Item>
+        </Grid>
     );
 };
 
