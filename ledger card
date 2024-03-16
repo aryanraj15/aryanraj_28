@@ -94,39 +94,33 @@ export default LeadgerCard;
 
 
 
-
-import React from 'react';
-import { Grid, Paper, Typography, Avatar } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import React, { useState, useEffect } from 'react';
+import { Grid, Typography, Avatar } from '@mui/material';
+import { green, pink } from '@mui/material/colors';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import MoreTimeIcon from '@mui/icons-material/MoreTime';
-import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
-import { green, orange, pink } from '@mui/material/colors';
+import { styled } from "@mui/material/styles";
+import Paper from '@mui/material/Paper';
 
-const LeadgerCard = ({ resData }) => {
+const LeadgerCard = (props) => {
+    const { resData } = props;
+
+    const getColorObject = (colorString) => {
+        // Remove the # symbol if present
+        const colorCode = colorString.startsWith("#") ? colorString.substring(1) : colorString;
+        return colorCode ? `#${colorCode}` : null;
+    };
+
+    const color = getColorObject(resData?.typeColor);
+
     const Item = styled(Paper)(({ theme }) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
         ...theme.typography.body2,
         padding: theme.spacing(1),
         margin: 3,
-        borderRadius: '10px',
+        borderRadius: "10px",
         textAlign: 'center',
         color: theme.palette.text.secondary,
     }));
-
-    // Define a function to render the appropriate icon based on typeIcon value
-    const renderIcon = (typeIcon) => {
-        switch (typeIcon) {
-            case 'AssignmentIcon':
-                return <AssignmentIcon />;
-            case 'MoreTimeIcon':
-                return <MoreTimeIcon />;
-            case 'SupervisedUserCircleIcon':
-                return <SupervisedUserCircleIcon />;
-            default:
-                return null; // Return null if no matching icon found
-        }
-    };
 
     return (
         <Grid item xs={5}>
@@ -144,8 +138,8 @@ const LeadgerCard = ({ resData }) => {
                             </Grid>
                         </Grid>
                         <Grid item>
-                            <Avatar sx={{ bgcolor: resData?.typeColor }}>
-                                {renderIcon(resData?.typeIcon)} {/* Render the dynamic icon */}
+                            <Avatar sx={{ bgcolor: color ? color : green[500] }}>
+                                <AssignmentIcon />
                             </Avatar>
                         </Grid>
                     </Grid>
@@ -153,6 +147,6 @@ const LeadgerCard = ({ resData }) => {
             </Item>
         </Grid>
     );
-};
+}
 
 export default LeadgerCard;
