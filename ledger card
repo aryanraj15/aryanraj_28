@@ -93,7 +93,6 @@ export default LeadgerCard;
 
 
 
-
 import React, { useState, useEffect } from 'react';
 import { Grid, Typography, Avatar } from '@mui/material';
 import { green, pink } from '@mui/material/colors';
@@ -148,5 +147,7 @@ const LeadgerCard = (props) => {
         </Grid>
     );
 }
+
+export default LeadgerCard;
 
 export default LeadgerCard;
