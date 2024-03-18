@@ -151,3 +151,67 @@ const LeadgerCard = (props) => {
 export default LeadgerCard;
 
 
+import React, { useState, useEffect } from 'react';
+import { Grid, Typography, Avatar } from '@mui/material';
+import { styled } from "@mui/material/styles";
+import Paper from '@mui/material/Paper';
+
+const LeadgerCard = (props) => {
+    const { resData } = props;
+
+    const getColorObject = (colorString) => {
+        const colorCode = colorString.startsWith("#") ? colorString.substring(1) : colorString;
+        return colorCode ? `#${colorCode}` : null;
+    };
+
+    const color = getColorObject(resData?.typeColor);
+
+    const Item = styled(Paper)(({ theme }) => ({
+        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+        ...theme.typography.body2,
+        padding: theme.spacing(1),
+        margin: 3,
+        borderRadius: "10px",
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+    }));
+
+    // Dynamically import icon based on TypeIcon value
+    let IconComponent = null;
+    try {
+        IconComponent = require(`@mui/icons-material/${resData?.TypeIcon}`).default;
+    } catch (error) {
+        console.error("Icon not found:", resData?.TypeIcon);
+    }
+
+    return (
+        <Grid item xs={5}>
+            <Item>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm container>
+                        <Grid item xs container direction="column" spacing={2}>
+                            <Grid item xs>
+                                <Typography gutterBottom component="div">
+                                    {resData?.typeName}
+                                </Typography>
+                                <Typography variant="h6" gutterBottom>
+                                    {resData?.balance} DAYS
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        <Grid item>
+                            <Avatar sx={{ bgcolor: color }}>
+                                {IconComponent && <IconComponent />}
+                            </Avatar>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Item>
+        </Grid>
+    );
+}
+
+export default LeadgerCard;
+
+
+
