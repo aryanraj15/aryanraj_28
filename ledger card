@@ -95,7 +95,6 @@ export default LeadgerCard;
 
 import React, { useState, useEffect } from 'react';
 import { Grid, Typography, Avatar } from '@mui/material';
-import { green, pink } from '@mui/material/colors';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { styled } from "@mui/material/styles";
 import Paper from '@mui/material/Paper';
@@ -110,6 +109,7 @@ const LeadgerCard = (props) => {
     };
 
     const color = getColorObject(resData?.typeColor);
+    console.log(color)
 
     const Item = styled(Paper)(({ theme }) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -137,7 +137,7 @@ const LeadgerCard = (props) => {
                             </Grid>
                         </Grid>
                         <Grid item>
-                            <Avatar sx={{ bgcolor: color ? color : green[500] }}>
+                            <Avatar sx={{ bgcolor: color }}>
                                 <AssignmentIcon />
                             </Avatar>
                         </Grid>
@@ -150,4 +150,4 @@ const LeadgerCard = (props) => {
 
 export default LeadgerCard;
 
-export default LeadgerCard;
+
