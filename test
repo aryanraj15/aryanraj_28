@@ -1,78 +1,67 @@
 import React, { useState, useEffect } from 'react'
-import SearchTable from '../../../components/SearchTableAlt'
-import { Grid, Box, Card, CardContent, IconButton, Stack, Link, Button, TextField, CardActions, Paper } from '@mui/material';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { useNavigate } from 'react-router-dom';
+import SearchTable from '../../../components/SearchTableAlt';
+import { Grid, Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent } from '@mui/material';
 import useTitle from '../../../hooks/useTitle';
 import PageTitle from '../../../layouts/PageTitle';
-import { styled } from "@mui/material/styles";
+import { useNavigate } from 'react-router-dom';
 import { H3 } from '../../../components/Typography';
-import AlertConfirm from "react-alert-confirm";
-import { useSnackbar } from "../../../components/Snackbar";
-import "react-alert-confirm/lib/style.css";
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import { green, pink } from '@mui/material/colors';
-import Typography from '@mui/material/Typography';
-import Avatar from '@mui/material/Avatar';
-import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
-import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
-import MoreTimeIcon from '@mui/icons-material/MoreTime';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { format } from 'date-fns'
+import Loader from '../../../components/Loader';
+import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
+import TrackLeaveRequestStatus from './TrackLeaveRequestStatus';
 
 
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    margin: 3,
-    borderRadius: "10px",
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-}));
-
-const CasualLeave = 12;
-const CompensatoryCasualLeave = 2;
-const MaternityLeave = 180;
-const OptionalHoliday = 5;
-const EarnedLeaves = 3;
-const PaternityLeave = 0;
-
-const LeaveLedgers = () => {
+const ViewLeaves = () => {
 
 
-    const title = 'Leave Ledgers';
+    const title = ' Leave Applications';
     useTitle(title);
+
     const navigate = useNavigate();
     const user = useSelector((state) => state.loginReducer);
     console.log(user.data.userdetails.user.userId);
     const userId = user.data.userdetails.user.userId;
     const [tableData, setTableData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [open, setOpen] = React.useState(false);
+    const [requestStatus, setRequestStatus] = useState(null);
+    const [reqRemarks, setReqRemarks] = useState(null);
 
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     const handleFetchData = async () => {
         try {
             const payload = {
                 userId: userId
             }
-            const response = await axios.post("http://129.154.229.83:8095/leavemanagement/user-leave-ledger", payload);
+
+            const response = await axios.post("http://129.154.229.83:8095/leavemanagement/leave-applied-leaves", payload);
             const formattedData = response.data.result.map((item, index) => ({
                 ...item,
                 index: index + 1,
-                date: format(new Date(item.date), 'yyyy-MM-dd'),
-
+                // daysOfLeave: item.daysOfLeave + (item.hoursOfLeave), // Convert hours to days
+                // rqstFrom: format(new Date(item.rqstFrom), 'yyyy-MM-dd'),
+                // rqstTo: format(new Date(item.rqstTo), 'yyyy-MM-dd'),
             }));
 
             setTableData(formattedData);
+
             console.log('kp-tableDataResponse', response.data);
 
             // setTableData(response.data.result);
             if (response.status === true) {
                 console.log('kp-tableData1', tableData);
                 console.log('kp-tableData2', tableData);
+                
 
 
             }
@@ -80,248 +69,125 @@ const LeaveLedgers = () => {
 
             console.error(error);
         }
+        finally {
+            setIsLoading(false);
+        }
     }
 
     useEffect(() => {
         handleFetchData();
+        setIsLoading(true);
     }, [])
-
     const columns = [
-
         {
-            field: "index",
+            field: "index", //keep this fixed, index should be present for all tables
             headerName: "S.No",
             flex: 0.1,
-            minWidth: 60,
-            headerClassName: "super-app-theme--header",
-
-        },
-        // {
-        //     field: "userId",
-        //     headerName: "User ID",
-        //     flex: 0.2,
-        //     minWidth: 150,
-        //     headerClassName: "super-app-theme--header",
-        // },
-        
-        // {
-        //     field: "leaveTypeId",
-        //     headerName: "Leave Type",
-        //     flex: 0.2,
-        //     minWidth: 150,
-        //     headerClassName: "super-app-theme--header",
-        // },
-        {
-            field: "leaveTypeDesc",
-            headerName: "Leave Desc",
-            flex: 0.2,
-            minWidth: 150,
+            minWidth: 80,
             headerClassName: "super-app-theme--header",
         },
 
         {
-            field: "date",
-            headerName: "Date",
-            flex: 0.2,
+            field: "rqstId",
+            headerName: "Leave ID",
+            flex: 0.3,
             minWidth: 100,
             headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Link
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => {
+                        const requestId = params.row.rqstId;
+                        navigate("/leaveapplicationview", { state: { requestId } });
+                    }}
+                >
+                    {params.value}
+                </Link>
+            ),
         },
         {
-            field: "reason",
-            headerName: "Reason",
-            flex: 0.1,
-            minWidth: 180,
+            field: "leaveTypeDesc",
+            headerName: "Leave Type",
+            flex: 0.3,
+            minWidth: 160,
             headerClassName: "super-app-theme--header",
         },
 
         {
-            field: "initialBalance",
-            headerName: "Initial Balance(In Days)",
-            flex: 0.1,
+            field: "daysOfLeave",
+            headerName: "Days of Leave",
+            flex: 0.3,
             minWidth: 120,
             headerClassName: "super-app-theme--header",
         },
         {
-            field: "creditLeave",
-            headerName: "Credit(In Days)",
-            flex: 0.1,
+            field: "rqstStatusDesc",
+            headerName: "Leave Status",
+            flex: 0.3,
+            minWidth: 200,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "rqstFromDate",
+            headerName: "Start Date",
+            flex: 0.3,
             minWidth: 120,
             headerClassName: "super-app-theme--header",
         },
         {
-            field: "debitLeave",
-            headerName: "Debit(In Days)",
-            flex: 0.1,
+            field: "rqstFromTime",
+            headerName: "Start Time",
+            flex: 0.3,
             minWidth: 120,
             headerClassName: "super-app-theme--header",
         },
         {
-            field: "openingBalance",
-            headerName: "Net Balance(In Days)",
-            flex: 0.1,
+            field: "rqstToDate",
+            headerName: "End Date",
+            flex: 0.3,
             minWidth: 120,
             headerClassName: "super-app-theme--header",
         },
+        {
+            field: "rqstToTime",
+            headerName: "End Time",
+            flex: 0.3,
+            minWidth: 120,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "requestStatus",
+            headerName: "Track Status",
+            flex: 0.3,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Link onClick={() => { setReqRemarks(params.row.remarks); setRequestStatus(params.value); handleClickOpen(); }}>
+                    <LocationSearchingIcon color='primary' />
+                </Link>
+            )
+        },
+       
 
     ];
 
+    console.log('kp-tabledata3', tableData)
     return (
         <>
+            {
+                isLoading && <Loader />
+            }
             <Card sx={{ my: 2 }} elevation={3}>
                 <CardContent>
-                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
+ 
+                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
                         <EventBusyIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Leave Ledgers</H3>
+                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end"> My Leave Applications</H3>
                     </div>
-                    <Card >
-                        <Box sx={{ flexGrow: 1, mt: 2, elevation: "0" }}>
-                            <Grid container spacing={2} columns={16}>
-                                <Grid item xs={5}>
-                                    <Item>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm container>
-                                                <Grid item xs container direction="column" spacing={2}>
-                                                    <Grid item xs>
-                                                        <Typography gutterBottom component="div">
-                                                            Casual Leave
-                                                        </Typography>
-                                                        <Typography variant="h6" gutterBottom>
-                                                            {CasualLeave} DAYS
-                                                        </Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Avatar sx={{ bgcolor: green[500] }}>
-                                                        <AssignmentIcon />
-                                                    </Avatar>
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-                                    </Item>
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Item>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm container>
-                                                <Grid item xs container direction="column" spacing={2}>
-                                                    <Grid item xs>
-                                                        <Typography gutterBottom component="div">
-                                                            Compensatory Casual Leave(CCL)
-                                                        </Typography>
-                                                        <Typography variant="h6" gutterBottom>
-                                                            {CompensatoryCasualLeave} DAYS
-                                                        </Typography>
-
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Avatar sx={{ bgcolor: "#f48fb1" }}>
-                                                        <HourglassBottomIcon />
-                                                    </Avatar>
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-                                    </Item>
-                                </Grid>
-                                <Grid item xs={5}>
-                                    <Item>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm container>
-                                                <Grid item xs container direction="column" spacing={2}>
-                                                    <Grid item xs>
-                                                        <Typography gutterBottom component="div">
-                                                            Maternity Leave
-                                                        </Typography>
-                                                        <Typography variant="h6" gutterBottom>
-                                                            {MaternityLeave} DAYS
-                                                        </Typography>
-
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Avatar sx={{ bgcolor: "#ba68c8" }}>
-                                                        <PregnantWomanIcon />
-                                                    </Avatar>
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-                                    </Item>
-                                </Grid>
-                                <Grid item xs={5}>
-                                    <Item>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm container>
-                                                <Grid item xs container direction="column" spacing={2}>
-                                                    <Grid item xs>
-                                                        <Typography gutterBottom component="div">
-                                                            Optional Holiday
-                                                        </Typography>
-                                                        <Typography variant="h6" gutterBottom>
-                                                            {OptionalHoliday} DAYS
-                                                        </Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Avatar sx={{ bgcolor: "#4fc3f7" }}>
-                                                        <AccessTimeIcon />
-                                                    </Avatar>
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-                                    </Item>
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Item>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm container>
-                                                <Grid item xs container direction="column" spacing={2}>
-                                                    <Grid item xs>
-                                                        <Typography gutterBottom component="div">
-                                                            Earned Leaves
-                                                        </Typography>
-                                                        <Typography variant="h6" gutterBottom>
-                                                            {EarnedLeaves} DAYS
-                                                        </Typography>
-
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Avatar sx={{ bgcolor: "#ffa726" }}>
-                                                        <MoreTimeIcon />
-                                                    </Avatar>
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-                                    </Item>
-                                </Grid>
-                                <Grid item xs={5}>
-                                    <Item>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm container>
-                                                <Grid item xs container direction="column" spacing={2}>
-                                                    <Grid item xs>
-                                                        <Typography gutterBottom component="div">
-                                                            Paternity Leave
-                                                        </Typography>
-                                                        <Typography variant="h6" gutterBottom>
-                                                            {PaternityLeave} DAYS
-                                                        </Typography>
-
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Avatar sx={{ bgcolor: pink[500] }}>
-                                                        <SupervisedUserCircleIcon />
-                                                    </Avatar>
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-                                    </Item>
-                                </Grid>
-                            </Grid>
-                        </Box>
-                    </Card>
-                    <Box component={"div"} sx={{ mt: 8 }} >
+                    <Box component={"div"} >
+                        {/* <Grid sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 2 }}>
+                            <Button variant={'contained'} onClick={handleNavigation}>Apply for a new leave</Button>
+                        </Grid> */}
                         <SearchTable
                             columns={columns}
                             data={tableData}
@@ -331,15 +197,24 @@ const LeaveLedgers = () => {
                             isHideFilter={true}
                             isHideColumn={true}
                             isHidePaging={false}
-                            name="leaveLedgers"
-                            id="leaveLedgers"
+                            name="abc"
+                            id="hjjh"
                         />
                     </Box>
                 </CardContent>
             </Card>
-
+            <Dialog
+                fullWidth
+                maxWidth={'md'}
+                open={open}
+                onClose={handleClose}
+            >
+                <DialogContent >
+                    <TrackLeaveRequestStatus reqRemarks={reqRemarks} requestStatus={requestStatus} />
+                </DialogContent>
+            </Dialog>
         </>
     )
 }
 
-export default LeaveLedgers;
+export default ViewLeaves
