@@ -29,7 +29,7 @@ import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
 import TrackManageLeaveStatus from "./TrackManageLeaveStatus";
 export const initValues = {
     rqstId: null,
-    userName: null,
+    userName: "",
     rqstStatus: null,
     rqstFrom: null,
     rqstTo: null,
@@ -52,7 +52,7 @@ const SearchApplication = () => {
     const [searchedValues, setSearchedValues] = useState(
         location.state?.searchValues ? location.state?.searchValues : initValues
     );
-
+    const [userNamelist, setUserNamelist]= useState([]);
     const [empCode, setEmpCode] = useState([]);
     const [Enrollstatus, setEnrollstatus] = useState([]);
     const [actionDialogOpen, setActionDialogOpen] = useState(false);
@@ -231,9 +231,12 @@ const SearchApplication = () => {
             );
     
             setLoading(false);
-            if (response.data.status && response.data.result.length > 0) {
-                // Map the data and concatenate the start date and time
-                const formattedData = response.data.result.map((item, index) => {
+            console.log(response.data.result.searchResult);
+            if (response.data.statusCode  > 0) {
+                console.log("formattedData");
+                setUserNamelist( response.data.result.nameList);
+
+                const formattedData = response.data.result.searchResult.map((item, index) => {
                     const fromDate = item.rqstFromDate + " : " + item.rqstFromTime;
                     const ToDate =  item.rqstToDate + " : " + item.rqstToTime;
                     return createData(
@@ -249,6 +252,7 @@ const SearchApplication = () => {
                     );
                 });
                 setRows(formattedData);
+                console.log(formattedData);
     
                 if (reset) {
                     showSnackbar("Reset successful", "info");
@@ -471,7 +475,7 @@ const SearchApplication = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} md={6} lg={6}>
-                                <TextField
+                                {/* <TextField
                                     id="userName"
                                     name="userName"
                                     label="User Name."
@@ -483,6 +487,28 @@ const SearchApplication = () => {
                                     value={formik.values.userName}
                                     onChange={formik.handleChange}
 
+                                /> */}
+                                
+                                <Autocomplete
+                                    freeSolo
+                                    id="userName"
+                                    name="userName"
+                                    size="small"
+                                    
+                                    options={userNamelist.map((option) => option)}
+                                    renderInput={(params) => (
+                                        <TextField
+                                        size="small"
+                                        value={formik.values.userName}
+                                        
+                                            {...params}
+                                            label="User Name"
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                
+                                            }}
+                                        />
+                                    )}
                                 />
                             </Grid>
 
