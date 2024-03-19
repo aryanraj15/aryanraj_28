@@ -218,3 +218,86 @@ const ViewLeaves = () => {
 }
 
 export default ViewLeaves
+
+
+
+
+
+
+
+
+
+
+
+
+
+const handleFetchApplicants = async (values, reset) => {
+    setLoading(true);
+    try {
+        // Fetch applicants details
+        const payload = {
+            rqstId: values.rqstId,
+            userName: values.userName,
+            rqstStatus: values.rqstStatus,
+            rqstFrom: values.rqstFrom,
+            rqstTo: values.rqstTo,
+        };
+
+        const response = await axios.post(
+            "http://129.154.229.83:8095/leavemanagement/manage-leave-search",
+            payload
+        );
+
+        setLoading(false);
+        if (response.data.status && response.data.result.length > 0) {
+            // Map the data and concatenate the start date and time
+            const formattedData = response.data.result.map((item, index) => {
+                const fromDate = item.rqstFromDate + " : " + item.rqstFromTime;
+                return createData(
+                    index + 1,
+                    item.rqstId,
+                    item.userName,
+                    item.empCode,
+                    item.leaveTypeDesc,
+                    item.daysOfLeave,
+                    fromDate, // Concatenated Start Date
+                    item.rqstToDate,
+                    item.rqstFromTime,
+                    item.rqstToTime,
+                    item.rqstStatusDesc
+                );
+            });
+            setRows(formattedData);
+
+            if (reset) {
+                showSnackbar("Reset successful", "info");
+            } else {
+                showSnackbar("Data fetched successfully", "success");
+            }
+        } else if (response.data.statusCode === 404) {
+            setRows([]);
+            if (reset) {
+                showSnackbar("Form reset successful, no data found", "info");
+            } else {
+                showSnackbar("No data found", "info");
+            }
+        } else {
+            setRows([]);
+            showSnackbar("An error occurred", "error");
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+        setRows([]);
+        setLoading(false);
+        if (error.response.data.statusCode === 404) {
+            if (reset) {
+                showSnackbar("Form reset successful, no data found", "info");
+            } else {
+                showSnackbar("No data found", "error");
+            }
+        } else {
+            showSnackbar("Oops, something went wrong", "error");
+        }
+    }
+};
+
