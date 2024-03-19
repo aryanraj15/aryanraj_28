@@ -84,7 +84,7 @@ const ViewLeaves = () => {
             }
 
             const response = await axios.post("http://129.154.229.83:8095/leavemanagement/leave-applied-leaves", payload);
-                const formattedData = response.data.result.map((item, index) => {
+            const formattedData = response.data.result.map((item, index) => {
                 const fromDate = item.rqstFromDate + ":" + item.rqstFromTime;
                 const toDate = item.rqstToDate + ":" + item.rqstToTime;
 
@@ -209,6 +209,24 @@ const ViewLeaves = () => {
 
     ];
 
+    const handleResetForm = () => {
+        swal({
+            title: "Do you want to reset the search?",
+            buttons: { cancel: "Cancel", confirm: "Confirm" },
+        }).then((userClickedConfirm) => {
+            if (userClickedConfirm) {
+                setSelectAllApplications(false);
+
+                const updatedValues = { LeaveStartDate: null, LeaveEndDate: null };
+                formik.resetForm({ values: updatedValues });
+                handleFetchData(updatedValues, true);
+
+                // Additional actions if needed
+                // handleFetchData();
+            }
+        });
+    };
+
 
 
     console.log('kp-tabledata3', tableData)
@@ -301,6 +319,11 @@ const ViewLeaves = () => {
                             </Button>
                             <Button
                                 variant="outlined"
+                                // onClick ={()=>{
+                                //     formik.resetForm();
+                                //     window.location.reload();
+                                // }}
+                                onClick={handleResetForm}
 
 
                             >
