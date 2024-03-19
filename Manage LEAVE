@@ -1,3 +1,24 @@
+<Autocomplete
+    freeSolo
+    id="userName"
+    name="userName"
+    size="small"
+    options={userNamelist.map((option) => option)}
+    value={formik.values.userName}
+    onChange={(event, newValue) => {
+        formik.setFieldValue("userName", newValue ?? ""); // Update formik values
+    }}
+    renderInput={(params) => (
+        <TextField
+            size="small"
+            {...params}
+            label="User Name"
+            InputProps={{
+                ...params.InputProps,
+            }}
+        />
+    )}
+/>
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
