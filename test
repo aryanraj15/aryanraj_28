@@ -215,11 +215,13 @@ const ViewLeaves = () => {
             buttons: { cancel: "Cancel", confirm: "Confirm" },
         }).then((userClickedConfirm) => {
             if (userClickedConfirm) {
-                setSelectAllApplications(false);
+                formik.resetForm();
+                window.location.reload(); //comment after correction
+                // setSelectAllApplications(false);
 
-                const updatedValues = { LeaveStartDate: null, LeaveEndDate: null };
-                formik.resetForm({ values: updatedValues });
-                handleFetchData(updatedValues, true);
+                // const updatedValues = { LeaveStartDate: null, LeaveEndDate: null };
+                // formik.resetForm({ values: updatedValues });
+                // handleFetchData(updatedValues, true);
 
                 // Additional actions if needed
                 // handleFetchData();
