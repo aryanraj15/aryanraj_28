@@ -1,6 +1,156 @@
+// import React from 'react'
+// import SearchTable from '../../../components/SearchTableAlt'
+// import { Grid, Box, Card, CardContent, IconButton, Stack, Link, Button } from '@mui/material';
+// import EventBusyIcon from '@mui/icons-material/EventBusy';
+// import { useNavigate } from 'react-router-dom';
+// import useTitle from '../../../hooks/useTitle';
+// import PageTitle from '../../../layouts/PageTitle';
+// import { H3 } from '../../../components/Typography';
+// import AlertConfirm from "react-alert-confirm";
+// import {useSnackbar} from "../../../components/Snackbar";
+// import "react-alert-confirm/lib/style.css";
+
+// const LeaveRequestApproval = () => {
+
+//     const title = 'View Leave Request Details';
+//     useTitle(title);
+
+//     const navigate = useNavigate();
+
+
+//     const columns = [
+//             {
+//                 field: "index",
+//                 headerName: "S.No",
+//                 flex: 0.1,
+//                 minWidth: 80,
+//                 headerClassName: "super-app-theme--header",
+//             },
+//             {
+//                 field: "empName",
+//                 headerName: "Employee Name",
+//                 flex: 0.1,
+//                 minWidth: 150,
+//                 headerClassName: "super-app-theme--header",
+//             },
+
+//             {
+//                 field: "employeeId",
+//                 headerName: "Employee Code",
+//                 flex: 0.3,
+//                 minWidth: 120,
+//                 headerClassName: "super-app-theme--header",
+//                 renderCell: (params) => (
+//                     <Link
+//                       sx={{ cursor: "pointer" }}
+//                       onClick={() => {
+//                         navigate("/leaverequestdetails");
+//                       }}
+//                     >
+//                     {params.value}
+//                     </Link>
+//                 ),
+//             }, 
+
+//             {
+//                 field: "leaveType",
+//                 headerName: "Type of Leaves",
+//                 flex: 0.3,
+//                 minWidth: 150,
+//                 headerClassName: "super-app-theme--header",
+//             },
+//             {
+//                 field: "status",
+//                 headerName: "Status",
+//                 flex: 0.2,
+//                 minWidth: 150,
+//                 headerClassName: "super-app-theme--header",
+//             },
+//             // {
+//             //     field: "emergencyLeave",
+//             //     headerName: "Emergency Leave",
+//             //     flex: 0.3,
+//             //     minWidth: 200,
+//             //     headerClassName: "super-app-theme--header",
+//             // },
+//             {
+//                 field: "total",
+//                 headerName: "Total Days of Leave",
+//                 flex: 0.3,
+//                 minWidth: 150,
+//                 headerClassName: "super-app-theme--header",
+//             },
+//             {
+//                 field: "startDate",
+//                 headerName: "Start Date",
+//                 flex: 0.3,
+//                 minWidth: 150,
+//                 headerClassName: "super-app-theme--header",
+//             },
+//             {
+//                 field: "endDate",
+//                 headerName: "End Date",
+//                 flex: 0.3,
+//                 minWidth: 150,
+//                 headerClassName: "super-app-theme--header",
+//             },
+//             // {
+//             //     field: "reportingDesignation",
+//             //     headerName: "Reporting Designation",
+//             //     flex: 0.3,
+//             //     minWidth: 200,
+//             //     headerClassName: "super-app-theme--header",
+//             // },
+//             {
+//                 field: "stationLeave",
+//                 headerName: "Leaving Station",
+//                 flex: 0.3,
+//                 minWidth: 170,
+//                 headerClassName: "super-app-theme--header",
+//             },
+
+//         ];
+
+//         const rows  = [
+//             {index: 1,empName:'Chiranjit Dey', employeeId: 'AB1234', leaveType:'Casual Leave', total:'2',startDate:'15/02/2024',endDate:'16/02/2024',stationLeave:'No', status:'At DYEO for Approval'},
+//             {index: 2,empName:'Aryan Raj',  employeeId: 'AB1238', leaveType:'Sick Leave', total:'1', startDate:'17/01/2024 ',endDate:'18/01/2024',stationLeave:'No', status:'DYEO Approved'},
+//         ]
+//   return (
+//     <>
+//         <Card sx={{ my: 2 }} elevation={3}>
+//             <CardContent>
+//                 {/* <PageTitle name={title} /> */}
+//                 <div style={{display:"flex",justifyContent:"left",alignItems:'center', marginBlock:15, borderBottom: "0.5px solid #d1d1cf", marginTop:'30px'}}>
+//                     <EventBusyIcon sx={{fontSize:"25px", color:'#246cb5'}}/>
+//                     <H3 sx={{fontSize: "15px", color:'#246cb5'}} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Approve/Reject Leave Requests</H3>
+//                 </div>
+//                 <Box component={"div"} >
+
+//                     <SearchTable
+//                         columns={columns}
+//                         data={rows}
+//                         isCheckbox={false}
+//                         isHideDensity={false}
+//                         isHideExport={true}
+//                         isHideFilter={true}
+//                         isHideColumn={true}
+//                         isHidePaging={false}
+//                         name="userDetails"
+//                         id="userDetails"
+//                     />
+//                 </Box>
+//             </CardContent>
+//         </Card>
+//     </>
+//   )
+// }
+
+// export default LeaveRequestApproval
+
+
 import React, { useState, useEffect } from 'react'
 import SearchTable from '../../../components/SearchTableAlt';
-import { Grid, Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent, TextField } from '@mui/material';
+import { Grid, Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent } from '@mui/material';
 import useTitle from '../../../hooks/useTitle';
 import PageTitle from '../../../layouts/PageTitle';
 import { useNavigate } from 'react-router-dom';
@@ -12,24 +162,13 @@ import { format } from 'date-fns'
 import Loader from '../../../components/Loader';
 import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
 import TrackLeaveRequestStatus from './TrackLeaveRequestStatus';
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs from 'dayjs';
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import CachedIcon from "@mui/icons-material/Cached";
-import SearchIcon from "@mui/icons-material/Search";
-import swal from "sweetalert";
-import { useLocation } from "react-router";
+
+
 const ViewLeaves = () => {
 
 
-    const title = 'Leave Applications';
-    const title2 = 'Search Parameters';
-
+    const title = 'Approve/Reject Leave Request Details';
     useTitle(title);
-
     const navigate = useNavigate();
     const user = useSelector((state) => state.loginReducer);
     console.log(user.data.userdetails.user.userId);
@@ -39,8 +178,7 @@ const ViewLeaves = () => {
     const [open, setOpen] = React.useState(false);
     const [requestStatus, setRequestStatus] = useState(null);
     const [reqRemarks, setReqRemarks] = useState(null);
-    const [selectAllApplications, setSelectAllApplications] = useState(false);
-    const location = useLocation();
+    const [stepRole, setStepRole] = useState([]);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -50,66 +188,53 @@ const ViewLeaves = () => {
         setOpen(false);
     };
 
+    const fetchData = async () => {
+        try {
+            const response = await axios.post(
+                "http://129.154.229.83:8095/leavemanagement/get-user-details",
+                {
+                    userId: user.data.userdetails.user.userId,
+                }
+            );
+            // Handle the response data as needed
+            console.log(response.data?.result[0].stepMasters.map(step => step.stepRoleId));
+            if (response.data.statusCode === 200) {
+                setStepRole(response.data?.result[0].stepMasters.map(step => step.stepRoleId));
+                handleFetchData();
 
-    const validationSchema = Yup.object().shape({
 
-        LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
-        LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
-    });
 
-    const formik = useFormik({
-        initialValues: {
+            }
 
-            LeaveStartDate: null,
-            LeaveEndDate: null,
+        } catch (error) {
+            // Handle errors
+            console.error("Error fetching user details:", error);
+        }
+    };
 
-        },
-        validationSchema: validationSchema,
-        onSubmit: (values) => {
-            console.log(values)
-            handleFetchData();
-            // handleRedirect();
-        },
-    });
-    console.log(formik.values.LeaveStartDate);
-    console.log(formik.values.LeaveEndDate);
+    console.log(stepRole)
 
 
     const handleFetchData = async () => {
         try {
             const payload = {
-                userId: userId,
-                rqstFrom: formik.values.LeaveStartDate,
-                rqstTo: formik.values.LeaveEndDate
+                rqstStatus: stepRole
             }
 
-            const response = await axios.post("http://129.154.229.83:8095/leavemanagement/leave-applied-leaves", payload);
-            const formattedData = response.data.result.map((item, index) => {
-                const fromDate = item.rqstFromDate + ":" + item.rqstFromTime;
-                const toDate = item.rqstToDate + ":" + item.rqstToTime;
-
-
-                return {
-                    ...item,
-                    index: index + 1,
-                    fromDate: fromDate,
-                    toDate: toDate,
-                };
-
-                // daysOfLeave: item.daysOfLeave + (item.hoursOfLeave), // Convert hours to days
-                // rqstFrom: format(new Date(item.rqstFrom), 'yyyy-MM-dd'),
-                // rqstTo: format(new Date(item.rqstTo), 'yyyy-MM-dd'),
-
-            });
+            const response = await axios.post("http://129.154.229.83:8095/leavemanagement/get-application-status", payload);
+            const formattedData = response.data.result.map((item, index) => ({
+                ...item,
+                index: index + 1,
+            }));
 
             setTableData(formattedData);
+
             console.log('kp-tableDataResponse', response.data);
 
             // setTableData(response.data.result);
             if (response.status === true) {
                 console.log('kp-tableData1', tableData);
                 console.log('kp-tableData2', tableData);
-
 
 
             }
@@ -123,13 +248,13 @@ const ViewLeaves = () => {
     }
 
     useEffect(() => {
-        handleFetchData();
+
+        fetchData();
         setIsLoading(true);
-        // setTableData([]);
     }, [])
     const columns = [
         {
-            field: "index", //keep this fixed, index should be present for all tables
+            field: "index",
             headerName: "S.No",
             flex: 0.1,
             minWidth: 80,
@@ -147,7 +272,7 @@ const ViewLeaves = () => {
                     sx={{ cursor: "pointer" }}
                     onClick={() => {
                         const requestId = params.row.rqstId;
-                        navigate("/leaveapplicationview", { state: { requestId } });
+                        navigate("/leaverequestdetails", { state: { requestId } });
                     }}
                 >
                     {params.value}
@@ -169,185 +294,60 @@ const ViewLeaves = () => {
             minWidth: 120,
             headerClassName: "super-app-theme--header",
         },
-
-        {
-            field: "fromDate",
-            headerName: "Leave Start",
-            flex: 0.3,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-        },
-
-        {
-            field: "toDate",
-            headerName: "Leave End",
-            flex: 0.3,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-        },
         {
             field: "rqstStatusDesc",
-            headerName: "Leave Current Status",
+            headerName: "Leave Status",
             flex: 0.3,
-            minWidth: 220,
+            minWidth: 200,
             headerClassName: "super-app-theme--header",
         },
-
         {
-            field: "requestStatus",
-            headerName: "Track Status",
+            field: "rqstFromDate",
+            headerName: "Start Date",
             flex: 0.3,
-            minWidth: 100,
+            minWidth: 120,
             headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link onClick={() => { setReqRemarks(params.row.remarks); setRequestStatus(params.value); handleClickOpen(); }}>
-                    <LocationSearchingIcon color='primary' />
-                </Link>
-            )
+        },
+        {
+            field: "rqstFromTime",
+            headerName: "Start Time",
+            flex: 0.3,
+            minWidth: 120,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "rqstToDate",
+            headerName: "End Date",
+            flex: 0.3,
+            minWidth: 120,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "rqstToTime",
+            headerName: "End Time",
+            flex: 0.3,
+            minWidth: 120,
+            headerClassName: "super-app-theme--header",
         },
 
 
     ];
 
-    const handleResetForm = () => {
-        swal({
-            title: "Do you want to reset the search?",
-            buttons: { cancel: "Cancel", confirm: "Confirm" },
-        }).then((userClickedConfirm) => {
-            if (userClickedConfirm) {
-                formik.resetForm();
-                window.location.reload(); //comment after correction
-                // setSelectAllApplications(false);
-
-                // const updatedValues = { LeaveStartDate: null, LeaveEndDate: null };
-                // formik.resetForm({ values: updatedValues });
-                // handleFetchData(updatedValues, true);
-
-                // Additional actions if needed
-                // handleFetchData();
-            }
-        });
-    };
-
-
-
     console.log('kp-tabledata3', tableData)
     return (
         <>
-            {
+            {/* {
                 isLoading && <Loader />
-            }
-
-            <Card sx={{ my: 2 }} elevation={3}>
-                <CardContent>
-                    <PageTitle name={title2} />
-                    <Box component="form" onSubmit={formik.handleSubmit} noValidate>
-                        <Grid
-                            container
-                            columnSpacing={2}
-                        >
-                            <Grid item xs={12} sm={6} md={6} lg={6}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                                    <DatePicker
-                                        id="LeaveStartDate"
-                                        name="LeaveStartDate"
-                                        format="DD/MM/YYYY"
-                                        label="Start Date"
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{ width: "100%" }}
-                                        // inputFormat="DD/MM/YYYY"
-                                        value={formik.values.LeaveStartDate}
-                                        onChange={(date) => {
-                                            formik.setFieldValue("LeaveStartDate", null);
-                                            const formattedDate = dayjs(date).format("YYYY-MM-DD");
-                                            formik.setFieldValue("LeaveStartDate", formattedDate);
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                size="small"
-                                                fullWidth
-                                                margin="0"
-                                                required
-                                                {...params}
-                                                error={formik.touched.LeaveStartDate && Boolean(formik.errors.LeaveStartDate)}
-                                                helperText={formik.touched.LeaveStartDate && formik.errors.LeaveStartDate}
-                                                onBlur={formik.handleBlur}
-
-                                            />
-                                        )}
-                                    />
-                                </LocalizationProvider>
-                            </Grid>
-                            <Grid item xs={12} sm={6} md={6} lg={6}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                                    <DatePicker
-                                        margin="0"
-                                        id="LeaveEndDate"
-                                        name="LeaveEndDate"
-
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        label="End Date"
-                                        sx={{ width: "100%" }}
-                                        format="DD/MM/YYYY"
-                                        value={formik.values.LeaveEndDate}
-                                        onChange={(date) => {
-                                            formik.setFieldValue("LeaveEndDate", null);
-                                            const formattedDate = dayjs(date).format("YYYY-MM-DD");
-                                            formik.setFieldValue("LeaveEndDate", formattedDate);
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField margin="0"
-                                                required
-                                                {...params} />
-                                        )}
-                                    />
-                                </LocalizationProvider>
-                            </Grid>
-
-                        </Grid>
-                        <Stack
-                            direction="row"
-                            spacing={2}
-                            justifyContent="center"
-                        //mt={2}
-                        >
-                            <Button
-                                variant="contained"
-                                //onClick={handleFetchApplicants}
-                                type="submit"
-                            >
-                                <SearchIcon />
-                                &nbsp;SEARCH
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                // onClick ={()=>{
-                                //     formik.resetForm();
-                                //     window.location.reload();
-                                // }}
-                                onClick={handleResetForm}
-
-
-                            >
-                                <CachedIcon />
-                                &nbsp;RESET
-                            </Button>
-                        </Stack>
-                        {/* </form> */}
-                    </Box>
-                </CardContent>
-            </Card>
+            } */}
             <Card sx={{ my: 2 }} elevation={3}>
                 <CardContent>
 
                     <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
                         <EventBusyIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end"> Leave Applications</H3>
+                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end"> My Leave Applications</H3>
                     </div>
                     <Box component={"div"} >
-                        {/* <Grid sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 2 }}>
-                            <Button variant={'contained'} onClick={handleNavigation}>Apply for a new leave</Button>
-                        </Grid> */}
+
                         <SearchTable
                             columns={columns}
                             data={tableData}
