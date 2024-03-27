@@ -1,380 +1,629 @@
-// import React from 'react'
-// import SearchTable from '../../../components/SearchTableAlt'
-// import { Grid, Box, Card, CardContent, IconButton, Stack, Link, Button } from '@mui/material';
-// import EventBusyIcon from '@mui/icons-material/EventBusy';
-// import { useNavigate } from 'react-router-dom';
-// import useTitle from '../../../hooks/useTitle';
-// import PageTitle from '../../../layouts/PageTitle';
-// import { H3 } from '../../../components/Typography';
-// import AlertConfirm from "react-alert-confirm";
-// import {useSnackbar} from "../../../components/Snackbar";
-// import "react-alert-confirm/lib/style.css";
-
-// const LeaveRequestApproval = () => {
-
-//     const title = 'View Leave Request Details';
-//     useTitle(title);
-
-//     const navigate = useNavigate();
-
-
-//     const columns = [
-//             {
-//                 field: "index",
-//                 headerName: "S.No",
-//                 flex: 0.1,
-//                 minWidth: 80,
-//                 headerClassName: "super-app-theme--header",
-//             },
-//             {
-//                 field: "empName",
-//                 headerName: "Employee Name",
-//                 flex: 0.1,
-//                 minWidth: 150,
-//                 headerClassName: "super-app-theme--header",
-//             },
-
-//             {
-//                 field: "employeeId",
-//                 headerName: "Employee Code",
-//                 flex: 0.3,
-//                 minWidth: 120,
-//                 headerClassName: "super-app-theme--header",
-//                 renderCell: (params) => (
-//                     <Link
-//                       sx={{ cursor: "pointer" }}
-//                       onClick={() => {
-//                         navigate("/leaverequestdetails");
-//                       }}
-//                     >
-//                     {params.value}
-//                     </Link>
-//                 ),
-//             }, 
-
-//             {
-//                 field: "leaveType",
-//                 headerName: "Type of Leaves",
-//                 flex: 0.3,
-//                 minWidth: 150,
-//                 headerClassName: "super-app-theme--header",
-//             },
-//             {
-//                 field: "status",
-//                 headerName: "Status",
-//                 flex: 0.2,
-//                 minWidth: 150,
-//                 headerClassName: "super-app-theme--header",
-//             },
-//             // {
-//             //     field: "emergencyLeave",
-//             //     headerName: "Emergency Leave",
-//             //     flex: 0.3,
-//             //     minWidth: 200,
-//             //     headerClassName: "super-app-theme--header",
-//             // },
-//             {
-//                 field: "total",
-//                 headerName: "Total Days of Leave",
-//                 flex: 0.3,
-//                 minWidth: 150,
-//                 headerClassName: "super-app-theme--header",
-//             },
-//             {
-//                 field: "startDate",
-//                 headerName: "Start Date",
-//                 flex: 0.3,
-//                 minWidth: 150,
-//                 headerClassName: "super-app-theme--header",
-//             },
-//             {
-//                 field: "endDate",
-//                 headerName: "End Date",
-//                 flex: 0.3,
-//                 minWidth: 150,
-//                 headerClassName: "super-app-theme--header",
-//             },
-//             // {
-//             //     field: "reportingDesignation",
-//             //     headerName: "Reporting Designation",
-//             //     flex: 0.3,
-//             //     minWidth: 200,
-//             //     headerClassName: "super-app-theme--header",
-//             // },
-//             {
-//                 field: "stationLeave",
-//                 headerName: "Leaving Station",
-//                 flex: 0.3,
-//                 minWidth: 170,
-//                 headerClassName: "super-app-theme--header",
-//             },
-
-//         ];
-
-//         const rows  = [
-//             {index: 1,empName:'Chiranjit Dey', employeeId: 'AB1234', leaveType:'Casual Leave', total:'2',startDate:'15/02/2024',endDate:'16/02/2024',stationLeave:'No', status:'At DYEO for Approval'},
-//             {index: 2,empName:'Aryan Raj',  employeeId: 'AB1238', leaveType:'Sick Leave', total:'1', startDate:'17/01/2024 ',endDate:'18/01/2024',stationLeave:'No', status:'DYEO Approved'},
-//         ]
-//   return (
-//     <>
-//         <Card sx={{ my: 2 }} elevation={3}>
-//             <CardContent>
-//                 {/* <PageTitle name={title} /> */}
-//                 <div style={{display:"flex",justifyContent:"left",alignItems:'center', marginBlock:15, borderBottom: "0.5px solid #d1d1cf", marginTop:'30px'}}>
-//                     <EventBusyIcon sx={{fontSize:"25px", color:'#246cb5'}}/>
-//                     <H3 sx={{fontSize: "15px", color:'#246cb5'}} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Approve/Reject Leave Requests</H3>
-//                 </div>
-//                 <Box component={"div"} >
-
-//                     <SearchTable
-//                         columns={columns}
-//                         data={rows}
-//                         isCheckbox={false}
-//                         isHideDensity={false}
-//                         isHideExport={true}
-//                         isHideFilter={true}
-//                         isHideColumn={true}
-//                         isHidePaging={false}
-//                         name="userDetails"
-//                         id="userDetails"
-//                     />
-//                 </Box>
-//             </CardContent>
-//         </Card>
-//     </>
-//   )
-// }
-
-// export default LeaveRequestApproval
-
-
 import React, { useState, useEffect } from 'react'
-import SearchTable from '../../../components/SearchTableAlt';
-import { Grid, Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent } from '@mui/material';
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import { styled } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import * as Yup from 'yup';
+import axios from "axios";
+import { useFormik } from 'formik';
+import Paper from "@mui/material/Paper";
+import Grid from "@mui/material/Grid";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import { Card, CardContent, Typography } from "@mui/material";
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import FaceIcon from '@mui/icons-material/Face';
 import useTitle from '../../../hooks/useTitle';
 import PageTitle from '../../../layouts/PageTitle';
-import { useNavigate } from 'react-router-dom';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { H3 } from '../../../components/Typography';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { format } from 'date-fns'
-import Loader from '../../../components/Loader';
-import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
-import TrackLeaveRequestStatus from './TrackLeaveRequestStatus';
+import AlertConfirm from "react-alert-confirm";
+import { useSnackbar } from "../../../components/Snackbar";
+import "react-alert-confirm/lib/style.css";
+import dayjs, { Dayjs } from 'dayjs';
+import LeadgerCard from './LedgerCard';
 
 
-const ViewLeaves = () => {
+const today = dayjs();
+
+const LeaveRequestDetails = () => {
 
 
-    const title = 'Approve/Reject Leave Request Details';
-    useTitle(title);
-    const navigate = useNavigate();
-    const user = useSelector((state) => state.loginReducer);
-    console.log(user.data.userdetails.user.userId);
-    const userId = user.data.userdetails.user.userId;
-    const [tableData, setTableData] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [open, setOpen] = React.useState(false);
-    const [requestStatus, setRequestStatus] = useState(null);
-    const [reqRemarks, setReqRemarks] = useState(null);
-    const [stepRole, setStepRole] = useState([]);
+  const formik = useFormik({
+    initialValues: {
+      LeaveStartDate: null,
+      LeavestartTime: "",
+      LeaveEndDate: null,
+      LeaveEndTime: '',
+      LeaveVirtualPath: '',
+      LeaveFile: '',
+      LeaveFileName: '',
+    },
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
+    onSubmit: (values) => {
+      console.log(values)
 
-    const handleClose = () => {
-        setOpen(false);
-    };
+    },
+  });
+  const [leaveBalance, setLeaveBalalnce] = useState([]);
 
-    const fetchData = async () => {
-        try {
-            const response = await axios.post(
-                "http://129.154.229.83:8095/leavemanagement/get-user-details",
-                {
-                    userId: user.data.userdetails.user.userId,
-                }
-            );
-            // Handle the response data as needed
-            console.log(response.data?.result[0].stepMasters.map(step => step.stepRoleId));
-            if (response.data.statusCode === 200) {
-                setStepRole(response.data?.result[0].stepMasters.map(step => step.stepRoleId));
-                handleFetchData();
+  const [selectedLeaveStartDate, setSelectedLeaveStartDate] = useState(null);
+  const [remarks, setRemarks] = useState("");
+  const [clicked, setClicked] = useState(false);
+  const [startTimeList, setStartTimeList] = useState([]);
+  const [endTimeList, setEndTimeList] = useState([]);
+  const remarksMaxLength = 300;
+  const location = useLocation();
+  const data = location?.state?.requestId;
+  const [leaveTypeDesc, setLeaveTypeDesc] = useState();
+  const [reason, setReason] = useState();
+  const [preffix, setPreffix] = useState();
+  const [suffix, setSuffix] = useState();
+  const [managerName, setManagerName] = useState();
+  const [fetchData, setFetchData] = useState();
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
+  const [startTime, setStartTime] = useState();
+  const [endTime, setEndTime] = useState();
+  const [emergencydisplay, setEmergencydisplay] = useState();
+  const [stationLeave, setStationLeave] = useState();
+  const [openToast, setOpenToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastSeverity, setToastSeverity] = useState("info");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isactive, setIsActive] = useState(true);
 
 
+  const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    margin: 3,
+    borderRadius: "10px",
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+  }));
 
-            }
 
-        } catch (error) {
-            // Handle errors
-            console.error("Error fetching user details:", error);
+  const fetchDataOnLeaveId = async () => {
+    try {
+      const payload = {
+        rqstId: data
+      }
+
+      const response = await axios.post(`http://129.154.229.83:8095/leavemanagement/get-leave-detail`, payload);
+
+      console.log(response.status);
+      console.log(response.data.result);
+
+      if (response.status === 200) {
+        const exact3 = response.data.result.isEmergencyLeave;
+        const exact4 = response.data.result.isStationLeave;
+
+        if (exact3 === true) {
+          setEmergencydisplay("YES");
+
+        } else {
+          setEmergencydisplay("NO");
         }
-    };
 
-    console.log(stepRole)
+        if (exact4 === true) {
+          setStationLeave("YES");
 
-
-    const handleFetchData = async () => {
-        try {
-            const payload = {
-                rqstStatus: stepRole
-            }
-
-            const response = await axios.post("http://129.154.229.83:8095/leavemanagement/get-application-status", payload);
-            const formattedData = response.data.result.map((item, index) => ({
-                ...item,
-                index: index + 1,
-            }));
-
-            setTableData(formattedData);
-
-            console.log('kp-tableDataResponse', response.data);
-
-            // setTableData(response.data.result);
-            if (response.status === true) {
-                console.log('kp-tableData1', tableData);
-                console.log('kp-tableData2', tableData);
-
-
-            }
-        } catch (error) {
-
-            console.error(error);
+        } else {
+          setStationLeave("NO");
         }
-        finally {
-            setIsLoading(false);
+        if (response.status === 200) {
+          setFetchData(response.data.result);
+          setStartDate(response.data.result.rqstFromDate);
+          setEndDate(response.data.result.rqstToDate);
+          setStartTime(response.data.result.rqstFromTime);
+          setEndTime(response.data.result.rqstToTime);
+          setLeaveTypeDesc(response.data.result.leaveTypeDesc);
+          setPreffix(response.data.result.preffix);
+          setSuffix(response.data.result.suffix);
+          setManagerName(response.data.result.managerName);
+          setReason(response.data.result.reason);
+          setIsActive(response.data.result.isActive);
+
         }
+
+      }
+    } catch (error) {
+      console.error(error)
     }
+    finally {
+      // setIsLoading(false);
+    }
+  }
+  
+  const fetchButtonDetails = async () => {
+    try {
+      const payload = {
+        rqstId: data
+      }
 
-    useEffect(() => {
+      const response = await axios.post(`http://129.154.229.83:8095/leavemanagement/step-action`, payload);
 
-        fetchData();
-        setIsLoading(true);
-    }, [])
-    const columns = [
-        {
-            field: "index",
-            headerName: "S.No",
-            flex: 0.1,
-            minWidth: 80,
-            headerClassName: "super-app-theme--header",
-        },
+      console.log(response.status);
+      console.log(response.data.result);
 
-        {
-            field: "rqstId",
-            headerName: "Leave ID",
-            flex: 0.3,
-            minWidth: 100,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
-                        const requestId = params.row.rqstId;
-                        navigate("/leaverequestdetails", { state: { requestId } });
-                    }}
-                >
-                    {params.value}
-                </Link>
-            ),
-        },
-        {
-            field: "leaveTypeDesc",
-            headerName: "Leave Type",
-            flex: 0.3,
-            minWidth: 160,
-            headerClassName: "super-app-theme--header",
-        },
+      if (response.status === 200) {
+        
+        if (response.status === 200) {
+          
 
-        {
-            field: "daysOfLeave",
-            headerName: "Days of Leave",
-            flex: 0.3,
-            minWidth: 120,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "rqstStatusDesc",
-            headerName: "Leave Status",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "rqstFromDate",
-            headerName: "Start Date",
-            flex: 0.3,
-            minWidth: 120,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "rqstFromTime",
-            headerName: "Start Time",
-            flex: 0.3,
-            minWidth: 120,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "rqstToDate",
-            headerName: "End Date",
-            flex: 0.3,
-            minWidth: 120,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "rqstToTime",
-            headerName: "End Time",
-            flex: 0.3,
-            minWidth: 120,
-            headerClassName: "super-app-theme--header",
-        },
+        }
+
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
 
-    ];
 
-    console.log('kp-tabledata3', tableData)
-    return (
-        <>
-            {/* {
-                isLoading && <Loader />
-            } */}
-            <Card sx={{ my: 2 }} elevation={3}>
-                <CardContent>
+  useEffect(() => {
+    fetchDataOnLeaveId();
+    fetchButtonDetails();
 
-                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
-                        <EventBusyIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end"> My Leave Applications</H3>
-                    </div>
-                    <Box component={"div"} >
+  }, [])
 
-                        <SearchTable
-                            columns={columns}
-                            data={tableData}
-                            isCheckbox={false}
-                            isHideDensity={false}
-                            isHideExport={true}
-                            isHideFilter={true}
-                            isHideColumn={true}
-                            isHidePaging={false}
-                            name="abc"
-                            id="hjjh"
-                        />
-                    </Box>
-                </CardContent>
-            </Card>
-            <Dialog
-                fullWidth
-                maxWidth={'md'}
-                open={open}
-                onClose={handleClose}
+
+
+  const title = "Leave Request Form";
+  useTitle(title);
+
+  const { showSnackbar } = useSnackbar();
+  const navigate = useNavigate();
+
+  const handleSubmit = (prop) => {
+    if (remarks.length === 0 && prop === 'Reject') {
+      showSnackbar("Please fill remarks", 'error')
+      return;
+    }
+    callConfirmDialog(prop);
+  }
+
+  const callConfirmDialog = async (prop) => {
+    console.log('kp-confirm');
+    const [action] = await AlertConfirm({
+      title: "Confirm",
+      desc: `Are you sure, you want to ${prop}?`,
+    });
+    AlertConfirm.config({
+      okText: "Submit",
+      cancelText: "Cancel",
+    });
+    if (action) {
+      console.log('kp-saved');
+      showSnackbar("Saved Successfully", 'success');
+      navigate('/leave-account')
+      // submitDetails(values, resetForm);
+    } else {
+      //   setIsSubmit(false);
+      showSnackbar('Did not save!', 'error')
+    }
+  }
+  return (
+    <>
+      <Card >
+        <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
+          <ReceiptLongIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+          <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Leave Balance Details</H3>
+        </div>
+        <Box sx={{ flexGrow: 1, mt: 2, elevation: "0" }}>
+
+          <Grid container spacing={2} columns={16}>
+            {leaveBalance.map((value, index) => (<LeadgerCard resData={value} key={index} />))}
+          </Grid>
+        </Box>
+      </Card>
+      <Card>
+        <CardContent>
+          {/* <PageTitle name={"Apply for a purchase"} />
+         */}
+          <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
+            <FaceIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+            <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Leave Request Details</H3>
+          </div>
+          <Box
+            component={"form"}
+            onSubmit={formik.handleSubmit}
+            noValidate >
+            <Grid
+              container
+              spacing={2}
+              direction="row"
+              alignItems="center"
             >
-                <DialogContent >
-                    <TrackLeaveRequestStatus reqRemarks={reqRemarks} requestStatus={requestStatus} />
-                </DialogContent>
-            </Dialog>
-        </>
-    )
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  margin="0"
+                  id="Leave"
+                  name="Leave"
+                  size="small"
+                  sx={{ width: "100%" }}
+                  value={leaveTypeDesc}
+                  label="Leave Type"
+                  disabled
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.leaveTypeDesc}`.length >= 0) }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  margin="0"
+                  id="ApplyingDueToAnyEmergency"
+                  name="ApplyingDueToAnyEmergency"
+                  sx={{ width: "100%" }}
+                  size="small"
+                  // value={fetchData?.isEmergencyLeave}
+                  value={emergencydisplay}
+                  label="Applying due to any emergency?"
+                  disabled
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.isEmergencyLeave}`.length >= 0) }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  margin="0"
+                  id="StationLeave"
+                  name="StationLeave"
+                  sx={{ width: "100%" }}
+                  size="small"
+                  // value={fetchData?.isStationLeave}
+                  value={stationLeave}
+
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.isStationLeave}`.length >= 0) }}
+                  label="Station Leave"
+                  disabled
+                />
+              </Grid>
+            </Grid>
+            <Grid
+              container
+              spacing={2}
+              direction="row"
+              alignItems="center"
+            >
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  margin="0"
+                  id="LeaveStartDate"
+                  name="LeaveStartDate"
+                  sx={{ width: "100%" }}
+                  size="small"
+                  value={startDate}
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.rqstFrom}`.length >= 0) }}
+                  label="Leave Start Date"
+                  disabled
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  margin="0"
+                  id="LeavestartTime"
+                  name="LeavestartTime"
+                  sx={{ width: "100%" }}
+                  size="small"
+                  value={startTime}
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.rqstFrom}`.length >= 0) }}
+                  label="Start Time"
+                  disabled
+                />
+              </Grid>
+            </Grid>
+            <Grid
+              container
+              spacing={2}
+              direction="row"
+              alignItems="center"
+
+            >
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  margin="0"
+                  id="LeaveEndDate"
+                  name="LeaveEndDate"
+                  sx={{ width: "100%" }}
+                  size="small"
+                  value={endDate}
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.rqstTo}`.length >= 0) }}
+                  label="Leave End Date"
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  margin="0"
+                  id="LeaveEndTime"
+                  name="LeaveEndTime"
+                  sx={{ width: "100%" }}
+                  size="small"
+                  value={endTime}
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.rqstTo}`.length >= 0) }}
+                  label="End Time"
+                  disabled
+                />
+              </Grid>
+            </Grid>
+            <Grid
+              container
+              spacing={2}
+              direction="row"
+              alignItems="center"
+            >
+
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                <TextField
+                  margin="0"
+                  id="Prefix"
+                  name="Prefix"
+                  sx={{ width: "100%" }}
+                  size="small"
+                  value={preffix}
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.preffix}`.length >= 0) }}
+                  label="Prefix"
+                  disabled
+                />
+
+
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  margin="0"
+                  id="Suffix"
+                  name="Suffix"
+                  sx={{ width: "100%" }}
+                  size="small"
+                  value={suffix}
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.suffix}`.length >= 0) }}
+                  label="Suffix"
+                  disabled
+                />
+
+
+
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+
+                <TextField
+                  margin="0"
+                  id="ReportingDesignation"
+                  name="ReportingDesignation"
+                  sx={{ width: "100%" }}
+                  disabled
+                  size="small"
+                  value={managerName}
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.managerName}`.length >= 0) }}
+                  label="Reporting User"
+                />
+
+
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={8}>
+                <TextField
+                  margin="0"
+                  id="Description"
+                  name="Description"
+                  sx={{ width: "100%" }}
+                  disabled
+                  // InputProps={{readOnly:true}}
+                  multiline
+                  value={reason}
+                  InputLabelProps={{ shrink: Boolean(`${fetchData?.reason}`.length >= 0) }}
+                  rows={4}
+                  label="Reason/Description"
+                />
+              </Grid>
+
+            </Grid>
+          </Box>
+        </CardContent>
+      </Card>
+      <Card >
+        <CardContent>
+          <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
+            <AssignmentTurnedInIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+            <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Leave Approve</H3>
+          </div>
+          <Box sx={{ flexGrow: 1, mt: 2, elevation: "0" }}>
+            <Grid
+              container
+              spacing={2}
+              direction="row"
+              alignItems="center"
+            // justifyContent="center"
+            // sx={{}}
+            >
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+                  <DatePicker
+                    id="LeaveStartDate"
+                    name="LeaveStartDate"
+                    minDate={today}
+                    format="DD/MM/YYYY"
+                    label="Leave Start Date"
+                    slotProps={{ textField: { size: 'small' } }}
+                    sx={{ width: "100%" }}
+                    // inputFormat="DD/MM/YYYY"
+                    value={formik.values.LeaveStartDate}
+                    onChange={(date) => {
+                      const formattedDate = dayjs(date).format("MM-DD-YYYY");
+                      formik.setFieldValue("LeaveStartDate", formattedDate);
+                      setSelectedLeaveStartDate(date);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        size="small"
+                        fullWidth
+                        margin="0"
+                        required
+                        {...params}
+                        error={formik.touched.LeaveStartDate && Boolean(formik.errors.LeaveStartDate)}
+                        helperText={formik.touched.LeaveStartDate && formik.errors.LeaveStartDate}
+                        onBlur={formik.handleBlur}
+
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={4} >
+                <Autocomplete
+                  margin="0"
+                  id="LeavestartTime"
+                  name="LeavestartTime"
+                  options={startTimeList}
+                  sx={{ width: "100%" }}
+                  fullWidth
+
+                  value={startTimeList.find(
+                    (option) => option.typeId === formik.values.LeavestartTime
+                  ) || null}
+                  onChange={(e, value) => {
+                    if (value === null) {
+                      formik.setFieldValue("LeavestartTime", null)
+                    }
+                    else
+
+                      formik.setFieldValue("LeavestartTime", value.typeId);
+                    formik.setFieldValue("LeaveEndTime", null)
+
+                  }}
+                  getOptionLabel={(value) => value.typeName}
+                  renderInput={(params) =>
+                    <TextField
+                      {...params}
+                      label="Time"
+                      size="small"
+                      required
+                      onBlur={formik.handleBlur}
+                      helperText={formik.errors.LeavestartTime && formik.touched.LeavestartTime ? formik.errors.LeavestartTime : null}
+                      error={formik.errors.LeavestartTime && formik.touched.LeavestartTime ? true : false}
+
+                    />}
+                />
+              </Grid>
+
+            </Grid>
+            <Grid
+              container
+              spacing={2}
+              direction="row"
+              alignItems="center"
+            // justifyContent="center"
+            // sx={{}}
+            >
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+                  <DatePicker
+                    margin="0"
+                    id="LeaveEndDate"
+                    name="LeaveEndDate"
+                    minDate={today}
+                    slotProps={{ textField: { size: 'small' } }}
+                    shouldDisableDate={(date) =>
+                      selectedLeaveStartDate ? date < selectedLeaveStartDate : false
+                    }
+                    label="Leave End Date"
+                    sx={{ width: "100%" }}
+                    format="DD/MM/YYYY"
+                    value={formik.values.LeaveEndDate}
+                    onChange={(date) => {
+                      const formattedDate = dayjs(date).format("MM-DD-YYYY");
+                      formik.setFieldValue("LeaveEndDate", formattedDate);
+                    }}
+                    renderInput={(params) => (
+                      <TextField margin="0"
+                        required
+                        {...params} />
+                    )}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4} >
+                <Autocomplete
+                  margin="0"
+                  id="LeaveEndTime"
+                  name="LeaveEndTime"
+                  // options={filterEndTimeValues(formik.values.LeavestartTime)} // Use the filtered values
+                  sx={{ width: "100%" }}
+                  fullWidth
+
+                  value={endTimeList.find(
+                    (option) => option.typeId === formik.values.LeaveEndTime
+                  ) || null}
+                  onChange={(e, value) => {
+                    if (value === null) {
+                      formik.setFieldValue("LeaveEndTime", null)
+                    }
+                    else
+                      formik.setFieldValue("LeaveEndTime", value.typeId)
+                  }}
+                  getOptionLabel={(value) => value.typeName}
+                  renderInput={(params) =>
+                    <TextField
+                      {...params}
+                      label="Time"
+                      size="small"
+                      required
+                      onBlur={formik.handleBlur}
+                      helperText={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? formik.errors.LeaveEndTime : null}
+                      error={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? true : false}
+                    />}
+                />
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12} sm={4} md={4} lg={12}>
+              <TextField
+                required
+                margin="dense"
+                id="remarks"
+                label="Remarks"
+                fullWidth
+                value={remarks}
+                onChange={(e) => {
+                  setRemarks(e.target.value);
+                  console.log("Remarks:", e.target.value);
+                }}
+                multiline
+                rows={4}
+                inputProps={{ maxLength: remarksMaxLength }}
+                helperText={
+                  clicked && remarks.length === 0 ? (
+                    <Typography sx={{ fontWeight: "bold" }}>
+                      Remarks are mandatory
+                    </Typography>
+                  ) : remarks.length >= remarksMaxLength - 150 ? (
+                    `${remarksMaxLength - remarks.length} characters remaining`
+                  ) : null
+                }
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={12} md={12} lg={12} sx={{ width: '100%', columnGap: "20px" }}>
+              <Grid item>
+                <Button type="submit" variant="contained" sx={{ float: 'right', borderRadius: '4px' }} onClick={() => handleSubmit("Accept")}>Approve</Button>
+              </Grid>
+              <Grid item>
+                <Button type="submit" variant="contained" sx={{ float: 'right', marginRight: '12px', borderRadius: '4px' }} onClick={() => handleSubmit("Reject")}>Reject</Button>
+              </Grid>
+            </Grid>
+
+
+          </Box>
+        </CardContent>
+      </Card>
+    </>
+  );
 }
 
-export default ViewLeaves
+export default LeaveRequestDetails;
