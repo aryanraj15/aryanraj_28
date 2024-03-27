@@ -652,3 +652,58 @@ export default LeaveRequestDetails;
     ],
     "statusCode": 200
 }
+
+
+
+
+
+const fetchButtonDetails = async () => {
+  try {
+    const payload = {
+      rqstId: data
+    }
+
+    const response = await axios.post(`http://129.154.229.83:8095/leavemanagement/step-action`, payload);
+
+    console.log(response.status);
+    console.log(response.data.result);
+
+    if (response.status === 200) {
+      // Extract stepId for Approve and Reject actions
+      const approveAction = response.data.result.find(action => action.action === 'Approve');
+      const rejectAction = response.data.result.find(action => action.action === 'Reject');
+
+      if (approveAction && rejectAction) {
+        // Set stepId for Approve and Reject buttons
+        setStepId({
+          approve: approveAction.stepId,
+          reject: rejectAction.stepId
+        });
+      }
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const [stepId, setStepId] = useState({});
+
+useEffect(() => {
+  fetchDataOnLeaveId();
+  fetchButtonDetails();
+}, []);
+
+// Inside your JSX where you render buttons
+<Grid item xs={12} sm={12} md={12} lg={12} sx={{ width: '100%', columnGap: "20px" }}>
+  {stepId.approve && (
+    <Grid item>
+      <Button type="submit" variant="contained" sx={{ float: 'right', borderRadius: '4px' }} onClick={() => handleSubmit("Approve")}>Approve</Button>
+    </Grid>
+  )}
+  {stepId.reject && (
+    <Grid item>
+      <Button type="submit" variant="contained" sx={{ float: 'right', marginRight: '12px', borderRadius: '4px' }} onClick={() => handleSubmit("Reject")}>Reject</Button>
+    </Grid>
+  )}
+</Grid>
+
