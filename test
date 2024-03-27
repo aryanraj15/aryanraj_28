@@ -627,3 +627,28 @@ const LeaveRequestDetails = () => {
 }
 
 export default LeaveRequestDetails;
+
+
+
+
+
+
+{
+    "status": true,
+    "message": "Details fetched successfully",
+    "result": [
+        {
+            "actionId": 1,
+            "action": "Approve",
+            "stepId": 73,
+            "stepName": "DyEO-Admin approves leave, sent to JEO - Admin (for TL-Admin/DPO-Admin/Attender)"
+        },
+        {
+            "actionId": 2,
+            "action": "Reject",
+            "stepId": 75,
+            "stepName": "DyEO-Admin rejects leave (for TL-Admin/DPO-Admin/Attender)"
+        }
+    ],
+    "statusCode": 200
+}
