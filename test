@@ -147,7 +147,7 @@ const LeaveRequestDetails = () => {
           setReason(response.data.result.reason);
           setIsActive(response.data.result.isActive);
           setFetchuserId(response.data.result.userId);
-         
+
 
 
         }
@@ -190,9 +190,17 @@ const LeaveRequestDetails = () => {
     }
   }
 
-   const saveLeaveApproveDetails = async (prop) => {
-    const formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
-    const formattedEndDate = dayjs(formik.values.LeaveEndDate).format("YYYY-MM-DD");
+  const saveLeaveApproveDetails = async (prop) => {
+    let formattedStartDate = null;
+
+    let formattedEndDate = null;
+
+    if (formik.values.LeaveStartDate) {
+      formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD")
+    }
+    if (formik.values.LeaveEndDate) {
+      formattedEndDate = dayjs(formik.values.LeaveEndDate).format("YYYY-MM-DD")
+    }
 
     try {
 
@@ -203,7 +211,7 @@ const LeaveRequestDetails = () => {
         approvedTo: formattedEndDate,
         approvedTimeTo: formik.values.LeaveEndTime,
         updBy: user.data.userdetails.user.userId,
-        status: prop ==='Approve' ? stepId.approve : stepId.reject,
+        status: prop === "Approve" ? stepId.approve : stepId.reject,
         finalRemarks: formik.values.Reason
 
       };
@@ -233,7 +241,7 @@ const LeaveRequestDetails = () => {
   const fetchDataOnLeaveBalance = async () => {
     try {
       const payload = {
-        userId:fetchuserId,
+        userId: fetchuserId,
       }
 
       const response = await axios.post(`http://129.154.229.83:8095/leavemanagement/leave-balance-dropdown`, payload);
@@ -250,13 +258,18 @@ const LeaveRequestDetails = () => {
 
   }
 
+  useEffect(() => {
+    if (fetchuserId) {
+      fetchDataOnLeaveBalance();
+    }
+  }, [fetchuserId]);
 
 
   useEffect(() => {
     fetchDataOnLeaveId();
     fetchButtonDetails();
-     fetchDataOnLeaveBalance();
-    
+
+
 
     axios.get(`http://129.154.229.83:8095/leavemanagement/leave-from-dropdown`, {
 
@@ -292,7 +305,7 @@ const LeaveRequestDetails = () => {
 
   }, [])
 
-  
+
   const filterEndTimeValues = (startTimeId) => {
     if (startTimeId === 155 && formik.values.LeaveStartDate === formik.values.LeaveEndDate) {
       // If starttimeId is 2, filter out the value with id 2 from time2
@@ -601,7 +614,7 @@ const LeaveRequestDetails = () => {
                         size="small"
                         fullWidth
                         margin="0"
-                        required
+
                         {...params}
                         error={formik.touched.LeaveStartDate && Boolean(formik.errors.LeaveStartDate)}
                         helperText={formik.touched.LeaveStartDate && formik.errors.LeaveStartDate}
@@ -640,7 +653,7 @@ const LeaveRequestDetails = () => {
                       {...params}
                       label="Time"
                       size="small"
-                      required
+
                       onBlur={formik.handleBlur}
                       helperText={formik.errors.LeavestartTime && formik.touched.LeavestartTime ? formik.errors.LeavestartTime : null}
                       error={formik.errors.LeavestartTime && formik.touched.LeavestartTime ? true : false}
@@ -679,7 +692,7 @@ const LeaveRequestDetails = () => {
                     }}
                     renderInput={(params) => (
                       <TextField margin="0"
-                        required
+
                         {...params} />
                     )}
                   />
@@ -710,7 +723,7 @@ const LeaveRequestDetails = () => {
                       {...params}
                       label="Time"
                       size="small"
-                      required
+
                       onBlur={formik.handleBlur}
                       helperText={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? formik.errors.LeaveEndTime : null}
                       error={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? true : false}
