@@ -227,7 +227,6 @@ const LeaveRequestDetails = () => {
         console.log("the result ", res.data.result);
 
         setOpenToast(true);
-
         showSnackbar("Saved Successfully", 'success');
         navigate('/leave-account')
 
@@ -268,9 +267,7 @@ const LeaveRequestDetails = () => {
   useEffect(() => {
     fetchDataOnLeaveId();
     fetchButtonDetails();
-
-
-
+    
     axios.get(`http://129.154.229.83:8095/leavemanagement/leave-from-dropdown`, {
 
     }).then(response => {
@@ -347,7 +344,7 @@ const LeaveRequestDetails = () => {
 
     if (action) {
       console.log('kp-saved');
-      saveLeaveApproveDetails();
+      saveLeaveApproveDetails(prop);
       showSnackbar("Saved Successfully", 'success');
       navigate('/leave-account')
       // submitDetails(values, resetForm);
