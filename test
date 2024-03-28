@@ -34,7 +34,6 @@ const LeaveRequestDetails = () => {
 
 
   const [leaveBalance, setLeaveBalalnce] = useState([]);
-
   const [selectedLeaveStartDate, setSelectedLeaveStartDate] = useState(null);
   const [remarks, setRemarks] = useState("");
   const [clicked, setClicked] = useState(false);
@@ -51,6 +50,7 @@ const LeaveRequestDetails = () => {
   const [fetchData, setFetchData] = useState();
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
+  const [fetchuserId, setFetchuserId] = useState();
   const [startTime, setStartTime] = useState();
   const [endTime, setEndTime] = useState();
   const [emergencydisplay, setEmergencydisplay] = useState();
@@ -106,7 +106,6 @@ const LeaveRequestDetails = () => {
     color: theme.palette.text.secondary,
   }));
 
-
   const fetchDataOnLeaveId = async () => {
     try {
       const payload = {
@@ -147,6 +146,9 @@ const LeaveRequestDetails = () => {
           setManagerName(response.data.result.managerName);
           setReason(response.data.result.reason);
           setIsActive(response.data.result.isActive);
+          setFetchuserId(response.data.result.userId);
+         
+
 
         }
 
@@ -188,7 +190,7 @@ const LeaveRequestDetails = () => {
     }
   }
 
-  const saveLeaveApproveDetails = async () => {
+   const saveLeaveApproveDetails = async (prop) => {
     const formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
     const formattedEndDate = dayjs(formik.values.LeaveEndDate).format("YYYY-MM-DD");
 
@@ -201,7 +203,7 @@ const LeaveRequestDetails = () => {
         approvedTo: formattedEndDate,
         approvedTimeTo: formik.values.LeaveEndTime,
         updBy: user.data.userdetails.user.userId,
-        status: 73,
+        status: prop ==='Approve' ? stepId.approve : stepId.reject,
         finalRemarks: formik.values.Reason
 
       };
@@ -228,10 +230,33 @@ const LeaveRequestDetails = () => {
     }
   };
 
+  const fetchDataOnLeaveBalance = async () => {
+    try {
+      const payload = {
+        userId:fetchuserId,
+      }
+
+      const response = await axios.post(`http://129.154.229.83:8095/leavemanagement/leave-balance-dropdown`, payload);
+      let sortedLeaveBallenceData = response.data.result.map((value) => {
+        return value;
+      })
+
+      setLeaveBalalnce(sortedLeaveBallenceData);
+      console.log(sortedLeaveBallenceData);
+
+    } catch (error) {
+      console.error(error)
+    }
+
+  }
+
+
 
   useEffect(() => {
     fetchDataOnLeaveId();
     fetchButtonDetails();
+     fetchDataOnLeaveBalance();
+    
 
     axios.get(`http://129.154.229.83:8095/leavemanagement/leave-from-dropdown`, {
 
@@ -267,7 +292,7 @@ const LeaveRequestDetails = () => {
 
   }, [])
 
-  const numberofDays = getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate, formik.values.LeavestartTime, formik.values.LeaveEndTime);
+  
   const filterEndTimeValues = (startTimeId) => {
     if (startTimeId === 155 && formik.values.LeaveStartDate === formik.values.LeaveEndDate) {
       // If starttimeId is 2, filter out the value with id 2 from time2
@@ -276,40 +301,8 @@ const LeaveRequestDetails = () => {
     return endTimeList; // Otherwise, return the original time2 array
   };
 
-  function getNumberOfDays(start, end, startTimeId, endTimeId) {
-    if (!start || !end) {
-      return 0;
-    }
-
-    const date1 = new Date(start);
-    const date2 = new Date(end);
-    const oneDay = 1000 * 60 * 60 * 24;
-
-    const diffInTime = date2.getTime() - date1.getTime();
-    let diffInDays = Math.round(diffInTime / oneDay);
-
-
-    if (startTimeId === 154 && endTimeId === 156) {
-      diffInDays -= 0.5;
-    }
-    if (startTimeId === 155 && endTimeId === 156) {
-      diffInDays -= 1;
-    }
-    if (startTimeId === 155 && !endTimeId || startTimeId === 155 && endTimeId === 157) {
-      diffInDays -= 0.5;
-    }
-
-
-    return diffInDays + 1;
-  }
-
-  console.log(numberofDays)
-
-
-
   const title = "Leave Request Form";
   useTitle(title);
-
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
@@ -333,10 +326,12 @@ const LeaveRequestDetails = () => {
       title: "Confirm",
       desc: `Are you sure, you want to ${prop}?`,
     });
+
     AlertConfirm.config({
       okText: "Submit",
       cancelText: "Cancel",
     });
+
     if (action) {
       console.log('kp-saved');
       saveLeaveApproveDetails();
@@ -589,7 +584,7 @@ const LeaveRequestDetails = () => {
                   <DatePicker
                     id="LeaveStartDate"
                     name="LeaveStartDate"
-                    minDate={today}
+                    // minDate={today}
                     format="DD/MM/YYYY"
                     label="Leave Start Date"
                     slotProps={{ textField: { size: 'small' } }}
@@ -669,7 +664,7 @@ const LeaveRequestDetails = () => {
                     margin="0"
                     id="LeaveEndDate"
                     name="LeaveEndDate"
-                    minDate={today}
+                    // minDate={today}
                     slotProps={{ textField: { size: 'small' } }}
                     shouldDisableDate={(date) =>
                       selectedLeaveStartDate ? date < selectedLeaveStartDate : false
