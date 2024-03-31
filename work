@@ -21,16 +21,15 @@ export default function BasicGrid() {
                 </Typography>
             </Box>
 
-            <Stack direction="row" spacing={2} >
-                <Box sx={{ alignItems: "center", justifyContent: "space-around" }} >
-                    <Card sx={{ width: 150, height: 150 }}>
+            <Stack direction="row" spacing={2} justifyContent="space-around" >
+                <Box sx={{ display: "flex" }} >
+                    <Card sx={{ width: 160, height: 160 }}>
                         <CardContent>
                             <Stack direction="row" spacing={2}>
-
                                 <Avatar
                                     alt="Remy Sharp"
                                     src="/static/images/avatar/1.jpg"
-                                    sx={{ width: 56, height: 56 }}
+                                    sx={{ width: 60, height: 60 }}
                                 />
                             </Stack>
                             <Typography gutterBottom variant="h7" component="div">
@@ -44,42 +43,46 @@ export default function BasicGrid() {
                             Open
                         </Button>
                     </Card>
-
-                    <Card sx={{ width: 150, height: 150 }}>
+                </Box>
+                <Box sx={{ display: "flex" }} >
+                    <Card sx={{ width: 160, height: 160 }}>
                         <CardContent>
                             <Typography gutterBottom variant="h7" component="div">
-                                Car Booking
+                                Band and Music Booking
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                (68 Cars)
+                                (13 Bands)
                             </Typography>
                         </CardContent>
                         <Button size="small" color="primary">
                             Open
                         </Button>
                     </Card>
-
-                    <Card sx={{ width: 150, height: 150 }}>
+                </Box>
+                <Box sx={{ display: "flex" }} >
+                    <Card sx={{ width: 160, height: 160 }}>
                         <CardContent>
                             <Typography gutterBottom variant="h7" component="div">
-                                Car Booking
+                                Catering Booking
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                (68 Cars)
+                                (67 Catering)
                             </Typography>
                         </CardContent>
                         <Button size="small" color="primary">
                             Open
                         </Button>
                     </Card>
+                </Box>
+                <Box sx={{ display: "flex" }} >
 
-                    <Card sx={{ width: 150, height: 150 }}>
+                    <Card sx={{ width: 160, height: 160 }}>
                         <CardContent>
                             <Typography gutterBottom variant="h7" component="div">
-                                Car Booking
+                                DJ Booking
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                (68 Cars)
+                                (68 DJ)
                             </Typography>
                         </CardContent>
                         <Button size="small" color="primary">
@@ -88,9 +91,23 @@ export default function BasicGrid() {
                     </Card>
 
                 </Box>
+                <Box sx={{ display: "flex" }} >
 
+                    <Card sx={{ width: 160, height: 160 }}>
+                        <CardContent>
+                            <Typography gutterBottom variant="h7" component="div">
+                                All Booking
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                (68 packages)
+                            </Typography>
+                        </CardContent>
+                        <Button size="small" color="primary">
+                            Open
+                        </Button>
+                    </Card>
 
-
+                </Box>
 
             </Stack>
 
