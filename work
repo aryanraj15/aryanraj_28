@@ -1,85 +1,196 @@
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import CardContent from '@mui/material/CardContent';
-import { Button } from '@mui/material';
-import Card from '@mui/material/Card';
-import Avatar from '@mui/material/Avatar';
-import Stack from '@mui/material/Stack';
+import React from 'react';
+import PropTypes from 'prop-types';
 
-export default function BasicGrid() {
-    return (
-        <>
-            <Box sx={{ width: '100%', maxWidth: "100", m: 4 }}>
-                <Typography variant="h5" gutterBottom>
-                    Popular Categories
-                </Typography>
-            </Box>
+//Material components
+import Grid from '@material-ui/core/Grid';
 
-            <Grid container spacing={2} justifyContent="center">
-                {categories.map((category, index) => (
-                    <Grid key={index} item xs={12} sm={6} md={4} lg={3}>
-                        <Card sx={{ height: '100%' }}>
-                            <CardContent>
-                                <Grid container justifyContent="center" alignItems="center" spacing={2}>
-                                    <Grid item>
-                                        <Avatar
-                                            alt={category.name}
-                                            src={category.avatar}
-                                            sx={{ width: 60, height: 60 }}
-                                        />
-                                    </Grid>
-                                </Grid>
-                                <Typography gutterBottom variant="h6" component="div" align="center">
-                                    {category.name}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" align="center">
-                                    {category.count} {category.label}
-                                </Typography>
-                            </CardContent>
-                            <Button size="small" color="primary" fullWidth>
-                                Open
-                            </Button>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
-        </>
-    );
+//Styles
+import makeStyles from '@material-ui/core/styles/makeStyles';
+
+const useStyle = makeStyles(theme => ({
+	root: {
+		minHeight: 300,
+		width: 350,
+		backgroundColor: '#ebebeb',
+		boxShadow: '0px 0px 5px #c7c7c7',
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		position: 'relative',
+		marginTop: 50,
+		paddingBottom: 20,
+		[theme.breakpoints.down('md')]: {
+			minHeight: 280,
+			width: 330,
+		},
+		[theme.breakpoints.down('sm')]: {
+			minHeight: 260,
+			width: 310,
+		},
+		[theme.breakpoints.down('xs')]: {
+			minHeight: 240,
+			width: 290,
+		}
+	},
+	avatarContainer: {
+		height: 100,
+		width: 100,
+		position: 'absolute',
+		top: -50,
+		zIndex: 1,
+		borderRadius: '100%',
+		backgroundColor: 'white',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		[theme.breakpoints.down('md')]: {
+			height: 90,
+			width: 90,
+			top: -45,
+		},
+		[theme.breakpoints.down('md')]: {
+			height: 80,
+			width: 80,
+			top: -40,
+		},
+		[theme.breakpoints.down('xs')]: {
+			height: 70,
+			width: 70,
+			top: -35,
+		}
+	},
+	avatar: {
+		width: '85%',
+		height: '85%',
+		backgroundColor: '#06232a',
+		borderRadius: '100%',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		textAlign: 'center',
+		'& > p': {
+			margin: 0,
+			fontFamily: 'Helvetica, Arial, sans-serif',
+			fontSize: '3.5rem',
+			fontWeight: 700,
+			color: '#fda12e',
+			[theme.breakpoints.down('md')]: {
+				fontSize: '3rem',
+			},
+			[theme.breakpoints.down('sm')]: {
+				fontSize: '2.5rem'
+			},
+			[theme.breakpoints.down('xs')]: {
+				fontSize: '2rem'
+			}
+		}
+	},
+	body: {
+		marginTop: 80,
+		flex: 1,
+		fontFamily: 'Helvetica, Arial, sans-serif',
+		textAlign: 'center',
+		'& > p': {
+			'&:before': {
+				content: `"\\201C"`,
+				fontSize: '2rem',
+				color: '#fda12e'
+			},
+			'&:after': {
+				content: `"\\201D"`,
+				color: '#fda12e',
+				fontSize: '2rem',
+				position: 'absolute',
+			},
+			margin: 0,
+			lineHeight: '20px',
+			[theme.breakpoints.down('sm')]: {
+				lineHeight: '18px'
+			},
+		},
+		[theme.breakpoints.down('md')]: {
+			marginTop: 55,
+			fontSize: '0.98rem',
+		},
+		[theme.breakpoints.down('xs')]: {
+			marginTop: 45,
+			fontSize: '0.94rem'
+		}
+	},
+	author: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		textAlign: 'center',
+		margin: "15px 0px 10px 0px",
+		'& h3': {
+			margin: 0,
+			color: '#fda12e',
+			fontFamily: 'Helvetica, Arial, sans-serif',
+			fontSize: '1.3rem',
+			[theme.breakpoints.down('md')]: {
+				fontSize: '1.2rem'
+			},
+			[theme.breakpoints.down('sm')]: {
+				fontSize: '1.1rem',
+			},
+			[theme.breakpoints.down('xs')]: {
+				fontSize: '1rem',
+			}
+		},
+		'& p': {
+			margin: 0,
+			fontFamily: 'serif',
+			fontStyle: 'italic',
+			fontSize: '0.9rem',
+			[theme.breakpoints.down('md')]: {
+				fontSize: '0.89rem',
+			},
+			[theme.breakpoints.down('sm')]: {
+				fontSize: '0.88rem',
+			},
+			[theme.breakpoints.down('xs')]: {
+				fontSize: '0.87rem'
+			}
+		}
+	}
+}));
+
+const TestimonialCard = (props) => {
+	const classes = useStyle();
+	return (
+		<Grid item className={[classes.root, props.className]}>
+			<Grid item className={[classes.avatarContainer, 'testimonial-avatar-container'].join(' ')}>
+				{props.image
+					?<img className={[classes.avatar, 'testimonial-avatar'].join(' ')} src={props.image} alt="Avatar" />	
+					:<div className={[classes.avatar, 'testimonial-avatar'].join(' ')}>
+						<p> {props.name[0]} </p>
+					</div>
+				}
+			</Grid>
+			<Grid item xs={11} className={[classes.body, 'testimonial-body'].join(' ')}>
+				<p>
+					{props.content}
+				</p>
+			</Grid>
+			<Grid item className={[classes.author, 'testimonial-author'].join(' ')}>
+				<Grid item>
+					<h3> {props.name} </h3>
+				</Grid>
+				<Grid item>
+					<p> {props.project} </p>
+				</Grid>
+			</Grid>
+		</Grid>
+	);
 }
 
-const categories = [
-    {
-        name: 'Car Booking',
-        count: 68,
-        label: 'Cars',
-        avatar: '/static/images/avatar/1.jpg'
-    },
-    {
-        name: 'Band and Music Booking',
-        count: 13,
-        label: 'Bands',
-        avatar: '/static/images/avatar/2.jpg'
-    },
-    {
-        name: 'Catering Booking',
-        count: 67,
-        label: 'Catering',
-        avatar: '/static/images/avatar/3.jpg'
-    },
-    {
-        name: 'DJ Booking',
-        count: 68,
-        label: 'DJ',
-        avatar: '/static/images/avatar/4.jpg'
-    },
-    {
-        name: 'All Booking',
-        count: 68,
-        label: 'packages',
-        avatar: '/static/images/avatar/5.jpg'
-    }
-];
+TestimonialCard.propTypes = {
+	name: PropTypes.string.isRequired,
+	image: PropTypes.string,
+	content: PropTypes.string.isRequired,
+	project: PropTypes.string.isRequired,
+	className: PropTypes.string
+}
+
+export default TestimonialCard;
