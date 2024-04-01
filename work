@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Typography, Card, CardContent, CardHeader, Avatar, Box, Button } from '@mui/material';
+import { Container, Typography, Box, Button } from '@mui/material';
 
 const Testimonials = () => {
   return (
@@ -7,19 +7,19 @@ const Testimonials = () => {
       <Typography variant="h4" align="right">
         What Our Customers Say About Us
       </Typography>
-      <Card variant="outlined">
-        <CardHeader
-          avatar={<Avatar alt="Customer Avatar" src="/path/to/avatar.jpg" />}
-          title="Shirley Fultz"
-          subheader="Designer"
-        />
-        <CardContent>
-          <Typography variant="body1">
-            It's freeing to be able to catch up on customized news and not be distracted by a social media element on the same site.
-          </Typography>
-        </CardContent>
-      </Card>
-      {/* Add more testimonials as needed */}
+      <Box display="flex" alignItems="center" mt={4}>
+        <img src="/path/to/avatar.jpg" alt="Customer Avatar" style={{ width: '100px', height: '100px', borderRadius: '50%' }} />
+        <Typography variant="body1" ml={2}>
+          “I had the pleasure of dining at Foodi last night, and I’m still raving about the experience! The attention to detail in presentation and service was impeccable.”
+        </Typography>
+      </Box>
+      <Box display="flex" alignItems="center" mt={4}>
+        <Typography variant="h6">Customer Feedback</Typography>
+        <Box ml={2}>
+          <Typography variant="h6">4.9</Typography>
+          <Typography variant="body2">18.6k Reviews</Typography>
+        </Box>
+      </Box>
       <Button variant="contained" color="primary" endIcon="😊">
         Our Work
       </Button>
