@@ -227,12 +227,11 @@ export default TrackTransportRequestStatus;
 }
 
 
-<TableBody>
-  {requestTrackDetails.map((result, index) => (
-    <StyledTableRow key={index}>
-      <StyledTableCell>{index + 1}</StyledTableCell>
-      <StyledTableCell>{result.action}</StyledTableCell>
-      <StyledTableCell>{result.actionDate}</StyledTableCell>
-    </StyledTableRow>
-  ))}
-</TableBody>
+{requestTrackDetails.map((result, index) => (
+  <tr key={index}>
+    <td>{index}</td>
+    <td>{result.action}</td>
+    <td>{result.actionDate}</td>
+  </tr>
+))}
+
