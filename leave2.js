@@ -1,602 +1,629 @@
-import React, { useState } from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { Card, CardContent } from "@mui/material";
-import useTitle from "../../../hooks/useTitle";
-import PageTitle from "../../../layouts/PageTitle";
-import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { H3 } from "../../../components/Typography";
-import AlertConfirm from "react-alert-confirm";
+
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import SearchTable from "../../../components/SearchTableAlt";
+import { useNavigate, useLocation } from "react-router";
+import {
+    Card,
+    CardContent,
+    TextField,
+    Autocomplete,
+    Grid,
+    Box,
+    Button,
+    Stack,
+    Checkbox,
+    Link,
+    Dialog, DialogContent
+} from "@mui/material";
+import swal from "sweetalert";
+import { useFormik } from "formik";
+import CachedIcon from "@mui/icons-material/Cached";
+import SearchIcon from "@mui/icons-material/Search";
+import useTitle from '../../../hooks/useTitle';
+import PageTitle from '../../../layouts/PageTitle';
+import FaceBookCircularProgress from "../../../components/FaceBookCircularProgress";
 import { useSnackbar } from "../../../components/Snackbar";
-import "react-alert-confirm/lib/style.css";
-import Calendar from '@mui/icons-material/Event';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import { SingleInputDateRangeField } from '@mui/x-date-pickers-pro/SingleInputDateRangeField';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
-import ButtonBase from '@mui/material/ButtonBase';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import { green, pink } from '@mui/material/colors';
-import PageviewIcon from '@mui/icons-material/Pageview';
-import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import moment from 'moment';
+import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
+import TrackManageLeaveStatus from "./TrackManageLeaveStatus";
+export const initValues = {
+    rqstId: null,
+    userName: "",
+    rqstStatus: "",
+    rqstFrom: null,
+    rqstTo: null,
 
-
-
-const today = dayjs();
-const isWeekend = (date) => {
-  const day = date.day();
-
-  return day === 0 || day === 6;
 };
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  margin: 3,
-  borderRadius: "10px",
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
+
+const SearchApplication = () => {
+
+    const title = "Search Parameters";
+    const title1 = "Leave Details";
+    const title2 = `Manage Leave Request`;
+    useTitle(title2);
+    const { showSnackbar } = useSnackbar();
+    const [rows, setRows] = useState([]);
+    const navigate = useNavigate();
+    const [selectAllApplications, setSelectAllApplications] = useState(false);
+    const [actionForIds, setActionForIds] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const location = useLocation();
+    const [searchedValues, setSearchedValues] = useState(
+        location.state?.searchValues ? location.state?.searchValues : initValues
+    );
+    const [userNamelist, setUserNamelist] = useState([]);
+    const [empCode, setEmpCode] = useState([]);
+    const [Enrollstatus, setEnrollstatus] = useState([]);
+    const [actionDialogOpen, setActionDialogOpen] = useState(false);
+    const [open, setOpen] = React.useState(false);
+    const [requestStatus, setRequestStatus] = useState(null);
+    const [reqRemarks, setReqRemarks] = useState(null);
 
 
-const Leave = () => {
-  const [selectedLeaveStartDate, setSelectedLeaveStartDate] = useState(null);
-  const validationSchema = Yup.object().shape({
-    Leave: Yup.string().required("Leave is Required").nullable(),
-    ApplyingDueToAnyEmergency: Yup.string().required("Applying Due To Any Emergency is Required").nullable(),
-    StationLeave: Yup.string().required("Station Leave is required").nullable(),
-    LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
-    LeavestartTime: Yup.string().required("Leave Start Time is required").nullable(),
-    LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
-    LeaveEndTime: Yup.string().required("Leave End Time is required").nullable(),
-    Prefix: Yup.string().required("Prefix is required").nullable(),
-    Suffix: Yup.string().required("Suffix is required").nullable(),
-    ReportingDesignation: Yup.string().required("Reporting Designation is required").nullable(),
-    Description: Yup.string().required("Description is required").nullable(),
-  });
-
-  const formik = useFormik({
-    initialValues: {
-      Leave: '',
-      ApplyingDueToAnyEmergency: '',
-      StationLeave: '',
-      LeaveStartDate: "",
-      LeavestartTime: '',
-      LeaveEndDate: "",
-      LeaveEndTime: '',
-      Prefix: '',
-      Suffix: '',
-      ReportingDesignation: '',
-      Description: '',
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      // Handle form submission or API integration here
-      handleRedirect();
-    },
-  });
-  console.log(formik.values.LeaveStartDate);
-  console.log(formik.values.LeaveEndDate);
-
-  const numberofDays = getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate);
-
-  function getNumberOfDays(start, end) {
-    if(!start || !end){
-      return 0;
-    }
-    const date1 = new Date(start);
-    const date2 = new Date(end);
-    const oneDay = 1000 * 60 * 60 * 24;
-  
-    if (date1.toDateString() === date2.toDateString()) {
-      return 1;
-    } else {
-      const diffInTime = date2.getTime() - date1.getTime();
-      const diffInDays = Math.round(diffInTime / oneDay);
-  
-      return diffInDays + 1;
-    }
-  }
-  console.log(numberofDays)
-
-  const values = [
-    {
-      id: 1,
-      label: "Sick Leave",
-    },
-    {
-      id: 2,
-      label: " Normal Leave",
-    },
-  ];
-  const time = [
-    {
-      id: 1,
-      label: "10 AM",
-    },
-    {
-      id: 2,
-      label: " 1 PM",
-    },
-  ];
-  const values1 = [
-    {
-      id: 1,
-      label: "Yes",
-    },
-    {
-      id: 2,
-      label: "NO",
-    },
-  ];
-  const values2 = [
-    {
-      id: 1,
-      label: "Somu",
-    },
-    {
-      id: 2,
-      label: "Sudha",
-    },
-  ];
-  const values3 = [
-    {
-      id: 1,
-      label: "Mandatory",
-    },
-    {
-      id: 2,
-      label: "Official Work",
-    },
-  ];
-  const values4 = [
-    {
-      id: 1,
-      label: "YES",
-    },
-    {
-      id: 2,
-      label: "NO",
-    },
-  ];
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+    const handleClose = () => {
+        setOpen(false);
+    };
 
 
-  const title = "Leave Application Form";
-  useTitle(title);
-
-  const navigate = useNavigate();
-
-  const handleRedirect = () => {
-    callConfirmDialog();
-  }
+    // useEffect(() => {
 
 
-  const { showSnackbar } = useSnackbar();
+    //     axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/emp-code-dropdown`, {
+    //         headers: {
+    //             Authorization: `Bearer ${Cookies.get("token")}`
+    //         }
+    //     }).then(response => {
+    //         let sortedEmpCode = response.data.result.map((value) => {
+    //             value = value
+    //             return value;
 
-  const callConfirmDialog = async () => {
-    console.log('kp-confirm');
-    const [action] = await AlertConfirm({
-      title: "Confirm",
-      desc: "Are you sure, you want to submit?",
-    });
-    AlertConfirm.config({
-      okText: "Submit",
-      cancelText: "Cancel",
-    });
-    if (action) {
-      console.log('kp-saved');
-      showSnackbar("Saved Successfully", 'success');
-      navigate('/viewleave')
-      // submitDetails(values, resetForm);
-    } else {
-      //   setIsSubmit(false);
-      showSnackbar('Did not save!', 'error')
-    }
-  };
-  return (
-    <>
-      <Box sx={{ flexGrow: 1 }}>
-        <Grid container spacing={2} columns={16}>
-          <Grid item xs={8}>
-            <Item>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm container>
-                  <Grid item xs container direction="column" spacing={2}>
-                    <Grid item xs>
-                      <Typography gutterBottom variant="h4" component="div">
-                        Absence Type Balance
-                      </Typography>
-                      <Typography variant="h6" gutterBottom>
-                        2  DAYS
-                      </Typography>
-                    </Grid>
-                    <Grid item>
-                      <Typography sx={{ cursor: 'pointer' }} variant="body2">
-                        Check here!
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid item>
-                    <Avatar sx={{ bgcolor: green[500] }}>
-                      <AssignmentIcon />
-                    </Avatar>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Item>
-          </Grid>
-          <Grid item xs={8}>
-            <Item>
-              <Grid container spacing={2}>
+    //         })
+    //         console.log(sortedEmpCode);
+    //         setEmpCode(sortedEmpCode)
 
-                <Grid item xs={12} sm container>
-                  <Grid item xs container direction="column" spacing={2}>
-                    <Grid item xs>
-                      <Typography gutterBottom variant="h4" component="div">
-                        Absence Duration
-                      </Typography>
-                      <Typography variant="h6" gutterBottom>
-                        {numberofDays} DAYS
-                      </Typography>
-
-                    </Grid>
-                    <Grid item>
-                      <Typography sx={{ cursor: 'pointer' }} variant="body2">
-                        Check here!
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid item>
-                    <Avatar sx={{ bgcolor: pink[500] }}>
-                      <HourglassBottomIcon />
-                    </Avatar>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Item>
-          </Grid>
-        </Grid>
-      </Box>
+    //     })
+    //         .catch(error => {
+    //             setEmpCode([]);
+    //             console.log(error);
+    //         });
 
 
-      <Card>
-        <CardContent>
-          <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
-            <EventBusyIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-            <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Apply Leave</H3>
-          </div>
-          <Box
-            component={"form"}
-            onSubmit={formik.handleSubmit}
-            noValidate >
-            <Grid
-              container
-              spacing={2}
-              direction="row"
-              alignItems="center"
-            // justifyContent="center"
-            // sx={{}}
-            >
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <Autocomplete
-                  margin="0"
-                  id="Leave"
-                  name="Leave"
-                  options={values}
-                  sx={{ width: "100%" }}
-                  required
-                  fullWidth
-                  renderInput={(params) => <TextField
-                    {...params} label="Leave" required />}
-                />
-              </Grid>
-              {/* <Grid item xs={12} sm={4} md={4} lg={3}>
-              <p></p>
-            </Grid> */}
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <Autocomplete
-                  margin="0"
-                  id="ApplyingDueToAnyEmergency"
-                  name="ApplyingDueToAnyEmergency"
-                  options={values4}
-                  sx={{ width: "100%" }}
-                  required
-                  fullWidth
-                  renderInput={(params) => <TextField {...params} label="Applying due to any emergency?" required />}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <Autocomplete
-                  margin="0"
-                  id="StationLeave"
-                  name="StationLeave"
-                  options={values1}
-                  sx={{ width: "100%" }}
-                  fullWidth
-                  renderInput={(params) => (
-                    <TextField {...params} margin="0" label="Station Leave" required />
-                  )}
-                />
-              </Grid>
-            </Grid>
-            <Grid
-              container
-              spacing={2}
-              direction="row"
-              alignItems="center"
-            // justifyContent="center"
-            // sx={{}}
-            >
-              {/* <Grid item xs={12} sm={4} md={4} lg={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
- 
-                  <DatePicker
-                    margin="0"
-                    id="LeaveStartDate"
-                    name="LeaveStartDate"
-                    minDate={today}
-                    // shouldDisableDate={isWeekend}
-                    label="Leave Start Date"
-                  //  value={formik.values.LeaveStartDate}
-                    sx={{ width: "100%" }}
-                    // maxDate={new Date()}
-                    inputFormat="DD/MM/YYYY"
-                    renderInput={(params) => (
-                      <TextField
+    //     axios
+    //         .get(
+    //             `${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/enrollment-status-dropdown`,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${Cookies.get("token")}`
+    //                 },
 
-                        fullWidth
-                        margin="0"
-                        required
-                        {...params}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid> */}
-              {/* <Grid item xs={12} sm={4} md={4} lg={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                  <DatePicker
-                    margin="0"
-                    id="LeaveStartDate"
-                    name="LeaveStartDate"
-                    minDate={today}
-                    label="Leave Start Date"
-                    sx={{ width: "100%" }}
-                    inputFormat="DD/MM/YYYY"
-                    value={formik.values.LeaveStartDate}
-                    onChange={(date) => {
-                      const formattedDate = (dayjs(date).format("MM-DD-YYYY"));
-                      formik.setFieldValue("LeaveStartDate", formattedDate)
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        fullWidth
-                        margin="0"
-                        required
-                        {...params}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid> */}
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                  <DatePicker
-                    margin="0"
-                    id="LeaveStartDate"
-                    name="LeaveStartDate"
-                    minDate={today}
-                    label="Leave Start Date"
-                    sx={{ width: "100%" }}
-                    inputFormat="DD/MM/YYYY"
-                    value={formik.values.LeaveStartDate}
-                    onChange={(date) => {
-                      const formattedDate = dayjs(date).format("MM-DD-YYYY");
-                      formik.setFieldValue("LeaveStartDate", formattedDate);
-                      setSelectedLeaveStartDate(date);
-                    }}
-                    renderInput={(params) => (
-                      <TextField fullWidth margin="0" required {...params} />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid>
+    //             }
+    //         )
+    //         .then((response) => {
+    //             let sortedEnrollmentStatus;
+    //             if (
+    //                 Object.keys(response.data).includes("result") &&
+    //                 Array.isArray(response.data.result)
+    //             ) {
+    //                 sortedEnrollmentStatus = response.data.result.map((value) => ({
+    //                     label: value.label,
+    //                     id: value.id,
+    //                 }));
+    //                 setEnrollstatus(sortedEnrollmentStatus);
+    //             }
+    //             console.log("Status List: ", sortedEnrollmentStatus);
+    //         })
+    //         .catch((error) => {
+    //             setEnrollstatus([]);
+    //             console.log(error);
+    //         });
 
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <Autocomplete
-                  margin="0"
-                  id="LeavestartTime"
-                  name="LeavestartTime"
-                  options={time}
-                  sx={{ width: "100%" }}
-                  required
-                  fullWidth
-                  renderInput={(params) => <TextField {...params} label="Time" required />}
-                />
-              </Grid>
-            </Grid>
-            <Grid
-              container
-              spacing={2}
-              direction="row"
-              alignItems="center"
-            // justifyContent="center"
-            // sx={{}}
-            >
 
-              {/* <Grid item xs={12} sm={4} md={4} lg={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                  <DatePicker
-                    margin="0"
-                    id="LeaveEndDate"
-                    name="LeaveEndDate"
-                    // minDate={formik.values.LeaveStartDate}
-                    shouldDisableDate={(day) =>{
-                      return dayjs(day).isBefore(formik.values.LeaveStartDate,'day');
-                    }}
-                    // shouldDisableDate={isWeekend}
-                    label="Leave End Date"
-                    sx={{ width: "100%" }}
-                    // maxDate={new Date()}
-                    inputFormat="DD/MM/YYYY"
-                    value={formik.values.LeaveEndDate}
-                    onChange={(date) => {
-                      const formatDate = (dayjs(date).format("MM-DD-YYYY"));
-                      formik.setFieldValue("LeaveEndDate", formatDate)
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        margin="0"
-                        required
+    // }, []);
 
-                        {...params}
+    useEffect(() => {
+        handleFetchApplicants(formik.values, false);
+    }, []);
 
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid> */}
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                  <DatePicker
-                    margin="0"
-                    id="LeaveEndDate"
-                    name="LeaveEndDate"
-                    minDate={today}
-                    shouldDisableDate={(date) =>
-                      selectedLeaveStartDate ? date < selectedLeaveStartDate : false
+    // const handleFetchApplicants = async (values, reset) => {
+
+    //     setLoading(true);
+    //     try {
+    //         console.log("Fetching applicants details for:", values);
+    //         const payload = {
+
+    //             rqstId: values.rqstId,
+    //             userName: values.userName,
+    //             rqstStatus: values.rqstStatus,
+    //             rqstFrom: values.rqstFrom,
+    //             rqstTo: values.rqstTo,
+
+    //         };
+    //         console.log("Payload for fetching applicants:", payload);
+
+    //         const response = await axios.post(
+    //             `http://141.148.194.18:8052/leavemanagement/manage-leave-search`,
+    //             payload,
+
+    //         );
+    //         console.log("Applicants data:", response.data.result);
+    //         console.log("API Response:", response);
+    //         console.log("Type of API Response:", typeof response.data.statusCode);
+
+    //         setLoading(false);
+    //         if (response.data.status && response.data.result.length > 0) {
+
+    //             setRows(
+    //                 response.data.result.map((item, index) =>
+    //                     createData(
+    //                         // false,
+    //                         index + 1,
+    //                         item.rqstId,
+    //                         item.userName,
+    //                         item.empCode,
+    //                         item.leaveTypeDesc,
+    //                         item.daysOfLeave,
+    //                         item.rqstFromDate,
+    //                         item.rqstToDate,
+    //                         item.rqstFromTime,
+    //                         item.rqstToTime,
+    //                         item.rqstStatusDesc
+
+    //                     )
+
+
+    //                 )
+    //             );
+
+    //             if (reset) {
+    //                 showSnackbar("Reset successful", "info");
+    //             } else {
+    //                 showSnackbar("Data fetched successfully", "success");
+    //             }
+    //         } else if (response.data.statusCode === 404) {
+    //             setRows([]);
+    //             if (reset) {
+    //                 showSnackbar("Form reset successful,no data found", "info");
+    //             } else {
+    //                 showSnackbar("No data found", "info");
+    //             }
+    //         } else {
+    //             setRows([]);
+    //             showSnackbar("An error occurred", "error");
+    //         }
+    //     } catch (error) {
+    //         console.error("An error occurred:", error);
+    //         setRows([]);
+    //         setLoading(false);
+    //         if (error.response.data.statusCode === 404) {
+
+    //             if (reset) {
+    //                 showSnackbar("Form reset successful,no data found", "info");
+    //             } else {
+    //                 showSnackbar("No data found", "error");
+    //             }
+    //         }
+    //         else { showSnackbar("Oops, something went wrong", "error"); }
+
+    //     }
+    // };
+
+
+
+    const handleFetchApplicants = async (values, reset) => {
+        setLoading(true);
+        try {
+            // Fetch applicants details
+            const payload = {
+                rqstId: values.rqstId,
+                userName: values.userName,
+                rqstStatus: values.rqstStatus,
+                rqstFrom: values.rqstFrom,
+                rqstTo: values.rqstTo,
+            };
+
+            const response = await axios.post(
+                "http://141.148.194.18:8052/leavemanagement/manage-leave-search",
+                payload,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get("token")}`
                     }
-                    label="Leave End Date"
-                    sx={{ width: "100%" }}
-                    inputFormat="DD/MM/YYYY"
-                    value={formik.values.LeaveEndDate}
-                    onChange={(date) => {
-                      const formattedDate = dayjs(date).format("MM-DD-YYYY");
-                      formik.setFieldValue("LeaveEndDate", formattedDate);
-                    }}
-                    renderInput={(params) => (
-                      <TextField margin="0" required {...params} />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <Autocomplete
-                  margin="0"
-                  id="LeaveEndTime"
-                  name="LeaveEndTime"
-                  options={time}
-                  sx={{ width: "100%" }}
-                  required
-                  fullWidth
-                  renderInput={(params) => <TextField {...params} label="Time" required />}
-                />
-              </Grid>
-            </Grid>
-            <Grid
-              container
-              spacing={2}
-              direction="row"
-              alignItems="center"
-            // justifyContent="center"
-            // sx={{}}
+                }
+
+            );
+
+            setLoading(false);
+            console.log(response.data.result.searchResult);
+            if (response.data.statusCode > 0) {
+                console.log("formattedData");
+                setUserNamelist(response.data.result.nameList);
+                setEnrollstatus(response.data.result.statusDropdown);
+
+                const formattedData = response.data.result.searchResult.map((item, index) => {
+                    const fromDate = item.rqstFromDate + " : " + item.rqstFromTime;
+                    const ToDate = item.rqstToDate + " : " + item.rqstToTime;
+                    return createData(
+                        index + 1,
+                        item.rqstId,
+                        item.userName,
+                        item.empCode,
+                        item.leaveTypeDesc,
+                        item.daysOfLeave,
+                        fromDate, // Concatenated Start Date
+                        ToDate,
+                        item.rqstStatusDesc
+                    );
+                });
+                setRows(formattedData);
+                console.log(formattedData);
+
+                if (reset) {
+                    showSnackbar("Reset successful", "info");
+                } else {
+                    showSnackbar("Data fetched successfully", "success");
+                }
+            } else if (response.data.statusCode === 404) {
+                setRows([]);
+                if (reset) {
+                    showSnackbar("Form reset successful, no data found", "info");
+                } else {
+                    showSnackbar("No data found", "info");
+                }
+            } else {
+                setRows([]);
+                showSnackbar("An error occurred", "error");
+            }
+        } catch (error) {
+            console.error("An error occurred:", error);
+            setRows([]);
+            setLoading(false);
+            if (error.response.data.statusCode === 404) {
+                if (reset) {
+                    showSnackbar("Form reset successful, no data found", "info");
+                } else {
+                    showSnackbar("No data found", "error");
+                }
+            } else {
+                showSnackbar("Oops, something went wrong", "error");
+            }
+        }
+    };
+
+    // For table
+    function createData(
+        index,
+        rqstId,
+        userName,
+        empCode,
+        leaveTypeDesc,
+        daysOfLeave,
+        fromDate,
+        ToDate,
+        rqstStatusDesc,
+
+
+    ) {
+        return {
+            index,
+            rqstId,
+            userName,
+            empCode,
+            leaveTypeDesc,
+            daysOfLeave,
+            fromDate,
+            ToDate,
+            rqstStatusDesc,
+
+        };
+    }
+    const columns = [
+
+        {
+            field: "index",
+            headerName: "S.No",
+            flex: 0.1,
+            minWidth: 60,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => params.row.index + ")",
+        },
+        {
+            field: "rqstId",
+            headerName: "Leave ID",
+            flex: 0.2,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "userName",
+            headerName: "User Name",
+            flex: 0.2,
+            minWidth: 120,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "empCode",
+            headerName: "Emp Code",
+            flex: 0.1,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "leaveTypeDesc",
+            headerName: "Leave Type Desc.",
+            flex: 0.2,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "daysOfLeave",
+            headerName: "Days Of Leave",
+            flex: 0.1,
+            minWidth: 120,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "fromDate",
+            headerName: "Leave Start",
+            flex: 0.1,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "ToDate",
+            headerName: "Leave End",
+            flex: 0.1,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "rqstStatusDesc",
+            headerName: "Leave Current Status",
+            flex: 0.1,
+            minWidth: 220,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "requestStatus",
+            headerName: "Track Status",
+            flex: 0.3,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Link onClick={() => { setReqRemarks(params.row.remarks); setRequestStatus(params.value); handleClickOpen(); }}>
+                    <LocationSearchingIcon color='primary' />
+                </Link>
+            )
+        },
+
+    ];
+
+    const formik = useFormik({
+        initialValues: searchedValues,
+        enableReinitialize: false,
+        validateOnChange: true,
+        //validateOnBlur: true,
+
+        onSubmit: (values) => {
+            console.log("onSubmit Start");
+            handleFetchApplicants(values, false);
+            setSearchedValues(values);
+            //navigate(location.pathname, { state: { searchValues: values } });
+        },
+    });
+
+    const handleResetForm = () => {
+        swal({
+            title: "Do you want to reset the search?",
+            buttons: { cancel: "Cancel", confirm: "Confirm" },
+
+        }).then((userClickedConfirm) => {
+            if (userClickedConfirm) {
+                formik.setFieldValue("userName", null);
+                setSelectAllApplications(false);
+
+                const updatedValues = { ...initValues, status: null };
+                formik.resetForm({ values: updatedValues });
+                handleFetchApplicants(updatedValues, true);
+                navigate(location.pathname, {});
+            }
+        });
+    };
+
+    //
+
+    return (
+        <>
+            <Card sx={{ mx: 5, my: 2 }}>
+                <CardContent>
+                    <PageTitle name={title} />
+                    <Box component="form" onSubmit={formik.handleSubmit} noValidate>
+                        {/* <form onSubmit={formik.handleSubmit}> */}
+                        <Grid
+                            container
+                            //rowSpacing={1}
+                            columnSpacing={2}
+                        >
+
+                            <Grid item xs={12} sm={6} md={4} lg={4}>
+                                <TextField
+                                    id="rqstId"
+                                    name="rqstId"
+                                    label="Leave ID"
+                                    size="small"
+                                    fullWidth
+                                    value={formik.values.rqstId}
+                                    onChange={formik.handleChange}
+
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={4} lg={4}>
+
+
+                                <Autocomplete
+                                    freeSolo
+                                    id="userName"
+                                    name="userName"
+                                    size="small"
+                                    options={userNamelist.map((option) => option)}
+                                    value={formik.values.userName}
+                                    onChange={(event, newValue) => {
+                                        formik.setFieldValue("userName", newValue ?? "");
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            size="small"
+                                            {...params}
+                                            label="User Name"
+                                            InputProps={{
+                                                ...params.InputProps,
+                                            }}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            {/* <Grid item xs={12} sm={4} md={3} lg={3}>
+                                <Autocomplete
+                                    size="small"
+                                    fullWidth
+                                    id="employeeCode"
+                                    options={empCode}
+                                    value={formik.values.empCode}
+                                    onChange={(e, value) => {
+                                        formik.setFieldValue("empCode", value ?? null);
+                                    }}
+                                    getOptionLabel={(value) => value}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Employee Code"
+                                            name="empCode"
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                inputProps: {
+                                                    ...params.inputProps,
+                                                    maxLength: 50,
+                                                },
+                                            }}
+                                        />
+                                    )}
+                                />
+                            </Grid> */}
+
+
+
+                            <Grid item xs={12} sm={6} md={4} lg={4}>
+                                <Autocomplete
+                                    size="small"
+                                    fullWidth
+                                    id="rqstStatus"
+                                    options={Enrollstatus}
+                                    value={
+                                        Enrollstatus.find(
+                                            (option) => option.typeId === formik.values.rqstStatus
+                                        ) || null
+                                    }
+                                    onChange={(e, value) => {
+                                        formik.setFieldValue("rqstStatus", value?.typeId ?? null);
+                                    }}
+                                    getOptionLabel={(value) => value.typeName}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Leave Status"
+                                            name="rqstStatus"
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                inputProps: {
+                                                    ...params.inputProps,
+                                                    maxLength: 50,
+                                                },
+                                            }}
+
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+
+
+                        </Grid>
+                        <Stack
+                            direction="row"
+                            spacing={2}
+                            justifyContent="center"
+                        //mt={2}
+                        >
+                            <Button
+                                variant="contained"
+                                //onClick={handleFetchApplicants}
+                                type="submit"
+                            >
+                                <SearchIcon />
+                                &nbsp;SEARCH
+                            </Button>
+                            <Button
+                                variant="outlined"
+
+                                onClick={handleResetForm}
+                            >
+                                <CachedIcon />
+                                &nbsp;RESET
+                            </Button>
+                        </Stack>
+                        {/* </form> */}
+                    </Box>
+                </CardContent>
+            </Card>
+
+            {Array.isArray(rows) && rows.length >= 1 && (
+                <Card sx={{ mx: 5 }} elevation={3}>
+                    <CardContent>
+                        <PageTitle name={title1} />
+                        <Box component={"div"}>
+
+                            <SearchTable
+                                initialNoOfRows={10}
+                                // disablePrint={rows.length > 100 ? true : false}
+                                disablePrint={true}
+                                //columns={isAtleastOneIsSubmitted ? columns : updatedColumns}
+                                columns={columns}
+                                data={rows}
+                                isCheckbox={false}
+                                isHideDensity={false}
+                                isHideExport={true}
+                                isHideFilter={true}
+                                isHideColumn={true}
+                                isHidePaging={false}
+                                //selectRowsOption={true}
+                                //handleApplications={handleApplications}
+                                name="manageLeave"
+                                id="manageLeave"
+                            />
+                        </Box>
+                    </CardContent>
+                </Card>
+
+            )}
+            <Dialog
+                fullWidth
+                maxWidth={'md'}
+                open={open}
+                onClose={handleClose}
             >
+                <DialogContent >
+                    <TrackManageLeaveStatus />
+                </DialogContent>
+            </Dialog>
 
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    margin="0"
-                    id="Prefix"
-                    name="Prefix"
-                    label="Prefix"
-                    // maxDate={new Date()}
-                    inputFormat="DD/MM/YYYY"
-                    sx={{ width: "100%" }}
-                    renderInput={(params) => (
-                      <TextField
-                        margin="0"
-                        required
-                        {...params}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
+            {loading && <FaceBookCircularProgress />}
+        </>
+    );
+};
 
-
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    margin="0"
-                    id="Suffix"
-                    name="Suffix"
-                    label="Suffix"
-                    // maxDate={new Date()}
-                    sx={{ width: "100%" }}
-                    inputFormat="DD/MM/YYYY"
-                    renderInput={(params) => (
-                      <TextField
-                        margin="0"
-                        required
-                        {...params}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <Autocomplete
-                  margin="0"
-                  id="ReportingDesignation"
-                  name="ReportingDesignation"
-                  options={values2}
-                  sx={{ width: "100%" }}
-                  fullWidth
-                  renderInput={(params) => (
-                    <TextField {...params} label="Reporting Designation" required />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={8}>
-                <TextField
-                  margin="0"
-                  id="Description"
-                  name="Description"
-                  sx={{ width: "100%" }}
-                  required
-                  multiline
-                  rows={4}
-                  label="Reason/Description"
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4} sx={{ mb: '15px' }}>
-                <input type="file" />
-              </Grid>
-
-              <Grid item xs={12} sm={12} md={12} lg={12} sx={{ width: '100%' }}>
-                <Button type="submit" variant="contained" sx={{ float: 'right', borderRadius: '4px' }} onClick={handleRedirect}>Submit</Button>
-              </Grid>
-            </Grid>
-          </Box>
-        </CardContent>
-      </Card>
-    </>
-  );
-}
-
-export default Leave;
+export default SearchApplication;
