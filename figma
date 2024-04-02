@@ -1,81 +1,227 @@
-Certainly! Let's dive into examples for each of the design points to enhance the **Bhasha Daan** website:
-
-1. **Navigation Clarity**:
-   - **Example**: In the header, use clear icons and labels for each section. For instance:
-     - SUNO INDIA: Microphone icon with the label "Donate Your Voice."
-     - BOLO INDIA: Speech bubble icon with the label "Contribute Your Voice."
-     - LIKHO INDIA: Pencil icon with the label "Write in Your Language."
-     - DEKHO INDIA: Eye icon with the label "Explore Language Content."
-
-2. **Interactive Elements**:
-   - **Example**:
-     - When users hover over the "Start Participating" button, it could change color or display a subtle animation (e.g., slight enlargement).
-     - Hovering over the icons in the header could reveal tooltips with brief descriptions (e.g., "Translate Text," "Record Sentences").
-
-3. **Consistent Design Language**:
-   - **Example**:
-     - Use the same font family (e.g., Roboto) for all headings and body text.
-     - Maintain a consistent color palette (e.g., shades of blue and green) across buttons, icons, and backgrounds.
-
-4. **Responsive Design**:
-   - **Example**:
-     - Test the website on various devices (desktop, tablet, mobile).
-     - Ensure that the navigation menu collapses into a mobile-friendly version (e.g., a hamburger menu) on smaller screens.
-
-5. **User Engagement**:
-   - **Example**:
-     - Implement a progress tracker for users who contribute. For instance:
-       - "You've recorded 10 sentences! Keep going!"
-       - "Congratulations! You've earned the Bronze Bhasha Samarthak Badge!"
-
-6. **Visual Hierarchy**:
-   - **Example**:
-     - Make the "Start Participating" button larger and more prominent than other elements.
-     - Use a slightly larger font size for the introductory text to emphasize its importance.
-
-7. **Accessibility**:
-   - **Example**:
-     - Ensure that all images have descriptive alt text (e.g., "Microphone icon for voice contribution").
-     - Use high contrast between text and background colors for readability.
-
-Remember, these examples are hypothetical, and actual implementation will depend on the specific design choices and user feedback. Feel free to adapt and iterate based on real-world testing! 🌟🎨
-
-
-
-
-
-Certainly! Thank you for sharing additional images of the **Bhasha Daan** website. Let's analyze these images to further enhance the user experience and design. Here are my observations and recommendations:
-
-1. **Header Navigation**:
-   - The navigation options in the header ("Suno India," "Bole India," "Likho India," and "Dekho India") are visually appealing with their colorful icons.
-   - Consider adding a subtle hover effect to these icons to indicate interactivity when users hover over them.
-   - Ensure that the navigation labels are concise and descriptive.
-
-2. **Main Content Section**:
-   - The main content area provides a clear message: "One platform, multiple crowdsourcing initiatives."
-   - The call-to-action button "Start Participating" stands out due to its green color. However, consider making it more prominent by increasing its size or adding a subtle animation.
-   - To improve readability, consider adjusting the font size and line spacing for the introductory text.
-
-3. **Interactive Buttons**:
-   - The four interactive buttons (Suno India, Bole India, Likho India, Dekho India) are well-designed and aligned.
-   - Each button's icon effectively represents its purpose (e.g., microphone for voice contribution, pencil for writing).
-   - Consider adding a tooltip or brief description when users hover over each button to clarify its function.
-
-4. **Language Toggle**:
-   - The language toggle in the top right corner is essential for multilingual users. Ensure that it is easily accessible and clearly labeled.
-   - Consider using a recognizable language icon (such as flags) to represent language options.
-
-5. **Visual Consistency**:
-   - Maintain consistency in color usage, typography, and spacing across different sections of the website.
-   - Use a consistent font family for headings and body text to create a cohesive look.
-
-6. **Responsive Design**:
-   - Test the website on various devices (desktop, tablet, mobile) to ensure responsiveness.
-   - Ensure that the layout adapts gracefully to different screen sizes without compromising usability.
-
-7. **Accessibility**:
-   - Verify that the website meets accessibility standards (e.g., WCAG). Provide alt text for images and ensure proper color contrast.
-   - Consider adding keyboard shortcuts for navigation.
-
-Remember that user feedback and usability testing are crucial for refining the design. Involve potential users to gather insights and iterate on the improvements. 🌟🎨
-
+import * as React from "react";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Slide from "@mui/material/Slide";
+import axios from "axios";
+import {
+  Paper,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import CloseIcon from "@mui/icons-material/Close";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "@mui/styles";
+import Radio from "@mui/material/Radio";
+import Autocomplete from "@mui/material/Autocomplete";
+import { tableCellClasses } from "@mui/material/TableCell";
+import tr from "date-fns/esm/locale/tr/index.js";
+import Alert from "@mui/material/Alert";
+import { styled } from "@mui/material/styles";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+ 
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: "#2169b3",
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.action.hover,
+  },
+  // hide last border
+  "&:last-child td, &:last-child th": {
+    border: 0,
+  },
+}));
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+const steps = [
+  {
+    label: "You",
+    status: ``,
+    remarks: ``,
+    update: ``,
+  },
+  {
+    label: "DyEO - ADMIN",
+    status: `DyEO approved the request.`,
+    remarks: `approved`,
+    update: `Pencil required quantity changed from 20 to 15`,
+  },
+  {
+    label: "JEO - ADMIN",
+    status: ``,
+    remarks: ``,
+    update: ``,
+  },
+  {
+    label: "EO - ADMIN",
+    status: ``,
+    remarks: ``,
+    update: ``,
+  },
+];
+const TrackTransportRequestStatus = (props) => {
+  const [requestTrackDetails, setRequestTrackDetails] = useState([]);
+  console.log(props.data, "requestId is ");
+  useEffect(() => {
+    getStatusTrackDetails();
+  }, []);
+  const getStatusTrackDetails = () => {
+    axios
+      .post(`${process.env.REACT_APP_TRANSPORT_API_URL}/track-status`, {
+        transportReqId: props.data,
+      })
+      .then((response) => {
+        setRequestTrackDetails(response.data.result);
+        console.log(response.data.result);
+      });
+  };
+  const [activeStep, setActiveStep] = React.useState(1);
+  const pageName = "Track Transport Request Status";
+  const handleReset = () => {
+    setActiveStep(0);
+  };
+  const { closeModal, data } = props;
+  const [open, setOpen] = React.useState(true);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(closeModal);
+    setOpen(closeModal);
+  };
+  const name = "Transport Booking Track";
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  return (
+    <>
+      <Dialog
+        open={closeModal}
+        TransitionComponent={Transition}
+        fullScreen={fullScreen}
+        keepMounted
+      >
+        <DialogTitle>
+          <b variant="h4" textAlign={"center"} textDecoration="underline">
+            {name}
+          </b>
+          <CloseIcon
+            sx={{
+              float: "right",
+              ":hover": { color: "white", backgroundColor: "#286cb4" },
+            }}
+            onClick={handleClose}
+          />
+        </DialogTitle>
+        <DialogContent>
+          {/* <Typography><b>Family Details</b></Typography> */}
+          <Grid item display={"flex"} justifyContent={"center"} mt={1}>
+            <TableContainer component={Paper}>
+              <Table aria-label="customized table">
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell sx={{ fontWeight: "bold" }}>
+                      Sl No
+                    </StyledTableCell>
+                    <StyledTableCell sx={{ fontWeight: "bold" }}>
+                      Action
+                    </StyledTableCell>
+                    <StyledTableCell sx={{ fontWeight: "bold" }}>
+                      Action Date
+                    </StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {/* {requestTrackDetails.map((result, index) => {
+                    {
+                      console.log(index, result.actionDate, result.action);
+                    } */}
+                  {/* // <StyledTableRow>
+                    //   <StyledTableCell>{index}</StyledTableCell>
+                    //   <StyledTableCell>{result.action}</StyledTableCell>
+                    //   <StyledTableCell>{result.actionDate}</StyledTableCell>
+                    // </StyledTableRow>; */}
+ 
+                  {/* // })} */}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+ 
+          <table>
+            <tr>
+              <th>s.no</th>
+              <th>action</th>
+              <th>actionDate</th>
+            </tr>
+            {requestTrackDetails.map((result, index) => {
+              <tr>
+                <td>{index}</td>
+                <td>{result.action}</td>
+                <td>{result.actionDate}</td>
+              </tr>;
+            })}
+          </table>
+          {/* {showalert && (
+            <DialogActions style={{ justifyContent: "flex-start" }}>
+              <Alert variant="standard" severity="error">
+                Please select a row in table
+              </Alert>
+            </DialogActions>
+          )} */}
+        </DialogContent>
+ 
+        <DialogActions>
+          <Stack direction="row" display="flex" justifyContent="flex-end">
+            <Button
+              variant="outlined"
+              autoFocus
+              onClick={handleClose}
+              sx={{ mb: 3 }}
+            >
+              Cancel
+            </Button>
+          </Stack>
+        </DialogActions>
+        {/* <br/> */}
+      </Dialog>
+    </>
+  );
+};
+export default TrackTransportRequestStatus;
+ {
+   "status": true,
+   "message": "Details fetched successfully",
+   "result": [
+       {
+           "actionDate": "21/03/2024 10:03 am",
+           "action": "Dept.DyEO-NT initiated the transport request.\n"
+       },
+       {
+           "actionDate": "18/03/2024 03:03 pm",
+           "action": "DyEO-Admin approved the request.\n"
+       }
+   ],
+   "statusCode": 200
+}
