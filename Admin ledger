@@ -1,0 +1,153 @@
+import { Button, Card, CardContent, Grid, TextField, Typography } from '@mui/material'
+import React, { useState } from 'react'
+import SearchIcon from '@mui/icons-material/Search';
+import { H3 } from '../../../components/Typography';
+import Autocomplete from '@mui/material/Autocomplete';
+import SearchTable from "../../../components/SearchTableAlt";
+
+const AdminLedger = () => {
+    const top100Films = [
+        { label: 'The Shawshank Redemption', year: 1994 },
+        { label: 'The Godfather', year: 1972 },
+        { label: 'The Godfather: Part II', year: 1974 },
+        { label: 'The Dark Knight', year: 2008 },
+        { label: '12 Angry Men', year: 1957 },
+    ]
+
+    const [showTable, setShowTable] = useState(false);
+    const handleSearch = () => {
+        setShowTable(true);
+    }
+
+    const columns = [
+
+        {
+            field: "index",
+            headerName: "S.No",
+            flex: 0.1,
+            minWidth: 60,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => params.row.index + ")",
+        },
+        {
+            field: "loginName",
+            headerName: "Login Name",
+            flex: 0.2,
+            minWidth: 120,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "username",
+            headerName: "User Name",
+            flex: 0.2,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "enrollmentStatus",
+            headerName: "Enrollment Status",
+            flex: 0.1,
+            minWidth: 300,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "dob",
+            headerName: "D.O.B.",
+            flex: 0.2,
+            minWidth: 150,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "empCode",
+            headerName: "Emp Code",
+            flex: 0.2,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "emailId",
+            headerName: "Email ID",
+            flex: 0.1,
+            minWidth: 150,
+            headerClassName: "super-app-theme--header",
+        },
+    ];
+
+    const data = [{index:1, loginName: 'Shiv Shankar', username:'abc', enrollmentStatus:'True', dob:'24/05/2000',empCode:'#ABC123', emailId:'abc@gmail.com'}]
+
+  return (
+    <div>
+      <Card>
+        <CardContent>
+            <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
+                <SearchIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+                <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Search</H3>
+            </div>
+            <Grid container>
+                <Grid item sx={{display:'flex', width:'100%'}}>
+                    
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <TextField id="outlined-basic" label="Employee ID" sx={{width:'100%'}} variant="outlined" />
+                    </Grid>
+                    <Grid item sx={{display:'flex',alignItems:'center', marginBottom:'20px'}}>
+                        <Typography sx={{paddingLeft:'24px', paddingRight:'24px', fontWeight:600,  fontSize:'16px'}}> OR </Typography>
+                    </Grid>
+
+                    <Grid item sx={{gap:2,  width:'100%', display:'flex'}} xs={12} sm={8} md={8} lg={8}>
+                        <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            options={top100Films}
+                            sx={{ width: '100%' }}
+                            renderInput={(params) => <TextField {...params} label="Department" />}
+                        />
+                        <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            options={top100Films}
+                            sx={{ width: '100%' }}
+                            renderInput={(params) => <TextField {...params} label="Employee Name" />}
+                        />
+                    </Grid>
+                </Grid>  
+
+                <Grid item sx={{width: '100%',display:'flex', justifyContent:'end', gap:2}}>
+                    <Button variant='outlined' sx={{borderRadius:'4px'}}>Reset</Button>
+                    <Button variant='contained' sx={{borderRadius:'4px'}} onClick={handleSearch}>Search</Button>
+                </Grid>
+            </Grid>
+            
+        </CardContent>
+      </Card>
+
+      {showTable && (
+
+        <Card>
+            <CardContent>
+            <SearchTable
+                initialNoOfRows={10}
+                // disablePrint={rows.length > 100 ? true : false}
+                disablePrint={true}
+                //columns={isAtleastOneIsSubmitted ? columns : updatedColumns}
+                columns={columns}
+                data={data}
+                isCheckbox={false}
+                isHideDensity={false}
+                isHideExport={true}
+                isHideFilter={true}
+                isHideColumn={true}
+                isHidePaging={false}
+                //selectRowsOption={true}
+                //handleApplications={handleApplications}
+                name="applicantDetails"
+                id="applicantDetails"
+            />
+            </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
+
+export default AdminLedger
