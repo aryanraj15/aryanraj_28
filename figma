@@ -235,3 +235,69 @@ export default TrackTransportRequestStatus;
   </tr>
 ))}
 
+
+
+
+import * as React from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
+function createData(
+  SNo,
+  ActionBy,
+  ActionOn
+
+) {
+  return { SNo, ActionBy, ActionOn};
+}
+
+
+const rows = [
+  createData(1, 'Leave Applied', '14/03/2024'),
+  createData(2, 'DYEO ADMIN', '15/03/2024'),
+  createData(3, 'JEO ADMIN', '16/03/2024'),
+  createData(4, 'ADMIN', ),
+];
+
+export default function BasicTable() {
+    const pageName = "Track Leave";
+//     // useTitle(pageName);
+  return (<>
+    <Typography variant='h4' ><LocationSearchingIcon sx={{ fontSize: "25px", color: '#246cb5' }} />&nbsp;{pageName}</Typography>
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell><h7><b>S.NO</b></h7></TableCell>
+            <TableCell><h7><b>Action By</b></h7></TableCell>
+            <TableCell ><h7><b>Action On</b></h7></TableCell>
+            <TableCell ><h7><b>Remarks</b></h7></TableCell>
+
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow
+              key={row.SNo}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                {row.SNo}
+              </TableCell>
+              <TableCell >{row.ActionBy}</TableCell>
+              <TableCell >{row.ActionOn}</TableCell>
+
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+    </>
+  );
+}
