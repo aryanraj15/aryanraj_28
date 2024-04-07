@@ -1,4 +1,49 @@
-import React, { useEffect, useState } from "react";
+{
+    "status": true,
+    "message": "Details fetched successfully",
+    "result": {
+        "origin": "Vizag",
+        "destination": "Vijayawada",
+        "transportRequestId": "7",
+        "bookingFrom": "11/03/2024 01:00 PM",
+        "bookingTo": "11/03/2024 01:00 PM",
+        "remarks": "booking",
+        "caseStatusName": "Dept.DyEO-NT initiated the transport request.\n",
+        "raisedDate": "15/03/2024 09:08 PM",
+        "empDeptName": "DyEO-NT 1,Field Operations Supporting Services (FOSS)",
+        "contactNo": 9874316597,
+        "personsCount": 2,
+        "transportReqRef": null,
+        "vehicleNumber": null,
+        "vendorName": null,
+        "empOrGuest": "Employee",
+        "hiredOrOutsourced": null,
+        "vendorContact": null,
+        "userMappingDto": [
+            {
+                "userId": 183,
+                "userName": "Dharma Pothugunta",
+                "transportRequestId": null,
+                "guestNames": null
+            },
+            {
+                "userId": 184,
+                "userName": "Manasa Badeti",
+                "transportRequestId": null,
+                "guestNames": null
+            }
+        ]
+    },
+    "statusCode": 200
+}
+
+
+
+
+
+
+import React from "react";
+import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -6,243 +51,97 @@ import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import DatePicker from "react-datepicker";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { Card, CardContent } from "@mui/material";
-import useTitle from "../../../hooks/useTitle";
-import PageTitle from "../../../layouts/PageTitle";
-import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { H3 } from "../../../components/Typography";
+import { Card, CardContent, Typography } from "@mui/material";
+import useTitle from "../../../../hooks/useTitle";
+import PageTitle from "../../../../layouts/PageTitle";
+import { useNavigate } from "react-router-dom";
+import { H3 } from "../../../../components/Typography";
+import CommuteIcon from "@mui/icons-material/Commute";
 import AlertConfirm from "react-alert-confirm";
-import { useSnackbar } from "../../../components/Snackbar";
+import { useSnackbar } from "../../../../components/Snackbar";
 import "react-alert-confirm/lib/style.css";
-import Calendar from '@mui/icons-material/Event';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
-import ButtonBase from '@mui/material/ButtonBase';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import { green, pink } from '@mui/material/colors';
-import PageviewIcon from '@mui/icons-material/Pageview';
-import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import moment from 'moment';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
-import axios from 'axios';
-
-const today = dayjs();
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  margin: 3,
-  borderRadius: "10px",
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
-
-const Leave = () => {
-  const [selectedLeaveStartDate, setSelectedLeaveStartDate] = useState(null);
-  const [leavelist, setLeaveList] = useState([]);
-  const [emergencyList, setEmergencyList] = useState([]);
-  const [stationlist, setStationList] = useState([]);
-
-  const AbsenceBance = 2.5;
-
-
-  const validationSchema = Yup.object().shape({
-    Leave: Yup.string().required("Leave is Required").nullable(),
-    ApplyingDueToAnyEmergency: Yup.string().required("Applying Due To Any Emergency is Required").nullable(),
-    StationLeave: Yup.string().required("Station Leave is required").nullable(),
-    LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
-    // LeavestartTime: Yup.string().required("Leave Start Time is required").nullable(),
-    LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
-    // LeaveEndTime: Yup.string().required("Leave End Time is required").nullable(),
-    Prefix: Yup.string().required("Prefix is required").nullable(),
-    Suffix: Yup.string().required("Suffix is required").nullable(),
-    ReportingDesignation: Yup.string().required("Reporting Designation is required").nullable(),
-    Description: Yup.string().required("Description is required").nullable(),
-  });
-
+import { validationdyeoapproval } from "./Validation";
+import { useFormik } from "formik";
+import { Radio } from "@mui/material";
+import { FormControl } from "@mui/material";
+import { FormControlLabel } from "@mui/material";
+import { RadioGroup } from "@mui/material";
+import AirportShuttleIcon from "@mui/icons-material/AirportShuttle";
+import { FormHelperText } from "@mui/material";
+import SearchParams from "../../../../components/Searchparams";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+import { CoPresentOutlined } from "@mui/icons-material";
+function ViewMyBookings(props) {
+  const [bookingDetail, setBookingDetail] = useState({})
+  const location = useLocation()
+  console.log("the id", location.state)
+  useEffect(() => {
+    getTransportBookingFormDetails();
+  }, []);
+ 
+  const getValueFromList = (List, value) => {
+    return List.find((option) => option.id === value) ?? null;
+  };
+  const [HiredDetails, setHiredDetails] = useState([])
+  const [VendorDetails, setVendorDetails] = useState([])
+  const [vendorlist, setvendorlist] = useState([])
+  const [employeeNames, setEmployeeNames] = useState([])
+  const [guestNames, setGuestNames] = useState([])
   const formik = useFormik({
     initialValues: {
-      Leave: '',
-      ApplyingDueToAnyEmergency: '',
-      StationLeave: '',
-      LeaveStartDate: null,
-      LeavestartTime: "",
-      LeaveEndDate: null,
-      LeaveEndTime: '',
-      Prefix: '',
-      Suffix: '',
-      ReportingDesignation: '',
-      Description: '',
+      hiredoutsoursed: "",
+      hiredoptions: "",
+      vendorname: "",
+      remarks: "",
+      vendoranothercontact: "",
     },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      // Handle form submission or API integration here
-      handleRedirect();
-    },
+    enableReinitialize: true,
+    validationSchema: validationdyeoapproval,
   });
-  console.log(formik.values.Leave);
-  console.log(formik.values.LeaveStartDate);
-  console.log(formik.values.LeaveEndDate);
-  console.log(formik.values.LeavestartTime);
-  console.log(formik.values.LeaveEndTime);
-  console.log(formik.values.ApplyingDueToAnyEmergency);
-  console.log(formik.values.StationLeave);
-  const numberofDays = getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate, formik.values.LeavestartTime, formik.values.LeaveEndTime);
-
-  useEffect(() => {
-
-    axios.get(`http://129.154.229.83:8095/leavemanagement/leave-type-dropdown`, {
-    }).then(response => {
-      let sortedLeaveData = response.data.result.map((value) => {
-        value.typeName = value.typeName.toUpperCase();
-        return value;
-      })
-      setLeaveList(sortedLeaveData);
-      console.log(sortedLeaveData);
-    })
-      .catch(error => {
-        setLeaveList([]);
-        console.log(error);
-      });
-
-    axios.get(`http://129.154.229.83:8095/leavemanagement/emergency-dropdown`, {
-    }).then(response => {
-      let sortedEmergencyData = response.data.result.map((value) => {
-        value.typeName = value.typeName
-        return value;
-      })
-      setEmergencyList(sortedEmergencyData);
-      console.log(sortedEmergencyData);
-    })
-      .catch(error => {
-        setEmergencyList([]);
-        console.log(error);
-      });
-
-    axios.get(`http://129.154.229.83:8095/leavemanagement/station-dropdown`, {
-    }).then(response => {
-      let sortedStationData = response.data.result.map((value) => {
-        value.typeName = value.typeName
-        return value;
-      })
-      setStationList(sortedStationData);
-      console.log(sortedStationData);
-    })
-      .catch(error => {
-        setStationList([]);
-        console.log(error);
-      });
-
-
-  }, [])
-
-
-  const filterEndTimeValues = (startTimeId) => {
-    if (startTimeId === 2) {
-      // If starttimeId is 2, filter out the value with id 2 from time2
-      return time2.filter((value) => value.id !== 2);
-    }
-    return time2; // Otherwise, return the original time2 array
-  };
-
-
-  function getNumberOfDays(start, end, startTimeId, endTimeId) {
-    if (!start || !end) {
-      return 0;
-    }
-
-    const date1 = new Date(start);
-    const date2 = new Date(end);
-    const oneDay = 1000 * 60 * 60 * 24;
-
-    const diffInTime = date2.getTime() - date1.getTime();
-    let diffInDays = Math.round(diffInTime / oneDay);
-
-
-    if (startTimeId === 1 && endTimeId === 2) {
-      diffInDays -= 0.5;
-    }
-    if (startTimeId === 2 && !endTimeId || startTimeId === 2 && endTimeId === 3) {
-      diffInDays -= 0.5;
-    }
-    // if(startTimeId ===2){
-    //   formik.setFieldValue("LeaveEndTime", null);
-    // }
-
-    return diffInDays + 1;
-  }
-
-  console.log(numberofDays)
-
-  const values = [
-    {
-      id: 11,
-      label: "Casual Leave",
-    },
-    {
-      id: 12,
-      label: "Compensatory Casual Leave(CCL)",
-    },
-    {
-      id: 13,
-      label: "Maternity Leave ",
-    },
-    {
-      id: 14,
-      label: "Optional Holiday",
-    },
-    {
-      id: 15,
-      label: "Earned Leaves",
-    },
-    {
-      id: 16,
-      label: "Paternity Leave ",
-    },
-  ];
-  const time = [
+  const valuesTransport = [
     {
       id: 1,
-      label: "10 AM",
+      label: "Car",
     },
     {
       id: 2,
-      label: " 1 PM",
+      label: " Bus",
     },
   ];
-  const time2 = [
-    {
-      id: 2,
-      label: "1 PM",
-    },
-    {
-      id: 3,
-      label: " 6 PM",
-    },
-  ];
-
-  const title = "Leave Application Form";
+  const title = "Transport Booking Form";
   useTitle(title);
-
   const navigate = useNavigate();
-
-  const handleRedirect = () => {
-    callConfirmDialog();
-  }
-
   const { showSnackbar } = useSnackbar();
-
+ 
+  const handleRedirect = (event) => {
+    const touched = Object.keys(formik.initialValues).reduce((result, item) => {
+      result[item] = true;
+      return result;
+    }, {});
+    formik.setTouched(touched, false);
+    formik.setSubmitting(true);
+    formik
+      .validateForm()
+      .then((formErrors) => {
+        console.log("the errors", formErrors);
+        if (Object.keys(formErrors).length > 0) {
+          showSnackbar("Please enter all required fields", "error");
+        } else {
+          //alert("nmmn")
+          callConfirmDialog();
+        }
+      })
+      .catch((err) => {
+        formik.setSubmitting(false);
+      });
+  };
   const callConfirmDialog = async () => {
-    console.log('kp-confirm');
+    console.log("kp-confirm");
     const [action] = await AlertConfirm({
       title: "Confirm",
       desc: "Are you sure, you want to submit?",
@@ -252,540 +151,571 @@ const Leave = () => {
       cancelText: "Cancel",
     });
     if (action) {
-      console.log('kp-saved');
-      showSnackbar("Saved Successfully", 'success');
-      navigate('/viewleave')
-      // submitDetails(values, resetForm);
+      console.log("kp-saved");
+      SaveProcessDetails()
+
     } else {
       //   setIsSubmit(false);
-      showSnackbar('Did not save!', 'error')
+      showSnackbar("Did not save!", "error");
     }
   };
+  const handleRedirectreject = (prop) => {
+    if (formik.values.remarks.length === 0 && prop === "Reject") {
+      showSnackbar("Please fill remarks", "error");
+      return;
+    }
+    callConfirmDialog();
+  };
+ 
+  const getTransportBookingFormDetails = async () => {
+    let bookingdeatils = {}
+    await axios.post(`${process.env.REACT_APP_TRANSPORT_API_URL}/get-bookings-by-id`, {
+      "transportRequestId": location.state
+    }).then((response) => {
+      console.log(response.data.result, "hellooooo")
+      bookingdeatils = { ...response.data.result }
+      setBookingDetail(bookingdeatils);
+ 
+ 
+      console.log(employeeNames, "testing", guestNames)
+ 
+    }).catch((error) => {
+      console.log("getting error");
+      console.log(error)
+    })
+ 
+    console.log("into the calling");
+    axios
+      .get(`${process.env.REACT_APP_TRANSPORT_API_URL}/fetch-process-details`,)
+      .then((response) => {
+        console.log(response.data);
+        let vehiclelist = [];
+        let vendorlist = [];
+        response.data.result.vehicleList.map((st) => {
+          vehiclelist.push({ id: st.vehicleId, label: st.vehicleNumber });
+        });
+        response.data.result.vendorList.map((st) => {
+          vendorlist.push({ id: st.vendorId, label: st.vendorName });
+        });
+        setHiredDetails(vehiclelist);
+        setVendorDetails(vendorlist);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+ 
+  console.log(bookingDetail, "testing", bookingDetail.personsCount, "outside", bookingDetail.empOrGuest)
+  const getvendormasterdetails = (vendorid) => {
+    console.log("into the calling");
+    let body = {
+      "vendorId": vendorid,
+      "vehicleId": null
+    }
+    axios
+      .post(`${process.env.REACT_APP_TRANSPORT_API_URL}/fetch-master-details`, body)
+      .then((response) => {
+        console.log(response.data);
+        setvendorlist(response.data.result.vendorDetails)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+ 
+  const SaveProcessDetails = (vendorid) => {
+    console.log("into the calling");
+    let body = {
+      "remarks": formik.values.remarks,
+      "hiredOutsourced": formik.values.hiredoutsoursed,
+      "vendorId": formik.values.vendorname,
+      "transportReqId": location.state,
+      "vehicleId": formik.values.hiredoptions,
+      "crtBy": localStorage.getItem("userId")
+    }
+    axios
+      .post(`${process.env.REACT_APP_TRANSPORT_API_URL}/save-process-details`, body)
+      .then((response) => {
+        console.log(response.data);
+        if (response.data.result !== null && response.data.statusCode === 200) {
+          showSnackbar("Saved Successfully", "success");
+          navigate("/approvaltransportbookings");
+        }
+        else {
+          showSnackbar(response.data.message)
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  const [isBoth, setIsBoth] = useState(false)
+  let name = ""
+  if (bookingDetail.empOrGuest === "Employee") {
+    name = "Employee"
+  }
+  else if (bookingDetail.empOrGuest === "Guest") {
+    name = "Guest"
+  }
+  else {
+    name = "Guest"
+  }
+  console.log(bookingDetail.userMappingDto, "agaitesting")
+  for (let i = 0; i < bookingDetail.userMappingDto.length; i++) {
+ 
+    if (bookingDetail.userMappingDto[i].userName !== null) {
+      setEmployeeNames(employeeName => [...employeeName, bookingDetail.userMappingDto[i].userName])
+    }
+    if (bookingDetail.userMappingDto[i].guestNames !== null) {
+      setGuestNames(guestName => [...guestName, bookingDetail.userMappingDto[i].guestNames])
+ 
+    }
+ 
+ 
+  }
+ 
+ 
+ 
+ 
   return (
     <>
-
-      <Box sx={{ flexGrow: 1 }}>
-        <Stack sx={{ width: '100%' }} spacing={0}>
-          {numberofDays > AbsenceBance && (
-            <Alert severity="warning">You have only {AbsenceBance} Days leave. A loss of Pay for {numberofDays - AbsenceBance} days will be deducted from your Salary Balance</Alert>
-          )}
-        </Stack>
-      </Box>
-
-      <Box sx={{ flexGrow: 1, mt: 2 }}>
-        <Grid container spacing={2} columns={16}>
-          <Grid item xs={8}>
-            <Item>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm container>
-                  <Grid item xs container direction="column" spacing={2}>
-                    <Grid item xs>
-                      <Typography gutterBottom variant="h4" component="div">
-                        Absence Type Balance
-                      </Typography>
-                      <Typography variant="h6" gutterBottom>
-                        {AbsenceBance}  DAYS
-                      </Typography>
-                    </Grid>
-                    <Grid item>
-                      <Typography sx={{ cursor: 'pointer' }} variant="body2">
-                        Check here!
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid item>
-                    <Avatar sx={{ bgcolor: green[500] }}>
-                      <AssignmentIcon />
-                    </Avatar>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Item>
-          </Grid>
-          <Grid item xs={8}>
-            <Item>
-              <Grid container spacing={2}>
-
-                <Grid item xs={12} sm container>
-                  <Grid item xs container direction="column" spacing={2}>
-                    <Grid item xs>
-                      <Typography gutterBottom variant="h4" component="div">
-                        Absence Duration
-                      </Typography>
-                      <Typography variant="h6" gutterBottom>
-                        {numberofDays} DAYS
-                      </Typography>
-
-                    </Grid>
-                    <Grid item>
-                      <Typography sx={{ cursor: 'pointer' }} variant="body2">
-                        Check here!
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid item>
-                    <Avatar sx={{ bgcolor: pink[500] }}>
-                      <HourglassBottomIcon />
-                    </Avatar>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Item>
-          </Grid>
-        </Grid>
-      </Box>
-
-
       <Card>
         <CardContent>
-          <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
-            <EventBusyIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-            <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Apply Leave</H3>
-          </div>
-          <Box>
-            <form onSubmit={formik.handleSubmit}>
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // justifyContent="center"
-              // sx={{}}
+          <Box component="form" onSubmit={formik.handleSubmit} noValidate>
+            {/* <PageTitle name={"Book Transport "} /> */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "left",
+                alignItems: "center",
+                marginBlock: 15,
+                borderBottom: "0.5px solid #d1d1cf",
+                marginTop: "30px",
+              }}
+            >
+              <CommuteIcon sx={{ fontSize: "25px", color: "#246cb5" }} />
+              <H3
+                sx={{ fontSize: "15px", color: "#246cb5" }}
+                marginLeft={0.5}
+                my={0.5}
+                display="flex"
+                justifyContent="center"
+                alignItems="flex-end"
               >
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <Autocomplete
-                    margin="0"
-                    id="Leave"
-                    name="Leave"
-                    options={leavelist}
-                    sx={{ width: "100%" }}
-                    required
-                    fullWidth
-                    value={leavelist.find(
-                      (option) => option.typeId === formik.values.Leave
-                    ) || null}
-                    onChange={(e, value) => {
-                      if (value === null) {
-                        formik.setFieldValue("Leave", null)
-                      }
-                      else
-
-                        formik.setFieldValue("Leave", value.typeId)
-                    }}
-                    getOptionLabel={(value) => value.typeName}
-                    renderInput={(params) =>
-                      <TextField
-                        {...params}
-                        label="Leave Type"
-                        required
-                        onBlur={formik.handleBlur}
-                        helperText={formik.errors.Leave && formik.touched.Leave ? formik.errors.Leave : null}
-                        error={formik.errors.Leave && formik.touched.Leave ? true : false}
-
-                      />}
-                  />
-                </Grid>
-                {/* <Grid item xs={12} sm={4} md={4} lg={3}>
-              <p></p>
-            </Grid> */}
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <Autocomplete
-                    margin="0"
-                    id="ApplyingDueToAnyEmergency"
-                    name="ApplyingDueToAnyEmergency"
-                    options={emergencyList}
-                    sx={{ width: "100%" }}
-                    required
-                    fullWidth
-                    value={emergencyList.find(
-                      (option) => option.typeId === formik.values.ApplyingDueToAnyEmergency
-                    ) || null}
-                    onChange={(e, value) => {
-                      if (value === null) {
-                        formik.setFieldValue("ApplyingDueToAnyEmergency", null)
-                      }
-                      else
-                        formik.setFieldValue("ApplyingDueToAnyEmergency", value.typeId)
-                    }}
-                    getOptionLabel={(value) => value.typeName}
-                    renderInput={(params) =>
-                      <TextField {...params}
-                        label="Applying due to any emergency?"
-                        required
-                        onBlur={formik.handleBlur}
-                        helperText={formik.errors.ApplyingDueToAnyEmergency && formik.touched.ApplyingDueToAnyEmergency ? formik.errors.ApplyingDueToAnyEmergency : null}
-                        error={formik.errors.ApplyingDueToAnyEmergency && formik.touched.ApplyingDueToAnyEmergency ? true : false}
-                      />}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <Autocomplete
-                    margin="0"
-                    id="StationLeave"
-                    name="StationLeave"
-                    options={stationlist}
-                    sx={{ width: "100%" }}
-                    fullWidth
-                    value={stationlist.find(
-                      (option) => option.typeId === formik.values.StationLeave
-                    ) || null}
-                    onChange={(e, value) => {
-                      if (value === null) {
-                        formik.setFieldValue("StationLeave", null)
-                      }
-                      else
-
-                        formik.setFieldValue("StationLeave", value.typeId)
-                    }}
-                    getOptionLabel={(value) => value.typeName}
-                    renderInput={(params) => (
-                      <TextField {...params}
-                        margin="0"
-                        label="Station Leave"
-                        required
-                        onBlur={formik.handleBlur}
-                        helperText={formik.errors.StationLeave && formik.touched.StationLeave ? formik.errors.StationLeave : null}
-                        error={formik.errors.StationLeave && formik.touched.StationLeave ? true : false}
-
-                      />
-                    )}
-                  />
-                </Grid>
+                Transport Request Details
+              </H3>
+            </div>
+            <Grid
+              container
+              spacing={2}
+              direction="row"
+              alignItems="center"
+            // justifyContent="center"
+            // sx={{}}
+            >
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  size="small"
+                  sx={{ width: "100%" }}
+                  label="Guest or Employee"
+                  value={bookingDetail.empOrGuest}
+                  InputLabelProps={{ shrink: true }}
+                  disabled
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
               </Grid>
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // justifyContent="center"
-              // sx={{}}
-              >
-                {/* <Grid item xs={12} sm={4} md={4} lg={4}>
  
-              </Grid> */}
-                {/* <Grid item xs={12} sm={4} md={4} lg={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                  <DatePicker
-                    margin="0"
-                    id="LeaveStartDate"
-                    name="LeaveStartDate"
-                    minDate={today}
-                    label="Leave Start Date"
-                    sx={{ width: "100%" }}
-                    inputFormat="DD/MM/YYYY"
-                    value={formik.values.LeaveStartDate}
-                    onChange={(date) => {
-                      const formattedDate = (dayjs(date).format("MM-DD-YYYY"));
-                      formik.setFieldValue("LeaveStartDate", formattedDate)
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        fullWidth
-                        margin="0"
-                        required
-                        {...params}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid> */}
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                    <DatePicker
-                      id="LeaveStartDate"
-                      name="LeaveStartDate"
-                      minDate={today}
-                      format="DD/MM/YYYY"
-                      label="Leave Start Date"
-                      sx={{ width: "100%" }}
-                      // inputFormat="DD/MM/YYYY"
-                      value={formik.values.LeaveStartDate}
-                      onChange={(date) => {
-                        const formattedDate = dayjs(date).format("MM-DD-YYYY");
-                        formik.setFieldValue("LeaveStartDate", formattedDate);
-                        setSelectedLeaveStartDate(date);
+ 
+ 
+ 
+ 
+ 
+ 
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  size="small"
+                  sx={{ width: "100%" }}
+                  label={`${name} Name`}
+                  defaultValue="Priya"
+                  disabled
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  size="small"
+                  sx={{ width: "100%" }}
+                  label="No Of Persons"
+                  value={bookingDetail.personsCount}
+                  InputLabelProps={{ shrink: true }}
+                  disabled
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  size="small"
+                  sx={{ width: "100%" }}
+                  label="Contact No."
+                  value={bookingDetail.contactNo}
+                  InputLabelProps={{ shrink: true }}
+                  disabled
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  size="small"
+                  sx={{ width: "100%" }}
+                  label="Origin"
+                  value={bookingDetail.origin}
+                  InputLabelProps={{ shrink: true }}
+                  disabled
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  size="small"
+                  sx={{ width: "100%" }}
+                  label="Destination"
+                  value={bookingDetail.destination}
+                  InputLabelProps={{ shrink: true }}
+                  disabled
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  size="small"
+                  sx={{ width: "100%" }}
+                  label="Reason For Request"
+                  value={bookingDetail.remarks}
+                  InputLabelProps={{ shrink: true }}
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  size="small"
+                  sx={{ width: "100%" }}
+                  label="Start Date & Time"
+                  value={bookingDetail.bookingFrom}
+                  InputLabelProps={{ shrink: true }}
+                  disabled
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  size="small"
+                  sx={{ width: "100%" }}
+                  label="End Date & Time"
+                  value={bookingDetail.bookingTo}
+                  InputLabelProps={{ shrink: true }}
+                  disabled
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+ 
+            </Grid>
+ 
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "left",
+                alignItems: "center",
+                marginBlock: 15,
+                borderBottom: "0.5px solid #d1d1cf",
+                marginTop: "30px",
+              }}
+            >
+              <AirportShuttleIcon sx={{ fontSize: "25px", color: "#246cb5" }} />
+              <H3
+                sx={{ fontSize: "15px", color: "#246cb5" }}
+                marginLeft={0.5}
+                my={0.5}
+                display="flex"
+                justifyContent="center"
+                alignItems="flex-end"
+              >
+                Vehicle Details
+              </H3>
+            </div>
+            <Grid container spacing={2} direction="row" alignItems="center">
+              <Grid
+                item
+                xs={12}
+                sm={3}
+                md={3}
+                lg={3}
+                style={{ textAlign: "center" }}
+              >
+                {/* <Autocomplete
+                id="hiredoutsoursed"
+                name="hiredoutsoursed"
+                options={HiredOrOutSourced}
+                sx={{}}
+                size="small"
+                fullWidth
+                renderInput={(params) => (
+                  <TextField {...params} label="Hired or Outsourced" />
+                )}
+                onChange={(e, value) => {
+                  console.log("heloooo");
+                  if (value === null) {
+                    console.log("not selected");
+                  } else {
+                    console.log(hired, outSource);
+                    if (value.label === "Hired") {
+                      console.log(value.label);
+                      setHired(true);
+                      setOutsource(false);
+                    } else if (value.label === "OutSourced") {
+                      setOutsource(true);
+                      setHired(false);
+                    }
+                  }
+                }}
+              /> */}
+ 
+                <FormControl>
+                  <RadioGroup
+                    row
+                    aria-labelledby="demo-row-radio-buttons-group-label"
+                    name="hiredoutsoursed"
+                    value={formik.values.hiredoutsoursed}
+                    onChange={formik.handleChange}
+                    error={
+                      formik.touched.hiredoutsoursed &&
+                      Boolean(formik.errors.hiredoutsoursed)
+                    }
+                    required
+                  >
+                    <FormControlLabel
+                      value="1"
+                      control={<Radio />}
+                      label="Hired"
+                    />
+                    <FormControlLabel
+                      value="2"
+                      control={<Radio />}
+                      label="Outsourced"
+                    />
+                  </RadioGroup>
+                </FormControl>
+                {formik.touched.hiredoutsoursed &&
+                  formik.errors.hiredoutsoursed && (
+                    <FormHelperText error>
+                      {formik.errors.hiredoutsoursed}
+                    </FormHelperText>
+                  )}
+              </Grid>
+              {formik.values.hiredoutsoursed === "1" ? (
+                <>
+                  <Grid item xs={12} sm={6} md={6} lg={6}>
+                    <Autocomplete
+                      id="hiredoptions"
+                      name="hiredoptions"
+                      options={HiredDetails}
+                      size="small"
+                      fullWidth
+                      value={getValueFromList(
+                        HiredDetails,
+                        formik?.values.hiredoptions
+                      )}
+                      getOptionLabel={(option) => option.label}
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("hiredoptions", null);
+                        } else {
+                          formik.setFieldValue("hiredoptions", value.id);
+                        }
                       }}
                       renderInput={(params) => (
                         <TextField
-                          size="small"
-                          fullWidth
-                          margin="0"
-                          required
                           {...params}
-                          error={formik.touched.LeaveStartDate && Boolean(formik.errors.LeaveStartDate)}
-                          helperText={formik.touched.LeaveStartDate && formik.errors.LeaveStartDate}
-                          onBlur={formik.handleBlur}
-
+                          required
+                          label="Hired Vehicle  Details"
+                          helperText={
+                            formik.errors.hiredoptions &&
+                              formik.touched.hiredoptions
+                              ? formik.errors.hiredoptions
+                              : null
+                          }
+                          error={
+                            formik.errors.hiredoptions &&
+                              formik.touched.hiredoptions
+                              ? true
+                              : false
+                          }
                         />
                       )}
                     />
-                  </LocalizationProvider>
-                </Grid>
+                  </Grid>
+ 
 
-                <Grid item xs={12} sm={4} md={4} lg={4} >
-                  <Autocomplete
-                    margin="0"
-                    id="LeavestartTime"
-                    name="LeavestartTime"
-                    options={time}
-                    sx={{ width: "100%" }}
-
-                    fullWidth
-                    value={time.find(
-                      (option) => option.id === formik.values.LeavestartTime
-                    ) || null}
-                    onChange={(e, value) => {
-                      if (value === null) {
-                        formik.setFieldValue("LeavestartTime", null)
-                      }
-                      else
-
-                        formik.setFieldValue("LeavestartTime", value.id)
-                    }}
-                    getOptionLabel={(value) => value.label}
-                    renderInput={(params) =>
-                      <TextField
-                        {...params}
-                        label="Time"
-                        onBlur={formik.handleBlur}
-                        helperText={formik.errors.LeavestartTime && formik.touched.LeavestartTime ? formik.errors.LeavestartTime : null}
-                        error={formik.errors.LeavestartTime && formik.touched.LeavestartTime ? true : false}
-
-                      />}
-                  />
-                </Grid>
-              </Grid>
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // justifyContent="center"
-              // sx={{}}
-              >
-
-                {/* <Grid item xs={12} sm={4} md={4} lg={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                  <DatePicker
-                    margin="0"
-                    id="LeaveEndDate"
-                    name="LeaveEndDate"
-                    // minDate={formik.values.LeaveStartDate}
-                    shouldDisableDate={(day) =>{
-                      return dayjs(day).isBefore(formik.values.LeaveStartDate,'day');
-                    }}
-                    // shouldDisableDate={isWeekend}
-                    label="Leave End Date"
-                    sx={{ width: "100%" }}
-                    // maxDate={new Date()}
-                    inputFormat="DD/MM/YYYY"
-                    value={formik.values.LeaveEndDate}
-                    onChange={(date) => {
-                      const formatDate = (dayjs(date).format("MM-DD-YYYY"));
-                      formik.setFieldValue("LeaveEndDate", formatDate)
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        margin="0"
-                        required
-
-                        {...params}
-
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid> */}
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                    <DatePicker
-                      margin="0"
-                      id="LeaveEndDate"
-                      name="LeaveEndDate"
-                      minDate={today}
-                      shouldDisableDate={(date) =>
-                        selectedLeaveStartDate ? date < selectedLeaveStartDate : false
-                      }
-                      label="Leave End Date"
-                      sx={{ width: "100%" }}
-                      format="DD/MM/YYYY"
-                      value={formik.values.LeaveEndDate}
-                      onChange={(date) => {
-                        const formattedDate = dayjs(date).format("MM-DD-YYYY");
-                        formik.setFieldValue("LeaveEndDate", formattedDate);
+                </>
+              ) : null}
+              {formik.values.hiredoutsoursed === "2" ? (
+                <>
+                  <Grid item xs={12} sm={3} md={3} lg={3}>
+                    <Autocomplete
+                      id="vendorName"
+                      name="vendorName"
+                      options={VendorDetails}
+                      size="small"
+                      fullWidth
+                      value={getValueFromList(
+                        VendorDetails,
+                        formik?.values.vendorName
+                      )}
+                      getOptionLabel={(option) => option.label}
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("vendorName", null)
+                        } else {
+                          formik.setFieldValue("vendorName", value.id)
+                          getvendormasterdetails(value.id)
+                        }
                       }}
                       renderInput={(params) => (
-                        <TextField margin="0" required {...params} />
+                        <TextField
+                          {...params}
+                          required
+                          label="Vendor Name"
+                          helperText={
+                            formik.errors.hiredoptions &&
+                              formik.touched.hiredoptions
+                              ? formik.errors.hiredoptions
+                              : null
+                          }
+                          error={
+                            formik.errors.hiredoptions &&
+                              formik.touched.hiredoptions
+                              ? true
+                              : false
+                          }
+                        />
                       )}
                     />
-                  </LocalizationProvider>
-                </Grid>
-                {/* <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <Autocomplete
-                    margin="0"
-                    id="LeaveEndTime"
-                    name="LeaveEndTime"
-                    options={time2}
-                    sx={{ width: "100%" }}
-                    required
-                    fullWidth
-                    value={time2.find(
-                      (option) => option.id === formik.values.LeaveEndTime
-                    ) || null}
-                    onChange={(e, value) => {
-                      if (value === null) {
-                        formik.setFieldValue("LeaveEndTime", null)
+                  </Grid>
+                  <Grid item xs={12} sm={3} md={3} lg={3}>
+                    <TextField
+                      id="vendorcontact"
+                      name="vendorcontact"
+                      disabled="true"
+                      value={vendorlist.vendorPhoneNum}
+                      size="small"
+                      fullWidth
+                      label="Vendor Contact Number"
+ 
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3} md={3} lg={3}>
+                    <TextField
+                      id="vendoranothercontact"
+                      name="vendoranothercontact"
+                      onChange={formik.handleChange}
+                      value={formik.values.vendoranothercontact}
+                      size="small"
+                      fullWidth
+                      label="Alternative Contact Number"
+                      error={
+                        formik.touched.vendoranothercontact &&
+                        Boolean(formik.errors.vendoranothercontact)
                       }
-                      else
-
-                        formik.setFieldValue("LeaveEndTime", value.id)
-                    }}
-                    getOptionLabel={(value) => value.label}
-                    renderInput={(params) =>
-                      <TextField
-                        {...params}
-                        label="Time"
-                        required
-                        onBlur={formik.handleBlur}
-                        helperText={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? formik.errors.LeaveEndTime : null}
-                        error={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? true : false}
-
-                      />}
-                  />
-                </Grid> */}
-
-                <Grid item xs={12} sm={4} md={4} lg={4} >
-                  <Autocomplete
-                    margin="0"
-                    id="LeaveEndTime"
-                    name="LeaveEndTime"
-                    options={filterEndTimeValues(formik.values.LeavestartTime)} // Use the filtered values
-                    sx={{ width: "100%" }}
-                    fullWidth
-                    value={time2.find(
-                      (option) => option.id === formik.values.LeaveEndTime
-                    ) || null}
-                    onChange={(e, value) => {
-                      if (value === null) {
-                        formik.setFieldValue("LeaveEndTime", null)
+                      helperText={
+                        formik.touched.vendoranothercontact &&
+                        formik.errors.vendoranothercontact
                       }
-                      else
-                        formik.setFieldValue("LeaveEndTime", value.id)
-                    }}
-                    getOptionLabel={(value) => value.label}
-                    renderInput={(params) =>
-                      <TextField
-                        {...params}
-                        label="Time"
-                        onBlur={formik.handleBlur}
-                        helperText={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? formik.errors.LeaveEndTime : null}
-                        error={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? true : false}
-                      />}
-                  />
-                </Grid>
-
+                    />
+                  </Grid>
+                </>
+              ) : null}
+              <Grid item xs={12} sm={12} md={12} lg={12}>
+                <TextField
+                  required
+                  margin="dense"
+                  id="remarks"
+                  label="Remarks"
+                  fullWidth
+                  value={formik.values.remarks}
+                  onChange={formik.handleChange}
+                  multiline
+                  rows={2}
+                  error={
+                    formik.touched.remarks && Boolean(formik.errors.remarks)
+                  }
+                  helperText={formik.touched.remarks && formik.errors.remarks}
+                //inputProps={{ maxLength: remarksMaxLength }}
+                // helperText={
+                //   clicked && remarks.length === 0 ? (
+                //     <Typography sx={{ fontWeight: "bold" }}>
+                //       Remarks are mandatory
+                //     </Typography>
+                //   ) : remarks.length >= remarksMaxLength - 150 ? (
+                //     `${remarksMaxLength - remarks.length} characters remaining`
+                //   ) : null
+                // }
+                />
               </Grid>
+ 
               <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // justifyContent="center"
-              // sx={{}}
+                item
+                xs={12}
+                sm={12}
+                md={12}
+                lg={12}
+                sx={{ width: "100%", columnGap: "20px" }}
               >
-
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <TextField
-                    margin="0"
-                    fullWidth
-                    disabled
-                    id="Prefix"
-                    label="Prefix"
-                    name="Prefix"
-                  // value={formik.values.Prefix || ""}
-                  // onChange={formik.handleChange}
-                  // onBlur={formik.handleBlur}
-                  // error={
-                  //   formik.touched.Prefix &&
-                  //   Boolean(formik.errors.Prefix)
-                  // }
-                  // helperText={
-                  //   formik.touched.Prefix &&
-                  //   formik.errors.Prefix
-                  // }
-
-                  />
-
+                <Grid item xs={12} sm={12} md={12} lg={12}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{ float: "right", borderRadius: "4px" }}
+                    onClick={() => handleRedirect()}
+                  >
+                    Approve
+                  </Button>
                 </Grid>
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-
-                  <TextField
-                    margin="0"
-
-                    fullWidth
-                    disabled
-                    id="Suffix"
-                    label="Suffix"
-                    name="Suffix"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-
-                  <TextField
-                    margin="0"
-                    fullWidth
-                    id="ReportingDesignation"
-                    label="Reporting User"
-                    name="ReportingDesignation"
-                    defaultValue="Sudha"
-                    value="Sudha"
-                    disabled
-
-
-                  />
-
-                </Grid>
-                <Grid item xs={12} sm={4} md={4} lg={8}>
-                  <TextField
-                    margin="0"
-                    required
-                    fullWidth
-                    multiline
-                    rows={4}
-                    id="Description"
-                    label="Reason/Description"
-                    name="Description"
-                    value={formik.values.Description || ""}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.Description &&
-                      Boolean(formik.errors.Description)
-                    }
-                    helperText={
-                      formik.touched.Description &&
-                      formik.errors.Description
-                    }
-
-                  />
-
-                </Grid>
-
-
-                <Grid item xs={12} sm={4} md={4} lg={4} sx={{ mb: '15px' }}>
-                  <input type="file" />
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={12} lg={12} sx={{ width: '100%' }}>
-                  <Button type="submit" variant="contained" sx={{ float: 'right', borderRadius: '4px' }} onClick={handleRedirect}>Submit</Button>
+                <Grid item xs={12} sm={12} md={12} lg={12}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      float: "right",
+                      marginRight: "12px",
+                      borderRadius: "4px",
+                    }}
+                    onClick={() => handleRedirectreject("Reject")}
+                  >
+                    Reject
+                  </Button>
                 </Grid>
               </Grid>
-            </form>
+            </Grid>
           </Box>
         </CardContent>
       </Card>
     </>
   );
 }
-
-export default Leave;
+ 
+export default ViewMyBookings;
