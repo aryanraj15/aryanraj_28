@@ -59,27 +59,69 @@ export default LeaveRequestDetails;
 
 
 
-
-// Your existing imports...
+import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import DateCalendar from '@mui/lab/DateRangePicker';
+import { Skeleton } from '@mui/material';
 
 const DateCalendarServerRequest = ({ rqstFromDate, rqstToDate }) => {
-  // Your existing code...
+  const [isLoading, setIsLoading] = useState(false);
+  const [highlightedDays, setHighlightedDays] = useState([]);
 
-  // Set initial value based on rqstFromDate
-  const initialValue = dayjs(rqstFromDate);
+  const requestAbortController = React.useRef(null);
 
-  // Fetch highlighted days based on rqstFromDate
-  React.useEffect(() => {
+  const fetchHighlightedDays = async (date) => {
+    requestAbortController.current = new AbortController();
+
+    try {
+      setIsLoading(true);
+      // Fetch highlighted days from the API endpoint
+      const response = await fetch('http://141.148.194.18:8052/leavemanagement/get-leave-details', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fromDate: date.format('YYYY-MM-DD'),
+          toDate: date.endOf('month').format('YYYY-MM-DD'),
+        }),
+        signal: requestAbortController.current.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch highlighted days');
+      }
+
+      const data = await response.json();
+      // Extract rqstFromDate and rqstToTime from the API response
+      const { rqstFromDate, rqstToTime } = data.result;
+      // Convert rqstFromDate and rqstToTime to dayjs objects
+      const startDate = dayjs(rqstFromDate);
+      const endDate = dayjs(rqstToTime, 'HH:mm:ss');
+
+      // Update the highlightedDays state to an array containing the start date and end date
+      setHighlightedDays([{ start: startDate, end: endDate }]);
+    } catch (error) {
+      console.error('Error fetching highlighted days:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchHighlightedDays(dayjs(rqstFromDate));
-    // abort request on unmount
-    return () => requestAbortController.current?.abort();
+
+    return () => {
+      if (requestAbortController.current) {
+        requestAbortController.current.abort();
+      }
+    };
   }, [rqstFromDate]);
 
-  // Handle month change based on rqstFromDate
   const handleMonthChange = (date) => {
     if (requestAbortController.current) {
-      // make sure that you are aborting useless requests
-      // because it is possible to switch between months pretty quickly
       requestAbortController.current.abort();
     }
 
@@ -91,21 +133,20 @@ const DateCalendarServerRequest = ({ rqstFromDate, rqstToDate }) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DateCalendar
-        defaultValue={initialValue}
+        defaultValue={[dayjs(rqstFromDate), dayjs(rqstToDate)]}
         loading={isLoading}
         onMonthChange={handleMonthChange}
-        renderLoading={() => <DayCalendarSkeleton />}
-        slots={{
-          day: ServerDay,
-        }}
-        slotProps={{
-          day: {
-            highlightedDays,
-          },
-        }}
+        renderLoading={() => <Skeleton animation="wave" variant="rectangular" width={300} height={300} />}
+        // Customize the slots and slotProps as needed
+        renderInput={(startProps, endProps) => (
+          <>
+            <input {...startProps.inputProps} value={rqstFromDate} />
+            <input {...endProps.inputProps} value={rqstToTime} />
+          </>
+        )}
       />
     </LocalizationProvider>
   );
-}
+};
 
 export default DateCalendarServerRequest;
