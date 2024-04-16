@@ -1,152 +1,367 @@
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
+import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import { styled } from "@mui/material/styles";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Link from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { H3 } from '../../../components/Typography';
-import DateCalendarServerRequest from './DateCalendarServerRequest'; // Import DateCalendarServerRequest component
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Typography from "@mui/material/Typography";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { sha256 } from "js-sha256";
 
-const LeaveRequestDetails = () => {
-  // Your existing code...
+import logo_left from "../../assets/images/logo_left.png";
+import logo_right from "../../assets/images/logo_right.png";
+import { TextFields } from "@mui/icons-material";
+import blue_bg from "../../assets/images/BLUE_BG.jpg";
+import { border } from "@mui/system";
+import { grey } from "@mui/material/colors";
+import { useRef } from "react";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../redux/actions/LoginAction";
+import { styled } from "@mui/material";
+//
+import Toast from "../../components/Toast/Toast";
+import { useSnackbar } from "../../components/Snackbar";
 
+const drawerWidth = 280;
+
+const Footer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+
+  width: "100%",
+
+  position: "fixed",
+
+  top: "unset",
+
+  bottom: 0,
+
+  color: "white",
+
+  backgroundColor: "black",
+
+  textAlign: "center",
+
+  size: "8px",
+
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+
+    marginLeft: `${drawerWidth}px`,
+
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+function Copyright(props) {
   return (
-    <>
-      <Card>
-        {/* Your existing code for leave balance details */}
-      </Card>
-      <Card>
-        {/* Your existing code for leave request details */}
-      </Card>
-      <Card>
-        <CardContent>
-          <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
-            <ReceiptLongIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-            <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Leave Approve</H3>
-          </div>
-          <Box sx={{ flexGrow: 1, mt: 2, elevation: "0" }}>
-            <Grid
-              container
-              spacing={2}
-              direction="row"
-              alignItems="center"
-            >
-              {/* Integrate DateCalendarServerRequest component */}
-              <Grid item xs={12}>
-                <DateCalendarServerRequest rqstFromDate={startDate} rqstToDate={endDate} />
-              </Grid>
-            </Grid>
-          </Box>
-        </CardContent>
-      </Card>
-    </>
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {"Copyright © "}
+      <Link
+        color="inherit"
+        href="https://www.ysraarogyasri.ap.gov.in/"
+        target="_blank"
+      >
+        Dr.YSR Aarogyasri Health Care Trust
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
   );
 }
 
-export default LeaveRequestDetails;
+export default function Login() {
+  const { showSnackbar } = useSnackbar();
+  const showMessage = useSelector((state) => state.showMessageReducer);
+  //const [salt, setSalt] = useState("");
+  // const  hash = sha256.create();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [emptyPass, setEmptyPass] = useState(false);
+  const [emptyUsername, setEmptyUsername] = useState(false);
+  const data = useSelector((state) => state.loginReducer);
+  console.log(data);
+  const navigateToHome = () => {
+    navigate("/home");
+  };
 
+  const usernameRef = useRef();
+  const passwordRef = useRef();
+  let salt = "";
+  // const createHmac = (salt, plainText)=>{
+  //  let hmac = sha256.hmac(salt, plainText);
+  //   return hmac.toString();
+  // }
 
+  const hashPassword = (passwordPlainText) => {
+    var plainText = passwordPlainText;
+    salt = randomString();
+    let hash = sha256.hmac(salt, plainText);
+    // console.log(hash)
+    passwordRef.current.value = hash;
+  };
 
+  const randomString = () => {
+    let length = 100;
+    let chars =
+      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var result = "";
+    for (var i = length; i > 0; --i)
+      result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+  };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-
-
-
-
-
-
-import React, { useState, useEffect } from 'react';
-import dayjs from 'dayjs';
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import DateCalendar from '@mui/lab/DateRangePicker';
-import { Skeleton } from '@mui/material';
-
-const DateCalendarServerRequest = ({ rqstFromDate, rqstToDate }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [highlightedDays, setHighlightedDays] = useState([]);
-
-  const requestAbortController = React.useRef(null);
-
-  const fetchHighlightedDays = async (date) => {
-    requestAbortController.current = new AbortController();
-
-    try {
-      setIsLoading(true);
-      // Fetch highlighted days from the API endpoint
-      const response = await fetch('http://141.148.194.18:8052/leavemanagement/get-leave-details', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fromDate: date.format('YYYY-MM-DD'),
-          toDate: date.endOf('month').format('YYYY-MM-DD'),
-        }),
-        signal: requestAbortController.current.signal,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch highlighted days');
+    if (usernameRef.current.value === "" && passwordRef.current.value === "") {
+      setEmptyUsername(true);
+      setEmptyPass(true);
+    } else {
+      if (usernameRef.current.value === "") {
+        setEmptyUsername(true);
+        setEmptyPass(false);
+      } else if (passwordRef.current.value === "") {
+        setEmptyPass(true);
+        setEmptyUsername(false);
       }
+    }
 
-      const data = await response.json();
-      // Extract rqstFromDate and rqstToTime from the API response
-      const { rqstFromDate, rqstToTime } = data.result;
-      // Convert rqstFromDate and rqstToTime to dayjs objects
-      const startDate = dayjs(rqstFromDate);
-      const endDate = dayjs(rqstToTime, 'HH:mm:ss');
+    if (usernameRef.current.value !== "" && passwordRef.current.value !== "") {
+      hashPassword(passwordRef.current.value);
+      console.log(passwordRef.current.value);
 
-      // Update the highlightedDays state to an array containing the start date and end date
-      setHighlightedDays([{ start: startDate, end: endDate }]);
-    } catch (error) {
-      console.error('Error fetching highlighted days:', error);
-    } finally {
-      setIsLoading(false);
+      let request = {
+        username: usernameRef.current.value,
+        password: passwordRef.current.value.trim(),
+        password2: salt,
+      };
+      setEmptyPass(false);
+      setEmptyUsername(false);
+      console.log(request);
+      dispatch(loginUser(request, successCb));
     }
   };
 
-  useEffect(() => {
-    fetchHighlightedDays(dayjs(rqstFromDate));
-
-    return () => {
-      if (requestAbortController.current) {
-        requestAbortController.current.abort();
+  const successCb = (response) => {
+    console.log("Inside successCB");
+    //navigate("/home");
+    try {
+      if (
+        response.data.status === true ||
+        response.data.statusCode === "200" ||
+        response.data.status === "SUCCESS"
+      ) {
+        showSnackbar("Login Successful", "success");
+        navigate("/home");
+      } else if (
+        response.data.statusCode === 400 ||
+        response.data.status === false
+      ) {
+        //setLoading(false);
+        showSnackbar(response.data.message, "error");
+        navigate("/");
+      } else {
+        showSnackbar("Opps, something went wrong", "error");
+        navigate("/");
       }
-    };
-  }, [rqstFromDate]);
-
-  const handleMonthChange = (date) => {
-    if (requestAbortController.current) {
-      requestAbortController.current.abort();
+    } catch (error) {
+      showSnackbar("Opps, something went wrong", "error");
+      console.log(error.message);
+      navigate("/");
     }
-
-    setIsLoading(true);
-    setHighlightedDays([]);
-    fetchHighlightedDays(date);
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DateCalendar
-        defaultValue={[dayjs(rqstFromDate), dayjs(rqstToDate)]}
-        loading={isLoading}
-        onMonthChange={handleMonthChange}
-        renderLoading={() => <Skeleton animation="wave" variant="rectangular" width={300} height={300} />}
-        // Customize the slots and slotProps as needed
-        renderInput={(startProps, endProps) => (
-          <>
-            <input {...startProps.inputProps} value={rqstFromDate} />
-            <input {...endProps.inputProps} value={rqstToTime} />
-          </>
-        )}
-      />
-    </LocalizationProvider>
-  );
-};
+    <>
+      {/* {showMessage.showMessage.title && (
+        <>
+          <Toast
+            title={showMessage.showMessage.title}
+            variant={showMessage.showMessage.variant}
+            description={showMessage.showMessage.description}
+            linkText={showMessage.showMessage.linkText}
+            link={showMessage.showMessage.link}
+          />
+        </>
+      )} */}
 
-export default DateCalendarServerRequest;
+      {/* <Grid container component="main" sx={{ height: "100vh" }}> */}
+      <Box
+
+        sx={{
+          backgroundImage: `url(${blue_bg})`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+         
+        }}
+      >
+        <Grid
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+          sx={{ mx: 3 }}
+        >
+          <Grid container>
+            {/* <Grid
+              item
+              xs={12}
+              sm={5}
+              sx={{
+                // height: "80vh", //remove
+                spacing: 0,
+                backgroundColor: "#F1F8FF",
+                borderRight: "1px solid #CDE6FF",
+                borderRadius: "5px 0 0 5px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                paddingRight: 2,
+              }}
+            >
+              <Grid
+                md={8}
+                xs={6}
+                // component="img"
+                // alt="The house from the offer."
+                //src={logo_left}
+              // margin={"15%"}
+              // display='flex'
+              // placeItems='center'
+              // justifyContent='center'
+              // alignItems='center'
+              />
+            </Grid> */}
+            <Grid
+              item
+              xs={12}
+              sm={7}
+              sx={{
+                // height: "80vh",//rem
+                spacing: 0,
+                backgroundColor: "white",
+                borderRight: "1px solid #CDE6FF",
+                borderRadius: "0 5px 5px 0",
+              }}
+            >
+              <Box
+                component={"form"}
+                onSubmit={handleSubmit}
+                display="flex"
+                justifyContent="center"
+              >
+                <Grid m={4}>
+                  <Grid
+                    xs={12}
+                    md={12}
+                    //component="img"
+                    //alt="The house from the offer."
+                    //src={logo_right}
+                  />
+                  <Grid item xs={12} md={12}>
+                    <Typography
+                      variant="body1"
+                      my={2}
+                      fontWeight={500}
+                      fontFamily="Lato, sans-serif"
+                    >
+                      ADMIN
+                    </Typography>
+                    <Grid item md={12} xs={12}>
+                      <Grid item md={12} xs={10}>
+                        <TextField
+                          id="outlined-basic"
+                          placeholder="User Id"
+                          variant="outlined"
+                          fullWidth
+                          inputRef={usernameRef}
+                          sx={{
+                            border: "1px solid #EAEDF1",
+                            borderRadius: "5px",
+                          }}
+                          size="small"
+                          error={emptyUsername}
+                          helperText={
+                            emptyUsername ? "User Id is required" : null
+                          }
+                        />
+                      </Grid>
+                      <Grid item md={12} xs={10} mt={1}>
+                        <TextField
+                          id="outlined-basic"
+                          placeholder="Password"
+                          variant="outlined"
+                          type="password"
+                          fullWidth
+                          inputRef={passwordRef}
+                          sx={{
+                            border: "1px solid #EAEDF1",
+                            borderRadius: "5px",
+                          }}
+                          size="small"
+                          error={emptyPass}
+                          helperText={emptyPass ? "Password is required" : null}
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid container display="flex" sx={{ ml: 4 }} justifyContent="right">
+                      <Link style={{ textDecoration: "none", cursor: 'pointer' }} onClick={() => { navigate("/forgotpassword") }} >Forgot Password?</Link>
+                    </Grid>
+                    <Grid container display="flex" justifyContent="center">
+
+                      <Button
+                        variant="contained"
+                        type="submit"
+                        sx={{
+                          backgroundColor: "#2169B2",
+                          padding: "12px 51px",
+                          borderRadius: "5px",
+                        }}
+                      >
+                        LOGIN
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Box>
+      <Footer position="fixed">
+        <Typography noWrap component="div">
+          {/* CMS {location.pathname} */}
+          &copy; Site maintained by KPMG Advisory Services Pvt. Ltd. The
+          contents are owned by Govt. Of AP , India.
+        </Typography>
+      </Footer>
+      {/* </Grid> */}
+    </>
+  );
+}
