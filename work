@@ -48,7 +48,7 @@ const LeaveApplicationCancel = () => {
   const [toastSeverity, setToastSeverity] = useState("info");
   const [isLoading, setIsLoading] = useState(false);
   const [rqstStatus, setRqstStatus] = useState();
-  const [stepAction , setStepAction]=useState();
+  const [stepAction , setStepAction]=useState(null);
 
 
 
@@ -180,11 +180,11 @@ const LeaveApplicationCancel = () => {
       console.log(response.status);
       console.log(response.data.result);
 
-      // if (response.status === 200) {
-      //   setStepAction(response.data.result);
+      if (response.status === 200) {
+        setStepAction(response.data.result || null);
 
 
-      // }
+      }
     } catch (error) {
       console.error(error)
     }
@@ -478,9 +478,12 @@ const LeaveApplicationCancel = () => {
                   label="Reason/Description"
                 />
               </Grid>
-         
+                 
+                 
+
+                
              
-              {/* {rqstStatus === 264 || stepAction === null ? (
+              {stepAction === null ? (
                 <Stack sx={{ width: "100%" }} spacing={2}>
                   <Alert severity="warning">
                     Your Leave Request has already been Cancelled / Rejected.
@@ -505,7 +508,7 @@ const LeaveApplicationCancel = () => {
                     Cancel Leave Request
                   </Button>
                 </Grid>
-              )} */}
+              )}
 
 
             </Grid>
@@ -517,57 +520,3 @@ const LeaveApplicationCancel = () => {
 }
 
 export default LeaveApplicationCancel;
-
-
-
-
-
-
-
-
-
-
-
-{"status":true,"message":"No action found","result":null,"statusCode":200}
-fetchStepAction
-
- <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  sx={{ width: "100%" }}
-                >
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="error"
-                    sx={{ float: "right", borderRadius: "4px" }}
-                    onClick={handleRedirect} 
-                  >
-                    Cancel Leave Request
-                  </Button>
-                </Grid>
-
-
-<Stack sx={{ width: "100%" }} spacing={2}>
-                  <Alert severity="warning">
-                    Your Leave Request has already been Cancelled / Rejected.
-                  </Alert>
-                </Stack>
-
-
-if (response.status === 200) {
-      //   setStepAction(response.data.result);
-
-
-      // }
-
-
-
-
-
-
-
-
