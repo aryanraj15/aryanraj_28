@@ -1,9 +1,29 @@
+let formattedStartDate = null;
 
- if (!formik.values.LeaveStartDate || !formik.values.LeaveStartDate) {
+  // Check if LeaveStartDate is not selected or not present in formik.values
+  if (!formik.values.LeaveStartDate || !formik.values.LeaveStartDate) {
     formattedStartDate = dayjs(startDate).format("YYYY-MM-DD");
   } else {
     formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
   }
+
+  let formattedEndDate = null;
+
+  // Check if LeaveEndDate is not selected or not present in formik.values
+  if (!formik.values.LeaveEndDate || !formik.values.LeaveEndDate) {
+    formattedEndDate = dayjs(endDate).format("YYYY-MM-DD");
+  } else {
+    formattedEndDate = dayjs(formik.values.LeaveEndDate).format("YYYY-MM-DD");
+  }
+
+  // Determine the value to pass for approvedTimeTo
+  let approvedTimeTo = null;
+  if (!formik.values.LeaveEndTime) {
+    approvedTimeTo = startTime;
+  } else {
+    approvedTimeTo = formik.values.LeaveEndTime;
+  }
+  
 
 
 
