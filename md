@@ -1,3 +1,13 @@
+
+ if (!formik.values.LeaveStartDate || !formik.values.LeaveStartDate) {
+    formattedStartDate = dayjs(startDate).format("YYYY-MM-DD");
+  } else {
+    formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
+  }
+
+
+
+
 import * as React from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
