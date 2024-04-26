@@ -1,3 +1,24 @@
+// Input date in dd/mm/yyyy format
+var inputDate = '15/02/2024';
+
+// Check if inputDate is null or undefined before splitting
+if (inputDate) {
+    // Split the date string into day, month, and year
+    var parts = inputDate.split('/');
+    var day = parts[0];
+    var month = parts[1];
+    var year = parts[2];
+
+    // Rearrange the parts to the yyyy-mm-dd format
+    var outputDate = year + '-' + month + '-' + day;
+
+    console.log(outputDate); // Output: 2024-02-15
+} else {
+    console.log("Input date is null or undefined.");
+}
+
+
+
 import React, { useState, useEffect } from "react";
 import useTitle from "../../../hooks/useTitle";
 import PageTitle from "../../../layouts/PageTitle";
