@@ -19,6 +19,37 @@ if (inputDate) {
 
 
 
+// Input dates in dd/mm/yyyy format
+var inputDate1 = '15/02/2024';
+var inputDate2 = '20/03/2025';
+
+// Function to convert date format
+function convertDateFormat(inputDate) {
+    // Check if inputDate is null or undefined before splitting
+    if (inputDate) {
+        // Split the date string into day, month, and year
+        var parts = inputDate.split('/');
+        var day = parts[0];
+        var month = parts[1];
+        var year = parts[2];
+
+        // Rearrange the parts to the yyyy-mm-dd format
+        return year + '-' + month + '-' + day;
+    } else {
+        console.log("Input date is null or undefined.");
+        return null;
+    }
+}
+
+// Convert inputDate1 and inputDate2 to the desired format
+var outputDate1 = convertDateFormat(inputDate1);
+var outputDate2 = convertDateFormat(inputDate2);
+
+console.log("Output Date 1:", outputDate1);
+console.log("Output Date 2:", outputDate2);
+
+
+
 import React, { useState, useEffect } from "react";
 import useTitle from "../../../hooks/useTitle";
 import PageTitle from "../../../layouts/PageTitle";
