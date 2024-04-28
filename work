@@ -1,3 +1,63 @@
+
+                  <Grid item xs={12} sm={6} md={4} lg={4}>
+                    <Autocomplete
+                      margin="0"
+                      id="LeavestartTime"
+                      name="LeavestartTime"
+                      options={startTimeList}
+                      sx={{ width: "100%" }}
+                      fullWidth
+                     //defaultValue={startTimeList[1]}
+                      value={
+                        startTimeList.find(
+                          (option) => option.typeId === formik.values.LeavestartTime
+                        ) || null
+                      }
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("LeavestartTime", null);
+                        } else formik.setFieldValue("LeavestartTime", value.typeId);
+                        formik.setFieldValue("LeaveEndTime", null);
+                      }}
+                      getOptionLabel={(value) => value.typeName}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Time"
+                          size="small"
+                          onBlur={formik.handleBlur}
+                          helperText={
+                            formik.errors.LeavestartTime &&
+                              formik.touched.LeavestartTime
+                              ? formik.errors.LeavestartTime
+                              : null
+                          }
+                          error={
+                            formik.errors.LeavestartTime &&
+                              formik.touched.LeavestartTime
+                              ? true
+                              : false
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <Grid item xs={12} sm={6} md={4} lg={4}>
                 <LocalizationProvider
                   dateAdapter={AdapterDayjs}
