@@ -1,3 +1,18 @@
+LeavestartTime: (
+      (approvedToDate === null && approvedFromDate === null)
+      ? (
+          rqstFromTimeId === 154 ? startTimeList[0]?.typeId :
+          rqstFromTimeId === 155 ? startTimeList[1]?.typeId :
+          ""
+        )
+      : (
+          approvedToTimmeId === 154 ? startTimeList[0]?.typeId :
+          approvedToTimmeId === 155 ? startTimeList[1]?.typeId :
+          ""
+        )
+    ),
+
+
 rqstFromTimeId  
 
 {
