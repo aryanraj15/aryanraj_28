@@ -1,3 +1,54 @@
+useEffect(() => {
+  formik.setValues({
+    ...formik.values,
+    LeavestartTime: (
+      (approvedToDate === null && approvedFromDate === null)
+      ? (
+          rqstFromTimeId === 154 ? startTimeList[0]?.typeId :
+          rqstFromTimeId === 155 ? startTimeList[1]?.typeId :
+          formik.values.LeavestartTime
+        )
+      : (
+          approvedToTimmeId === 154 ? startTimeList[0]?.typeId :
+          approvedToTimmeId === 155 ? startTimeList[1]?.typeId :
+          formik.values.LeavestartTime
+        )
+    )
+  });
+}, [rqstFromTimeId, approvedToTimmeId, startTimeList]);
+
+// Initialize formik
+const formik = useFormik({
+  initialValues: {
+    LeaveStartDate: null,
+    LeavestartTime: "", // Leave it empty initially
+    LeaveEndDate: null,
+    LeaveEndTime: "",
+    remarks: "",
+  },
+  validationSchema: validationSchema,
+  onSubmit: (values) => {
+    console.log(values);
+  },
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 LeavestartTime: (
       (approvedToDate === null && approvedFromDate === null)
       ? (
