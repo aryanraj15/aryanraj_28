@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Grid, TextField, Typography, Box, Slide } from '@mui/material'
+import { Button, Card, CardContent, Grid, TextField, Typography, Box, Slide,Tooltip } from '@mui/material'
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -68,6 +68,7 @@ const AdminLedger = () => {
     const [openToast, setOpenToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastSeverity, setToastSeverity] = useState("info");
+    const [isuserDisabled, setIsUserDisabled] = useState(true);
 
     const [leaveBalance, setLeaveBalalnce] = useState([]);
 
@@ -85,7 +86,8 @@ const AdminLedger = () => {
 
             })
             console.log(sortedDepartment);
-            setDepartmentList(sortedDepartment)
+            setDepartmentList(sortedDepartment);
+            setIsUserDisabled(false);
         })
             .catch(error => {
                 setDepartmentList([]);
@@ -348,42 +350,44 @@ const AdminLedger = () => {
                                     )}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={4} md={4} lg={4}>
-                                <Autocomplete
-                                    size="small"
-                                    id="userName"
-                                    name="userName"
-                                    sx={{ width: '100%' }}
-                                    options={userNamelist.map((option) => option)}
-                                    value={
-                                        userNamelist.find(
-                                            (option) => option.userId === formik.values.userName
-                                        ) || null
-                                    }
-
-                                    onChange={(e, value) => {
-                                        if (value === null) {
-                                            formik.setFieldValue("userName", null);
-                                        } else {
-                                            formik.setFieldValue("userName", value.userId);
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <Tooltip title={isuserDisabled ? "Please select Department first" : ""} arrow>
+                                    <Autocomplete
+                                        size="small"
+                                        id="userName"
+                                        name="userName"
+                                        sx={{ width: '100%' }}
+                                        options={userNamelist.map((option) => option)}
+                                        value={
+                                            userNamelist.find(
+                                                (option) => option.userId === formik.values.userName
+                                            ) || null
                                         }
-                                    }}
-                                    getOptionLabel={(value) => value.fullName}
-                                    renderInput={(params) => (
 
-                                        <TextField
-                                            {...params}
-                                            label="Employee Name"
-                                            required
+                                        onChange={(e, value) => {
+                                            if (value === null) {
+                                                formik.setFieldValue("userName", null);
+                                            } else {
+                                                formik.setFieldValue("userName", value.userId);
+                                            }
+                                        }}
+                                        getOptionLabel={(value) => value.fullName}
+                                        renderInput={(params) => (
 
-                                            onBlur={formik.handleBlur}
-                                            helperText={formik.errors.userName && formik.touched.userName ? formik.errors.userName : null}
-                                            error={formik.errors.userName && formik.touched.userName ? true : false}
+                                            <TextField
+                                                {...params}
+                                                label="Employee Name"
+                                                required
 
-                                        />
-                                    )}
-                                />
-                            </Grid>
+                                                onBlur={formik.handleBlur}
+                                                helperText={formik.errors.userName && formik.touched.userName ? formik.errors.userName : null}
+                                                error={formik.errors.userName && formik.touched.userName ? true : false}
+
+                                            />
+                                        )}
+                                    />
+                            </Tooltip>
+                                </Grid>
 
                             <Grid item xs={12} sm={4} md={4} lg={2}>
                                 <Button variant='outlined' sx={{ borderRadius: '4px', width: "100%" }} onClick={handleResetForm}>Reset</Button>
