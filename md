@@ -1,3 +1,5 @@
+
+userName
 import { Button, Card, CardContent, Grid, TextField, Typography, Box, Slide,Tooltip } from '@mui/material'
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
@@ -87,7 +89,7 @@ const AdminLedger = () => {
             })
             console.log(sortedDepartment);
             setDepartmentList(sortedDepartment);
-            setIsUserDisabled(false);
+           // setIsUserDisabled(false);
         })
             .catch(error => {
                 setDepartmentList([]);
@@ -327,6 +329,7 @@ const AdminLedger = () => {
                                                 })
                                                 setUserNamelist(sortedNamelist);
                                                 console.log(sortedNamelist);
+                                                setIsUserDisabled(false);
                                             })
                                                 .catch(error => {
                                                     setUserNamelist([]);
@@ -382,6 +385,7 @@ const AdminLedger = () => {
                                                 onBlur={formik.handleBlur}
                                                 helperText={formik.errors.userName && formik.touched.userName ? formik.errors.userName : null}
                                                 error={formik.errors.userName && formik.touched.userName ? true : false}
+                                                disabled={isuserDisabled}
 
                                             />
                                         )}
