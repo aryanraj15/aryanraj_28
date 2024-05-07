@@ -1,3 +1,103 @@
+const handleSubmit = (prop) => {
+  if (formik.values.remarks.length === 0) {
+    showSnackbar("Please fill remarks", "error");
+    return;
+  }
+
+  callConfirmDialog(prop);
+};
+
+
+
+
+
+
+const callConfirmDialog = async (prop) => {
+  const [action] = await AlertConfirm({
+    title: "Confirm",
+    desc: `Are you sure, you want to ${prop}?`,
+  });
+
+  AlertConfirm.config({
+    okText: "Submit",
+    cancelText: "Cancel",
+  });
+
+  if (action) {
+    // Call the appropriate function based on prop
+    if (prop === "Approve") {
+      saveLeaveApproveDetails(prop);
+    } else if (prop === "Reject") {
+      saveLeaveApproveDetails("Reject"); // Call saveLeaveApproveDetails with specific parameters
+    }
+  } else {
+    showSnackbar("Did not save!", "error");
+  }
+};
+
+
+
+
+
+
+
+
+const saveLeaveApproveDetails = async (prop) => {
+  let formattedStartDate = null;
+  let formattedEndDate = null;
+
+  // Logic for setting formattedStartDate and formattedEndDate based on conditions
+
+  // Additional logic specific to "Reject" action
+  if (prop === "Reject") {
+    // Set specific parameters to null
+    formattedStartDate = null;
+    formattedEndDate = null;
+  }
+
+  try {
+    const body = {
+      rqstId: data,
+      approvedFrom: formattedStartDate,
+      approvedTimeFrom: approvedTimeFrom,
+      approvedTo: formattedEndDate,
+      approvedTimeTo: approvedTimeTo,
+      updBy: user.data.userdetails.user.userId,
+      status: prop === "Approve" ? stepId.approve : stepId.reject,
+      finalRemarks: formik.values.remarks,
+    };
+
+    // Remaining code for saving leave approval details
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
