@@ -1,3 +1,100 @@
+
+<Autocomplete
+                      disablePortal
+                      margin="normal"
+                      fullWidth
+                      id="phaseId"
+                      name="phaseId"
+                      size="small"
+                      options={dropdownList}
+                      value={
+                        dropdownList.find(
+                          (option) => option.id === formik.values.phaseId
+                        ) || null
+                      }
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("phaseId", null);
+                        } else {
+                          formik.setFieldValue("phaseId", value.id);
+                        }
+                      }}
+                      getOptionLabel={(value) => value.description}
+                      sx={{ width: "100%", mt: 2, mb: 1 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Phase Id"
+                          onBlur={formik.handleBlur}
+                          helperText={
+                            formik.errors.phaseId && formik.touched.phaseId
+                              ? formik.errors.phaseId
+                              : null
+                          }
+                          error={
+                            formik.errors.phaseId && formik.touched.phaseId
+                              ? true
+                              : false
+                          }
+                        />
+
+
+
+
+
+
+
+
+
+                        {
+	"result": [
+		{
+			"name": "A",
+			"description": "Project Initiation and Planning",
+			"id": 1
+		},
+		{
+			"name": "B",
+			"description": "Project Monitoring and Control",
+			"id": 2
+		},
+		{
+			"name": "C",
+			"description": "Engineering",
+			"id": 3
+		},
+		{
+			"name": "D",
+			"description": "Support",
+			"id": 4
+		},
+		{
+			"name": "E",
+			"description": "Project Closure",
+			"id": 5
+		},
+		{
+			"name": "F",
+			"description": "Project Review",
+			"id": 18
+		}
+	]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
