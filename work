@@ -1,105 +1,259 @@
+import { Typography, Button, Card, CardContent, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import Loader from '../../components/Loader';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import data from "./data";
+import Accordian from "./Accordian"; // Rename the file to Accordion.js for consistency
+import { useState, useEffect } from "react";
 
-                  <Grid item xs={12} sm={6} md={4} lg={4}>
-                    <Autocomplete
-                      margin="0"
-                      id="LeavestartTime"
-                      name="LeavestartTime"
-                      options={startTimeList}
-                      sx={{ width: "100%" }}
-                      fullWidth
-                     //defaultValue={startTimeList[1]}
-                      value={
-                        startTimeList.find(
-                          (option) => option.typeId === formik.values.LeavestartTime
-                        ) || null
-                      }
-                      onChange={(e, value) => {
-                        if (value === null) {
-                          formik.setFieldValue("LeavestartTime", null);
-                        } else formik.setFieldValue("LeavestartTime", value.typeId);
-                        formik.setFieldValue("LeaveEndTime", null);
-                      }}
-                      getOptionLabel={(value) => value.typeName}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Time"
-                          size="small"
-                          onBlur={formik.handleBlur}
-                          helperText={
-                            formik.errors.LeavestartTime &&
-                              formik.touched.LeavestartTime
-                              ? formik.errors.LeavestartTime
-                              : null
-                          }
-                          error={
-                            formik.errors.LeavestartTime &&
-                              formik.touched.LeavestartTime
-                              ? true
-                              : false
-                          }
-                        />
-                      )}
-                    />
-                  </Grid>
+const phaseData = [
+  { name: "Project Initiation and Planning", arr: data["arr1"] },
+  { name: "Project Monitoring and Control", arr: data["arr2"] },
+  { name: "Engineering", arr: data["arr3"] },
+  { name: "Support", arr: data["arr4"] },
+  { name: "Project Closure", arr: data["arr5"] },
+];
 
+const AccordionParent = () => {
+  const [expanded, setExpanded] = useState('panel0');
+  const [isLoader, setIsLoader] = useState(true);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoader(false);
+    }, 5000);
+    return () => clearTimeout(timer); // Cleanup timer on component unmount
+  }, []);
 
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : '');
+  };
 
+  return (
+    <>
+      {isLoader && <Loader />}
+      <Card>
+        <Typography
+          component="h4"
+          variant="h6"
+          sx={{ color: "#2169b3", textAlign: "center" }}
+        >
+          Process Compliance Checklist
+        </Typography>
 
-
-
-
-
-
-
-
-
-
-
-
-<Grid item xs={12} sm={6} md={4} lg={4}>
-                <LocalizationProvider
-                  dateAdapter={AdapterDayjs}
-                  adapterLocale={"en-gb"}
+        <CardContent>
+          {phaseData.map((phase, index) => (
+            <Accordion
+              key={index}
+              expanded={expanded === `panel${index}`}
+              onChange={handleChange(`panel${index}`)}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls={`panel${index}-content`}
+                id={`panel${index}-header`}
+              >
+                <Typography
+                  component="h4"
+                  variant="h6"
+                  sx={{ color: "#737272" }}
                 >
-                  <DatePicker
-                    id="LeaveStartDate"
-                    name="LeaveStartDate"
-                    // minDate={today}
-                    format="DD/MM/YYYY"
-                    label="Leave Start Date"
-                    slotProps={{ textField: { size: "small" } }}
-                    sx={{ width: "100%" }}
-                    // inputFormat="DD/MM/YYYY"
-                    
-                    value={
-                      formik.values.LeaveStartDate ||
-                      dayjs(requestStartDate , "YYYY-MM-DD")
-                    }
-                
-                    onChange={(date) => {
-                      const formattedDate = dayjs(date).format("MM-DD-YYYY");
-                      formik.setFieldValue("LeaveStartDate", formattedDate);
-                      setSelectedLeaveStartDate(date);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        size="small"
-                        fullWidth
-                        margin="0"
-                        {...params}
-                        error={
-                          formik.touched.LeaveStartDate &&
-                          Boolean(formik.errors.LeaveStartDate)
-                        }
-                        helperText={
-                          formik.touched.LeaveStartDate &&
-                          formik.errors.LeaveStartDate
-                        }
-                        onBlur={formik.handleBlur}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid>
+                  {phase.name}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Accordian arr={phase.arr} title={phase.name} />
+              </AccordionDetails>
+            </Accordion>
+          ))}
+          <div style={{ display: "flex", margin: "20px" }}>
+            <Button variant="contained" sx={{ mr: "5px", ml: "auto" }}>
+              Submit
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+};
+
+export default AccordionParent;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import {
+  Autocomplete,
+  Button,
+  Card,
+  CardContent,
+  Paper,
+  Snackbar,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+} from "@mui/material";
+import { useState, useEffect } from "react";
+
+const dropdown_list = [
+  { id: 1, label: "Yes" },
+  { id: 2, label: "No" },
+  { id: 3, label: "NA" },
+];
+
+const Accordion = ({ arr, title }) => {
+  const [open, setOpen] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [formData, setFormData] = useState(arr);
+
+  useEffect(() => {
+    setFormData(arr);
+  }, [arr]);
+
+  const handleEditClick = () => {
+    setOpenEdit(true);
+  };
+
+  const handleEditClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenEdit(false);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+
+  const handleChange = (index, field, value) => {
+    const updatedFormData = [...formData];
+    updatedFormData[index][field] = value;
+    setFormData(updatedFormData);
+  };
+
+  const handleSave = () => {
+    console.log(formData);
+    setOpen(true);
+  };
+
+  const getSelectedItem = (item) => {
+    return dropdown_list.find((opt) => opt.label === item.selectVal) || null;
+  };
+
+  return (
+    <Card>
+      <CardContent>
+        <TableContainer
+          component={Paper}
+          sx={{ borderLeft: "1px solid black", m: "10px 0" }}
+        >
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#2369b3" }}>
+                <TableCell sx={{ color: "#fff", textAlign: "center" }}>S.NO</TableCell>
+                <TableCell sx={{ color: "#fff", textAlign: "center" }}>{title}</TableCell>
+                <TableCell sx={{ color: "#fff", textAlign: "center" }}>Select</TableCell>
+                <TableCell sx={{ color: "#fff", textAlign: "center" }}>Remarks</TableCell>
+                <TableCell sx={{ color: "#fff", textAlign: "center" }}>Evidence</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {formData.map((item, index) => (
+                <TableRow key={index}>
+                  <TableCell style={{ border: "1px solid black" }}>{item.sno}</TableCell>
+                  <TableCell style={{ border: "1px solid black", width: "30%" }}>
+                    <TextField
+                      variant="standard"
+                      InputProps={{ disableUnderline: true }}
+                      multiline
+                      minRows={3}
+                      maxRows={4}
+                      defaultValue={item.question}
+                      fullWidth
+                      onChange={(e) => handleChange(index, "question", e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell style={{ border: "1px solid black" }}>
+                    <Autocomplete
+                      value={getSelectedItem(item)}
+                      options={dropdown_list}
+                      getOptionLabel={(option) => option.label}
+                      renderInput={(params) => <TextField {...params} label="Select" />}
+                      onChange={(e, newValue) => handleChange(index, "selectVal", newValue ? newValue.label : "")}
+                    />
+                  </TableCell>
+                  <TableCell style={{ border: "1px solid black", width: "30%" }}>
+                    <TextField
+                      variant="standard"
+                      InputProps={{ disableUnderline: true }}
+                      multiline
+                      minRows={3}
+                      maxRows={4}
+                      defaultValue={item.remarks}
+                      fullWidth
+                      onChange={(e) => handleChange(index, "remarks", e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell style={{ border: "1px solid black", width: "30%" }}>
+                    <TextField
+                      variant="standard"
+                      InputProps={{ disableUnderline: true }}
+                      multiline
+                      minRows={3}
+                      maxRows={4}
+                      defaultValue={item.evidence}
+                      fullWidth
+                      onChange={(e) => handleChange(index, "evidence", e.target.value)}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <div style={{ display: "flex", margin: "20px" }}>
+          <Button variant="contained" sx={{ mr: "5px", ml: "auto" }} onClick={handleSave}>
+            Save
+          </Button>
+          <Button variant="contained" onClick={handleEditClick}>
+            Edit
+          </Button>
+        </div>
+        <Snackbar
+          open={open}
+          autoHideDuration={5000}
+          onClose={handleClose}
+          message="Changes Saved Successfully"
+          ContentProps={{ sx: { background: "green" } }}
+        />
+        <Snackbar
+          open={openEdit}
+          autoHideDuration={5000}
+          onClose={handleEditClose}
+          message="Updated Successfully"
+          ContentProps={{ sx: { background: "green" } }}
+        />
+      </CardContent>
+    </Card>
+  );
+};
+
+export default Accordion;
+
