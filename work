@@ -28,6 +28,120 @@ const Calendar = () => {
     headerDateFormat: "dd/M/yyyy",
     showWeekend: false, // Hide weekends in the calendar view
     days: 5, // Show only Monday to Friday
+    onTimeRangeSelected: async (args) => {
+      const dayOfWeek = args.start.dayOfWeek();
+      if (dayOfWeek === 0 || dayOfWeek === 6) { // 0 = Sunday, 6 = Saturday
+        alert("Weekends are not selectable.");
+        calendarRef.current.control.clearSelection();
+        return;
+      }
+      const dp = calendarRef.current.control;
+      const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1");
+      if (!modal.result) { return; }
+      dp.events.add({
+        start: args.start,
+        end: args.end,
+        id: DayPilot.guid(),
+        text: modal.result
+      });
+      dp.clearSelection();
+    },
+    onBeforeEventRender: args => {
+      const dayOfWeek = args.data.start.getDayOfWeek();
+      if (dayOfWeek === 0 || dayOfWeek === 6) { // 0 = Sunday, 6 = Saturday
+        args.data.hidden = true;
+      }
+    }
+  });
+
+  const [events, setEvents] = useState([]);
+
+  const fetchCalendarData = async () => {
+    try {
+      const response = await axios.post(
+        "http://141.148.194.18:8095/leavemanagement/calendar-view",
+        { userId: user.data.userdetails.user.userId },
+        { headers: { Authorization: `Bearer ${Cookies.get("token")}` } }
+      );
+
+      if (response.data.statusCode === 200) {
+        setEvents(response.data.result);
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCalendarData();
+  }, []);
+
+  useEffect(() => {
+    if (calendarRef.current) {
+      const startDate = DayPilot.Date.today();
+      calendarRef.current.control.update({ startDate, events });
+    }
+  }, [events]);
+
+  return (
+    <div style={styles.wrap}>
+      <div style={styles.left}>
+        <DayPilotNavigator
+          selectMode={"Week"}
+          onTimeRangeSelected={args => {
+            const dayOfWeek = args.day.dayOfWeek();
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 0 = Sunday, 6 = Saturday
+              calendarRef.current.control.update({ startDate: args.day });
+            } else {
+              alert("Weekends are not selectable.");
+            }
+          }}
+        />
+      </div>
+      <div style={styles.main}>
+        <DayPilotCalendar
+          {...calendarConfig}
+          ref={calendarRef}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Calendar;
+
+
+
+import React, { useState, useRef, useEffect } from 'react';
+import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
+import "./CalendarStyles.css";
+import axios from 'axios';
+import { useSelector } from "react-redux";
+import Cookies from "js-cookie";
+
+const styles = {
+  wrap: {
+    display: "flex"
+  },
+  left: {
+    marginRight: "10px"
+  },
+  main: {
+    flexGrow: "1"
+  }
+};
+
+const Calendar = () => {
+  const calendarRef = useRef();
+  const user = useSelector((state) => state.loginReducer);
+
+  const [calendarConfig, setCalendarConfig] = useState({
+    viewType: "Week",
+    durationBarVisible: false,
+    timeRangeSelectedHandling: "Enabled",
+    headerDateFormat: "dd/M/yyyy",
+    showWeekend: false, // Hide weekends in the calendar view
+    days: 5, // Show only Monday to Friday
     onBeforeEventRender: args => {
       args.data.areas = [];
     }
