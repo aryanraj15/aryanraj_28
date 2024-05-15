@@ -1,3 +1,16 @@
+DayPilot.Date.dayOfWeek
+The dayOfWeek() method returns the day of week for the specified date.
+
+Declaration
+DayPilot.Date.dayOfWeek();
+Return Value
+A number specifying the day of week (0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday)
+
+Example
+var today = DayPilot.Date.today().dayOfWeek();
+
+
+
 import React, { useState, useRef, useEffect } from 'react';
 import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
 import "./CalendarStyles.css";
