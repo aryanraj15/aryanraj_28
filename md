@@ -1,22 +1,86 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
+import "./CalendarStyles.css";
+import axios from 'axios';
+import { useSelector } from "react-redux";
+import Cookies from "js-cookie";
 
-// import * as React from 'react';
-// import { createRoot } from 'react-dom/client';
-// import { ScheduleComponent, Day, Week, Inject, ViewsDirective, ViewDirective } from '@syncfusion/ej2-react-schedule';
+const styles = {
+  wrap: {
+    display: "flex"
+  },
+  left: {
+    marginRight: "10px"
+  },
+  main: {
+    flexGrow: "1"
+  }
+};
 
-// const App = () => {
+const Calendar = () => {
+  const calendarRef = useRef();
+  const user = useSelector((state) => state.loginReducer);
+  
+  const [calendarConfig, setCalendarConfig] = useState({
+    viewType: "Week",
+    durationBarVisible: false,
+    timeRangeSelectedHandling: "Enabled",
+    headerDateFormat: "dd/M/yyyy",
+    onBeforeEventRender: args => {
+      args.data.areas = [];
+    }
+  });
 
-//   const timeScale = { enable: true, slotCount: 5 };
+  const [events, setEvents] = useState([]);
 
-//   return (<ScheduleComponent width='100%' height='550px' selectedDate={new Date(2018, 1, 15)} >
-//     <ViewsDirective>
-//       <ViewDirective option='Day' interval={2} displayName='2 Days' startHour='09:30' endHour='18:00' timeScale={timeScale} />
-//       <ViewDirective option='Week' interval={2} displayName='2 Weeks' showWeekend={true} isSelected={true} />
-//     </ViewsDirective>
-//     <Inject services={[Day, Week]} />
-//   </ScheduleComponent>);
-// }
-// ;
-// export default App;
+  const fetchCalendarData = async () => {
+    try {
+      const response = await axios.post(
+        "http://141.148.194.18:8095/leavemanagement/calendar-view",
+        { userId: user.data.userdetails.user.userId },
+        { headers: { Authorization: `Bearer ${Cookies.get("token")}` } }
+      );
+
+      if (response.data.statusCode === 200) {
+        setEvents(response.data.result);
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCalendarData();
+  }, []);
+
+  useEffect(() => {
+    if (calendarRef.current) {
+      const startDate = DayPilot.Date.today();
+      calendarRef.current.control.update({ startDate, events });
+    }
+  }, [events]);
+
+  return (
+    <div style={styles.wrap}>
+      <div style={styles.left}>
+        <DayPilotNavigator
+          selectMode={"Week"}
+          onTimeRangeSelected={args => {
+            calendarRef.current.control.update({ startDate: args.day });
+          }}
+        />
+      </div>
+      <div style={styles.main}>
+        <DayPilotCalendar
+          {...calendarConfig}
+          ref={calendarRef}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Calendar;
 
 
 
