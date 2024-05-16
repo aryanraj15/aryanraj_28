@@ -1,510 +1,3 @@
-
-import React, { useState, useEffect } from "react";
-import { useFormik } from 'formik';
-import axios from "axios";
-import { useSelector } from "react-redux";
-import Cookies from "js-cookie";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Grid from "@mui/material/Grid";
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
-import Slide from "@mui/material/Slide";
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { H3 } from "../../../components/Typography";
-import Loader from '../../../components/Loader';
-import { useLocation, useNavigate } from 'react-router-dom';
-import useTitle from "../../../hooks/useTitle";
-import { useSnackbar } from "../../../components/Snackbar";
-import AlertConfirm from "react-alert-confirm";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-
-import "react-alert-confirm/lib/style.css";
-
-function TransitionLeft(props) {
-  return <Slide {...props} direction="left" />;
-}
-
-const LeaveApplicationCancel = () => {
-  const location = useLocation();
-  const user = useSelector((state) => state.loginReducer);
-  const data = location?.state?.requestId;
-  const [fetchData, setFetchData] = useState();
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastSeverity, setToastSeverity] = useState("info");
-  const [isLoading, setIsLoading] = useState(false);
-  const [rqstStatus, setRqstStatus] = useState();
-  const [stepAction, setStepAction] = useState();
-  const [trackData, setTrackData] = useState([]);
-  const [trackhide, setTrackhide] = useState(false);
-
-  const formik = useFormik({
-    initialValues: {
-      Leave: '',
-      ApplyingDueToAnyEmergency: '',
-      StationLeave: '',
-      LeaveStartDate: "",
-      LeavestartTime: "",
-      LeaveEndDate: "",
-      LeaveEndTime: '',
-      Prefix: '',
-      Suffix: '',
-      ReportingDesignation: '',
-      Description: '',
-      filePath: '',
-    },
-    onSubmit: (values) => {
-      callConfirmDialog();
-    },
-  });
-
-  useEffect(() => {
-    fetchDataOnLeaveId();
-    cancelStatus();
-    statusTracker();
-    setIsLoading(true);
-  }, []);
-
-  const fetchDataOnLeaveId = async () => {
-    try {
-      const payload = { rqstId: data };
-      const response = await axios.post(`http://141.148.194.18:8052/leavemanagement/get-leave-detail`, payload, {
-        headers: { Authorization: `Bearer ${Cookies.get("token")}` }
-      });
-
-      if (response.status === 200) {
-        setFetchData(response.data.result);
-        formik.setFieldValue("filePath", response.data.result.filePath);
-        setRqstStatus(response.data.result.rqstStatus);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const cancelStatus = async () => {
-    try {
-      const payload = { rqstId: data };
-      const response = await axios.post(`http://141.148.194.18:8095/leavemanagement/cancel-status`, payload, {
-        headers: { Authorization: `Bearer ${Cookies.get("token")}` }
-      });
-
-      if (response.status === 200) {
-        setStepAction(response.data.result);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const statusTracker = async () => {
-    try {
-      const body = { rqstId: data };
-      const res = await axios.post(`http://141.148.194.18:8052/leavemanagement/track-approve-table`, body, {
-        headers: { Authorization: `Bearer ${Cookies.get("token")}` }
-      });
-
-      if (res.data.result.length > 0) {
-        setTrackData(res.data.result);
-        setTrackhide(true);
-      }
-    } catch (error) {
-      alert("No data found", error);
-      console.log(error.message);
-    }
-  };
-
-  const handleViewDocument = () => {
-    if (formik.values.filePath) {
-      window.open(formik.values.filePath, '_blank');
-    }
-  };
-
-  const title = "Leave Application Form";
-  useTitle(title);
-
-  const navigate = useNavigate();
-
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpenToast(false);
-  };
-
-  const { showSnackbar } = useSnackbar();
-
-  const callConfirmDialog = async () => {
-    const [action] = await AlertConfirm({
-      title: "Confirm",
-      desc: "Are you sure, you want to cancel your leave request?",
-    });
-    AlertConfirm.config({
-      okText: "Submit",
-      cancelText: "Cancel",
-    });
-    if (action) {
-      CancelLeaveDetails();
-    } else {
-      showSnackbar('Leave Cancel request is not saved!', 'error');
-    }
-  };
-
-  const CancelLeaveDetails = async () => {
-    try {
-      const body = {
-        userId: user.data.userdetails.user.userId,
-        rqstId: location?.state?.requestId,
-      };
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/cancel-leave-request`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-      );
-
-      if (res.data.statusCode == 200) {
-        navigate('/viewleave');
-        showSnackbar("Leave request Cancelled Successfully", 'success');
-      }
-    } catch (error) {
-      showSnackbar("Your leave request is not Cancelled", 'error');
-      console.log(error.message);
-    }
-  };
-
-  return (
-    <>
-      {isLoading && <Loader />}
-      <div>
-        <Snackbar
-          open={openToast}
-          autoHideDuration={6000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          onClose={handleClose}
-          TransitionComponent={TransitionLeft}
-        >
-          <Alert
-            onClose={handleClose}
-            severity={toastSeverity}
-            sx={{
-              width: "100%",
-              padding: { sm: "15px", xs: "10px" },
-              borderRadius: "15px",
-              fontSize: { sm: "16px", xs: "14px" },
-              boxShadow: "0 0 10px #999",
-              marginTop: { sm: "25px", xs: "20px" },
-            }}
-          >
-            {toastMessage}
-          </Alert>
-        </Snackbar>
-      </div>
-
-      <Card>
-        <CardContent>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "left",
-              alignItems: "center",
-              marginBlock: 15,
-              borderBottom: "0.5px solid #d1d1cf",
-            }}
-          >
-            <EventBusyIcon sx={{ fontSize: "25px", color: "#246cb5" }} />
-            <H3
-              sx={{ fontSize: "15px", color: "#246cb5" }}
-              marginLeft={0.5}
-              my={0.5}
-              display="flex"
-              justifyContent="center"
-              alignItems="flex-end"
-            >
-              Cancel Leave Request
-            </H3>
-          </div>
-          <Box component={"form"} onSubmit={formik.handleSubmit} noValidate>
-            <Grid container spacing={2} direction="row" alignItems="center">
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Leave"
-                  name="Leave"
-                  size="small"
-                  sx={{ width: "100%" }}
-                  value={fetchData?.leaveTypeDesc}
-                  label="Leave Type"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.leaveTypeDesc}`.length >= 0),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="ApplyingDueToAnyEmergency"
-                  name="ApplyingDueToAnyEmergency"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.isEmergencyLeave ? "YES" : "NO"}
-                  label="Applying due to any emergency?"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(
-                      `${fetchData?.isEmergencyLeave}`.length >= 0
-                    ),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="StationLeave"
-                  name="StationLeave"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.isStationLeaving ? "YES" : "NO"}
-                  label="Station Leaving"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(
-                      `${fetchData?.isStationLeaving}`.length >= 0
-                    ),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeaveStartDate"
-                  name="LeaveStartDate"
-                  size="small"
-                  value={fetchData?.leaveStartDate}
-                  sx={{ width: "100%" }}
-                  label="Leave Start Date"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(
-                      `${fetchData?.leaveStartDate}`.length >= 0
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeavestartTime"
-                  name="LeavestartTime"
-                  size="small"
-                  value={fetchData?.leaveStartTime}
-                  sx={{ width: "100%" }}
-                  label="Leave Start Time"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(
-                      `${fetchData?.leaveStartTime}`.length >= 0
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeaveEndDate"
-                  name="LeaveEndDate"
-                  size="small"
-                  value={fetchData?.leaveEndDate}
-                  sx={{ width: "100%" }}
-                  label="Leave End Date"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(
-                      `${fetchData?.leaveEndDate}`.length >= 0
-                    ),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeaveEndTime"
-                  name="LeaveEndTime"
-                  size="small"
-                  value={fetchData?.leaveEndTime}
-                  sx={{ width: "100%" }}
-                  label="Leave End Time"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.leaveEndTime}`.length >= 0),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Prefix"
-                  name="Prefix"
-                  size="small"
-                  value={fetchData?.prefix}
-                  sx={{ width: "100%" }}
-                  label="Prefix"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.prefix}`.length >= 0),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Suffix"
-                  name="Suffix"
-                  size="small"
-                  value={fetchData?.suffix}
-                  sx={{ width: "100%" }}
-                  label="Suffix"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.suffix}`.length >= 0),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="ReportingDesignation"
-                  name="ReportingDesignation"
-                  size="small"
-                  value={fetchData?.reportingDesig}
-                  sx={{ width: "100%" }}
-                  label="Reporting Designation"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(
-                      `${fetchData?.reportingDesig}`.length >= 0
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Description"
-                  name="Description"
-                  size="small"
-                  value={fetchData?.remarks}
-                  sx={{ width: "100%" }}
-                  label="Description"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.remarks}`.length >= 0),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <Button
-                  type="button"
-                  variant="contained"
-                  color="primary"
-                  onClick={handleViewDocument}
-                  disabled={!formik.values.filePath}
-                >
-                  View Document
-                </Button>
-              </Grid>
-            </Grid>
-
-            <Stack
-              direction="row"
-              spacing={1}
-              marginTop={3}
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                  fontSize: "12px",
-                  padding: "10px 15px",
-                  backgroundColor: "rgba(37, 87, 167, 1)",
-                  borderRadius: "50px",
-                }}
-                disabled={rqstStatus !== "Pending"}
-              >
-                Cancel Request
-              </Button>
-            </Stack>
-          </Box>
-        </CardContent>
-      </Card>
-
-      {trackhide && (
-        <TableContainer>
-          <Table size="small" aria-label="a dense table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Sr No.</TableCell>
-                <TableCell>Tracker Name</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Date</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {trackData.map((row, index) => (
-                <TableRow key={row.trackName}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{row.trackName}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                  <TableCell>{row.date}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </>
-  );
-};
-
-export default LeaveApplicationCancel;
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -536,6 +29,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import DownloadButton from "../../BasicEmpView/DownloadButton";
 function TransitionLeft(props) {
   return <Slide {...props} direction="left" />;
 }
@@ -716,23 +210,11 @@ const LeaveApplicationCancel = () => {
   console.log(data);
   console.log(fetchData);
 
-  const showFile = (attachment) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const data = event.target.result;
-      const blob = new Blob([data]);
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank')
-    }
-    reader.readAsArrayBuffer(attachment);
-  }
   const handleViewDocument = () => {
-
     if (formik.values.filePath) {
-      console.log(formik.values.filePath);
-      showFile(formik.values.filePath)
+      window.open(formik.values.filePath, '_blank');
     }
-  }
+  };
 
 
   console.log(formik.values.filePath);
@@ -1007,9 +489,29 @@ const LeaveApplicationCancel = () => {
                   label="Reason/Description"
                 />
               </Grid>
-              <Button variant="outlined" sx={{ borderRadius: '4px', marginLeft: '8px' }} component="label"  onClick={handleViewDocument}>
-                    View Document
-                  </Button>
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+              {formik.values.filePath && (
+                <DownloadButton fileName={"View Document"} filePath={formik.values.filePath} />
+              )}
+                {/* <Button
+                  type="button"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+               
+             }}
+                  disabled={!formik.values.filePath}
+                  
+                >
+                  View Document
+                </Button> */}
+
+                
+
+
+              </Grid>
+              
+ 
 
             </Grid>
 
@@ -1096,3 +598,4 @@ const LeaveApplicationCancel = () => {
 }
 
 export default LeaveApplicationCancel;
+
