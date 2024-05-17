@@ -1,3 +1,121 @@
+
+
+import { Typography, Button, Card, CardContent, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import Loader from '../../components/Loader';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import data from "./data";
+import Accordian from "./Accordian"; // Rename the file to Accordion.js for consistency
+import axiosClient from "../../utils/AxiosInterceptor";
+import { useState, useEffect } from "react";
+import { useSnackbar } from "../../components/Snackbar";
+import useTitle from "../../hooks/useTitle";
+
+
+ 
+const AccordionParent = () => {
+  const [expanded, setExpanded] = useState('panel0');
+  const [isLoader, setIsLoader] = useState(true);
+  // const [phaseData,setPhaseData] = useState([]);
+  const [arr1,setArr1]=useState([]);
+  const [arr2,setArr2]=useState([]);
+  const [arr3,setArr3]=useState([]);
+  const [arr4,setArr4]=useState([]);
+  const [arr5,setArr5]=useState([]);
+  const { showSnackbar } = useSnackbar();
+  const title = "Process Compilance Checklist";
+  useTitle(title);
+  const phaseData = [
+    { name: "Project Initiation and Planning", arr: arr1},
+    { name: "Project Monitoring and Control", arr: arr2 },
+    { name: "Engineering", arr: arr3 },
+    { name: "Support", arr: arr4 },
+    { name: "Project Closure", arr: arr5 },
+  ];
+ 
+  useEffect(()=>{
+    setIsLoader(true);
+    axiosClient
+      .get(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/compliance/1`)
+      .then((response)=>{
+        if(response.data?.result?.length ===0)
+          showSnackbar("No Data Found", "warning");
+        let responseData =response.data?.result ;
+        console.log(responseData["Engineering"]);
+        setArr1(responseData["Project Initiation and Planning"])
+        setArr2(responseData["Project Monitoring and Control"])
+        setArr3(responseData["Engineering"])
+        setArr4(responseData["Support"])
+        setArr5(responseData["Project Closure"])
+      })
+      .catch((error)=>
+        {
+          console.log(error)
+        })
+      .finally(() => setIsLoader(false));
+       // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : '');
+  };
+ 
+  return (
+<>
+      {isLoader && <Loader />}
+<Card>
+<Typography
+          component="h4"
+          variant="h6"
+          sx={{ color: "#2169b3", textAlign: "center" }}
+>
+          Process Compliance Checklist
+</Typography>
+ 
+        <CardContent>
+          {phaseData.map((phase, index) => (
+<Accordion
+              key={index}
+              expanded={expanded === `panel${index}`}
+              onChange={handleChange(`panel${index}`)}
+>
+<AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls={`panel${index}-content`}
+                id={`panel${index}-header`}
+>
+<Typography
+                  component="h4"
+                  variant="h6"
+                  sx={{ color: "#737272" }}
+>
+                  {phase.name}
+</Typography>
+</AccordionSummary>
+<AccordionDetails>
+<Accordian arr={phase.arr} title={phase.name} />
+</AccordionDetails>
+</Accordion>
+          ))}
+<div style={{ display: "flex", margin: "20px" }}>
+<Button variant="contained" sx={{ mr: "5px", ml: "auto" }}>
+              Submit
+</Button>
+</div>
+</CardContent>
+</Card>
+</>
+  );
+};
+ 
+export default AccordionParent;
+
+
+
+
+
+
+
+
+
 <div class="contribution_count">
                                         <div class="dropdown">
                                             <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
