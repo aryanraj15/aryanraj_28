@@ -1,4 +1,175 @@
+import {
+  Autocomplete,
+  Button,
+  Card,
+  CardContent,
+  Paper,
+  Snackbar,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+} from "@mui/material";
+import { useState, useEffect } from "react";
+ 
+const dropdown_list = [
+  { id: 1, label: "Yes" },
+  { id: 2, label: "No" },
+  { id: 3, label: "NA" },
+];
+ 
+const Accordion = ({ arr, title }) => {
+  const [open, setOpen] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [formData, setFormData] = useState(arr);
+  const [countData, setCountData] =useState(0);
 
+ 
+  useEffect(() => {
+    setFormData(arr);
+  }, [arr]);
+ 
+  const handleEditClick = () => {
+    setOpenEdit(true);
+  };
+ 
+  const handleEditClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenEdit(false);
+  };
+ 
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+ 
+  const handleChange = (index, field, value) => {
+    const updatedFormData = [...formData];
+    updatedFormData[index][field] = value;
+    setFormData(updatedFormData);
+  };
+ 
+  const handleSave = () => {
+    console.log(formData);
+    setOpen(true);
+  };
+ 
+  const getSelectedItem = (item) => {
+    return dropdown_list.find((opt) => opt.label === item.selectVal) || null;
+  };
+  const handleCount = (index) =>{
+    setCountData(index+1);
+    return countData;
+  }
+  console.log(countData)
+ 
+  return (
+<Card>
+<CardContent>
+<TableContainer
+          component={Paper}
+          sx={{ borderLeft: "1px solid black", m: "10px 0" }}
+>
+<Table>
+<TableHead>
+<TableRow sx={{ backgroundColor: "#2369b3" }}>
+<TableCell sx={{ color: "#fff", textAlign: "center" }}>S.NO</TableCell>
+<TableCell sx={{ color: "#fff", textAlign: "center" }}>{title}</TableCell>
+<TableCell sx={{ color: "#fff", textAlign: "center" }}>Select</TableCell>
+<TableCell sx={{ color: "#fff", textAlign: "center" }}>Remarks</TableCell>
+<TableCell sx={{ color: "#fff", textAlign: "center" }}>Evidence</TableCell>
+</TableRow>
+</TableHead>
+<TableBody>
+              {formData.map((item, index) => (
+<TableRow key={index}>
+<TableCell style={{ border: "1px solid black" }}>{index+1}</TableCell>
+<TableCell style={{ border: "1px solid black", width: "30%" }}>
+<TextField
+                      variant="standard"
+                      InputProps={{ disableUnderline: true }}
+                      multiline
+                      minRows={3}
+                      maxRows={4}
+                      defaultValue={item.question}
+                      fullWidth
+                      onChange={(e) => handleChange(index, "question", e.target.value)}
+                    />
+</TableCell>
+<TableCell style={{ border: "1px solid black" }}>
+<Autocomplete
+                      value={getSelectedItem(item)}
+                      options={dropdown_list}
+                      getOptionLabel={(option) => option.label}
+                      renderInput={(params) => <TextField {...params} label="Select" />}
+                      onChange={(e, newValue) => handleChange(index, "selectVal", newValue ? newValue.label : "")}
+                    />
+</TableCell>
+<TableCell style={{ border: "1px solid black", width: "30%" }}>
+<TextField
+                      variant="standard"
+                      InputProps={{ disableUnderline: true }}
+                      multiline
+                      minRows={3}
+                      maxRows={4}
+                      defaultValue={item.remarks}
+                      fullWidth
+                      onChange={(e) => handleChange(index, "remarks", e.target.value)}
+                    />
+</TableCell>
+<TableCell style={{ border: "1px solid black", width: "30%" }}>
+<TextField
+                      variant="standard"
+                      InputProps={{ disableUnderline: true }}
+                      multiline
+                      minRows={3}
+                      maxRows={4}
+                      defaultValue={item.evidence}
+                      fullWidth
+                      onChange={(e) => handleChange(index, "evidence", e.target.value)}
+                    />
+</TableCell>
+</TableRow>
+              
+              ))}
+</TableBody>
+</Table>
+</TableContainer>
+<div style={{ display: "flex", margin: "20px" }}>
+<Button variant="contained" sx={{ mr: "5px", ml: "auto" }} onClick={handleSave}>
+            Save
+</Button>
+<Button variant="contained" onClick={handleEditClick}>
+            Edit
+</Button>
+</div>
+<Snackbar
+          open={open}
+          autoHideDuration={5000}
+          onClose={handleClose}
+          message="Changes Saved Successfully"
+          ContentProps={{ sx: { background: "green" } }}
+        />
+<Snackbar
+          open={openEdit}
+          autoHideDuration={5000}
+          onClose={handleEditClose}
+          message="Updated Successfully"
+          ContentProps={{ sx: { background: "green" } }}
+        />
+</CardContent>
+</Card>
+  );
+};
+ 
+export default Accordion;
 
 import { Typography, Button, Card, CardContent, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import Loader from '../../components/Loader';
