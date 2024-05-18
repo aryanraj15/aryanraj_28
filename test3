@@ -1,377 +1,257 @@
-import React, { useState, useEffect } from 'react'
-import SearchTable from '../../../components/SearchTableAlt';
-import { Grid, Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent, TextField } from '@mui/material';
-import useTitle from '../../../hooks/useTitle';
-import PageTitle from '../../../layouts/PageTitle';
-import { useNavigate } from 'react-router-dom';
-import { H3 } from '../../../components/Typography';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { format } from 'date-fns'
-import Loader from '../../../components/Loader';
-import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
-import TrackLeaveRequestStatus from './TrackLeaveRequestStatus';
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs from 'dayjs';
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import CachedIcon from "@mui/icons-material/Cached";
-import SearchIcon from "@mui/icons-material/Search";
-import swal from "sweetalert";
-import { useLocation } from "react-router";
-const ViewLeaves = () => {
+import React, { lazy, Suspense,useState } from "react";
+import { Provider } from "react-redux";
+import { Route, Routes } from "react-router-dom";
+import { SnackbarProvider } from "./components/Snackbar";
+import store from "./redux/store";
+import PrivateRoutes from "./routes/PrivateRoutes";
+import ScrollToTop from "./components/ScrollToTop";
+import Header from "./layouts/Header";
+import { ColorModeContextProvider } from "./utils/ColorModeContext";
 
 
-    const title = 'Leave Applications';
-    const title2 = 'Search Parameters';
+/*****Pages******/
+const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./pages/Login/Login"));
+const ForgotPassword = lazy(() => import("./pages/Login/forgotPassword"));
+const Test2 = lazy(() => import("./pages/Test/test2"));
+const Accordian = lazy(()=>import("./pages/Accordian/AccordianParent"));
 
-    useTitle(title);
-
-    const navigate = useNavigate();
-    const user = useSelector((state) => state.loginReducer);
-    console.log(user.data.userdetails.user.userId);
-    const userId = user.data.userdetails.user.userId;
-    const [tableData, setTableData] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [open, setOpen] = React.useState(false);
-    const [requestStatus, setRequestStatus] = useState(null);
-    const [reqRemarks, setReqRemarks] = useState(null);
-    const [selectAllApplications, setSelectAllApplications] = useState(false);
-    const location = useLocation();
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-
-    const validationSchema = Yup.object().shape({
-
-        LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
-        LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
-    });
-
-    const getData = async () => {
-        await handleFetchData();
-      
-    }
-
-    const formik = useFormik({
-        initialValues: {
-
-            LeaveStartDate: null,
-            LeaveEndDate: null,
-
-        },
-        validationSchema: validationSchema,
-        enableReinitialize: true,
-        onSubmit: (values) => {
-            console.log(values)
-            // handleFetchData();
-            // handleRedirect();
-        },
-    });
-    console.log(formik.values.LeaveStartDate);
-    console.log(formik.values.LeaveEndDate);
-
-
-    const handleFetchData = async () => {
-        try {
-            const payload = {
-                userId: userId,
-                rqstFrom: formik.values.LeaveStartDate,
-                rqstTo: formik.values.LeaveEndDate
-            }
-
-            const response = await axios.post("http://129.154.229.83:8095/leavemanagement/leave-applied-leaves", payload);
-            const formattedData = response.data.result.map((item, index) => {
-                const fromDate = item.rqstFromDate + ":" + item.rqstFromTime;
-                const toDate = item.rqstToDate + ":" + item.rqstToTime;
-                return {
-                    ...item,
-                    index: index + 1,
-                    fromDate: fromDate,
-                    toDate: toDate,
-                };
-
-            });
-
-            setTableData(formattedData);
-            console.log('kp-tableDataResponse', response.data);
-
-            // setTableData(response.data.result);
-            if (response.status === true) {
-                console.log('kp-tableData1', tableData);
-                console.log('kp-tableData2', tableData);
+const ChartAdmin = lazy(() => import("./pages/charts/ChartAdmin"));
+const ChartPartners = lazy(() => import("./pages/charts/ChartPartners"));
+const  MetricData = lazy(() => import("./pages/MasterAdmin/MetricData"));
+const  MetricsMaster = lazy(() => import("./pages/MasterAdmin/MetricsMaster"));
+const  PhasesMaster = lazy(() => import("./pages/MasterAdmin/PhasesMaster"));
+const  ProjectMaster = lazy(() => import("./pages/MasterAdmin/ProjectMaster"));
+const  QuestionsMaster = lazy(() => import("./pages/MasterAdmin/QuestionsMaster"));
 
 
 
-            }
-        } catch (error) {
+const App = () => {
+  
+  return (
+    <>
+      <SnackbarProvider>
+        <ColorModeContextProvider>
+          {/* <AddBeneficiary /> */}
+          <Provider store={store}>
+            {/* <DDOBenefWorklist/> */}
+            <AppRoutes />
+          </Provider>
+          {/* <BeneficiaryDetails /> */}
+        </ColorModeContextProvider>
+      </SnackbarProvider>
+    </>
+  );
+};
 
-            console.error(error);
+const AppRoutes = () => {
+  const [selectedProjectId,setSelectedProjectId]=useState('');
+  return (
+    <Suspense fallback={<div />}>
+      {/* <Router> */}
+      <ScrollToTop />
+      {/* <NavigateToTop /> */}
+      <Routes>
+        <Route path="/" element={<Login />} exact />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route element={<Header setSelectedProjectId={setSelectedProjectId}/>}>
+          <Route element={<PrivateRoutes />}>
+           <Route path="/home" element={<Home />} />
+           <Route path="/test2" element={<Test2 />} />            
+           <Route path="/chartadmin" element={<ChartAdmin selectedProjectId={selectedProjectId}/>}/>
+           <Route path="/chartpartners" element={<ChartPartners/>}/>
+           <Route path="/metricdata" element={<MetricData/>}/>
+           <Route path="/metricsmaster" element={<MetricsMaster/>}/>
+           <Route path="/phasesmaster" element={<PhasesMaster/>}/>
+           <Route path="/projectmaster" element={<ProjectMaster/>}/>
+           <Route path="/questionsmaster" element={<QuestionsMaster/>}/>
+           <Route path="/accordian" element={<Accordian/>}/>
+           {/* <Route path="/processcompliancechecklist" element={<Accordian/>}/> */}
+
+            
+         
+         
+
+
+          </Route>
+        </Route>
+      </Routes>
+      {/* </Router> */}
+    </Suspense>
+  );
+
+};
+
+export default App;
+
+
+
+
+import React from "react";
+import { PieChart, Pie, Tooltip, Legend, Cell } from "recharts";
+import { makeStyles } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
+import ReactSpeedometer from "react-d3-speedometer";
+import useTitle from "../../hooks/useTitle";
+import PageTitle from "../../layouts/PageTitle";
+import { FormatAlignJustify } from "@material-ui/icons";
+import { useEffect, useState } from "react";
+import axiosClient from "../../utils/AxiosInterceptor";
+import { useSnackbar } from "../../components/Snackbar";
+
+// const data=[
+//     { name:'Yes',totalCounts:10},
+//     { name:'No',totalCounts:5},
+//     { name:'NA',totalCounts:3},
+// ];
+
+// const calculatePciScore=(data)=>{
+//     const totalYes=data.find(item=>item. name==='Yes')?.totalCounts||0;
+//     const totalNo=data.find(item=>item. name==='No')?.totalCounts||0;
+//     // console.log("totalYes",totalYes)
+//     const pci=totalYes/(totalYes+totalNo)*100;
+//     return pci;
+// }
+// const pciValue=calculatePciScore(data);
+const COLORS = ["#4caf50", "#ba68c8", "#FFBB28"];
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    padding: theme.spacing(2),
+    textAlign: "center",
+    color: theme.palette.text.black,
+    width: "50%",
+    // margin:'0 auto',
+    margin: "5px",
+    boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    marginTop: "25px",
+  },
+}));
+
+const ChartAdmin = ({ selectedProjectId }) => {
+  const { showSnackbar } = useSnackbar();
+  const classes = useStyles();
+  const title = "Dashboard";
+  const [pciResponse, setPciResponse] = useState([]);
+  const [data, setData] = useState([]);
+  useTitle(title);
+  //for getting projectId for the payload
+  const retrievedData = localStorage.getItem("project");
+  const parsedData = JSON.parse(retrievedData);
+  const projectId = parsedData.map((item) => item.project.id);
+  console.log("selectedProjectId", selectedProjectId);
+  useEffect(() => {
+    axiosClient
+      .post(
+        `${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/dashboard/metrics`,
+        {
+          // "projectId":projectId[0]
+          projectId: selectedProjectId || projectId[0],
         }
-        finally {
-            setIsLoading(false);
+      )
+      .then((response) => {
+        // console.log("Chart Response::",response.data.result["PCI Score"]);
+        if (response.data.statusCode === 200) {
+          setPciResponse(
+            response.data.result["PCI Score"].map((score) => {
+              return {
+                ...score,
+                value: parseFloat(score.value),
+              };
+            })
+          );
+        } else {
+          showSnackbar(response.data?.message, "error");
         }
-    }
+      })
+      .catch((error) => {
+        console.log(error);
+        showSnackbar(
+          error.response.data.message
+            ? error.response.data.message
+            : error.response.message,
+          "error"
+        );
+      });
+    axiosClient
+      .post(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/dashboard/counts`, {
+        projectId: projectId[0],
+      })
+      .then((response) => {
+        const mappedResponse = response.data.result.map((item) => ({
+          name: item.responseValue,
+          totalCounts: item.totalCounts,
+        }));
+        // console.log("Chart Response::",mappedResponse);
+        if (response.data.statusCode === 200) {
+          setData(mappedResponse);
+        } else {
+          showSnackbar(response.data?.message, "error");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        showSnackbar(
+          error.response.data.message
+            ? error.response.data.message
+            : error.response.message,
+          "error"
+        );
+      });
+  }, []);
+  // console.log("pciResponse::",pciResponse)
+  const pciValue = pciResponse.map((item) => item.value);
+  return (
+    <div style={{ display: "flex" }}>
+      {/* =========================Pie Chart========================== */}
+      <Paper className={classes.paper}>
+        <PageTitle name="Distribution of Response" />
+        <PieChart width={400} height={300} style={{ marginTop: "-10px" }}>
+          <Pie
+            data={data}
+            labelLine={false}
+            label
+            outerRadius={100}
+            fill="#8884d8"
+            dataKey="totalCounts"
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index]}></Cell>
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </Paper>
+      {/* ====================Gauge Graph============================= */}
+      <Paper className={classes.paper}>
+        <div style={{ marginTop: "-15px" }}>
+          <PageTitle name="Process Compilance Index (PCI)" />
+        </div>
 
-    useEffect(() => {
-        handleFetchData();
-        setIsLoading(true);
-        // setTableData([]);
-    }, [])
-    const columns = [
-        {
-            field: "index", //keep this fixed, index should be present for all tables
-            headerName: "S.No",
-            flex: 0.1,
-            minWidth: 80,
-            headerClassName: "super-app-theme--header",
-        },
+        <div style={{ marginTop: "-25px" }}>
+          <ReactSpeedometer
+            value={pciValue}
+            minValue={0}
+            maxValue={100}
+            needleColor="black"
+            startColor="red"
+            endColor="green"
+            segments={3}
+            customSegmentStops={[0, 50, 80, 100]}
+            segmentColors={["red", "orange", "green"]}
+            needleTransitionDuration={4000}
+            height={200}
+            width={300}
+            paddingVertical={50}
+          />
+        </div>
+      </Paper>
+    </div>
+  );
+};
 
-        {
-            field: "rqstId",
-            headerName: "Leave ID",
-            flex: 0.3,
-            minWidth: 100,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
-                        const requestId = params.row.rqstId;
-                        navigate("/leaveapplicationview", { state: { requestId } });
-                    }}
-                >
-                    {params.value}
-                </Link>
-            ),
-        },
-        {
-            field: "leaveTypeDesc",
-            headerName: "Leave Type",
-            flex: 0.3,
-            minWidth: 160,
-            headerClassName: "super-app-theme--header",
-        },
-
-        {
-            field: "daysOfLeave",
-            headerName: "Days of Leave",
-            flex: 0.3,
-            minWidth: 120,
-            headerClassName: "super-app-theme--header",
-        },
-
-        {
-            field: "fromDate",
-            headerName: "Leave Start",
-            flex: 0.3,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-        },
-
-        {
-            field: "toDate",
-            headerName: "Leave End",
-            flex: 0.3,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "rqstStatusDesc",
-            headerName: "Leave Current Status",
-            flex: 0.3,
-            minWidth: 220,
-            headerClassName: "super-app-theme--header",
-        },
-
-        {
-            field: "requestStatus",
-            headerName: "Track Status",
-            flex: 0.3,
-            minWidth: 100,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link onClick={() => { setReqRemarks(params.row.remarks); setRequestStatus(params.value); handleClickOpen(); }}>
-                    <LocationSearchingIcon color='primary' />
-                </Link>
-            )
-        },
-
-
-    ];
-
-    const handleResetForm = () => {
-        swal({
-            title: "Do you want to reset the search?",
-            buttons: { cancel: "Cancel", confirm: "Confirm" },
-        }).then((userClickedConfirm) => {
-            if (userClickedConfirm) {
-                formik.setFieldValue("LeaveStartDate", null);
-                formik.setFieldValue("LeaveEndDate", null);
-                formik.resetForm();
-                // window.location.reload(); 
-
-                getData();
-
-            }
-        });
-    };
-
-
-
-    console.log('kp-tabledata3', tableData)
-    return (
-        <>
-            {
-                isLoading && <Loader />
-            }
-
-            <Card sx={{ my: 2 }} elevation={3}>
-                <CardContent>
-                    <PageTitle name={title2} />
-                    <Box component="form" onSubmit={formik.handleSubmit} noValidate>
-                        <Grid
-                            container
-                            columnSpacing={2}
-                        >
-                            <Grid item xs={12} sm={6} md={6} lg={6}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                                    <DatePicker
-                                        id="LeaveStartDate"
-                                        name="LeaveStartDate"
-                                        format="DD/MM/YYYY"
-                                        label="Start Date"
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{ width: "100%" }}
-                                        // inputFormat="DD/MM/YYYY"
-                                        value={formik.values.LeaveStartDate}
-                                        onChange={(date) => {
-                                            formik.setFieldValue("LeaveStartDate", null);
-                                            const formattedDate = dayjs(date).format("YYYY-MM-DD");
-                                            formik.setFieldValue("LeaveStartDate", formattedDate);
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                size="small"
-                                                fullWidth
-                                                margin="0"
-                                                required
-                                                {...params}
-                                                error={formik.touched.LeaveStartDate && Boolean(formik.errors.LeaveStartDate)}
-                                                helperText={formik.touched.LeaveStartDate && formik.errors.LeaveStartDate}
-                                                onBlur={formik.handleBlur}
-
-                                            />
-                                        )}
-                                    />
-                                </LocalizationProvider>
-                            </Grid>
-                            <Grid item xs={12} sm={6} md={6} lg={6}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                                    <DatePicker
-                                        margin="0"
-                                        id="LeaveEndDate"
-                                        name="LeaveEndDate"
-
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        label="End Date"
-                                        sx={{ width: "100%" }}
-                                        format="DD/MM/YYYY"
-                                        value={formik.values.LeaveEndDate}
-                                        onChange={(date) => {
-                                            formik.setFieldValue("LeaveEndDate", null);
-                                            const formattedDate = dayjs(date).format("YYYY-MM-DD");
-                                            formik.setFieldValue("LeaveEndDate", formattedDate);
-                                        }}
-                                        renderInput={(params) => (
-                                            <TextField margin="0"
-                                                required
-                                                {...params} />
-                                        )}
-                                    />
-                                </LocalizationProvider>
-                            </Grid>
-
-                        </Grid>
-                        <Stack
-                            direction="row"
-                            spacing={2}
-                            justifyContent="center"
-                        //mt={2}
-                        >
-                            <Button
-                                variant="contained"
-                                onClick={handleFetchData}
-                                type="submit"
-                            >
-                                <SearchIcon />
-                                &nbsp;SEARCH
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                // onClick ={()=>{
-                                //     formik.resetForm();
-                                //     window.location.reload();
-                                // }}
-                                onClick={handleResetForm}
-
-
-                            >
-                                <CachedIcon />
-                                &nbsp;RESET
-                            </Button>
-                        </Stack>
-                        {/* </form> */}
-                    </Box>
-                </CardContent>
-            </Card>
-            <Card sx={{ my: 2 }} elevation={3}>
-                <CardContent>
-
-                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginTop: '30px' }}>
-                        <EventBusyIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end"> Leave Applications</H3>
-                    </div>
-                    <Box component={"div"} >
-                        {/* <Grid sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 2 }}>
-                            <Button variant={'contained'} onClick={handleNavigation}>Apply for a new leave</Button>
-                        </Grid> */}
-                        <SearchTable
-                            columns={columns}
-                            data={tableData}
-                            isCheckbox={false}
-                            isHideDensity={false}
-                            isHideExport={true}
-                            isHideFilter={true}
-                            isHideColumn={true}
-                            isHidePaging={false}
-                            name="abc"
-                            id="hjjh"
-                        />
-                    </Box>
-                </CardContent>
-            </Card>
-            <Dialog
-                fullWidth
-                maxWidth={'md'}
-                open={open}
-                onClose={handleClose}
-            >
-                <DialogContent >
-                    <TrackLeaveRequestStatus reqRemarks={reqRemarks} requestStatus={requestStatus} />
-                </DialogContent>
-            </Dialog>
-        </>
-    )
-}
-
-export default ViewLeaves
+export default ChartAdmin;
