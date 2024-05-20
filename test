@@ -1,1358 +1,415 @@
-import {
-  Autocomplete,
-  Button,
-  Card,
-  CardContent,
-  Paper,
-  Snackbar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-} from "@mui/material";
-import { useState, useEffect } from "react";
- 
-const dropdown_list = [
-  { id: 1, label: "Yes" },
-  { id: 2, label: "No" },
-  { id: 3, label: "NA" },
-];
- 
-const Accordion = ({ arr, title }) => {
-  const [open, setOpen] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [formData, setFormData] = useState(arr);
-  const [countData, setCountData] =useState(0);
-
- 
-  useEffect(() => {
-    setFormData(arr);
-  }, [arr]);
- 
-  const handleEditClick = () => {
-    setOpenEdit(true);
-  };
- 
-  const handleEditClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenEdit(false);
-  };
- 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
- 
-  const handleChange = (index, field, value) => {
-    const updatedFormData = [...formData];
-    updatedFormData[index][field] = value;
-    setFormData(updatedFormData);
-  };
- 
-  const handleSave = () => {
-    console.log(formData);
-    setOpen(true);
-  };
- 
-  const getSelectedItem = (item) => {
-    return dropdown_list.find((opt) => opt.label === item.selectVal) || null;
-  };
-  const handleCount = (index) =>{
-    setCountData(index+1);
-    return countData;
-  }
-  console.log(countData)
- 
-  return (
-<Card>
-<CardContent>
-<TableContainer
-          component={Paper}
-          sx={{ borderLeft: "1px solid black", m: "10px 0" }}
->
-<Table>
-<TableHead>
-<TableRow sx={{ backgroundColor: "#2369b3" }}>
-<TableCell sx={{ color: "#fff", textAlign: "center" }}>S.NO</TableCell>
-<TableCell sx={{ color: "#fff", textAlign: "center" }}>{title}</TableCell>
-<TableCell sx={{ color: "#fff", textAlign: "center" }}>Select</TableCell>
-<TableCell sx={{ color: "#fff", textAlign: "center" }}>Remarks</TableCell>
-<TableCell sx={{ color: "#fff", textAlign: "center" }}>Evidence</TableCell>
-</TableRow>
-</TableHead>
-<TableBody>
-              {formData.map((item, index) => (
-<TableRow key={index}>
-<TableCell style={{ border: "1px solid black" }}>{index+1}</TableCell>
-<TableCell style={{ border: "1px solid black", width: "30%" }}>
-<TextField
-                      variant="standard"
-                      InputProps={{ disableUnderline: true }}
-                      multiline
-                      minRows={3}
-                      maxRows={4}
-                      defaultValue={item.question}
-                      fullWidth
-                      onChange={(e) => handleChange(index, "question", e.target.value)}
-                    />
-</TableCell>
-<TableCell style={{ border: "1px solid black" }}>
-<Autocomplete
-                      value={getSelectedItem(item)}
-                      options={dropdown_list}
-                      getOptionLabel={(option) => option.label}
-                      renderInput={(params) => <TextField {...params} label="Select" />}
-                      onChange={(e, newValue) => handleChange(index, "selectVal", newValue ? newValue.label : "")}
-                    />
-</TableCell>
-<TableCell style={{ border: "1px solid black", width: "30%" }}>
-<TextField
-                      variant="standard"
-                      InputProps={{ disableUnderline: true }}
-                      multiline
-                      minRows={3}
-                      maxRows={4}
-                      defaultValue={item.remarks}
-                      fullWidth
-                      onChange={(e) => handleChange(index, "remarks", e.target.value)}
-                    />
-</TableCell>
-<TableCell style={{ border: "1px solid black", width: "30%" }}>
-<TextField
-                      variant="standard"
-                      InputProps={{ disableUnderline: true }}
-                      multiline
-                      minRows={3}
-                      maxRows={4}
-                      defaultValue={item.evidence}
-                      fullWidth
-                      onChange={(e) => handleChange(index, "evidence", e.target.value)}
-                    />
-</TableCell>
-</TableRow>
-              
-              ))}
-</TableBody>
-</Table>
-</TableContainer>
-<div style={{ display: "flex", margin: "20px" }}>
-<Button variant="contained" sx={{ mr: "5px", ml: "auto" }} onClick={handleSave}>
-            Save
-</Button>
-<Button variant="contained" onClick={handleEditClick}>
-            Edit
-</Button>
-</div>
-<Snackbar
-          open={open}
-          autoHideDuration={5000}
-          onClose={handleClose}
-          message="Changes Saved Successfully"
-          ContentProps={{ sx: { background: "green" } }}
-        />
-<Snackbar
-          open={openEdit}
-          autoHideDuration={5000}
-          onClose={handleEditClose}
-          message="Updated Successfully"
-          ContentProps={{ sx: { background: "green" } }}
-        />
-</CardContent>
-</Card>
-  );
-};
- 
-export default Accordion;
-
-import { Typography, Button, Card, CardContent, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
-import Loader from '../../components/Loader';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import data from "./data";
-import Accordian from "./Accordian"; // Rename the file to Accordion.js for consistency
-import axiosClient from "../../utils/AxiosInterceptor";
-import { useState, useEffect } from "react";
-import { useSnackbar } from "../../components/Snackbar";
-import useTitle from "../../hooks/useTitle";
-
-
- 
-const AccordionParent = () => {
-  const [expanded, setExpanded] = useState('panel0');
-  const [isLoader, setIsLoader] = useState(true);
-  // const [phaseData,setPhaseData] = useState([]);
-  const [arr1,setArr1]=useState([]);
-  const [arr2,setArr2]=useState([]);
-  const [arr3,setArr3]=useState([]);
-  const [arr4,setArr4]=useState([]);
-  const [arr5,setArr5]=useState([]);
-  const { showSnackbar } = useSnackbar();
-  const title = "Process Compilance Checklist";
-  useTitle(title);
-  const phaseData = [
-    { name: "Project Initiation and Planning", arr: arr1},
-    { name: "Project Monitoring and Control", arr: arr2 },
-    { name: "Engineering", arr: arr3 },
-    { name: "Support", arr: arr4 },
-    { name: "Project Closure", arr: arr5 },
-  ];
- 
-  useEffect(()=>{
-    setIsLoader(true);
-    axiosClient
-      .get(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/compliance/1`)
-      .then((response)=>{
-        if(response.data?.result?.length ===0)
-          showSnackbar("No Data Found", "warning");
-        let responseData =response.data?.result ;
-        console.log(responseData["Engineering"]);
-        setArr1(responseData["Project Initiation and Planning"])
-        setArr2(responseData["Project Monitoring and Control"])
-        setArr3(responseData["Engineering"])
-        setArr4(responseData["Support"])
-        setArr5(responseData["Project Closure"])
-      })
-      .catch((error)=>
-        {
-          console.log(error)
-        })
-      .finally(() => setIsLoader(false));
-       // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[])
-  const handleChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : '');
-  };
- 
-  return (
-<>
-      {isLoader && <Loader />}
-<Card>
-<Typography
-          component="h4"
-          variant="h6"
-          sx={{ color: "#2169b3", textAlign: "center" }}
->
-          Process Compliance Checklist
-</Typography>
- 
-        <CardContent>
-          {phaseData.map((phase, index) => (
-<Accordion
-              key={index}
-              expanded={expanded === `panel${index}`}
-              onChange={handleChange(`panel${index}`)}
->
-<AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls={`panel${index}-content`}
-                id={`panel${index}-header`}
->
-<Typography
-                  component="h4"
-                  variant="h6"
-                  sx={{ color: "#737272" }}
->
-                  {phase.name}
-</Typography>
-</AccordionSummary>
-<AccordionDetails>
-<Accordian arr={phase.arr} title={phase.name} />
-</AccordionDetails>
-</Accordion>
-          ))}
-<div style={{ display: "flex", margin: "20px" }}>
-<Button variant="contained" sx={{ mr: "5px", ml: "auto" }}>
-              Submit
-</Button>
-</div>
-</CardContent>
-</Card>
-</>
-  );
-};
- 
-export default AccordionParent;
-
-
-
-
-
-
-
-
-
-<div class="contribution_count">
-                                        <div class="dropdown">
-                                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Overall Contribution 500
-                                            </a>
-                                            <ul class="dropdown-menu " >
-                                              <li><a class="dropdown-item" href="#">Action</a></li>
-                                              <li><a class="dropdown-item" href="#">Another action</a></li>
-                                              <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                            </ul>
-                                          </div>
-                                        <!-- <p>Overall Contribution 500</p> -->
-                                    </div>
-
-
-
-import React, { useState, useEffect } from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
+import React, { useContext, useEffect, useState } from "react";
+import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import { Card, CardContent, Slide } from "@mui/material";
-import useTitle from "../../../hooks/useTitle";
-import PageTitle from "../../../layouts/PageTitle";
-import { useLocation, useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { H3 } from "../../../components/Typography";
-import AlertConfirm from "react-alert-confirm";
-import { useSnackbar } from "../../../components/Snackbar";
-import "react-alert-confirm/lib/style.css";
-import axios from "axios";
+import Drawer from "@mui/material/Drawer";
+import CssBaseline from "@mui/material/CssBaseline";
+import MuiAppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import MailIcon from "@mui/icons-material/Mail";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import LightMode from "@mui/icons-material/LightMode";
+import DarkMode from "@mui/icons-material/DarkMode";
+
+import { ColorModeContext } from "../utils/ColorModeContext";
+import DrawerMenu from "./DrawerMenu";
+import Avatar from "@mui/material/Avatar";
+import logoImage from "../assets/images/logo.png";
+import { Outlet, useNavigate } from "react-router-dom";
+import logo from "../assets/images/logo.png";
+import logo_left from "../assets/images/KPMG.png";
+import { grey, indigo } from "@mui/material/colors";
+import { Grid, Select, InputLabel, FormControl } from "@mui/material";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Snackbar from '@mui/material/Snackbar';
-import Loader from '../../../components/Loader';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
+import { Stack } from "@mui/system";
+import { TitleContext } from "../contexts/TitleContext";
+import { useSnackbar } from "../components/Snackbar";
 import Cookies from "js-cookie";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import DownloadButton from "../../BasicEmpView/DownloadButton";
+// import Footer from '../components/footer/Footer';
+const drawerWidth = 280;
 
-function TransitionLeft(props) {
-  return <Slide {...props} direction="left" />;
-}
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: `-${drawerWidth}px`,
+    ...(open && {
+      transition: theme.transitions.create("margin", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
+    }),
+  })
+);
 
-const LeaveApplicationCancel = () => {
-  const location = useLocation();
-  const user = useSelector((state) => state.loginReducer);
-  const data = location?.state?.requestId;
-  const [fetchData, setFetchData] = useState();
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastSeverity, setToastSeverity] = useState("info");
-  const [isLoading, setIsLoading] = useState(false);
-  const [rqstStatus, setRqstStatus] = useState();
-  const [stepAction, setStepAction] = useState();
-  const [trackData, setTrackData] = useState([]);
-  const [trackhide, setTrackhide] = useState(false);
-  const [showDownloadButton, setShowDownloadButton] = useState(false);
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
 
-  const formik = useFormik({
-    initialValues: {
-      Leave: '',
-      ApplyingDueToAnyEmergency: '',
-      StationLeave: '',
-      LeaveStartDate: "",
-      LeavestartTime: "",
-      LeaveEndDate: "",
-      LeaveEndTime: '',
-      Prefix: '',
-      Suffix: '',
-      ReportingDesignation: '',
-      Description: '',
-      filePath: '',
-    },
-    onSubmit: (values) => {
-      // Handle form submission or API integration here
-      //handleRedirect();
-      callConfirmDialog();
-    },
-  });
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+  justifyContent: "center", //changed property
+}));
 
-  const CancelLeaveDetails = async () => {
-    try {
-      const body = {
-        userId: user.data.userdetails.user.userId,
-        rqstId: location?.state?.requestId,
-      };
+const Footer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  width: "100%",
+  position: "fixed",
+  top: "unset",
+  bottom: 0,
+  color: "white",
+  backgroundColor: "black",
+  textAlign: "center",
+  size: "8px",
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
 
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/cancel-leave-request`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-      );
-
-      if (res.data.statusCode === 200) {
-        navigate('/viewleave');
-        showSnackbar("Leave request Cancelled Successfully", 'success');
-      }
-    } catch (error) {
-      showSnackbar("Your leave request is not Cancelled", 'error');
-      console.log(error.message);
-    }
-  };
-
-  const fetchDataOnLeaveId = async () => {
-    try {
-      const payload = { rqstId: data };
-      const response = await axios.post(`http://141.148.194.18:8052/leavemanagement/get-leave-detail`, payload, {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("token")}`
-        }
-      });
-
-      if (response.status === 200) {
-        setFetchData(response.data.result);
-        formik.setFieldValue("filePath", response.data.result.filePath);
-        setRqstStatus(response.data.result.rqstStatus);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const cancelStatus = async () => {
-    try {
-      const payload = { rqstId: data };
-      const response = await axios.post(`http://141.148.194.18:8095/leavemanagement/cancel-status`, payload, {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("token")}`
-        }
-      });
-
-      if (response.status === 200) {
-        setStepAction(response.data.result);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const statusTracker = async () => {
-    try {
-      const body = { rqstId: data };
-      const res = await axios.post(`http://141.148.194.18:8052/leavemanagement/track-approve-table`, body, {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("token")}`
-        }
-      });
-
-      if (res.data.result.length > 0) {
-        setTrackData(res.data.result);
-        setTrackhide(true);
-      }
-    } catch (error) {
-      alert("No data found", error);
-      console.log(error.message);
-    }
-  };
-
-  useEffect(() => {
-    fetchDataOnLeaveId();
-    cancelStatus();
-    statusTracker();
-    setIsLoading(true);
-  }, []);
-
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpenToast(false);
-  };
-
+export default function PersistentDrawerLeft({ setSelectedProjectId }) {
+  // const roles = useSelector((state) => state.saveRoleReducer);
+  // const user = useSelector((state) => state.loginReducer);
   const { showSnackbar } = useSnackbar();
-
-  const callConfirmDialog = async () => {
-    const [action] = await AlertConfirm({
-      title: "Confirm",
-      desc: "Are you sure, you want to cancel your leave request?",
-    });
-    AlertConfirm.config({
-      okText: "Submit",
-      cancelText: "Cancel",
-    });
-    if (action) {
-      CancelLeaveDetails();
-    } else {
-      showSnackbar('Leave Cancel request is not saved!', 'error');
-    }
-  };
-
-  return (
-    <>
-      {isLoading && <Loader />}
-      <div>
-        <Snackbar
-          open={openToast}
-          autoHideDuration={6000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          onClose={handleClose}
-          TransitionComponent={TransitionLeft}
-        >
-          <Alert
-            onClose={handleClose}
-            severity={toastSeverity}
-            sx={{
-              width: "100%",
-              padding: { sm: "15px", xs: "10px" },
-              borderRadius: "15px",
-              fontSize: { sm: "16px", xs: "14px" },
-              boxShadow: "0 0 10px #999",
-              marginTop: { sm: "25px", xs: "20px" },
-            }}
-          >
-            {toastMessage}
-          </Alert>
-        </Snackbar>
-      </div>
-
-      <Card>
-        <CardContent>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "left",
-              alignItems: "center",
-              marginBlock: 15,
-              borderBottom: "0.5px solid #d1d1cf",
-            }}
-          >
-            <EventBusyIcon sx={{ fontSize: "25px", color: "#246cb5" }} />
-            <H3
-              sx={{ fontSize: "15px", color: "#246cb5" }}
-              marginLeft={0.5}
-              my={0.5}
-              display="flex"
-              justifyContent="center"
-              alignItems="flex-end"
-            >
-              Cancel Leave Request
-            </H3>
-          </div>
-          <Box component={"form"} onSubmit={formik.handleSubmit} noValidate>
-            <Grid container spacing={2} direction="row" alignItems="center">
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Leave"
-                  name="Leave"
-                  size="small"
-                  sx={{ width: "100%" }}
-                  value={fetchData?.leaveTypeDesc}
-                  label="Leave Type"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.leaveTypeDesc}`.length >= 0),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="ApplyingDueToAnyEmergency"
-                  name="ApplyingDueToAnyEmergency"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.isEmergencyLeave ? "Yes" : "No"}
-                  label="Applying Due To Any Emergency"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.isEmergencyLeave}`.length >= 0),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="StationLeave"
-                  name="StationLeave"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.isStationLeave ? "Yes" : "No"}
-                  label="Station Leave"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.isStationLeave}`.length >= 0),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeaveStartDate"
-                  name="LeaveStartDate"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={dayjs(fetchData?.rqstStartDate).format("DD/MM/YYYY")}
-                  label="Leave Start Date"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.rqstStartDate}`.length >= 0),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeavestartTime"
-                  name="LeavestartTime"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.rqstStartTime}
-                  label="Leave Start Time"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.rqstStartTime}`.length >= 0),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeaveEndDate"
-                  name="LeaveEndDate"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={dayjs(fetchData?.rqstEndDate).format("DD/MM/YYYY")}
-                  label="Leave End Date"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.rqstEndDate}`.length >= 0),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeaveEndTime"
-                  name="LeaveEndTime"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.rqstEndTime}
-                  label="Leave End Time"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.rqstEndTime}`.length >= 0),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Prefix"
-                  name="Prefix"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.prefixLeave}
-                  label="Prefix"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.prefixLeave}`.length >= 0),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Suffix"
-                  name="Suffix"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.suffixLeave}
-                  label="Suffix"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.suffixLeave}`.length >= 0),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="ReportingDesignation"
-                  name="ReportingDesignation"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.reportingDesignation}
-                  label="Reporting Designation"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.reportingDesignation}`.length >= 0),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={12} md={12} lg={12}>
-                <TextField
-                  margin="0"
-                  id="Description"
-                  name="Description"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.reason}
-                  label="Description"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.reason}`.length >= 0),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={12} md={12} lg={12} display="flex" justifyContent="center">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setShowDownloadButton(true)}
-                >
-                  Show Download Button
-                </Button>
-              </Grid>
-            </Grid>
-
-            <Grid item xs={12} display="flex" justifyContent="center" mt={2}>
-              <Button variant="contained" color="primary" type="submit">
-                Cancel Leave
-              </Button>
-            </Grid>
-
-            <Grid item xs={12} display="flex" justifyContent="center" mt={2}>
-              {showDownloadButton && (
-                <DownloadButton
-                  data={fetchData}
-                  filePath={formik.values.filePath}
-                />
-              )}
-            </Grid>
-          </Box>
-        </CardContent>
-      </Card>
-    </>
-  );
-};
-
-export default LeaveApplicationCancel;
-
-
-
-import React, { useState, useEffect } from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import { Card, CardContent, Slide } from "@mui/material";
-import useTitle from "../../../hooks/useTitle";
-import PageTitle from "../../../layouts/PageTitle";
-import { useLocation, useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { H3 } from "../../../components/Typography";
-import AlertConfirm from "react-alert-confirm";
-import { useSnackbar } from "../../../components/Snackbar";
-import "react-alert-confirm/lib/style.css";
-import axios from "axios";
-import { useSelector } from "react-redux";
-import Snackbar from '@mui/material/Snackbar';
-import Loader from '../../../components/Loader';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
-import Cookies from "js-cookie";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import DownloadButton from "../../BasicEmpView/DownloadButton";
-function TransitionLeft(props) {
-  return <Slide {...props} direction="left" />;
-}
-const LeaveApplicationCancel = () => {
-
-  const location = useLocation();
-  const user = useSelector((state) => state.loginReducer);
-  const data = location?.state?.requestId;
-  const [fetchData, setFetchData] = useState();
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastSeverity, setToastSeverity] = useState("info");
-  const [isLoading, setIsLoading] = useState(false);
-  const [rqstStatus, setRqstStatus] = useState();
-  const [stepAction, setStepAction] = useState();
-  const [trackData, setTrackData] = useState([]);
-  const [trackhide, setTrackhide] = useState(false);
-
-
-  const formik = useFormik({
-    initialValues: {
-      Leave: '',
-      ApplyingDueToAnyEmergency: '',
-      StationLeave: '',
-      LeaveStartDate: "",
-      LeavestartTime: "",
-      LeaveEndDate: "",
-      LeaveEndTime: '',
-      Prefix: '',
-      Suffix: '',
-      ReportingDesignation: '',
-      Description: '',
-      filePath:'',
-    },
-    onSubmit: (values) => {
-      // Handle form submission or API integration here
-      //handleRedirect();
-      callConfirmDialog();
-    },
-  });
-
-  const CancelLeaveDetails = async () => {
-
-    try {
-      const body = {
-        userId: user.data.userdetails.user.userId,
-        rqstId: location?.state?.requestId,
-        //currentTimeDate: "2024-01-03T10:00:00.000",
-
-      };
-
-      console.log("the saved details  body", body);
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/cancel-leave-request`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-
-      );
-      console.log("the saved details  areeeeee", res);
-      if (res.data.statusCode == 200) {
-        console.log("the result ", res.data.result);
-        console.log("the result ", res.data.message);
-        // setToastMessage( res.data.message);
-        // setToastSeverity("success");
-        // setOpenToast(true);
-        navigate('/viewleave')
-        // alert(res.data.message);
-        showSnackbar("Leave request Cancelled Successfully", 'success');
-
-      }
-    } catch (error) {
-      // alert("Data has not saved", error);
-      showSnackbar("Your leave request is not Cancelled", 'error');
-      console.log(error.message);
-    }
-
-  };
-  const fetchDataOnLeaveId = async () => {
-    try {
-      const payload = {
-        rqstId: data
-      }
-
-      const response = await axios.post(`http://141.148.194.18:8052/leavemanagement/get-leave-detail`, payload, {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("token")}`
-        }
-      });
-
-
-      if (response.status === 200) {
-        setFetchData(response.data.result);
-        console.log(response.data.result);
-        formik.setFieldValue("filePath", response.data.result.filePath);
-        setRqstStatus(response.data.result.rqstStatus);
-
-      }
-    } catch (error) {
-      console.error(error)
-    }
-    finally {
-      setIsLoading(false);
-    }
-  }
-  const cancelStatus = async () => {
-    try {
-      const payload = {
-        rqstId: data
-      }
-
-      const response = await axios.post(`http://141.148.194.18:8095/leavemanagement/cancel-status`, payload, {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("token")}`
-        }
-      });
-
-      console.log(response.status);
-      console.log(response.data.result);
-
-      if (response.status === 200) {
-        setStepAction(response.data.result);
-
-
-      }
-    } catch (error) {
-      console.error(error)
-    }
-    finally {
-      setIsLoading(false);
-    }
-  }
-
-  const statusTracker = async () => {
-    try {
-      const body = {
-        rqstId: data,
-
-      };
-
-      console.log("Status Tracker", body);
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/track-approve-table`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-
-      );
-      console.log("Status Tracker", res);
-      if (res.data.result.length > 0) {
-        console.log("the result ", res.data.result);
-        setTrackData(res.data.result);
-        setTrackhide(true);
-
-      }
-    } catch (error) {
-      alert("No data found", error);
-      console.log(error.message);
-    }
-  };
-
-  console.log(stepAction);
-
-
-  useEffect(() => {
-    fetchDataOnLeaveId();
-    cancelStatus();
-    statusTracker();
-    setIsLoading(true);
-  }, [])
-
-  console.log(data);
-  console.log(fetchData);
-
-  const handleViewDocument = () => {
-    if (formik.values.filePath) {
-      window.open(formik.values.filePath, '_blank');
-    }
-  };
-
-
-  console.log(formik.values.filePath);
-
-  const title = "Leave Application Form";
-  useTitle(title);
-
+  const theme = useTheme();
+  const { title } = useContext(TitleContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  // const [open, setOpen] = React.useState(localStorage.getItem("sideBarOpen"));
+  const [open, setOpen] = useState(true);
+  const [dark, setDark] = useState(false);
+  const { toggleColorMode } = useContext(ColorModeContext);
+  // const [desOptions, setDesOptions] = useState([]);
+  const [data, setData] = useState(false);
+  const [desg, setDesg] = useState(localStorage.getItem("DesignationId"));
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  // const handleRedirect = () => {
-  //   callConfirmDialog();
-  // }
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+  //For Projects Dropdown
+  const retrievedData = localStorage.getItem("project");
+  const parsedData = JSON.parse(retrievedData);
+  const projects = parsedData.map((item) => item.project);
+  const defaultProject = projects.length > 0 ? projects[0].name : "";
+  // console.log("project::",projects);
+  const [selectedProject, setSelectedProject] = useState(defaultProject);
+  const [selectedProjectDetails, setSelectedProjectDetails] =
+    useState(defaultProject);
 
-    setOpenToast(false);
+  const openE1 = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
-  const { showSnackbar } = useSnackbar();
+  const handleLogout = () => {
+    console.log("Logging out");
+    setAnchorEl(null);
+    Cookies.remove("token");
+    Cookies.remove("jobToken");
+    localStorage.clear();
+    navigate("/");
+    showSnackbar("Logout Successful", "success");
+  };
 
-  const callConfirmDialog = async () => {
-    console.log('kp-confirm');
-    const [action] = await AlertConfirm({
-      title: "Confirm",
-      desc: "Are you sure, you want to cancel your leave request?",
-    });
-    AlertConfirm.config({
-      okText: "Submit",
-      cancelText: "Cancel",
-    });
-    if (action) {
-      console.log('kp-saved');
-      CancelLeaveDetails();
-      // showSnackbar("Leave Request Canceled", 'success');
-      // submitDetails(values, resetForm);
-    } else {
-      //   setIsSubmit(false);
-      showSnackbar('Leave Cancel request is not saved!', 'error')
-    }
+  const handleDrawerOpen = () => {
+    setOpen(true);
+    //localStorage.setItem("sideBarOpen", true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+    //localStorage.setItem("sideBarOpen", false);
+  };
+
+  const handleDarkMode = () => {
+    setDark(!dark);
+    toggleColorMode();
+  };
+
+  const handleChange = (e) => {
+    // console.log("value", e.target);
+    setDesg(e.target.value);
+    localStorage.setItem("DesignationId", e.target.value);
+  };
+
+  const getRouteTitle = () => {
+    // var result = restaurants.filter(function (chain) {
+    //   return chain.restaurant.food === "chicken";
+    // })[0].restaurant.name;
+  };
+
+  // useEffect(() => {
+  //   // console.log("roles", roles);
+  //   if (roles.data.length > 0) {
+  //     roles?.data?.map((item, index) => {
+  //       desOptions.push({
+  //         id: item?.roleId,
+  //         label: item?.roleName,
+  //       });
+  //       setDesOptions(desOptions);
+  //       setData(!data);
+  //     });
+  //   }
+  // }, [roles]);
+
+  // useEffect(() => {
+  //   // console.log("user", user);
+  //   if (user.data.userdetails.user.schmDeptDsgMaps.length > 0) {
+  //     console.log(
+  //       "user",
+  //       user.data.userdetails.user.schmDeptDsgMaps[0].department
+  //     );
+  //     user.data.userdetails.user.schmDeptDsgMaps.map((item, index) => {
+  //       desOptions.push({
+  //         id: item?.department?.deptId,
+  //         label: item?.department?.name,
+  //       });
+  //       setDesOptions(desOptions);
+  //       setData(!data);
+  //     });
+  //   }
+  // }, [user]);
+
+  useEffect(() => {}, [data]);
+
+  //Added for project dropdown
+  // const projects=[
+  //   {id:1,name:'Project 1'},
+  //   {id:2,name:'Project 2'},
+  //   {id:3,name:'Project 3'}
+  // ];
+
+  const handleProjectChange = (e) => {
+    setSelectedProject(e.target.value);
+
+    const selectedProjectDetails = projects.find(
+      (project) => project.name === e.target.value
+    );
+    setSelectedProjectDetails(selectedProjectDetails);
+
+    setSelectedProjectId(selectedProjectDetails.id);
+
+    console.log("ProjectId::", selectedProjectDetails.id);
   };
   return (
-    <>
-      {isLoading && <Loader />}
-      <div>
-        <Snackbar
-          open={openToast}
-          autoHideDuration={6000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          onClose={handleClose}
-          TransitionComponent={TransitionLeft}
-        >
-          <Alert
-            onClose={handleClose}
-            severity={toastSeverity}
-            sx={{
-              width: "100%",
-              padding: { sm: "15px", xs: "10px" },
-              borderRadius: "15px",
-              fontSize: { sm: "16px", xs: "14px" },
-              boxShadow: "0 0 10px #999",
-              marginTop: { sm: "25px", xs: "20px" },
-            }}
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <AppBar position="fixed" open={open}>
+        <Toolbar sx={{ backgroundColor: "#004c99", color: "#fff" }}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={{ mr: 2, ...(open && { display: "none" }) }}
           >
-            {toastMessage}
-          </Alert>
-        </Snackbar>
-      </div>
-
-      <Card>
-        <CardContent>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "left",
-              alignItems: "center",
-              marginBlock: 15,
-              borderBottom: "0.5px solid #d1d1cf",
-            }}
+            <MenuIcon />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerClose}
+            edge="start"
+            sx={{ mr: 2, ...(!open && { display: "none" }) }}
           >
-            <EventBusyIcon sx={{ fontSize: "25px", color: "#246cb5" }} />
-            <H3
-              sx={{ fontSize: "15px", color: "#246cb5" }}
-              marginLeft={0.5}
-              my={0.5}
-              display="flex"
-              justifyContent="center"
-              alignItems="flex-end"
-            >
-              Cancel Leave Request
-            </H3>
-          </div>
-          <Box component={"form"} onSubmit={formik.handleSubmit} noValidate>
-            <Grid container spacing={2} direction="row" alignItems="center">
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Leave"
-                  name="Leave"
-                  size="small"
-                  sx={{ width: "100%" }}
-                  value={fetchData?.leaveTypeDesc}
-                  label="Leave Type"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.leaveTypeDesc}`.length >= 0),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="ApplyingDueToAnyEmergency"
-                  name="ApplyingDueToAnyEmergency"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  // value={fetchData?.isEmergencyLeave}
-                  value={fetchData?.isEmergencyLeave ? "YES" : "NO"}
-                  label="Applying due to any emergency?"
-                  disabled
-                  InputLabelProps={{
-                    shrink: Boolean(
-                      `${fetchData?.isEmergencyLeave}`.length >= 0
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="StationLeave"
-                  name="StationLeave"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  // value={fetchData?.isStationLeave}
-                  value={fetchData?.isStationLeave ? "YES" : "NO"}
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.isStationLeave}`.length >= 0),
-                  }}
-                  label="Station Leave"
-                  disabled
-                />
-              </Grid>
+            <ChevronLeftIcon />
+          </IconButton>
+          <Grid
+            container
+            direction="row"
+            rowSpacing={0}
+            columnSpacing={2}
+            justify="flex-end"
+            alignItems="center"
+          >
+            <Grid item xs={12} sm={3} md={3} lg={3}>
+              <Typography variant="h6" noWrap>
+                {title ? title : "KPMG"}
+              </Typography>
             </Grid>
-            <Grid container spacing={2} direction="row" alignItems="center">
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeaveStartDate"
-                  name="LeaveStartDate"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.rqstFromDate}
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.rqstFromDate}`.length >= 0),
-                  }}
-                  label="Leave Start Date"
-                  disabled
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeavestartTime"
-                  name="LeavestartTime"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.rqstFromTime}
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.rqstFromTime}`.length >= 0),
-                  }}
-                  label="Start Time"
-                  disabled
-                />
-              </Grid>
+            <Grid item xs={12} sm={2} md={2.5} lg={2.5}>
+              <Typography variant="h8" noWrap>
+                {localStorage.getItem("fullname")}
+              </Typography>
             </Grid>
-            <Grid container spacing={2} direction="row" alignItems="center">
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeaveEndDate"
-                  name="LeaveEndDate"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.rqstToDate}
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.rqstToDate}`.length >= 0),
-                  }}
-                  label="Leave End Date"
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="LeaveEndTime"
-                  name="LeaveEndTime"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.rqstToTime}
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.rqstToTime}`.length >= 0),
-                  }}
-                  label="End Time"
-                  disabled
-                />
-              </Grid>
+            <Grid item xs={12} sm={2} md={3} lg={3}>
+              <Typography variant="h8" noWrap>
+                {localStorage.getItem("designation")}
+              </Typography>
             </Grid>
-            <Grid container spacing={2} direction="row" alignItems="center">
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Prefix"
-                  name="Prefix"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.preffix}
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.preffix}`.length >= 0),
-                  }}
-                  label="Prefix"
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="Suffix"
-                  name="Suffix"
-                  sx={{ width: "100%" }}
-                  size="small"
-                  value={fetchData?.suffix}
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.suffix}`.length >= 0),
-                  }}
-                  label="Suffix"
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  margin="0"
-                  id="ReportingDesignation"
-                  name="ReportingDesignation"
-                  sx={{ width: "100%" }}
-                  disabled
-                  size="small"
-                  value={fetchData?.managerName}
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.managerName}`.length >= 0),
-                  }}
-                  label="Reporting User"
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={8}>
-                <TextField
-                  margin="0"
-                  id="Description"
-                  name="Description"
-                  sx={{ width: "100%" }}
-                  disabled
-                  // InputProps={{readOnly:true}}
-                  multiline
-                  value={fetchData?.reason}
-                  InputLabelProps={{
-                    shrink: Boolean(`${fetchData?.reason}`.length >= 0),
-                  }}
-                  rows={4}
-                  label="Reason/Description"
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-              {formik.values.filePath && (
-                <DownloadButton fileName={"View Document"} filePath={formik.values.filePath} />
+            <Grid item xs={12} sm={2} md={3} lg={3}>
+              {projects.length > 1 ? (
+                <FormControl variant="standard" fullWidth>
+                  <InputLabel style={{ color: "white" }}>Projects</InputLabel>
+                  <Select
+                    value={selectedProject}
+                    onChange={handleProjectChange}
+                    label="Project"
+                    style={{ color: "white", marginBottom: "15px" }}
+                  >
+                    {projects.map((project) => (
+                      <MenuItem key={project.id} value={project.name}>
+                        {project.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : (
+                <Typography variant="body1">
+                  {projects.length === 1
+                    ? projects[0].name
+                    : "No projects available"}
+                </Typography>
               )}
-                {/* <Button
-                  type="button"
-                  variant="contained"
-                  color="primary"
-                  onClick={() => {
-               
-             }}
-                  disabled={!formik.values.filePath}
-                  
-                >
-                  View Document
-                </Button> */}
-
-                
-
-
-              </Grid>
-              
- 
-
             </Grid>
-
-            {trackhide && (
-              <Card  >
-                <CardContent>
-                  <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
-
-                    <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Track Leave Request</H3>
-                  </div>
-                  <Box component={"div"} >
-                    <TableContainer>
-                      <Table aria-label="simple table">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell><h7><b>S.NO</b></h7></TableCell>
-                            <TableCell><h7><b>Updated By</b></h7></TableCell>
-                            <TableCell><h7><b>Approve From</b></h7></TableCell>
-                            <TableCell><h7><b>Approve To</b></h7></TableCell>
-
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {trackData.map((row, index) => (
-                            <TableRow
-                              key={index}
-                              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                              <TableCell component="th" scope="row">
-                                {index + 1}
-                              </TableCell>
-                              <TableCell>{row.updBy}</TableCell>
-                              <TableCell>{row.approveFrom}</TableCell>
-                              <TableCell>{row.approveTo}</TableCell>
-
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-
-
-
-
-                  </Box>
-                </CardContent>
-              </Card>
-
-            )}
-
-            {stepAction ? (
-              <Grid
-                item
-                xs={12}
-                sm={12}
-                md={12}
-                lg={12}
-                sx={{ width: "100%" }}
-              >
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="error"
-                  sx={{ float: "right", borderRadius: "4px" }}
-                // onClick={handleRedirect} 
+            {/* <Grid item xs={10} sm={4} md={3} lg={3}> */}
+            {/* <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <InputLabel id="designationLabel" style={{ color: "white" }}>
+                  Role
+                </InputLabel>
+                <Select
+                  labelId="designationLabel"
+                  id="designation"
+                  value={desg}
+                  label="designation"
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
+                  style={{ color: "white" }}
                 >
-                  Cancel Leave Request
-                </Button>
-              </Grid>
+                  {desOptions?.map((item) => {
+                    return <MenuItem value={item.id}>{item?.label}</MenuItem>;
+                  })}
+                </Select>
+              </FormControl> */}
+            {/* </Grid> */}
 
-            ) : (
-              <Stack sx={{ width: "100%" }} spacing={2}>
-                <Alert severity="warning">
-                  Your Leave Request has already been Cancelled / Rejected.
-                </Alert>
-              </Stack>
+            <Grid item xs={2} sm={1} md={0.5} lg={0.5}>
+              <PowerSettingsNewIcon
+                onClick={handleLogout}
+                sx={{ cursor: "pointer" }}
+              />
+            </Grid>
+          </Grid>
+        </Toolbar>
+      </AppBar>
 
-            )}
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            scrollbarWidth: "thin",
+          },
+        }}
+        variant="persistent"
+        anchor="left"
+        open={open}
+      >
+        <DrawerHeader>
+          <Box mr={1.5}>
+            <Typography
+              sx={{ py: 2, float: "left" }}
+              display="flex"
+              justifyContent="space-between"
+              component={"div"}
+            >
+              <img src={logo_left} alt="YSR" width="150px" height="50px" />
+              {/* <Stack direction="column" py={1}>
+                <Typography
+                  component="h1"
+                  variant="body2"
+                  color="#1964AF"
+                  fontSize="11px"
+                  fontWeight={700}
+                >
+                 KPMG India
+                </Typography>
+                <Typography
+                  component="h1"
+                  variant="body2"
+                  color="#A5D73A"
+                  fontWeight={700}
+                  fontSize="11px"
+                  textAlign="center"
+                >
+                 
+                </Typography>
+              </Stack> */}
+            </Typography>
           </Box>
-        </CardContent>
-      </Card>
-    </>
+          {/* <IconButton onClick={handleDrawerClose}>
+            {theme.direction === "ltr" ? (
+              <ChevronLeftIcon />
+            ) : (
+              <ChevronRightIcon />
+            )}
+          </IconButton> */}
+        </DrawerHeader>
+        <Divider />
+        <DrawerMenu />
+      </Drawer>
+      <Main open={open}>
+        <DrawerHeader />
+        <Outlet />
+        {/* <Footer /> */}
+      </Main>
+      <Footer position="fixed" open={open}>
+        <Typography noWrap component="div">
+          {/* CMS {location.pathname} */}
+          &copy; Site maintained by KPMG Advisory Services Pvt. Ltd.
+        </Typography>
+      </Footer>
+    </Box>
   );
 }
-
-export default LeaveApplicationCancel;
-
