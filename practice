@@ -1,4 +1,182 @@
-// Import statements remain the same
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const Header = ({ setSelectedProjectId }) => {
+  const navigate = useNavigate();
+
+  const handleProjectChange = (projectId) => {
+    setSelectedProjectId(projectId);
+    localStorage.setItem('selectedProjectId', projectId); // Optional: Persist selected project ID
+    navigate('/chartadmin'); // Navigate to chart admin or another route if needed
+  };
+
+  return (
+    <div>
+      {/* Replace the following with your actual project selection logic */}
+      <button onClick={() => handleProjectChange('project1')}>Project 1</button>
+      <button onClick={() => handleProjectChange('project2')}>Project 2</button>
+    </div>
+  );
+};
+
+export default Header;
+
+
+import React, { useEffect, useState } from "react";
+import { PieChart, Pie, Tooltip, Legend, Cell } from "recharts";
+import { makeStyles } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
+import ReactSpeedometer from "react-d3-speedometer";
+import useTitle from "../../hooks/useTitle";
+import PageTitle from "../../layouts/PageTitle";
+import axiosClient from "../../utils/AxiosInterceptor";
+import { useSnackbar } from "../../components/Snackbar";
+
+const COLORS = ["#4caf50", "#ba68c8", "#FFBB28"];
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    padding: theme.spacing(2),
+    textAlign: "center",
+    color: theme.palette.text.black,
+    width: "50%",
+    margin: "5px",
+    boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    marginTop: "25px",
+  },
+}));
+
+const ChartAdmin = ({ selectedProjectId }) => {
+  const { showSnackbar } = useSnackbar();
+  const classes = useStyles();
+  const title = "Dashboard";
+  const [pciResponse, setPciResponse] = useState([]);
+  const [data, setData] = useState([]);
+  useTitle(title);
+
+  useEffect(() => {
+    console.log("selectedProjectId:", selectedProjectId); // Debugging statement
+
+    const retrievedData = localStorage.getItem("project");
+    const parsedData = JSON.parse(retrievedData);
+    const fallbackProjectId = parsedData.map((item) => item.project.id)[0];
+    const projectId = selectedProjectId || fallbackProjectId;
+
+    axiosClient
+      .post(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/dashboard/metrics`, {
+        projectId: projectId,
+      })
+      .then((response) => {
+        if (response.data.statusCode === 200) {
+          setPciResponse(
+            response.data.result["PCI Score"].map((score) => ({
+              ...score,
+              value: parseFloat(score.value),
+            }))
+          );
+        } else {
+          showSnackbar(response.data?.message, "error");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        showSnackbar(
+          error.response.data.message
+            ? error.response.data.message
+            : error.response.message,
+          "error"
+        );
+      });
+
+    axiosClient
+      .post(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/dashboard/counts`, {
+        projectId: projectId,
+      })
+      .then((response) => {
+        const mappedResponse = response.data.result.map((item) => ({
+          name: item.responseValue,
+          totalCounts: item.totalCounts,
+        }));
+        if (response.data.statusCode === 200) {
+          setData(mappedResponse);
+        } else {
+          showSnackbar(response.data?.message, "error");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        showSnackbar(
+          error.response.data.message
+            ? error.response.data.message
+            : error.response.message,
+          "error"
+        );
+      });
+  }, [selectedProjectId, showSnackbar]);
+
+  const pciValue = pciResponse.map((item) => item.value);
+
+  return (
+    <div style={{ display: "flex" }}>
+      <Paper className={classes.paper}>
+        <PageTitle name="Distribution of Response" />
+        <PieChart width={400} height={300} style={{ marginTop: "-10px" }}>
+          <Pie
+            data={data}
+            labelLine={false}
+            label
+            outerRadius={100}
+            fill="#8884d8"
+            dataKey="totalCounts"
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index]}></Cell>
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </Paper>
+      <Paper className={classes.paper}>
+        <div style={{ marginTop: "-15px" }}>
+          <PageTitle name="Process Compliance Index (PCI)" />
+        </div>
+        <div style={{ marginTop: "-25px" }}>
+          <ReactSpeedometer
+            value={pciValue}
+            minValue={0}
+            maxValue={100}
+            needleColor="black"
+            startColor="red"
+            endColor="green"
+            segments={3}
+            customSegmentStops={[0, 50, 80, 100]}
+            segmentColors={["red", "orange", "green"]}
+            needleTransitionDuration={4000}
+            height={200}
+            width={300}
+            paddingVertical={50}
+          />
+        </div>
+      </Paper>
+    </div>
+  );
+};
+
+export default ChartAdmin;
+
+
+
+
+
+
+
+
+
+
 
 export default function PersistentDrawerLeft({ setSelectedProjectId }) {
   // Existing state and functions remain the same
