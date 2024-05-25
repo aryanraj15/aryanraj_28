@@ -1,4 +1,3 @@
-
 const formik = useFormik({
     initialValues: {
         projectCode: "",
@@ -12,15 +11,17 @@ const formik = useFormik({
             ...values, 
             auditDate: formattedDate 
         };
+        
+        console.log("Submitting data:", postData); // Log data being submitted
 
-        setSelectedRow(null);
         setIsSubmitted(true);
-
         if (selectedRow !== null) {
             setBtnText("Updating");
+            const projectId = rowss[selectedRow].projectId;
 
-            axiosClient.put(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project/${rowss[selectedRow].projectId}`, postData)
+            axiosClient.put(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project/${projectId}`, postData)
                 .then(response => {
+                    console.log("Update response:", response.data); // Log API response
                     if (response.data.statusCode === 200) {
                         setRowss((prevValue) => {
                             const updatedRows = [...prevValue];
@@ -36,6 +37,7 @@ const formik = useFormik({
                     }
                 })
                 .catch(error => {
+                    console.error("Update error:", error.response); // Log error details
                     setBtnText("Update");
                     showSnackbar(error.response?.data?.message ? error.response.data.message : error.message, 'error');
                 })
@@ -47,6 +49,7 @@ const formik = useFormik({
 
             axiosClient.post(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project`, postData)
                 .then(response => {
+                    console.log("Save response:", response.data); // Log API response
                     if (response.data.statusCode === 200) {
                         const updatedRow = rowss.map(value => ({ ...value, index: value.index + 1 }));
                         let newRow = response.data?.result;
@@ -60,6 +63,7 @@ const formik = useFormik({
                     }
                 })
                 .catch(error => {
+                    console.error("Save error:", error.response); // Log error details
                     showSnackbar(error.response?.data?.message ? error.response.data.message : error.message, 'error');
                 })
                 .finally(() => {
@@ -69,7 +73,6 @@ const formik = useFormik({
         }
     },
 });
-
 
 
 
