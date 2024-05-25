@@ -113,3 +113,293 @@ const formik = useFormik({
         )}
     />
 </LocalizationProvider>
+
+
+
+
+
+
+
+
+
+import React, { useEffect, useState } from 'react';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import axiosClient from "../../utils/AxiosInterceptor";
+import dayjs from 'dayjs';
+import { 
+  DatePicker, 
+  LocalizationProvider 
+} from "@mui/x-date-pickers";
+import { 
+  AdapterDayjs 
+} from "@mui/x-date-pickers/AdapterDayjs";
+import { 
+  Box, 
+  Button, 
+  Card, 
+  CardContent, 
+  CircularProgress, 
+  Stack, 
+  TextField 
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import CachedIcon from '@mui/icons-material/Cached';
+import Grid from "@mui/material/Unstable_Grid2";
+import Swal from 'sweetalert2';
+import SearchTable from "../../components/SearchTableAlt";
+import { useSnackbar } from '../../components/Snackbar';
+import useTitle from '../../hooks/useTitle';
+import PageTitle from '../../layouts/PageTitle';
+import Loader from '../../components/Loader';
+
+const ProjectMaster = () => {
+    const [rowss, setRowss] = useState([]);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [btnText, setBtnText] = useState("Save");
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isLoader, setIsLoader] = useState(false);
+    const { showSnackbar } = useSnackbar();
+    const title = "Project Master";
+    useTitle(title);
+
+    useEffect(() => {
+        setIsLoader(true);
+        axiosClient.get(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project`)
+            .then(response => {
+                if (response.data?.result?.length === 0) {
+                    showSnackbar("No data found", "warning");
+                }
+                let responseData = response.data?.result?.map((value, index) => {
+                    let rowData = { ...value, index: index + 1 };
+                    return rowData;
+                })
+                setRowss(responseData);
+            })
+            .catch(error => {
+                showSnackbar(error.response.data.message ? error.response.data.message : error.response.message, 'error');
+                setRowss([]);
+            })
+            .finally(() => setIsLoader(false));
+    }, [showSnackbar]);
+
+    const validationSchema = yup.object({
+        projectCode: yup.string().required("Project Code is required"),
+        projectName: yup.string().required("Project Name is required"),
+        auditDate: yup.date().nullable().required("Audit Date is required"),
+    });
+
+    const formik = useFormik({
+        initialValues: {
+            projectCode: "",
+            projectName: "",
+            auditDate: null,
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            setSelectedRow(null);
+            setIsSubmitted(true);
+            if (selectedRow !== null) {
+                setBtnText("Updating");
+                let postData = { ...values, projectCode: values.projectCode, projectName: values.projectName, auditDate: values.auditDate };
+
+                axiosClient.put(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project/${rowss[selectedRow].projectId}`, postData)
+                    .then(response => {
+                        if (response.data.statusCode === 200) {
+                            setRowss((prevValue) => {
+                                const updatedRows = [...prevValue];
+                                updatedRows[selectedRow] = { ...updatedRows[selectedRow], ...response.data?.result };
+                                return updatedRows;
+                            });
+                            showSnackbar(response.data?.message, "success");
+                            setBtnText("Save");
+                            formik.resetForm();
+                        } else {
+                            setBtnText("Update");
+                            showSnackbar(response.data?.message, "error");
+                        }
+                    })
+                    .catch(error => {
+                        setBtnText("Update");
+                        showSnackbar(error.response.data.message ? error.response.data.message : error.response.message, 'error');
+                    })
+                    .finally(() => {
+                        setIsSubmitted(false);
+                    });
+            } else {
+                setBtnText("Saving");
+                let postData = { ...values, projectCode: values.projectCode, projectName: values.projectName, auditDate: values.auditDate };
+                axiosClient.post(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project`, postData)
+                    .then(response => {
+                        if (response.data.statusCode === 200) {
+                            const updatedRow = rowss.map(value => ({ ...value, index: value.index + 1 }));
+                            let newRow = response.data?.result;
+                            newRow = { index: 1, ...newRow };
+                            setRowss([newRow, ...updatedRow]);
+                            setBtnText("Saving");
+                            showSnackbar(response.data?.message, "success");
+                            formik.resetForm();
+                        } else {
+                            showSnackbar(response.data?.message, "error");
+                        }
+                    })
+                    .catch(error => {
+                        showSnackbar(error.response.data.message ? error.response.data.message : error.response.message, 'error');
+                    })
+                    .finally(() => {
+                        setBtnText("Save");
+                        setIsSubmitted(false);
+                    });
+            }
+        },
+    });
+
+    const handleCancel = () => {
+        setBtnText("Save");
+        setSelectedRow(null);
+        formik.resetForm();
+    };
+
+    const handleEdit = (index) => {
+        setSelectedRow(index - 1);
+
+        let auditDate = rowss[index - 1].auditDate;
+        const dateParts = auditDate.split("-");
+        auditDate = dayjs(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`, 'YYYY-MM-DD');
+
+        setBtnText("Update");
+        formik.setFieldValue("projectCode", rowss[index - 1].projectCode);
+        formik.setFieldValue("projectName", rowss[index - 1].projectName);
+        formik.setFieldValue("auditDate", auditDate);
+    };
+
+    const handleDelete = (index) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let values = rowss[index - 1];
+
+                axiosClient.delete(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project/${values.projectId}`)
+                    .then(response => {
+                        if (response.data.statusCode === 200) {
+                            const updatedRow = rowss.filter(value => value.index !== values.index).map((value, index) => ({ ...value, index: index + 1 }));
+                            setRowss(updatedRow);
+                            showSnackbar(response.data?.message, "success");
+                        } else {
+                            showSnackbar(response.data?.message, "error");
+                        }
+                    })
+                    .catch(error => {
+                        showSnackbar(error.response.data.message ? error.response.data.message : error.response.message, 'error');
+                    });
+            }
+        });
+    }
+
+    const columns = [
+        { field: "index", headerName: "S.No", flex: 0.1, minWidth: 80, headerClassName: "super-app-theme--header" },
+        { field: "projectCode", headerName: "Project Code", flex: 0.2, minWidth: 180, headerClassName: "super-app-theme--header" },
+        { field: "projectName", headerName: "Project Name", flex: 0.2, minWidth: 180, headerClassName: "super-app-theme--header" },
+        { field: "auditDate", headerName: "Audit Date", flex: 0.2, minWidth: 180, headerClassName: "super-app-theme--header" },
+        {
+            field: "actions", headerName: "Actions", flex: 0.2, minWidth: 200, headerClassName: "super-app-theme--header", renderCell: (params) => (
+                <>
+                    <EditIcon style={{ color: "#008000", cursor: "pointer" }} className="mx-1" onClick={() => handleEdit(params.row.index)} />
+                    <DeleteIcon style={{ color: "#FF0000", cursor: "pointer" }} className="mx-1" onClick={() => handleDelete(params.row.index)} />
+                </>
+            ),
+        },
+    ];
+
+    return (
+        <>
+            <PageTitle title={title} />
+            <Card>
+                <CardContent>
+                    <form onSubmit={formik.handleSubmit}>
+                        <Box className="formContent">
+                            <Grid container spacing={2}>
+                                <Grid item xs={6} sm={4} md={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Project Code"
+                                        name="projectCode"
+                                        variant="outlined"
+                                        size="small"
+                                        value={formik.values.projectCode}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.projectCode && Boolean(formik.errors.projectCode)}
+                                        helperText={formik.touched.projectCode && formik.errors.projectCode}
+                                    />
+                                </Grid>
+                                <Grid item xs={6} sm={4} md={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Project Name"
+                                        name="projectName"
+                                        variant="outlined"
+                                        size="small"
+                                        value={formik.values.projectName}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.projectName && Boolean(formik.errors.projectName)}
+                                        helperText={formik.touched.projectName && formik.errors.projectName}
+                                    />
+                                </Grid>
+                                <Grid item xs={6} sm={4} md={4}>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                            label="Audit Date"
+                                            value={formik.values.auditDate}
+                                            onChange={(value) => formik.setFieldValue('auditDate', value)}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    fullWidth
+                                                    size="small"
+                                                    error={formik.touched.auditDate && Boolean(formik.errors.auditDate)}
+                                                    helperText={formik.touched.auditDate && formik.errors.auditDate}
+                                                />
+                                            )}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                        <Box mt={3}>
+                            <Stack direction="row" spacing={2}>
+                                <Button variant="contained" color="primary" type="submit" disabled={isSubmitted} startIcon={btnText === "Save" ? <SaveAltIcon /> : <CachedIcon />}>
+                                    {btnText}
+                                </Button>
+                                <Button variant="outlined" color="secondary" onClick={handleCancel} startIcon={<CachedIcon />}>
+                                    Cancel
+                                </Button>
+                            </Stack>
+                        </Box>
+                    </form>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardContent>
+                    <Box mt={3}>
+                        {isLoader ? (
+                            <Loader />
+                        ) : (
+                            <SearchTable columns={columns} rows={rowss} />
+                        )}
+                    </Box>
+                </CardContent>
+            </Card>
+        </>
+    );
+}
+
+export default ProjectMaster;
