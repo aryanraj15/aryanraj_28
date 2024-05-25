@@ -1,3 +1,80 @@
+
+const formik = useFormik({
+    initialValues: {
+        projectCode: "",
+        projectName: "",
+        auditDate: null,
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+        const formattedDate = values.auditDate ? values.auditDate.format('YYYY-MM-DD') : null;
+        const postData = { 
+            ...values, 
+            auditDate: formattedDate 
+        };
+
+        setSelectedRow(null);
+        setIsSubmitted(true);
+
+        if (selectedRow !== null) {
+            setBtnText("Updating");
+
+            axiosClient.put(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project/${rowss[selectedRow].projectId}`, postData)
+                .then(response => {
+                    if (response.data.statusCode === 200) {
+                        setRowss((prevValue) => {
+                            const updatedRows = [...prevValue];
+                            updatedRows[selectedRow] = { ...updatedRows[selectedRow], ...response.data?.result };
+                            return updatedRows;
+                        });
+                        showSnackbar(response.data?.message, "success");
+                        setBtnText("Save");
+                        formik.resetForm();
+                    } else {
+                        setBtnText("Update");
+                        showSnackbar(response.data?.message, "error");
+                    }
+                })
+                .catch(error => {
+                    setBtnText("Update");
+                    showSnackbar(error.response?.data?.message ? error.response.data.message : error.message, 'error');
+                })
+                .finally(() => {
+                    setIsSubmitted(false);
+                });
+        } else {
+            setBtnText("Saving");
+
+            axiosClient.post(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project`, postData)
+                .then(response => {
+                    if (response.data.statusCode === 200) {
+                        const updatedRow = rowss.map(value => ({ ...value, index: value.index + 1 }));
+                        let newRow = response.data?.result;
+                        newRow = { index: 1, ...newRow };
+                        setRowss([newRow, ...updatedRow]);
+                        setBtnText("Saving");
+                        showSnackbar(response.data?.message, "success");
+                        formik.resetForm();
+                    } else {
+                        showSnackbar(response.data?.message, "error");
+                    }
+                })
+                .catch(error => {
+                    showSnackbar(error.response?.data?.message ? error.response.data.message : error.message, 'error');
+                })
+                .finally(() => {
+                    setBtnText("Save");
+                    setIsSubmitted(false);
+                });
+        }
+    },
+});
+
+
+
+
+
+
 const handleEdit = (index) => {
     setSelectedRow(index - 1);
 
