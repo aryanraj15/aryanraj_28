@@ -3,6 +3,148 @@ const handleEdit = (index) => {
 
     let auditDate = rowss[index - 1].auditDate;
     const dateParts = auditDate.split("-");
+    // Convert the date string to a dayjs object
+    auditDate = dayjs(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`, 'YYYY-MM-DD');
+
+    console.log("Date::", auditDate.format('YYYY-MM-DD')); // For debugging
+
+    setBtnText("Update");
+    formik.setFieldValue("projectCode", rowss[index - 1].projectCode);
+    formik.setFieldValue("projectName", rowss[index - 1].projectName);
+    formik.setFieldValue("auditDate", auditDate);
+    // formik.setFieldValue("managerId", rowss[index - 1].managerId);
+    // formik.setFieldValue("partnerId", rowss[index - 1].partnerId);
+};
+
+
+
+
+
+const validationSchema = yup.object({
+    projectCode: yup.string().required("Project Code is required"),
+    projectName: yup.string().required("Project Name is required"),
+    auditDate: yup.date().nullable().required("Audit Date is required"),
+});
+
+const formik = useFormik({
+    initialValues: {
+        projectCode: "",
+        projectName: "",
+        auditDate: null,
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+        const formattedDate = values.auditDate ? values.auditDate.format('YYYY-MM-DD') : null;
+        const postData = { 
+            ...values, 
+            auditDate: formattedDate 
+        };
+        
+        setSelectedRow(null);
+        setIsSubmitted(true);
+        if (selectedRow !== null) {
+            setBtnText("Updating");
+
+            axiosClient.put(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project/${rowss[selectedRow].projectId}`, postData)
+                .then(response => {
+                    if (response.data.statusCode === 200) {
+                        setRowss((prevValue) => {
+                            const updatedRows = [...prevValue];
+                            updatedRows[selectedRow] = { ...updatedRows[selectedRow], ...response.data?.result };
+                            return updatedRows;
+                        });
+                        showSnackbar(response.data?.message, "success");
+                        setBtnText("Save");
+                        formik.resetForm();
+                    } else {
+                        setBtnText("Update");
+                        showSnackbar(response.data?.message, "error");
+                    }
+                })
+                .catch(error => {
+                    setBtnText("Update");
+                    showSnackbar(error.response.data.message ? error.response.data.message : error.response.message, 'error');
+                })
+                .finally(() => {
+                    setIsSubmitted(false);
+                });
+        } else {
+            setBtnText("Saving");
+
+            axiosClient.post(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/master/project`, postData)
+                .then(response => {
+                    if (response.data.statusCode === 200) {
+                        const updatedRow = rowss.map(value => ({ ...value, index: value.index + 1 }));
+                        let newRow = response.data?.result;
+                        newRow = { index: 1, ...newRow };
+                        setRowss([newRow, ...updatedRow]);
+                        setBtnText("Saving");
+                        showSnackbar(response.data?.message, "success");
+                        formik.resetForm();
+                    } else {
+                        showSnackbar(response.data?.message, "error");
+                    }
+                })
+                .catch(error => {
+                    showSnackbar(error.response.data.message ? error.response.data.message : error.response.message, 'error');
+                })
+                .finally(() => {
+                    setBtnText("Save");
+                    setIsSubmitted(false);
+                });
+        }
+    },
+});
+
+return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DatePicker
+            label="Audit Date"
+            value={formik.values.auditDate}
+            onChange={(value) => formik.setFieldValue('auditDate', value)}
+            renderInput={(params) => (
+                <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    error={formik.touched.auditDate && Boolean(formik.errors.auditDate)}
+                    helperText={formik.touched.auditDate && formik.errors.auditDate}
+                />
+            )}
+        />
+    </LocalizationProvider>
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const handleEdit = (index) => {
+    setSelectedRow(index - 1);
+
+    let auditDate = rowss[index - 1].auditDate;
+    const dateParts = auditDate.split("-");
     auditDate = dayjs(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`, 'YYYY-MM-DD');
 
     console.log("Date::", auditDate.format('DD/MM/YYYY')); // For debugging
