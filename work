@@ -1,135 +1,4 @@
 
-import {
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from "@mui/material";
-import Loader from '../../components/Loader';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Accordian from "./Accordian"; // Make sure the file is renamed to Accordion.js
-import axiosClient from "../../utils/AxiosInterceptor";
-import { useState, useEffect } from "react";
-import { useSnackbar } from "../../components/Snackbar";
-import useTitle from "../../hooks/useTitle";
-
-const AccordionParent = () => {
-  const [expanded, setExpanded] = useState('panel0');
-  const [isLoading, setIsLoading] = useState(true);
-  const [arr1, setArr1] = useState([]);
-  const [arr2, setArr2] = useState([]);
-  const [arr3, setArr3] = useState([]);
-  const [arr4, setArr4] = useState([]);
-  const [arr5, setArr5] = useState([]);
-  const { showSnackbar } = useSnackbar();
-  const title = "Process Compliance Checklist";
-  useTitle(title);
-
-  const phaseData = [
-    { name: "Project Initiation and Planning", arr: arr1 },
-    { name: "Project Monitoring and Control", arr: arr2 },
-    { name: "Engineering", arr: arr3 },
-    { name: "Support", arr: arr4 },
-    { name: "Project Closure", arr: arr5 },
-  ];
-
-  useEffect(() => {
-    setIsLoading(true);
-    axiosClient
-      .get(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/compliance/1`)
-      .then((response) => {
-        if (response.data?.result?.length === 0) {
-          showSnackbar("No Data Found", "warning");
-        }
-        let responseData = response.data?.result;
-        setArr1(responseData["Project Initiation and Planning"]);
-        setArr2(responseData["Project Monitoring and Control"]);
-        setArr3(responseData["Engineering"]);
-        setArr4(responseData["Support"]);
-        setArr5(responseData["Project Closure"]);
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : '');
-  };
-
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  return (
-    <Card>
-      <Typography
-        component="h4"
-        variant="h6"
-        sx={{ color: "#2169b3", textAlign: "center" }}
-      >
-        Process Compliance Checklist
-      </Typography>
-      <CardContent>
-        {phaseData.map((phase, index) => (
-          <Accordion
-            key={index}
-            expanded={expanded === `panel${index}`}
-            onChange={handleChange(`panel${index}`)}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls={`panel${index}-content`}
-              id={`panel${index}-header`}
-            >
-              <Typography
-                component="h4"
-                variant="h6"
-                sx={{ color: "#737272" }}
-              >
-                {phase.name}
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Accordian arr={phase.arr} title={phase.name} />
-            </AccordionDetails>
-          </Accordion>
-        ))}
-        <div style={{ display: "flex", margin: "20px" }}>
-          <Button variant="contained" sx={{ mr: "5px", ml: "auto" }}>
-            Submit
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default AccordionParent;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
 import "./CalendarStyles.css";
@@ -152,140 +21,32 @@ const styles = {
 const Calendar = () => {
   const calendarRef = useRef();
   const user = useSelector((state) => state.loginReducer);
-
+  
   const [calendarConfig, setCalendarConfig] = useState({
-    viewType: "Week",
     durationBarVisible: false,
     timeRangeSelectedHandling: "Enabled",
     headerDateFormat: "dd/M/yyyy",
-    showWeekend: false, // Hide weekends in the calendar view
-    days: 5, // Show only Monday to Friday
-    onTimeRangeSelected: async (args) => {
-      const dayOfWeek = args.start.dayOfWeek();
-      if (dayOfWeek === 0 || dayOfWeek === 6) { // 0 = Sunday, 6 = Saturday
-        alert("Weekends are not selectable.");
-        calendarRef.current.control.clearSelection();
-        return;
-      }
-      const dp = calendarRef.current.control;
-      const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1");
-      if (!modal.result) { return; }
-      dp.events.add({
-        start: args.start,
-        end: args.end,
-        id: DayPilot.guid(),
-        text: modal.result
-      });
-      dp.clearSelection();
-    },
-    onBeforeEventRender: args => {
-      const dayOfWeek = args.data.start.getDayOfWeek();
-      if (dayOfWeek === 0 || dayOfWeek === 6) { // 0 = Sunday, 6 = Saturday
-        args.data.hidden = true;
-      }
-    }
-  });
 
-  const [events, setEvents] = useState([]);
-
-  const fetchCalendarData = async () => {
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8095/leavemanagement/calendar-view",
-        { userId: user.data.userdetails.user.userId },
-        { headers: { Authorization: `Bearer ${Cookies.get("token")}` } }
-      );
-
-      if (response.data.statusCode === 200) {
-        setEvents(response.data.result);
-      }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchCalendarData();
-  }, []);
-
-  useEffect(() => {
-    if (calendarRef.current) {
-      const startDate = DayPilot.Date.today();
-      calendarRef.current.control.update({ startDate, events });
-    }
-  }, [events]);
-
-  return (
-    <div style={styles.wrap}>
-      <div style={styles.left}>
-        <DayPilotNavigator
-          selectMode={"Week"}
-          onTimeRangeSelected={args => {
-            const dayOfWeek = args.day.dayOfWeek();
-            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 0 = Sunday, 6 = Saturday
-              calendarRef.current.control.update({ startDate: args.day });
-            } else {
-              alert("Weekends are not selectable.");
-            }
-          }}
-        />
-      </div>
-      <div style={styles.main}>
-        <DayPilotCalendar
-          {...calendarConfig}
-          ref={calendarRef}
-        />
-      </div>
-    </div>
-  );
-};
-
-export default Calendar;
-
-
-
-import React, { useState, useRef, useEffect } from 'react';
-import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
-import "./CalendarStyles.css";
-import axios from 'axios';
-import { useSelector } from "react-redux";
-import Cookies from "js-cookie";
-
-const styles = {
-  wrap: {
-    display: "flex"
-  },
-  left: {
-    marginRight: "10px"
-  },
-  main: {
-    flexGrow: "1"
-  }
-};
-
-const Calendar = () => {
-  const calendarRef = useRef();
-  const user = useSelector((state) => state.loginReducer);
-
-  const [calendarConfig, setCalendarConfig] = useState({
-    viewType: "Week",
-    durationBarVisible: false,
-    timeRangeSelectedHandling: "Enabled",
-    headerDateFormat: "dd/M/yyyy",
-    showWeekend: false, // Hide weekends in the calendar view
-    days: 5, // Show only Monday to Friday
     onBeforeEventRender: args => {
       args.data.areas = [];
     }
   });
 
   const [events, setEvents] = useState([]);
+  const handleEventMove = (args) => {
+    args.preventDefault();
+  };
 
   const fetchCalendarData = async () => {
     try {
       const response = await axios.post(
         "http://141.148.194.18:8095/leavemanagement/calendar-view",
-        { userId: user.data.userdetails.user.userId },
+        { 
+          userId: user.data.userdetails.user.userId,
+          rqstFrom: "2024-05-19",
+          rqstTo: "2024-05-25"
+        
+        },
         { headers: { Authorization: `Bearer ${Cookies.get("token")}` } }
       );
 
@@ -297,9 +58,10 @@ const Calendar = () => {
     }
   };
 
+
   useEffect(() => {
     fetchCalendarData();
-  }, []);
+  }, [startDate.value, endDate.value]);
 
   useEffect(() => {
     if (calendarRef.current) {
@@ -314,20 +76,23 @@ const Calendar = () => {
         <DayPilotNavigator
           selectMode={"Week"}
           onTimeRangeSelected={args => {
-            const dayOfWeek = args.day.dayOfWeek();
-            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 0 = Sunday, 6 = Saturday
-              calendarRef.current.control.update({ startDate: args.day });
-            } else {
-              // Optionally show a message or handle the disabled day selection
-              alert("Weekends are not selectable.");
-            }
+            const startDate = args.start;
+            const endDate = args.end;
+            console.log("Start Date:", startDate.value);
+            console.log("End Date:", endDate.value);
+            calendarRef.current.control.update({ startDate });
           }}
         />
       </div>
       <div style={styles.main}>
         <DayPilotCalendar
+          viewType={"Week"}
+          businessBeginsHour={9}
+          businessEndsHour={18}
           {...calendarConfig}
           ref={calendarRef}
+          onEventMove={handleEventMove}
+          onEventResize={handleEventMove}
         />
       </div>
     </div>
@@ -335,368 +100,3 @@ const Calendar = () => {
 };
 
 export default Calendar;
-
-
-
-
-DayPilot.Date.dayOfWeek
-The dayOfWeek() method returns the day of week for the specified date.
-
-Declaration
-DayPilot.Date.dayOfWeek();
-Return Value
-A number specifying the day of week (0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday)
-
-Example
-var today = DayPilot.Date.today().dayOfWeek();
-
-
-
-import React, { useState, useRef, useEffect } from 'react';
-import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
-import "./CalendarStyles.css";
-import axios from 'axios';
-import { useSelector } from "react-redux";
-import Cookies from "js-cookie";
-
-const styles = {
-  wrap: {
-    display: "flex"
-  },
-  left: {
-    marginRight: "10px"
-  },
-  main: {
-    flexGrow: "1"
-  }
-};
-
-const Calendar = () => {
-  const calendarRef = useRef();
-  const user = useSelector((state) => state.loginReducer);
-
-  const [calendarConfig, setCalendarConfig] = useState({
-    viewType: "Week",
-    durationBarVisible: false,
-    timeRangeSelectedHandling: "Enabled",
-    headerDateFormat: "dd/M/yyyy",
-    showWeekend: false, // Hide weekends in the calendar view
-    days: 5, // Show only Monday to Friday
-    onBeforeEventRender: args => {
-      args.data.areas = [];
-    }
-  });
-
-  const [events, setEvents] = useState([]);
-
-  const fetchCalendarData = async () => {
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8095/leavemanagement/calendar-view",
-        { userId: user.data.userdetails.user.userId },
-        { headers: { Authorization: `Bearer ${Cookies.get("token")}` } }
-      );
-
-      if (response.data.statusCode === 200) {
-        setEvents(response.data.result);
-      }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchCalendarData();
-  }, []);
-
-  useEffect(() => {
-    if (calendarRef.current) {
-      const startDate = DayPilot.Date.today();
-      calendarRef.current.control.update({ startDate, events });
-    }
-  }, [events]);
-
-  return (
-    <div style={styles.wrap}>
-      <div style={styles.left}>
-        <DayPilotNavigator
-          selectMode={"Week"}
-          selectOnly={["mon", "tue", "wed", "thu", "fri"]} // Disable weekends
-          onTimeRangeSelected={args => {
-            calendarRef.current.control.update({ startDate: args.day });
-          }}
-        />
-      </div>
-      <div style={styles.main}>
-        <DayPilotCalendar
-          {...calendarConfig}
-          ref={calendarRef}
-        />
-      </div>
-    </div>
-  );
-};
-
-export default Calendar;
-
-
-
-import { Typography, Button, Card, CardContent, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
-import Loader from '../../components/Loader';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import data from "./data";
-import Accordian from "./Accordian"; // Rename the file to Accordion.js for consistency
-import { useState, useEffect } from "react";
-
-const phaseData = [
-  { name: "Project Initiation and Planning", arr: data["arr1"] },
-  { name: "Project Monitoring and Control", arr: data["arr2"] },
-  { name: "Engineering", arr: data["arr3"] },
-  { name: "Support", arr: data["arr4"] },
-  { name: "Project Closure", arr: data["arr5"] },
-];
-
-const AccordionParent = () => {
-  const [expanded, setExpanded] = useState('panel0');
-  const [isLoader, setIsLoader] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoader(false);
-    }, 5000);
-    return () => clearTimeout(timer); // Cleanup timer on component unmount
-  }, []);
-
-  const handleChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : '');
-  };
-
-  return (
-    <>
-      {isLoader && <Loader />}
-      <Card>
-        <Typography
-          component="h4"
-          variant="h6"
-          sx={{ color: "#2169b3", textAlign: "center" }}
-        >
-          Process Compliance Checklist
-        </Typography>
-
-        <CardContent>
-          {phaseData.map((phase, index) => (
-            <Accordion
-              key={index}
-              expanded={expanded === `panel${index}`}
-              onChange={handleChange(`panel${index}`)}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls={`panel${index}-content`}
-                id={`panel${index}-header`}
-              >
-                <Typography
-                  component="h4"
-                  variant="h6"
-                  sx={{ color: "#737272" }}
-                >
-                  {phase.name}
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Accordian arr={phase.arr} title={phase.name} />
-              </AccordionDetails>
-            </Accordion>
-          ))}
-          <div style={{ display: "flex", margin: "20px" }}>
-            <Button variant="contained" sx={{ mr: "5px", ml: "auto" }}>
-              Submit
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </>
-  );
-};
-
-export default AccordionParent;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import {
-  Autocomplete,
-  Button,
-  Card,
-  CardContent,
-  Paper,
-  Snackbar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-} from "@mui/material";
-import { useState, useEffect } from "react";
-
-const dropdown_list = [
-  { id: 1, label: "Yes" },
-  { id: 2, label: "No" },
-  { id: 3, label: "NA" },
-];
-
-const Accordion = ({ arr, title }) => {
-  const [open, setOpen] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [formData, setFormData] = useState(arr);
-
-  useEffect(() => {
-    setFormData(arr);
-  }, [arr]);
-
-  const handleEditClick = () => {
-    setOpenEdit(true);
-  };
-
-  const handleEditClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenEdit(false);
-  };
-
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpen(false);
-  };
-
-  const handleChange = (index, field, value) => {
-    const updatedFormData = [...formData];
-    updatedFormData[index][field] = value;
-    setFormData(updatedFormData);
-  };
-
-  const handleSave = () => {
-    console.log(formData);
-    setOpen(true);
-  };
-
-  const getSelectedItem = (item) => {
-    return dropdown_list.find((opt) => opt.label === item.selectVal) || null;
-  };
-
-  return (
-    <Card>
-      <CardContent>
-        <TableContainer
-          component={Paper}
-          sx={{ borderLeft: "1px solid black", m: "10px 0" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#2369b3" }}>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>S.NO</TableCell>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>{title}</TableCell>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>Select</TableCell>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>Remarks</TableCell>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>Evidence</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {formData.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell style={{ border: "1px solid black" }}>{item.sno}</TableCell>
-                  <TableCell style={{ border: "1px solid black", width: "30%" }}>
-                    <TextField
-                      variant="standard"
-                      InputProps={{ disableUnderline: true }}
-                      multiline
-                      minRows={3}
-                      maxRows={4}
-                      defaultValue={item.question}
-                      fullWidth
-                      onChange={(e) => handleChange(index, "question", e.target.value)}
-                    />
-                  </TableCell>
-                  <TableCell style={{ border: "1px solid black" }}>
-                    <Autocomplete
-                      value={getSelectedItem(item)}
-                      options={dropdown_list}
-                      getOptionLabel={(option) => option.label}
-                      renderInput={(params) => <TextField {...params} label="Select" />}
-                      onChange={(e, newValue) => handleChange(index, "selectVal", newValue ? newValue.label : "")}
-                    />
-                  </TableCell>
-                  <TableCell style={{ border: "1px solid black", width: "30%" }}>
-                    <TextField
-                      variant="standard"
-                      InputProps={{ disableUnderline: true }}
-                      multiline
-                      minRows={3}
-                      maxRows={4}
-                      defaultValue={item.remarks}
-                      fullWidth
-                      onChange={(e) => handleChange(index, "remarks", e.target.value)}
-                    />
-                  </TableCell>
-                  <TableCell style={{ border: "1px solid black", width: "30%" }}>
-                    <TextField
-                      variant="standard"
-                      InputProps={{ disableUnderline: true }}
-                      multiline
-                      minRows={3}
-                      maxRows={4}
-                      defaultValue={item.evidence}
-                      fullWidth
-                      onChange={(e) => handleChange(index, "evidence", e.target.value)}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <div style={{ display: "flex", margin: "20px" }}>
-          <Button variant="contained" sx={{ mr: "5px", ml: "auto" }} onClick={handleSave}>
-            Save
-          </Button>
-          <Button variant="contained" onClick={handleEditClick}>
-            Edit
-          </Button>
-        </div>
-        <Snackbar
-          open={open}
-          autoHideDuration={5000}
-          onClose={handleClose}
-          message="Changes Saved Successfully"
-          ContentProps={{ sx: { background: "green" } }}
-        />
-        <Snackbar
-          open={openEdit}
-          autoHideDuration={5000}
-          onClose={handleEditClose}
-          message="Updated Successfully"
-          ContentProps={{ sx: { background: "green" } }}
-        />
-      </CardContent>
-    </Card>
-  );
-};
-
-export default Accordion;
-
