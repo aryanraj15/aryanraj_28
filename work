@@ -1,203 +1,1138 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
-import "./CalendarStyles.css";
-import axios from 'axios';
-import { useSelector } from "react-redux";
-import Cookies from "js-cookie";
+import CachedIcon from "@mui/icons-material/Cached";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveAltIcon from "@mui/icons-material/SaveAlt";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Stack,
+  TextField,
+} from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
+import { useFormik } from "formik";
+import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import * as yup from "yup";
+import SearchTable from "../../components/SearchTableAlt";
+import { useSnackbar } from "../../components/Snackbar";
+import useTitle from "../../hooks/useTitle";
+import PageTitle from "../../layouts/PageTitle";
+import axiosClient from "../../utils/AxiosInterceptor";
+import Loader from "../../components/Loader";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { Link } from "react-router-dom";
+import Paper from "@mui/material/Paper";
 
-const styles = {
-  wrap: {
-    display: "flex"
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
+} from "@mui/material";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { styled } from "@mui/material/styles";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
+
+const policyRowData = [
+  {
+    id: 1,
+    documentName: "Amendment 1",
+    description: "Modifications on account of change in law",
+    remarks: "04/05/2024",
+    uploadedOn: "01/04/2024 05:10 PM",
+    uploadedBy: "Yash",
   },
-  left: {
-    marginRight: "10px"
+  {
+    id: 2,
+    documentName: "Amendment 2",
+    description: "Modifications on account of change in law",
+    remarks: "01/06/2024",
+    uploadedOn: "05/04/2024 06:10 PM",
+    uploadedBy: "Naman",
   },
-  main: {
-    flexGrow: "1"
-  }
-};
+  {
+    id: 3,
+    documentName: "Amendment 3",
+    description: "Modifications on account of change in law",
+    remarks: "07/03/2024",
+    uploadedOn: "06/04/2024 07:10 PM",
+    uploadedBy: "Sarthak",
+  },
+];
+const row_data = [
+  {
+    id: 1,
+    policyName: "Dividend Distribution Policy",
+    policyCode: "PC001",
+    createdOn: "01/01/2024",
+  },
+  {
+    id: 2,
+    policyName: "Code of Practices and Procedure for Fair Disclosure",
+    policyCode: "PC002",
+    createdOn: "02/03/2024",
+  },
+  {
+    id: 3,
+    policyName: "Policy for Preservation of Documents",
+    policyCode: "PC003",
+    createdOn: "07/04/2024 ",
+  },
+];
+const IndentItemMaster = () => {
+  const [rowss, setRowss] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [policyDomain, setPolicyDomain] = useState([]);
+  const [unitOfMeasurement, setUnitOfMeasurement] = useState([]);
+  const [btnText, setBtnText] = useState("Save");
+  const [isReadable, setIsReadable] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoader, setIsLoader] = useState(false);
+  const { showSnackbar } = useSnackbar();
+  const [open, setOpen] = useState(false);
+  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  // const [option, setOption] = useState("");
+  // const[effectiveFrom,setEffectiveFrom]=useState('');
+  // const[effectiveTo,setEffectiveTo]=useState('');
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [fileLimit, setFileLimit] = useState(false);
+  const MAX_COUNT = 5;
 
-const Calendar = () => {
-  const calendarRef = useRef();
-  const user = useSelector((state) => state.loginReducer);
-
-  const [calendarConfig, setCalendarConfig] = useState({
-    durationBarVisible: false,
-    timeRangeSelectedHandling: "Enabled",
-    headerDateFormat: "dd/M/yyyy",
-
-    onBeforeEventRender: args => {
-      args.data.areas = [];
-    }
-  });
-
-  const [events, setEvents] = useState([]);
-  const [startDate, setStartDate] = useState(DayPilot.Date.today());
-  const [endDate, setEndDate] = useState(DayPilot.Date.today().addDays(6));
-
-  const handleEventMove = (args) => {
-    args.preventDefault();
-  };
-
-  const fetchCalendarData = async () => {
-    const rqstFrom = startDate.toString("yyyy-MM-dd");
-    const rqstTo = endDate.toString("yyyy-MM-dd");
-
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8095/leavemanagement/calendar-view",
-        { 
-          userId: user.data.userdetails.user.userId,
-          rqstFrom,
-          rqstTo
-        },
-        { headers: { Authorization: `Bearer ${Cookies.get("token")}` } }
-      );
-
-      if (response.data.statusCode === 200) {
-        setEvents(response.data.result);
+  const handleUploadFiles = (files) => {
+    const uploaded = [...uploadedFiles];
+    let limitExceeded = false;
+    files.some((file) => {
+      if (uploaded.findIndex((f) => f.name === file.name) === -1) {
+        uploaded.push(file);
+        if (uploaded.length === MAX_COUNT) setFileLimit(true);
+        if (uploaded.length > MAX_COUNT) {
+          alert(`you can only add a maximum of ${MAX_COUNT} files`);
+          setFileLimit(false);
+          limitExceeded = true;
+          return true;
+        }
       }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
+      return false;
+    });
+    if (!limitExceeded) setUploadedFiles(uploaded);
   };
-
-  useEffect(() => {
-    fetchCalendarData();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    if (calendarRef.current) {
-      calendarRef.current.control.update({ startDate, events });
-    }
-  }, [events]);
-
-  return (
-    <div style={styles.wrap}>
-      <div style={styles.left}>
-        <DayPilotNavigator
-          selectMode={"Week"}
-          onTimeRangeSelected={args => {
-            setStartDate(args.start);
-            setEndDate(args.end.addDays(-1)); // Adjusting to get the correct end date
-          }}
-        />
-      </div>
-      <div style={styles.main}>
-        <DayPilotCalendar
-          viewType={"Week"}
-          businessBeginsHour={9}
-          businessEndsHour={18}
-          {...calendarConfig}
-          ref={calendarRef}
-          onEventMove={handleEventMove}
-          onEventResize={handleEventMove}
-        />
-      </div>
-    </div>
-  );
-};
-
-export default Calendar;
-
-import React, { useState, useRef, useEffect } from 'react';
-import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
-import "./CalendarStyles.css";
-import axios from 'axios';
-import { useSelector } from "react-redux";
-import Cookies from "js-cookie";
-
-const styles = {
-  wrap: {
-    display: "flex"
-  },
-  left: {
-    marginRight: "10px"
-  },
-  main: {
-    flexGrow: "1"
-  }
-};
-
-const Calendar = () => {
-  const calendarRef = useRef();
-  const user = useSelector((state) => state.loginReducer);
+  const handleFileEvent = (e) => {
+    const chosenFiles = Array.prototype.slice.call(e.target.files);
+    handleUploadFiles(chosenFiles);
+    console.log("UploadFiles",uploadedFiles)
+  };
   
-  const [calendarConfig, setCalendarConfig] = useState({
-    durationBarVisible: false,
-    timeRangeSelectedHandling: "Enabled",
-    headerDateFormat: "dd/M/yyyy",
+  const handleButtonClick=()=>{
+    document.getElementById('fileUpload').click();
+  }
+  /////////////////////////////////////////////////////////////////
+  const policyDomainData = [
+    { id: 1, label: "Domain1" },
+    { id: 2, label: "Domain2" },
+    { id: 3, label: "Domain3" },
+  ];
+  useEffect(() => {
+    setPolicyDomain(policyDomainData.map((item) => item));
+  }, [policyDomain]);
+  /////////////////////////////////////////////////////////////////
+  const dialogBoxPolicyData = [
+    {
+      code: "PC001",
+      domain: "Domain 1",
+      validity: "Fixed Tenure",
+      effectiveFrom: "2015-01-01",
+      effectiveTo: "2026-12-31",
+      fullName: "User One",
+      createdOn: null,
+    },
+    {
+      code: "PC002",
+      domain: "Domain 1",
+      validity: "Fixed Tenure",
+      effectiveFrom: "2015-01-01",
+      effectiveTo: "2026-12-31",
+      fullName: "User One",
+      createdOn: null,
+    },
+    {
+      code: "PC003",
+      domain: "Domain 1",
+      validity: "Fixed Tenure",
+      effectiveFrom: "2015-01-01",
+      effectiveTo: "2026-12-31",
+      fullName: "User One",
+      createdOn: null,
+    },
+  ];
+  ////////////////////////////////////////////////////////////////
+  const handleClickOpen = (policy) => {
+    setSelectedPolicy(policy);
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedPolicy(null);
+  };
 
-    onBeforeEventRender: args => {
-      args.data.areas = [];
-    }
+  const title = "Parent Policy Upload";
+  useTitle(title);
+
+  // useEffect(() => {
+
+  //     setIsLoader(true);
+  //     axiosClient.get(`${process.env.REACT_APP_INDENT_API_URL}/policyDomain`).then(response => {
+
+  //         setpolicyDomain(response.data.result);
+  //         //console.log("today response",response.data.result);
+  //     })
+  //         .catch(error => {
+  //             setpolicyDomain([]);
+  //             console.log(error);
+  //         })
+  //         .finally(() => setIsLoader(false));
+
+  //     setIsLoader(true);
+  //     axiosClient.get(`${process.env.REACT_APP_INDENT_API_URL}/unitofmeasurement`).then(response => {
+  //         setUnitOfMeasurement(response.data.result);
+  //         //console.log("today response",response.data.result);
+  //     })
+  //         .catch(error => {
+  //             setUnitOfMeasurement([]);
+  //             console.log(error);
+  //         })
+  //         .finally(() => setIsLoader(false));
+
+  //     setIsLoader(true);
+  //     axiosClient.get(`${process.env.REACT_APP_INDENT_API_URL}/item/details`)
+  //         .then(response => {
+
+  //             if (response.data?.result?.length === 0)
+  //                 showSnackbar("No Indent Requests found", "warning");
+
+  //             let responseData = response.data?.result?.map((value, index) => {
+  //                 let rowData = { ...value, index: index + 1 };
+
+  //                 return rowData;
+  //             })
+  //             setRowss(responseData);
+  //         })
+  //         .catch(error => {
+  //             showSnackbar(error.response.data.message ? error.response.data.message : error.response.message, 'error');
+  //             setRowss([]);
+  //         })
+  //         .finally(() => setIsLoader(false));
+
+  //     // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+
+  const validationSchema = yup.object({
+    policyName: yup.string().required("Policy Name is required"),
+    policyCode: yup.string().required("Policy Code is required"),
+    policyDomain: yup.object().nullable().required("Policy Domain is required"),
+    createdOn: yup.date().required("Policy Creation Date is required"),
+    option: yup.string().required("Required"),
+    effectiveFrom: yup.date().when("option", {
+      is: "fixed",
+      then: yup.date().required("Policy Effective From is required"),
+    }),
+    effectiveTo: yup.date().when("option", {
+      is: "fixed",
+      then: yup.date().required("Policy Effective To is required"),
+    }),
+
+    // unitOfMeasurementId: yup.object().nullable().required("Unit of Measurement is required"),
   });
 
-  const [events, setEvents] = useState([]);
-  const handleEventMove = (args) => {
-    args.preventDefault();
-  };
+  const formik = useFormik({
+    initialValues: {
+      policyName: "",
+      policyCode: "",
+      policyDomain: "",
+      createdOn: null,
+      option: "",
+      effectiveFrom: null,
+      effectiveTo: null,
+      // documents:[]
 
-  const fetchCalendarData = async () => {
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8095/leavemanagement/calendar-view",
-        { 
-          userId: user.data.userdetails.user.userId,
-          rqstFrom: "2024-05-19",
-          rqstTo: "2024-05-25"
-        
-        },
-        { headers: { Authorization: `Bearer ${Cookies.get("token")}` } }
-      );
+      // unitOfMeasurementId: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      // console.log("Value",values);
+      setSelectedRow(null);
+      setIsSubmitted(true);
+      if (selectedRow !== null) {
+        setBtnText("Updating");
+        let postData = {
+          ...values,
+          policyName: values.policyName,
+          policyCode: values.policyCode,
+          policyDomain: values.policyDomain.id,
+          createdOn: values.createdOn,
+          // unitOfMeasurementId: values.unitOfMeasurementId.id,
+        };
 
-      if (response.data.statusCode === 200) {
-        setEvents(response.data.result);
+        axiosClient
+          .put(
+            `${process.env.REACT_APP_INDENT_API_URL}/item/${rowss[selectedRow].itemId}`,
+            postData
+          )
+
+          .then((response) => {
+            // console.log(response.data);
+            if (response.data.statusCode === 200) {
+              setRowss((prevValue) => {
+                const updatedRows = [...prevValue];
+                updatedRows[selectedRow] = {
+                  ...updatedRows[selectedRow],
+                  ...response.data?.result,
+                };
+
+                setIsReadable(false);
+
+                return updatedRows;
+              });
+              showSnackbar(response.data?.message, "success");
+              setBtnText("Save");
+              formik.resetForm();
+            } else {
+              setBtnText("Update");
+              showSnackbar(response.data?.message, "error");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+            setBtnText("Update");
+            showSnackbar(
+              error.response.data.message
+                ? error.response.data.message
+                : error.response.message,
+              "error"
+            );
+          })
+          .finally(() => {
+            setIsSubmitted(false);
+          });
+      } else {
+        // console.log(values);
+        setBtnText("Saving");
+        let postData = {
+          ...values,
+          // policyDomain: values.policyDomain.id,
+          // unitOfMeasurementId: values.unitOfMeasurementId.id,
+          policyName: values.policyName,
+          policyCode: values.policyCode,
+          policyDomain: values.policyDomain.id,
+          createdOn: values.createdOn,
+        };
+        // console.log("Post Data",postData);
+        axiosClient
+          .post(`${process.env.REACT_APP_INDENT_API_URL}/item/save`, postData)
+          .then((response) => {
+            // console.log(response.data);
+            if (response.data.statusCode === 200) {
+              const updatedRow = rowss.map((value) => ({
+                ...value,
+                index: value.index + 1,
+              }));
+
+              let newRow = response.data?.result;
+              newRow = { index: 1, ...newRow };
+
+              setRowss([newRow, ...updatedRow]);
+              setBtnText("Saving");
+              showSnackbar(response.data?.message, "success");
+              formik.resetForm();
+            } else {
+              showSnackbar(response.data?.message, "error");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+            showSnackbar(
+              error.response.data.message
+                ? error.response.data.message
+                : error.response.message,
+              "error"
+            );
+          })
+          .finally(() => {
+            setBtnText("Save");
+            setIsSubmitted(false);
+          });
       }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
+    },
+  });
+
+  const handleCancel = () => {
+    setBtnText("Save");
+    setIsReadable(false);
+    setSelectedRow(null);
+    formik.resetForm();
   };
 
+  const handleEdit = (index) => {
+    setSelectedRow(index - 1);
 
-  useEffect(() => {
-    fetchCalendarData();
-  }, [startDate.value, endDate.value]);
+    setIsReadable(true);
+    setBtnText("Update");
+    formik.setFieldValue("policyName", rowss[index - 1].policyName);
+    formik.setFieldValue("policyCode", rowss[index - 1].policyCode);
+    formik.setFieldValue("policyDomain", rowss[index - 1].policyDomain);
+    formik.setFieldValue("createdOn", rowss[index - 1].createdOn);
 
-  useEffect(() => {
-    if (calendarRef.current) {
-      const startDate = DayPilot.Date.today();
-      calendarRef.current.control.update({ startDate, events });
-    }
-  }, [events]);
+    // formik.setFieldValue(
+    //   "unitOfMeasurementId",
+    //   rowss[index - 1].unitOfMeasurement
+    // );
+  };
+
+  const handleDelete = (index) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let values = rowss[index - 1];
+
+        axiosClient
+          .delete(
+            `${process.env.REACT_APP_INDENT_API_URL}/item/${values.itemId}`
+          )
+          .then((response) => {
+            // console.log(response.data);
+            if (response.data.statusCode === 200) {
+              const updatedRow = rowss
+                .filter((value) => value.index !== values.index)
+                .map((value, index) => ({ ...value, index: index + 1 }));
+
+              setRowss(updatedRow);
+              showSnackbar(response.data?.message, "success");
+            } else {
+              showSnackbar(response.data?.message, "error");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+            showSnackbar(
+              error.response.data.message
+                ? error.response.data.message
+                : error.response.message,
+              "error"
+            );
+          });
+      }
+    });
+  };
+
+  const columns = [
+    {
+      field: "index",
+      headerName: "S.No",
+      flex: 0.1,
+      minWidth: 80,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "policyName",
+      headerName: "Policy Name",
+      flex: 0.4,
+      minWidth: 180,
+      headerClassName: "super-app-theme--header",
+      renderCell: (params) => (
+        <Link
+          variant="text"
+          color="primary"
+          onClick={() => handleClickOpen(params.row)}
+        >
+          {params.value}
+        </Link>
+      ),
+    },
+    {
+      field: "policyCode",
+      headerName: "Policy Code",
+      flex: 0.2,
+      minWidth: 180,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "createdOn",
+      headerName: "Policy Creation Date",
+      flex: 0.2,
+      minWidth: 180,
+      headerClassName: "super-app-theme--header",
+    },
+    // {
+    //   field: "policyEffectiveFrom",
+    //   headerName: "Policy Effective From",
+    //   flex: 0.2,
+    //   minWidth: 180,
+    //   headerClassName: "super-app-theme--header",
+    // },
+    // {
+    //   field: "policyEffectiveTo",
+    //   headerName: "Policy Effective To",
+    //   flex: 0.2,
+    //   minWidth: 180,
+    //   headerClassName: "super-app-theme--header",
+    // },
+    // {
+    //     field: "policyDomain",
+    //     headerName: "Policy Domain",
+    //     flex: 0.3,
+    //     minWidth: 200,
+    //     headerClassName: "super-app-theme--header",
+    //     valueGetter: (params) => params.row.policyDomain.label,
+
+    // },
+
+    // {
+    //     field: "unitOfMeasurement",
+    //     headerName: "Unit of Measurement",
+    //     flex: 0.3,
+    //     minWidth: 180,
+    //     headerClassName: "super-app-theme--header",
+    //     valueGetter: (params) => params.row.unitOfMeasurement.label,
+    // },
+
+    {
+      field: "action",
+      headerName: "Action",
+      headerClassName: "super-app-theme--header",
+      flex: 0.3,
+      minWidth: 180,
+      sortable: false,
+      disableClickEventBubbling: true,
+      renderCell: (params) => {
+        return (
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              sx={{
+                color: "black",
+                backgroundColor: "white",
+                ":hover": { color: "black", backgroundColor: "white" },
+                borderRadius: "4px",
+              }}
+              endIcon={<EditIcon />}
+              size="small"
+              onClick={() => handleEdit(params.row.index)}
+            >
+              Edit
+            </Button>
+
+            <Button
+              variant="contained"
+              sx={{
+                color: "white",
+                backgroundColor: "#286cb4",
+                ":hover": { color: "white", backgroundColor: "#286cb4" },
+                borderRadius: "4px",
+              }}
+              startIcon={<DeleteIcon />}
+              size="small"
+              onClick={() => handleDelete(params.row.index)}
+            >
+              Delete
+            </Button>
+          </Stack>
+        );
+      },
+    },
+  ];
+  const policyColumns = [
+    {
+      field: "index",
+      headerName: "S.No",
+      flex: 0.1,
+      minWidth: 40,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "documentName",
+      headerName: "Doc Name",
+      flex: 0.2,
+      minWidth: 100,
+      headerClassName: "super-app-theme--header",
+      renderCell: (params) => (
+        <Link to={`/viewpolicydetails/${params.row.id}`} color="inherit">
+          {params.value}
+        </Link>
+      ),
+    },
+    {
+      field: "description",
+      headerName: "Amendment Type",
+      flex: 0.3,
+      minWidth: 250,
+      headerClassName: "super-app-theme--header",
+    },
+
+    {
+      field: "remarks",
+      headerName: "Amendment Date",
+      flex: 0.3,
+      minWidth: 150,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "uploadedOn",
+      headerName: "Uploaded On",
+      flex: 0.3,
+      minWidth: 100,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "uploadedBy",
+      headerName: "Uploaded By",
+      flex: 0.3,
+      minWidth: 100,
+      headerClassName: "super-app-theme--header",
+    },
+  ];
+  // const handleOptionChange = (e) => {
+  //   if (e.target.value === "fixed") setOption(e.target.value);
+  //   else setOption("");
+  // };
+  // const handleEffectiveFromChange=(e)=>{
+  //   setEffectiveFrom(e.target.value);
+  // }
+  // const handleEffectiveToChange=(e)=>{
+  //   setEffectiveTo(e.target.value);
+  // }
+  // const handleFileChange=(e)=>{
+  //   setFiles(e.target.files)
+  // }
 
   return (
-    <div style={styles.wrap}>
-      <div style={styles.left}>
-        <DayPilotNavigator
-          selectMode={"Week"}
-          onTimeRangeSelected={args => {
-            const startDate = args.start;
-            const endDate = args.end;
-            console.log("Start Date:", startDate.value);
-            console.log("End Date:", endDate.value);
-            calendarRef.current.control.update({ startDate });
-          }}
-        />
-      </div>
-      <div style={styles.main}>
-        <DayPilotCalendar
-          viewType={"Week"}
-          businessBeginsHour={9}
-          businessEndsHour={18}
-          {...calendarConfig}
-          ref={calendarRef}
-          onEventMove={handleEventMove}
-          onEventResize={handleEventMove}
-        />
-      </div>
-    </div>
+    <>
+      {isLoader && <Loader />}
+      <Grid container>
+        <Grid xs={12}>
+          <Card sx={{ my: 2 }} elevation={5}>
+            <CardContent>
+              <PageTitle name={title} />
+              <Box component="form" onSubmit={formik.handleSubmit}>
+                <Grid container columnSpacing={2}>
+                  <Grid xs={12} sm={3}>
+                    <TextField
+                      margin="normal"
+                      fullWidth
+                      type="text"
+                      id="policyName"
+                      name="policyName"
+                      label="Policy Name"
+                      size="small"
+                      disabled={isReadable}
+                      value={formik.values.policyName}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.policyName && !!formik.errors.policyName
+                      }
+                      helperText={
+                        formik.touched.policyName && formik.errors.policyName
+                      }
+                    />
+                  </Grid>
+                  <Grid xs={12} sm={3}>
+                    <TextField
+                      margin="normal"
+                      fullWidth
+                      type="text"
+                      id="policyCode"
+                      name="policyCode"
+                      label="Policy Code"
+                      size="small"
+                      disabled={isReadable}
+                      value={formik.values.policyCode}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.policyCode && !!formik.errors.policyCode
+                      }
+                      helperText={
+                        formik.touched.policyCode && formik.errors.policyCode
+                      }
+                    />
+                  </Grid>
+                  {/* <Grid xs={12} sm={4}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer components={["DatePicker"]} sx={{ mt: 1 }}>
+                        <DatePicker
+                          sx={{ width: "100%" }}
+                          name="createdOn"
+                          disableFuture
+                          format="DD/MM/YYYY"
+                          value={formik.values.createdOn}
+                          onChange={(value) =>
+                            formik.setFieldValue("createdOn", value)
+                          }
+                          onBlur={formik.handleBlur}
+                          label="Created On"
+                          slotProps={{ textField: { size: "small" } }}
+                        />
+                      </DemoContainer>
+                    </LocalizationProvider>
+                  </Grid>*/}
+                  <Grid xs={12} sm={3}>
+                    <Autocomplete
+                      disablePortal
+                      margin="normal"
+                      fullWidth
+                      id="policyDomain"
+                      name="policyDomain"
+                      size="small"
+                      options={policyDomain}
+                      value={
+                        policyDomain.find(
+                          (option) =>
+                            option.id === formik.values.policyDomain?.id
+                        ) || null
+                      }
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("policyDomain", null);
+                        } else {
+                          formik.setFieldValue("policyDomain", value);
+                        }
+                      }}
+                      getOptionLabel={(value) => value.label}
+                      sx={{ width: "100%", mt: 2, mb: 1 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Policy Domain"
+                          onBlur={formik.handleBlur}
+                          helperText={
+                            formik.errors.policyDomain &&
+                            formik.touched.policyDomain
+                              ? formik.errors.policyDomain
+                              : null
+                          }
+                          error={
+                            formik.errors.policyDomain &&
+                            formik.touched.policyDomain
+                              ? true
+                              : false
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid xs={12} sm={3}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer components={["DatePicker"]} sx={{ mt: 1 }}>
+                        <DatePicker
+                          sx={{ width: "100%" }}
+                          name=""
+                          disableFuture
+                          format="DD/MM/YYYY"
+                          value={formik.values.createdOn}
+                          onChange={(value) =>
+                            formik.setFieldValue("createdOn", value)
+                          }
+                          onBlur={formik.handleBlur}
+                          label="Policy Creation Date"
+                          slotProps={{ textField: { size: "small" } }}
+                        />
+                      </DemoContainer>
+                    </LocalizationProvider>
+                  </Grid>
+                  <Grid xs={12} sm={3}>
+                  <input
+                      id="fileUpload"
+                      type="file"
+                      // name="documents"
+                      accept="application/pdf,image/png"
+                      multiple
+                      onChange={handleFileEvent}
+                      disabled={fileLimit}
+                      style={{display:'none'}}
+                      // onClick={(e)=>{formik.setFieldValue('documents',e.currentTarget.files)}}
+                      // component="label"
+                      // role={undefined}
+                      // variant="contained"
+                      // variant="outlined"
+                      // tabIndex={-1}
+                      // startIcon={<CloudUploadIcon />}
+                    />
+                      {/* Upload Policy Document */}
+                      {/* <VisuallyHiddenInput type="file" /> */}
+                   <Button  
+                        variant="outlined"
+                        onClick={handleButtonClick}
+                        >
+                          Upload Policy Document
+
+                   </Button>
+                    {/* <label htmlFor="'fileUpload">
+                      <a
+                        className={`btn btn-primary ${
+                          fileLimit ?'disabled':''
+                          
+                        }`}
+                        onClick={handleButtonClick}
+                        
+                      >
+                        Upload Files
+                      </a>
+                    </label> */}
+                    <div className="uploaded-files-list">
+                      {uploadedFiles.map((file,index) => (
+                        <div key={index}>{file.name}</div>
+                      ))}
+                    </div>
+                  </Grid>
+                  <Grid xs={12} sm={4} style={{ marginTop: "-1%" }}>
+                    <FormControl>
+                      <FormLabel id="demo-row-radio-buttons-group-label">
+                        Policy Validity
+                      </FormLabel>
+                      <RadioGroup
+                        row
+                        aria-labelledby="demo-row-radio-buttons-group-label"
+                        name="option"
+                        value={formik.values.option}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      >
+                        <FormControlLabel
+                          value="fixed"
+                          control={<Radio />}
+                          label="Fixed Tenure"
+                          // onClick={handleOptionChange}
+                        />
+
+                        <FormControlLabel
+                          value="unlimited"
+                          control={<Radio />}
+                          label="Unlimited"
+                          // onClick={handleOptionChange}
+                        />
+                      </RadioGroup>
+                    </FormControl>
+                  </Grid>
+                  <Grid
+                    xs={12}
+                    sm={3}
+                    style={{
+                      marginLeft: "-8.5%",
+                      marginBottom: "2%",
+                      marginTop: "-2%",
+                    }}
+                  >
+                    {formik.values.option === "fixed" && (
+                      <Grid xs={12} sm={2}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer
+                            components={["DatePicker"]}
+                            sx={{ mt: 1 }}
+                          >
+                            <DatePicker
+                              sx={{ width: "100%" }}
+                              name="effectiveFrom"
+                              disableFuture
+                              format="DD/MM/YYYY"
+                              value={formik.values.effectiveFrom}
+                              onChange={(value) =>
+                                formik.setFieldValue("effectiveFrom", value)
+                              }
+                              onBlur={formik.handleBlur}
+                              label="Policy Effective From"
+                              slotProps={{ textField: { size: "small" } }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                      </Grid>
+                    )}
+                  </Grid>
+                  <Grid
+                    xs={12}
+                    sm={3}
+                    style={{ marginBottom: "2%", marginTop: "-2%" }}
+                  >
+                    {formik.values.option === "fixed" && (
+                      <Grid xs={12} sm={3}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer
+                            components={["DatePicker"]}
+                            sx={{ mt: 1 }}
+                          >
+                            <DatePicker
+                              sx={{ width: "100%" }}
+                              name="effectiveTo"
+                              disableFuture
+                              format="DD/MM/YYYY"
+                              value={formik.values.effectiveTo}
+                              onChange={(value) =>
+                                formik.setFieldValue("effectiveTo", value)
+                              }
+                              onBlur={formik.handleBlur}
+                              label="Policy Effective To"
+                              slotProps={{ textField: { size: "small" } }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                      </Grid>
+                    )}
+                  </Grid>
+                  {/* <Grid xs={12} sm={4} >
+                                        <Autocomplete
+                                            disablePortal
+                                            margin="normal"
+                                            fullWidth
+                                            id="unitOfMeasurementId"
+                                            name="unitOfMeasurementId"
+                                            size='small'
+                                            options={unitOfMeasurement}
+                                            value={unitOfMeasurement.find(
+                                                (option) => option.id === formik.values.unitOfMeasurementId?.id
+                                            ) || null}
+                                            onChange={(e, value) => {
+                                                if (value === null) {
+                                                    formik.setFieldValue("unitOfMeasurementId", null)
+                                                }
+                                                else {
+                                                    formik.setFieldValue("unitOfMeasurementId", value)
+
+
+                                                }
+                                            }}
+
+                                            getOptionLabel={(value) => value.label}
+                                            sx={{ width: "100%", mt: 2, mb: 1 }}
+                                            renderInput={(params) => (
+                                                <TextField {...params}
+                                                    label="Unit of Measurement"
+                                                    onBlur={formik.handleBlur}
+                                                    helperText={formik.errors.unitOfMeasurementId && formik.touched.unitOfMeasurementId ? formik.errors.unitOfMeasurementId : null}
+                                                    error={formik.errors.unitOfMeasurementId && formik.touched.unitOfMeasurementId ? true : false}
+                                                />
+                                            )}
+                                        />
+
+                                    </Grid> */}
+                </Grid>
+                <Box spacing={2} sx={{ mt: 1, textAlign: "center" }}>
+                  <Button
+                    sx={{
+                      minWidth: 100,
+                      ml: 1,
+                      mt: { xs: 1, md: 0 },
+                    }}
+                    disabled={isSubmitted}
+                    variant="contained"
+                    type="submit"
+                  >
+                    {btnText}
+                    &nbsp;
+                    {isSubmitted ? (
+                      <CircularProgress color="inherit" size={15} />
+                    ) : (
+                      <SaveAltIcon sx={{ ml: 0.2 }}></SaveAltIcon>
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                    onClick={handleCancel}
+                    variant="outlined"
+                  >
+                    <CachedIcon />
+                    &nbsp;RESET
+                  </Button>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+      <Card>
+        <CardContent>
+          <Box component={"div"}>
+            <SearchTable
+              columns={columns}
+              // data={rowss}
+              data={row_data}
+              isCheckbox={false}
+              isHideDensity={false}
+              isHideExport={true}
+              isHideFilter={true}
+              isHideColumn={true}
+              isHidePaging={false}
+              name="villageName"
+              id="villageName"
+            />
+          </Box>
+
+          {selectedPolicy && (
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              sx={{ "& .MuiDialog-paper": { borderRadius: "10px" } }}
+            >
+              {/* <DialogTitle style={{textAlign:'center'}}>{selectedPolicy.policyName}</DialogTitle> */}
+              <div
+                style={{
+                  textAlign: "center",
+                  marginBottom: "-6%",
+                  marginTop: "1%",
+                }}
+              >
+                <PageTitle name={selectedPolicy.policyName} />
+              </div>
+
+              <DialogContent>
+                {/* <DialogContentText>{selectedPolicy.details}</DialogContentText> */}
+
+                <CardContent>
+                  <Box>
+                    {/* <span>
+                      <b>Policy Name : </b>{selectedPolicy.policyName}
+                    </span> */}
+                    <Grid container spacing={2}>
+                      <Grid item xs={4}>
+                        <span>
+                          <b>Policy Code : </b>PC001
+                        </span>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <span>
+                          <b>Policy Domain : </b>Quality Management System
+                        </span>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <span>
+                          <b>Policy Validity : </b>Fixed
+                        </span>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <span>
+                          <b>Policy Effective From : </b>24/05/2020
+                        </span>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <span>
+                          <b>Policy Effective To: </b>23/05/2025
+                        </span>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <span>
+                          <b>Created By : </b>Saransh Chauhan
+                        </span>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <span>
+                          <b>Policy Creation Date : </b>22/05/2024
+                        </span>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <span>
+                          <b>Policy Document : </b>
+                          <Link href="/">
+                            Dividend Distribution Policy Document
+                          </Link>
+                        </span>
+                      </Grid>
+                    </Grid>
+                    {/* <span>
+                      <b>Policy Code : </b>PC001
+                    </span>
+                    <span style={{ marginLeft: "3%" }}>
+                      <b>Policy Domain : </b>Quality Management System
+                    </span>
+                    <br></br>
+                    <br></br>
+                    <span>
+                      <b>Policy Validity : </b>Fixed
+                    </span>
+                    <span style={{ marginLeft: "3%" }}>
+                      <b>Policy Effective From : </b>24/05/2020
+                    </span>
+                    <span style={{ marginLeft: "3%" }}>
+                      <b>Policy Effective To: </b>23/05/2025
+                    </span>
+                    <br></br>
+                    <br></br>
+                    <span>
+                      <b>Created By : </b>Saransh Chauhan
+                    </span>
+                    <span style={{ marginLeft: "3%" }}>
+                      <b>Policy Creation Date : </b>22/05/2024
+                    </span>
+                    <br></br>
+                    <br></br>
+                    <span>
+                      <b>Policy Document : </b>
+                      <Link href="/">
+                        Dividend Distribution Policy Document
+                      </Link>
+                    </span> */}
+
+                    <Box style={{ marginTop: "3%" }}>
+                      <PageTitle name="Amendments" />
+                      <SearchTable
+                        columns={policyColumns}
+                        // data={rows}
+                        data={policyRowData}
+                        isCheckbox={false}
+                        isHideDensity={false}
+                        isHideExport={false}
+                        isHideFilter={false}
+                        isHideColumn={false}
+                        isHidePaging={false}
+                        name="IndentRequestTable"
+                        id="IndentRequestTable"
+                      />
+                    </Box>
+                  </Box>
+                </CardContent>
+              </DialogContent>
+              <DialogActions onClick={handleClose} color="primary">
+                <Button style={{ borderRadius: "4%" }} variant="contained">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+          )}
+        </CardContent>
+      </Card>
+    </>
   );
 };
 
-export default Calendar;
+export default IndentItemMaster;
+
+
+"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMyIsInJvbGUiOjEsImV4cCI6MTcxNjkxOTg1OCwiaWF0IjoxNzE2OTE2MjU4fQ.3Ft0Wiq941KlZN78Mhkq3qok1xVyBlvtq6zKSRuUjpcp_h-oliJEDBsYFPmLcVIrKnjUpzuBUp8lmtZDyV6nyg"
