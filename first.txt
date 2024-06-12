@@ -4,3 +4,23 @@
 •	Worked on Basic Employment form Module, developed this module completely with dynamic frontend functionalities.
 •	Worked on HR-Module in Leave Management system, developed the whole frontend screens made it dynamic and functional.
 
+PreAuth Module:
+
+As a frontend developer, I contributed significantly to the creation of the PreAuth Module's frontend screens using React.
+Responsibilities included designing and implementing user interfaces to enhance user experience and ensure seamless navigation.
+Master Screens Management System:
+
+Played a key role in the development of the Master Screens Management System.
+Designed and implemented multiple frontend screens, ensuring they were fully functional and user-friendly.
+Job Module:
+
+Actively participated in the development of the Job Module, transforming Figma design prototypes into fully functional frontend screens using React.
+Ensured high-quality, responsive design and usability in all screens developed.
+Basic Employment Form Module:
+
+Took full ownership of the development of the Basic Employment Form Module.
+Developed dynamic frontend functionalities to enhance user interaction and data submission processes.
+HR Module in Leave Management System:
+
+Led the frontend development for the HR Module within the Leave Management System.
+Created dynamic and functional frontend screens to manage leave applications efficiently, ensuring an intuitive and responsive user interface.
