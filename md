@@ -449,3 +449,278 @@ export default function PersistentDrawerLeft() {
     </Box>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useContext, useEffect, useState } from "react";
+import { styled, useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import CssBaseline from "@mui/material/CssBaseline";
+import MuiAppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import MailIcon from "@mui/icons-material/Mail";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import LightMode from "@mui/icons-material/LightMode";
+import DarkMode from "@mui/icons-material/DarkMode";
+import { ColorModeContext } from "../utils/ColorModeContext";
+import DrawerMenu from "./DrawerMenu";
+import Avatar from "@mui/material/Avatar";
+import logoImage from "../assets/images/logo.png";
+import { Outlet, useNavigate } from "react-router-dom";
+import logo from "../assets/images/logo.png";
+import logo_left from "../assets/images/KPMG.png";
+import { grey, indigo } from "@mui/material/colors";
+import { Grid, Select, InputLabel, FormControl } from "@mui/material";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Stack } from "@mui/system";
+import { TitleContext } from "../contexts/TitleContext";
+import { useSnackbar } from "../components/Snackbar";
+import Cookies from "js-cookie";
+
+const drawerWidth = 280;
+
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: `-${drawerWidth}px`,
+    ...(open && {
+      transition: theme.transitions.create("margin", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
+    }),
+  })
+);
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+  justifyContent: "center", //changed property
+}));
+
+const Footer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  width: "100%",
+  position: "fixed",
+  top: "unset",
+  bottom: 0,
+  color: "white",
+  backgroundColor: "black",
+  textAlign: "center",
+  size: "8px",
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+export default function PersistentDrawerLeft() {
+  const { showSnackbar } = useSnackbar();
+  const theme = useTheme();
+  const { title } = useContext(TitleContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [open, setOpen] = useState(true);
+  const [dark, setDark] = useState(false);
+  const { toggleColorMode } = useContext(ColorModeContext);
+  const [data, setData] = useState(false);
+  const [desg, setDesg] = useState(localStorage.getItem("DesignationId"));
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const openE1 = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    console.log("Logging out");
+    setAnchorEl(null);
+    Cookies.remove("token");
+    Cookies.remove("jobToken");
+    localStorage.clear();
+    navigate("/");
+    showSnackbar("Logout Successful", "success");
+  };
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  const handleDarkMode = () => {
+    setDark(!dark);
+    toggleColorMode();
+  };
+
+  const handleChange = (e) => {
+    setDesg(e.target.value);
+    localStorage.setItem("DesignationId", e.target.value);
+  };
+
+  return (
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <AppBar position="fixed" open={open}>
+        <Toolbar sx={{ backgroundColor: "#004c99", color: "#fff" }}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={{ mr: 2, ...(open && { display: "none" }) }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerClose}
+            edge="start"
+            sx={{ mr: 2, ...(!open && { display: "none" }) }}
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+          <Grid
+            container
+            alignItems="center"
+            spacing={2}
+            sx={{ flexGrow: 1 }}
+          >
+            <Grid item xs={12} sm={3} md={3} lg={3}>
+              <Typography variant="h6" noWrap>
+                {title ? title : "KPMG"}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={3} md={3} lg={3}>
+              <Typography variant="h8" noWrap>
+                {localStorage.getItem("fullname")}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={3} md={3} lg={3}>
+              <Typography variant="h8" noWrap>
+                {localStorage.getItem("designation")}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={3} md={3} lg={3}>
+              <Box display="flex" justifyContent="flex-end">
+                <PowerSettingsNewIcon
+                  onClick={handleLogout}
+                  sx={{ cursor: "pointer" }}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            scrollbarWidth: "thin",
+          },
+        }}
+        variant="persistent"
+        anchor="left"
+        open={open}
+      >
+        <DrawerHeader>
+          <Box mr={1.5}>
+            <Typography
+              sx={{ py: 2, float: "left" }}
+              display="flex"
+              justifyContent="space-between"
+              component={"div"}
+            >
+              <img src={logo_left} alt="YSR" width="150px" height="50px" />
+            </Typography>
+          </Box>
+        </DrawerHeader>
+        <Divider />
+        <DrawerMenu />
+      </Drawer>
+      <Main open={open}>
+        <DrawerHeader />
+        <Outlet />
+      </Main>
+      <Footer position="fixed" open={open}>
+        <Typography noWrap component="div">
+          &copy; Site maintained by KPMG Advisory Services Pvt. Ltd.
+        </Typography>
+      </Footer>
+    </Box>
+  );
+}
