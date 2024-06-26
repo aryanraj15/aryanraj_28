@@ -218,7 +218,8 @@ const PersonalDetails = () => {
                                             id="DateofBirth"
                                             name="DateofBirth"
                                             label="Date of Birth"
-                                            inputFormat="DD/MM/YYYY"
+                                            format="YYYY-MM-DD"
+                                            disableFuture
                                             value={formik.values.DateofBirth}
                                             onChange={(value) => {
                                                 const formattedDate = value ? dayjs(value).format("YYYY-MM-DD") : null;
@@ -239,7 +240,7 @@ const PersonalDetails = () => {
                                         />
                                     </LocalizationProvider>
                                 </Grid>
-                                <Grid item xs={12} sm={8} md={8} lg={8}>
+                                <Grid item xs={12} sm={12} md={12} lg={12}>
                                     <FormControl component="fieldset" margin="normal">
                                         <FormLabel component="legend">Height</FormLabel>
                                         <RadioGroup
@@ -270,7 +271,7 @@ const PersonalDetails = () => {
                                                 helperText={formik.touched.HeightCm && formik.errors.HeightCm}
                                             />
                                         ) : (
-                                            <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center">
+                                            <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-start" alignItems="center">
                                                 <Grid item xs={6} sm={6} md={6} lg={6}>
                                                     <TextField
                                                         fullWidth
@@ -309,7 +310,7 @@ const PersonalDetails = () => {
                                         )}
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                <Grid item xs={12} sm={12} md={12} lg={12}>
                                     <TextField
                                         fullWidth
                                         id="IdentificationMarks"
