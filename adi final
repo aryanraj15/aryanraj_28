@@ -1,541 +1,539 @@
-import { Typography, Button, Card, CardContent, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
-import Loader from '../../components/Loader';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import data from "./data";
-import Accordian from "./Accordian";
-import { useState } from "react";
-let arr1 = data["arr1"];
-let arr2 = data["arr2"];
-let arr3 = data["arr3"];
-let arr4 = data["arr4"];
-let arr5 = data["arr5"];
+import React, { useEffect, useState, useRef } from "react";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import { styled } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Grid from "@mui/material/Grid";
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import Snackbar from '@mui/material/Snackbar';
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { Card, CardContent, Link, Slide } from "@mui/material";
+import useTitle from "../../hooks/useTitle";
+import PageTitle from "../../layouts/PageTitle";
+import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
+import { H3 } from "../../components/Typography";
+import AlertConfirm from "react-alert-confirm";
+import { useSnackbar } from "../../components/Snackbar";
+import "react-alert-confirm/lib/style.css";
+import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
+import axios from 'axios';
+import { useSelector } from "react-redux";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import IconButton from '@mui/material/IconButton';
+import AlarmIcon from '@mui/icons-material/Alarm';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import Cookies from "js-cookie";
+function TransitionLeft(props) {
+    return <Slide {...props} direction="left" />;
+}
+const today = dayjs();
 
-const phaseName = [
-  "Project Initiation and Planning",
-  "Project Monitoring and Control",
-  "Engineering",
-  "Support",
-  "Project Closure",
-];
+const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    margin: 3,
+    borderRadius: "10px",
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+}));
 
-const AccordianParent = () => {
-  const [expanded, setExpanded] = useState('panel1');
-
-  const handleChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : '');
-  }
-  const [isLoader,setIsLoader] = useState(true);
-
-  setTimeout(() => {
-      setIsLoader(false);
-  }, 5000);
-  return (
-    <>
-      {isLoader && <Loader/>}
-      <Card>
-        <Typography
-          component="h4"
-          variant="h6"
-          sx={{ color: "#2169b3", textAlign: "center" }}
-        >
-          Process Compliance Checklist
-        </Typography>
-
-        <CardContent>
-        <Accordion  expanded={expanded === 'panel1'} onChange={handleChange('panel1')} >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-           <Typography
-                    component="h4"
-                    variant="h6"
-                    sx={{ color: "#737272" }}
-                  >
-                    Project Initiation and Planning
-                  </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-        <Accordian arr={arr1} title={phaseName[0]} />
-        </AccordionDetails>
-      </Accordion>
-        <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-           <Typography
-                    component="h4"
-                    variant="h6"
-                    sx={{ color: "#737272" }}
-                  >
-                    Project Monitoring and Control
-                  </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-        <Accordian arr={arr2} title={phaseName[1]} />
-        </AccordionDetails>
-      </Accordion>
-        <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-           <Typography
-                    component="h4"
-                    variant="h6"
-                    sx={{ color: "#737272" }}
-                  >
-                    Engineering
-                  </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-        <Accordian arr={arr3} title={phaseName[2]} />
-        </AccordionDetails>
-      </Accordion>
-        <Accordion expanded={expanded === 'panel4'} onChange={handleChange('panel4')}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-           <Typography
-                    component="h4"
-                    variant="h6"
-                    sx={{ color: "#737272" }}
-                  >
-                    Support
-                  </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-        <Accordian arr={arr4} title={phaseName[3]} />
-        </AccordionDetails>
-      </Accordion>
-        <Accordion expanded={expanded === 'panel5'} onChange={handleChange('panel5')}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-           <Typography
-                    component="h4"
-                    variant="h6"
-                    sx={{ color: "#737272" }}
-                  >
-                    Project Closure
-                  </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-        <Accordian arr={arr5} title={phaseName[4]} />
-        </AccordionDetails>
-      </Accordion>
-          <div style={{ display: "flex", margin: "20px" }}>
-            <Button variant="contained" sx={{ mr: "5px", ml: "auto" }}>
-              Submit
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </>
-  );
-};
-
-export default AccordianParent;
+const PersonalDetails = () => {
+    const [prefixList, setPrefixList] = useState([]);
+    const [genderList, setGenderList] = useState([]);
+    const [openToast, setOpenToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastSeverity, setToastSeverity] = useState("info");
+    const [value, setValue] = React.useState(dayjs());
+    const [age, setAge] = React.useState(calculateAge(value));
 
 
 
 
+    const validationSchema = Yup.object().shape({
 
+        prefix: Yup.string().required("Leave is Required").nullable(),
+        firstName: Yup.string().required("Leave is Required").nullable(),
+        MiddleName: Yup.string().required("Leave is Required").nullable(),
+        LastName: Yup.string().required("Leave is Required").nullable(),
+        Gender: Yup.string().required("Leave is Required").nullable(),
+        DateofBirth: Yup.string().required("Leave is Required").nullable(),
+        Height: Yup.string().required("Leave is Required").nullable(),
+        IdentificationMarks: Yup.string().required("Leave is Required").nullable(),
+        FatherName: Yup.string().required("Leave is Required").nullable(),
+        MotherName: Yup.string().required("Leave is Required").nullable(),
+        MaritalStatus: Yup.string().required("Leave is Required").nullable(),
+        spouseName: Yup.string().required("Leave is Required").nullable(),
+        Disabled: Yup.string().required("Leave is Required").nullable(),
 
+        // Leave: Yup.string().required("Leave is Required").nullable(),
+        // // ApplyingDueToAnyEmergency: Yup.string().required("Applying Due To Any Emergency is Required").nullable(),
+        // StationLeave: Yup.string().required("Station Leave is required").nullable(),
+        // LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
+        // LeavestartTime: Yup.string().required("Leave Start Time is required").nullable(),
+        // LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
+        // LeaveEndTime: Yup.string().required("Leave End Time is required").nullable(),
 
+        Description: Yup.string()
+            .required("Description is required")
+            .nullable()
+            .test('word-count', 'Your word length is greater than 200 words', (value) => {
+                if (!value) return true; // Skip validation if the value is empty or null
+                const wordCount = value.trim().split(/\s+/).length;
+                return wordCount <= 200;
+            }),
+    });
 
+    const formik = useFormik({
+        initialValues: {
+            prefix: "",
+            firstName: "",
+            MiddleName: "",
+            LastName: "",
+            Gender: "",
+            DateofBirth: "",
+            Height: "",
+            IdentificationMarks: "",
+            FatherName: "",
+            MotherName: "",
+            MaritalStatus: "",
+            spouseName: "",
+            Disabled: ""
 
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            console.log(values)
+            // handleRedirect();
+        },
+    });
 
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import {
-  Autocomplete,
-  Button,
-  Card,
-  CardContent,
-  Paper,
-  Snackbar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-} from "@mui/material";
-import { useState } from "react";
-const dropdown_list = [
-  { id: 1, label: "Yes" },
-  { id: 2, label: "No" },
-  { id: 3, label: "NA" },
-];
-
-const Accordian = ({ arr ,title}) => {
-  const [open, setOpen] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-
-  const handleEditClick = () => {
-    setOpenEdit(true);
-  };
-  const handleEditClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
+    const ageValidator = (value) => {
+        if (value != null || value != NaN) {
+            const selectedDate = dayjs(value).format("YYYY-MM-DD");
+            console.log(selectedDate);
+            const age = calculateAge(value);
+            console.log(age);
+            let minAge = 18;
+            // let maxAge = 50;
+            if (
+                age &&
+                (age.years < minAge)
+            ) {
+                alert(
+                    `Age should be greater than ${minAge}`
+                );
+                return;
+            }
+            formik.setFieldValue("dob", selectedDate);
+            formik.setFieldValue(
+                "age",
+                age ? age.ageString : ""
+            );
+        }
+    };
+    function calculateAge(dateOfBirth) {
+        const today = new Date();
+        const birthDate = new Date(dateOfBirth);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+            age--;
+        }
+        let ageString = "";
+        if (age > 0) {
+            ageString += age === 1 ? "1 year" : `${age} years`;
+        }
+        if (monthDiff > 0) {
+            if (ageString !== "") {
+                ageString += ", ";
+            }
+            ageString += monthDiff === 1 ? "1 month" : `${monthDiff} months`;
+        }
+        if (dayDiff > 0) {
+            if (ageString !== "") {
+                ageString += ", ";
+            }
+            ageString += dayDiff === 1 ? "1 day" : `${dayDiff} days`;
+        }
+        return {
+            years: age,
+            months: monthDiff,
+            days: dayDiff,
+            ageString: ageString,
+        };
     }
-    setOpenEdit(false);
-  };
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpenToast(false);
+    };
+
+
+    const title = "Leave Application Form";
+    useTitle(title);
+
+    const navigate = useNavigate();
+
+    const handleRedirect = () => {
+        callConfirmDialog();
     }
-    setOpen(false);
-  };
 
-  const [formData, setFormData] = useState(arr);
-  const handleChange = (index, field, value) => {
-    const updatedFormData = [...formData];
-    updatedFormData[index][field] = value;
-    setFormData(updatedFormData);
-  };
-
-  const handleSave = () => {
-    console.log(formData);
-    setOpen(true);
-  };
-  const getSelectedItem = (item) =>{
-    const item1 = dropdown_list.find((opt)=>{
-      if (opt.label == item.selectVal)
-        return opt;
-    })
-    return item1 ;
-  }
-  return (
-    <Card>
-      <CardContent>
-        <TableContainer
-          component={Paper}
-          sx={{ borderLeft: "1px solid black", m: "10px 0" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#2369b3" }}>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>
-                  S.NO
-                </TableCell>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>
-                  {title}
-                </TableCell>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>
-                  Select
-                </TableCell>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>
-                  Remarks
-                </TableCell>
-                <TableCell sx={{ color: "#fff", textAlign: "center" }}>
-                  Evidence
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {arr.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell style={{ border: "1px solid black" }}>
-                    {item.sno}
-                  </TableCell>
-                  <TableCell
-                    style={{ border: "1px solid black", width: "30%" }}
-                  >
-                    <TextField
-                      variant="standard"
-                      InputProps={{ disableUnderline: true }}
-                      multiline
-                      minRows={3}
-                      maxRows={4}
-                      defaultValue={item.question}
-                      fullWidth
-                      onChange={(e) =>
-                        handleChange(index, "question", e.target.value)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell style={{ border: "1px solid black" }}>
-                    <Autocomplete
-                      defaultValue={getSelectedItem(item,index)}
-                      options={dropdown_list}
-                      renderInput={(params) => (
-                        <TextField {...params} label="Select" />
-                      )}
-                      onChange={(e, newValue) =>
-                        handleChange(index, "selectVal", newValue)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell
-                    style={{ border: "1px solid black", width: "30%" }}
-                  >
-                    <TextField
-                      variant="standard"
-                      InputProps={{ disableUnderline: true }}
-                      multiline
-                      minRows={3}
-                      maxRows={4}
-                      defaultValue={item.remarks}
-                      fullWidth
-                      onChange={(e) =>
-                        handleChange(index, "remarks", e.target.value)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell
-                    style={{ border: "1px solid black", width: "30%" }}
-                  >
-                    <TextField
-                      variant="standard"
-                      InputProps={{ disableUnderline: true }}
-                      multiline
-                      minRows={3}
-                      maxRows={4}
-                      defaultValue={item.evidence}
-                      fullWidth
-                      onChange={(e) =>
-                        handleChange(index, "evidence", e.target.value)
-                      }
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <div style={{ display: "flex", margin: "20px" }}>
-          <Button
-            variant="contained"
-            sx={{ mr: "5px", ml: "auto" }}
-            onClick={handleSave}
-          >
-            Save
-          </Button>
-          <Button variant="contained" onClick={handleEditClick}>
-            Edit
-          </Button>
-        </div>
-        <Snackbar
-          open={open}
-          autoHideDuration={5000}
-          onClose={handleClose}
-          message="Changes Saved Successfully"
-          ContentProps={{
-            sx: {
-              background: "green",
-            },
-          }}
-        />
-        <Snackbar
-          open={openEdit}
-          autoHideDuration={5000}
-          onClose={handleEditClose}
-          message="Updated Successfully"
-          ContentProps={{
-            sx: {
-              background: "green",
-            },
-          }}
-        />
-      </CardContent>
-    </Card>
-  );
-};
-
-export default Accordian;
+    const { showSnackbar } = useSnackbar();
 
 
+    const callConfirmDialogMessage = async (strMessage) => {
+        AlertConfirm.config({
+            okText: "Ok",
+        });
+        const [action] = await AlertConfirm.alert(<span><b>{strMessage}</b></span>);
+        action && navigate("/addAbsence");
+    };
+
+    const callConfirmDialog = async () => {
+        console.log('kp-confirm');
+        const [action] = await AlertConfirm({
+            title: "Confirm",
+            desc: "Are you sure, you want to submit?",
+        });
+        AlertConfirm.config({
+            okText: "Submit",
+            cancelText: "Cancel",
+        });
+        if (action) {
+            console.log('kp-saved');
+
+            //   saveLeaveDetails();
+        }
+
+    };
 
 
+    return (
+        <>
 
+            <Box>
+                <form onSubmit={formik.handleSubmit}>
+                    <div>
+                        <Snackbar
+                            open={openToast}
+                            autoHideDuration={6000}
+                            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                            onClose={handleClose}
+                            TransitionComponent={TransitionLeft}
+                        >
+                            <Alert onClose={handleClose} severity={toastSeverity}
+                                sx={{
+                                    width: '100%',
+                                    padding: { sm: '15px', xs: '10px' },
+                                    borderRadius: '15px',
+                                    fontSize: { sm: '16px', xs: '14px' },
+                                    boxShadow: "0 0 10px #999",
+                                    marginTop: { sm: '25px', xs: '20px' }
+                                }}>
+                                {toastMessage}
+                            </Alert>
+                        </Snackbar>
+                    </div>
+                    <Card>
+                        <CardContent>
+                            <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
+                                <CalendarMonthIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+                                <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Apply Leave</H3>
+                            </div>
 
+                            <Grid
+                                container
+                                direction="row"
+                                rowSpacing={0}
+                                columnSpacing={2}
+                                justify="flex-end"
+                                alignItems="center"
+                                sx={{ mb: 1 }}
+                            >
+                                
+                                    <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center" sx={{ mb: 1 }}>
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <Autocomplete
+                                                disablePortal
+                                                margin="normal"
+                                                size="small"
+                                                id="prefix"
+                                                name="prefix"
+                                                // options={prefixList}
+                                                // value={prefixList.find(
+                                                //     (option) => option.id === formik.values.prefix
+                                                // ) || null}
+                                                onChange={(e, value) => {
+                                                    if (value === null) {
+                                                        formik.setFieldValue("prefix", null)
+                                                    }
+                                                    else
+                                                        formik.setFieldValue("prefix", value.id)
+                                                }}
+                                                getOptionLabel={(value) => value.label}
+                                                sx={{ width: "100%", mt: 2 }}
+                                                renderInput={(params) => (
+                                                    <TextField {...params}
+                                                        label="Prefix"
+                                                        required
+                                                        InputLabelProps={{ shrink: true }}
+                                                        onBlur={formik.handleBlur}
+                                                        helperText={formik.errors.prefix && formik.touched.prefix ? formik.errors.prefix : null}
+                                                        error={formik.errors.prefix && formik.touched.prefix ? true : false}
+                                                    />
+                                                )}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                    <Grid
+                                        container
+                                        direction="row"
+                                        rowSpacing={0}
+                                        columnSpacing={2}
+                                        justify="flex-end"
+                                        alignItems="center"
 
+                                    >
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="firstName"
+                                                name="firstName"
+                                                label="First Name"
+                                                size="small"
+                                                margin="normal"
+                                                required
+                                                InputLabelProps={{ shrink: true }}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                value={formik.values.firstName}
+                                                error={formik.touched.firstName && !!formik.errors.firstName}
+                                                helperText={formik.touched.firstName && formik.errors.firstName}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="MiddleName"
+                                                name="MiddleName"
+                                                label="Middle Name"
+                                                size="small"
+                                                margin="normal"
+                                                required
+                                                InputLabelProps={{ shrink: true }}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                value={formik.values.MiddleName}
+                                                error={formik.touched.MiddleName && !!formik.errors.MiddleName}
+                                                helperText={formik.touched.MiddleName && formik.errors.MiddleName}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="LastName"
+                                                name="LastName"
+                                                label="Last Name"
+                                                size="small"
+                                                margin="normal"
+                                                required
+                                                InputLabelProps={{ shrink: true }}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                value={formik.values.LastName}
+                                                error={formik.touched.LastName && !!formik.errors.LastName}
+                                                helperText={formik.touched.LastName && formik.errors.LastName}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <Autocomplete
+                                                disablePortal
+                                                margin="normal"
+                                                size="small"
+                                                id="Gender"
+                                                name="Gender"
+                                                // options={genderList}
+                                                // value={genderList.find(
+                                                //     (option) => option.id === formik.values.Gender
+                                                // ) || null}
+                                                onChange={(e, value) => {
+                                                    if (value === null) {
+                                                        formik.setFieldValue("Gender", null)
+                                                    }
+                                                    else
+                                                        formik.setFieldValue("Gender", value.id)
+                                                }}
+                                                getOptionLabel={(value) => value.label}
+                                                sx={{ width: "100%", mt: 2 }}
+                                                renderInput={(params) => (
+                                                    <TextField {...params}
+                                                        label="Gender"
+                                                        required
+                                                        InputLabelProps={{ shrink: true }}
+                                                        onBlur={formik.handleBlur}
+                                                        helperText={formik.errors.Gender && formik.touched.Gender ? formik.errors.Gender : null}
+                                                        error={formik.errors.Gender && formik.touched.Gender ? true : false}
+                                                    />
+                                                )}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <LocalizationProvider
+                                                dateAdapter={AdapterDayjs}
+                                                adapterLocale={"en-gb"}
+                                            >
+                                                <DatePicker
+                                                    label="Date of Birth"
+                                                    inputFormat="DD-MM-YYYY"
+                                                    maxDate={new Date()}
+                                                    id="dob"
+                                                    name="dob"
+                                                    value={formik.values.dob}
+                                                    InputLabelProps={{ shrink: true }}
+                                                    onChange={(value) => { if (value === null) { formik.setFieldValue("age", "") } else { ageValidator(value) } }}
+                                                    renderInput={(params) => (
+                                                        <TextField
+                                                            size="small"
+                                                            fullWidth
+                                                            margin="normal"
+                                                            name="dob"
+                                                            required
+                                                            {...params}
+                                                            error={formik.touched.dob && Boolean(formik.errors.dob)}
+                                                            helperText={formik.touched.dob && formik.errors.dob}
+                                                            onChange={formik.handleChange}
+                                                            onBlur={formik.handleBlur}
+                                                        />
+                                                    )}
+                                                />
+                                            </LocalizationProvider>
+                                        </Grid>
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            {/* need to add radio button */}
+                                        </Grid>
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="IdentificationMarks"
+                                                name="IdentificationMarks"
+                                                label="Identification Marks"
+                                                size="small"
+                                                margin="normal"
+                                                required
+                                                InputLabelProps={{ shrink: true }}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                value={formik.values.IdentificationMarks}
+                                                error={formik.touched.IdentificationMarks && !!formik.errors.IdentificationMarks}
+                                                helperText={formik.touched.IdentificationMarks && formik.errors.IdentificationMarks}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="FatherName"
+                                                name="FatherName"
+                                                label="Father Name"
+                                                size="small"
+                                                margin="normal"
+                                                required
+                                                InputLabelProps={{ shrink: true }}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                value={formik.values.FatherName}
+                                                error={formik.touched.FatherName && !!formik.errors.FatherName}
+                                                helperText={formik.touched.FatherName && formik.errors.FatherName}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="MotherName"
+                                                name="MotherName"
+                                                label="Mother Name"
+                                                size="small"
+                                                margin="normal"
+                                                required
+                                                InputLabelProps={{ shrink: true }}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                value={formik.values.MotherName}
+                                                error={formik.touched.MotherName && !!formik.errors.MotherName}
+                                                helperText={formik.touched.MotherName && formik.errors.MotherName}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                                            <Autocomplete
+                                                disablePortal
+                                                margin="normal"
+                                                size="small"
+                                                id="MaritalStatus"
+                                                name="MaritalStatus"
+                                                // options={MaritalStatusList}
+                                                // value={MaritalStatusList.find(
+                                                //     (option) => option.id === formik.values.MaritalStatus
+                                                // ) || null}
+                                                onChange={(e, value) => {
+                                                    if (value === null) {
+                                                        formik.setFieldValue("MaritalStatus", null)
+                                                    }
+                                                    else
+                                                        formik.setFieldValue("MaritalStatus", value.id)
+                                                }}
+                                                getOptionLabel={(value) => value.label}
+                                                sx={{ width: "100%", mt: 2 }}
+                                                renderInput={(params) => (
+                                                    <TextField {...params}
+                                                        label="Marital Status"
+                                                        required
+                                                        InputLabelProps={{ shrink: true }}
+                                                        onBlur={formik.handleBlur}
+                                                        helperText={formik.errors.MaritalStatus && formik.touched.MaritalStatus ? formik.errors.MaritalStatus : null}
+                                                        error={formik.errors.MaritalStatus && formik.touched.MaritalStatus ? true : false}
+                                                    />
+                                                )}
+                                            />
+                                        </Grid>
+                                
 
+                            </Grid>
 
+                        </CardContent>
+                    </Card>
+                </form>
+            </Box>
 
+        </>
+    );
+}
 
-
-
-const data ={
-  arr1:[
-     {"sno":"1","question":"Is the project kick off report prepared? Are all stakeholders informed about the project kick off meeting ",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>TCP_CG_Kickoff_V1.1_27032019"},
-   {"sno":"2","question":"Are all the action items from kick off meeting circulated & tracked to closure?",
-     "selectVal":"Yes","remarks":"Kick-off meeting presentation had few items open at that time, such as study of Adhiniyam, conversion of some master plans into electronic format. These have been closed.","evidence":"Not actionable on other teams"},
-   {"sno":"3","question":"Are Estimation/ Re-estimations done based on the estimation guidelines and a methodology defined in PMP?",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>CHiPS_TCP_Estimation_V2.3_revised Plan"},
-   {"sno":"4","question":"Does estimation captures the size and effort estimation both? ",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>CHiPS_TCP_Estimation_V2.3_revised Plan"},
-   {"sno":"5","question":"Are the reviews of estimations are done and relevant review records are available.  ",
-     "selectVal":"Yes","remarks":"","evidence":""},
-   {"sno":"6","question":"Are estimations/ re-estimations approved by EP and SP",
-     "selectVal":"Yes","remarks":"","evidence":""},
-   {"sno":"7","question":"Estimation are revisited at phase ends and for change in scope? ",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>CHiPS_TCP_Estimation_V2.3_revised Plan"},
-   {"sno":"8","question":"Is Project planning (PMP ) complete with all relevant sections appropriately filled up?",
-     "selectVal":"No","remarks":"Ongoing","evidence":"CHiPS_TCP_Project management plan_V2.8"},
-   {"sno":"9","question":"Are the engineering and project management tasks documents the  work break down structure",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"10","question":"Does the PMP define the applicable life cycle model that reflects the actual practice in the project",
-     "selectVal":"NA","remarks":"COTS Product","evidence":""},
-   {"sno":"11","question":"Are resources, timelines planned for the various activities as per the contract timelines",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2 (RACI Matrix, Team details)"},
-   {"sno":"12","question":"Are the training needs identified and updated in the plan  ",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2 (Training Plan)"},
-   {"sno":"13","question":"Is the skill assessment done basis project needs ",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2 (Skill Matrix)"},
-   {"sno":"14","question":"In case of any shorfall in skillset, is the plan prepared for upgrading their skills ",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2 (Training Plan)"},
-   {"sno":"15","question":"IS the project environment details identified and procured as applicable",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8"},
-   {"sno":"16","question":"Are the risks identified for the project and updated in risk register of PMWB (postive and negative)",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2 (Risk and Opportunity Register)"},
-   {"sno":"17","question":"\"Are the risks related to - Dependencies , assumptions - Estimation - Engineering phases identied and updated in risk register\"",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2 (Risk and Opportunity Register)"},
-   {"sno":"18","question":"Is the project monitoring activities planned",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 13"},
-   {"sno":"19","question":"Are the artifacts/deliverables identified for review ",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 6"},
-   {"sno":"20","question":"Are the artifacts/deliverables identified for validation? ",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 6"},
-   {"sno":"21","question":"Are the metrics identified using the measurement framework? (Subcontractor metrics may also be identified as per project needs )",
-     "selectVal":"Yes","remarks":"","evidence":""},
-   {"sno":"22","question":"Are the roles and responsibilities identified and communicated to all resources?",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2 (RACI Matrix)"},
-   {"sno":"23","question":"Are all Cis and Mis identified?",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 19 (a) and (b)"},
-   {"sno":"24","question":"Are the CM tools identified and access rights planned?",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 19 © "},
-   {"sno":"25","question":"Are the namig conventions identified for all the artefacts - including CI and MI",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 19 (a) and (b)"},
-   {"sno":"26","question":"Is the plan for change management available?",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 19 (f)"},
-   {"sno":"27","question":"Is the release management plan documented?",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 20"},
-   {"sno":"28","question":"Are the stakholders identified as per project scope?",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 18"},
-   {"sno":"29","question":"Are the subcontractors identified",
-     "selectVal":"Yes","remarks":"","evidence":""},
-   {"sno":"30","question":"Is the transition plan documented?",
-     "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8>> Section 24"},
-   {"sno":"31","question":"Are all tabs in the project manager work book updated as per the plan ",
-     "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"32","question":"Is the deviation request form prepared and approved for any process tailoring and deviation identified in the project?",
-     "selectVal":"NA","remarks":"No process deviation identified in the project.","evidence":""},
-   {"sno":"33","question":"Are the tailoring details for the project documented?",
-     "selectVal":"NA","remarks":"No process deviation identified in the project.","evidence":""},
-   {"sno":"34","question":"Is PMP peer reviewed and review records available?",
-     "selectVal":"No","remarks":"PMP is not updated for recent changes.","evidence":""},
-   {"sno":"35","question":"Are all review comments logged for PMP & tracked to closure?",
-     "selectVal":"No","remarks":"PMP is not updated for recent changes.","evidence":"CHiPS_TCP_Project management plan_V2."}
-   ],
-   arr2:[
-   {"sno":"36","question":	"IS the project schedule, size and effort tracked at defined frequency", "selectVal": "Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"37","question":	"Are the actuals updated correctly in the  tasks tab as per the project phase", "selectVal":	"No","remarks":""	,"evidence":"Since August 2023, we have not booking efforts on Project Code"},
-   {"sno":"38","question":	"Are the training needs identified, tracked to closure", "selectVal":	"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"39","question":	"Are the team details kept updated", "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"40","question":	"Are the risks identified are analysed and monitored at defined frequency?", "selectVal":"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"41","question":	"Have mitigation actions implemented and tracked to closure for negative risks.", "selectVal": "Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"42","question":	"Is the action plan identified and implemented for positive risks?", "selectVal":	"Yes","remarks":"Risks mitigated with regular communication with client","evidence":""},
-   {"sno":"43","question":	"Does the metrics tab in PMWB reflect the correct data", "selectVal":	"No","remarks":"","evidence":"Since August 2023, we have not booking efforts on Project Code"},
-   {"sno":"44","question":	"Is the metrics data  analyzed and actions taken for any variations in the metrics in PMWB?", "selectVal":	"Yes","remarks":"","evidence":"Efforts are being distributed in other Projects to reduce variation."},
-   {"sno":"45","question":	"Are hardware , software and network resources available as per plan?", "selectVal":"Yes","remarks":"","evidence":"CHiPS_TCP_Project management plan_V2.8"},
-   {"sno":"46","question":	"Is the change request log updated for the changes received in the project", "selectVal":	"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"47","question":	"Are the issues , assumptions and dependencies tracked?", "selectVal":	"Yes","remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2>>IAD Log"},
-   {"sno":"48","question":	"Is PMP is updated periodically based on triggers.", "selectVal":	"No","remarks":"","evidence":""},
-   {"sno":"49","question":	"Has the project progress review meeting held at the defined frequency?Are action items identified are tracked to closure?", "selectVal": 	"No","remarks":"","evidence":"Review meetings with client are conducted when asked for, by either side"},
-   {"sno":"50","question":	"Are regular sync up meetings done with Subcontractors", "selectVal":	"Yes","remarks":""	,"evidence":"Regular discussions on open points and pending activities with an assigned Project Manager of COTS Product owner"},
-   {"sno":"51","question":	"Are the metrics details shared with SEPG team", "selectVal":	"No","remarks":"","evidence":""},
-   {"sno":"52","question":	"Has the senior management review meeting held at the defined frequency?Are action items identified are tracked to closure?", "selectVal":"No"	,"remarks":"","evidence":""}
-   ],
-   arr3:[
-   {"sno":"53", "question":"Have the requirements been elicited to define expectations? Are records of requirements gathering and elicitation from users available?", "selectVal":"Yes", "remarks":"", "evidence":"Requirement Development>>Communication & Review documents>>CHiPS_TCP_Site Visit Report_to_DTCP"},
-   {"sno":"54", "question":"Are non functional requirements identified and documented?", "selectVal":"Yes", "remarks":"", "evidence":"Requirement Development>>FRS and SRS>>CHiPS TCP SRS and FRS_Revised V.5.1"},
-   {"sno":"55", "question":"Are operational scenarios and use cases identified & documented?", "selectVal":"Yes", "remarks":"", "evidence":"quirement Development>>FRS and SRS>>CHiPS TCP SRS and FRS_Revised V.5.1"},
-   {"sno":"56", "question":"Are interface requirments identified & documented?", "selectVal":"Yes", "remarks":"", "evidence":"Requirement Development>>FRS and SRS>>CHiPS TCP SRS and FRS_Revised V.5.1"},
-   {"sno":"57", "question":"Is the requirement (SRS, Use case) document prepared & reviewed?", "selectVal":"Yes", "remarks":"", "evidence":"Requirement Development>>FRS and SRS"},
-   {"sno":"58", "question":"Are all review comments identified in SRS tracked to closure?", "selectVal":"NA", "remarks":"", "evidence":""},
-   {"sno":"59", "question":"Is the requirement document approved by client?", "selectVal":"Yes", "remarks":"", "evidence":"Project Initiation & Planning >>CHiPS TCP Phase 2 completion certificate"},
-   {"sno":"60", "question":"Is the latest QMS template for SRS used?", "selectVal":"No", "remarks":"", "evidence":""},
-   {"sno":"61", "question":"Is the RTM updated for all the Functional requirements ?", "selectVal":"Yes", "remarks":"", "evidence":"Requirement Development>>Revised Traceability Matrix as on Sep 2023"},
-   {"sno":"62", "question":"Change to Requirements (CRs) are adequately logged, analyzed and tracked to closure?", "selectVal":"Yes", "remarks":"","evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"63", "question":"Is the Impact analysis, change proposal, change execution is done as per the processes?", "selectVal":"Yes", "remarks":"", "evidence":""},		
-   {"sno":"64", "question":"Is the SRS document maintained as per the CM plan defined in PMP", "selectVal":"NA","remarks":"", "evidence":"As per CM defined in PMP plan on page no 33 , the documents are available on QBOX and Sharepoint"},
-   {"sno":"65", "question":"Is the RTM updated for non-functional requirements ?", "selectVal":"Yes", "remarks":"", "evidence":"Requirement Development>>Revised Traceability Matrix as on Sep 2023"},
-   {"sno":"66", "question":"Is the design approach idenitied and documented in TDD or HLD?", "selectVal":"Yes", "remarks":"","evidence":"Design>>HLD Doc V1.4"},
-   {"sno":"67", "question":"Are alternatives identified and evaluated while taking design decision?", "selectVal":"NA", "remarks":"COTS Product is used","evidence":""},	
-   {"sno":"68", "question":"Is build, buy, re-use analysis performed", "selectVal":"No", "remarks":"", "evidence":""},		
-   {"sno":"69", "question":"Does the design address the non-functional requirements", "selectVal":"Yes", "remarks":"", "evidence":""},	
-   {"sno":"70", "question":"Is the design document prepared and reviewed by EP & SP", "selectVal":"Yes", "remarks":"","evidence":"Design>>HLD Doc V1.4"},
-   {"sno":"71", "question":"Are the review comments identified, documented and tracked to closure?", "selectVal":"Yes", "remarks":"", "evidence":""},		
-   {"sno":"72", "question":"Is the RTM updated for the design phase?", "selectVal":"No","remarks":"", "evidence":""},		
-   {"sno":"73", "question":"Is the design document maintained as per the CM plan defined in PMP", "selectVal":"No", "remarks":"", "evidence":""},		
-   {"sno":"74", "question":"Is the coding is done  in accordance with the baselined design documents and coding guidelines?", "selectVal":"NA", "remarks":"COTS Product has been used", "evidence":""},	
-   {"sno":"75", "question":"Are the unit test cases  prepared", "selectVal":"NA", "remarks":"COTS Product has been used", "evidence":""},
-   {"sno":"76", "question":"Is the Unit Testing conducted and all testing observations are tracked to closure?", "selectVal":"NA", "remarks":"COTS Product has been used", "evidence":""},	
-   {"sno":"77", "question":"Is the code reviewed by the reviewer and review comments logged?", "selectVal":"NA", "remarks":"COTS Product has been used", "evidence":""},	
-   {"sno":"78", "question":"Are the code review comments tracked to closure", "selectVal":"NA", "remarks":"COTS Product has been used", "evidence":""},
-   {"sno":"79", "question":"Is the release management plan followed before merging the code to trunk", "selectVal":"NA", "remarks":"COTS Product has been used", "evidence":""},	
-   {"sno":"80", "question":"Is the test plan prepared and reviewed?", "selectVal":"Yes","remarks":"", "evidence":"Testing>> CHiPS_Test Plan"},
-   {"sno":"81", "question":"Are the risks, dependencies, assumptions identified during testing phase tracked in PMWB", "selectVal":"NA", "remarks":"COTS Product has been used", "evidence":""},
-   {"sno":"82", "question":"Are the review comments identified and tracked to closure", "selectVal":"NA","remarks":"", "evidence":""},	
-   {"sno":"83", "question":"Are the test cases prepared and reviewed? Test cases should cover all types of testing as identified in test plan", "selectVal":"Yes","remarks":"COTS Product has been used", "evidence":"Testing>> CHiPS_SI Test Cases"},
-   {"sno":"84", "question":"Are the review comments identified and tracked to closure for test cases?", "selectVal":"Yes","remarks":"", "evidence":""},	
-   {"sno":"85", "question":"Is the integration strategy identified and followed in the project", "selectVal":"No","remarks":"", "evidence":""},		
-   {"sno":"86", "question":"Are all test cases executed ?", "selectVal":"Yes","remarks":"", "evidence":"Testing>> CHiPS_SI Test Cases"},
-   {"sno":"87", "question":"Are defects identified are assigned and tracked to closure", "selectVal":"Yes","remarks":"", "evidence":"Testing>>CHiPS_TCP_Test_Log_v1.3_RESOLVED"},
-   {"sno":"88", "question":"are the signoffs availble for testing", "selectVal":"NA","remarks":"Approved as part of Phase 2 sign off", "evidence":""},	
-   {"sno":"89", "question":"Are all UAT defects logged and tracked to closure?", "selectVal":"Yes", "remarks":"", "evidence":""},		
-   {"sno":"90", "question":"Is the release management plan followed before moving code to production server", "selectVal":"NA", "remarks":"", "evidence":"COTS Product"},	
-   {"sno":"91", "question":"Is the Requirements traceability matrix is established and maintained (including CRs), through out all phases.", "selectVal":"Yes", "remarks":"", "evidence":"Requirement Development>>Revised Traceability Matrix as on Sep 2023"},
-   {"sno":"92", "question":"Are user documentation prepared, reviewed, approved and baselined?", "selectVal":"Yes", "remarks":"Approved as part of Phase 2 sign off", "evidence":""},	
-   {"sno":"93", "question":"Are the review & testing defects analysed to identify improvement opportunities", "selectVal":"NA", "remarks":"", "evidence":""},		
-   {"sno":"94", "question":"Are the actions identified for improvement opportunities communicated to all concerned stakeholders", "selectVal":"NA", "remarks":"", "evidence":""}, 		
-   {"sno":"95", "question":"Are the metrics data updated for the engineering phases", "selectVal":"Yes", "remarks":"", "evidence":"Project Initiation & Planning >>PMWB_CHiPS TCP Revised_2"},
-   {"sno":"96", "question":"Are subcontractor deliverables evaluated before giving sign off?", "selectVal":"NA", "remarks":"Code from COTS team cannot be evaluated", "evidence":""}	
-   
-   
-   ],
-   arr4:[
-       {"sno":"97","question":"Are access rights provided to team as per access rights form?","selectVal":"NA","remarks":"COTS Product","evidence":""},
-       {"sno":"98","question":" Is backup of data pertaining to CI items are done at the defined frequency? Are Random restoration checks of backups done? ","selectVal":"NA","remarks":"COTS Product","evidence":""},
-       {"sno":"99","question":"Is the release audit performed for the deliverables","selectVal":"NA","remarks":"COTS Product","evidence":""},
-       {"sno":"100","question":"Are corrective action for Non compliances reported during process reviews and release audit identified and tracked to closure?","selectVal":"NA","remarks":"COTS Product","evidence":""},
-       {"sno":"101","question":"Is CAR performed in the project to identify best practices/root cause","selectVal":"NA","remarks":"COTS Product","evidence":""},
-       {"sno":"102","question":"Are the subcontractor invoices processes as planned","selectVal":"Yes","remarks":"","evidence":""}
-   ],
-   arr5:[
-       {"sno":"103","question":"Has the project been closed as per QMS process","selectVal":"NA","remarks":"Project is not closed yet","evidence":""},
-       {"sno":"104","question":"Is the closure report complete with lessons learnt, best practice and project closure meeting conducted?","selectVal":"NA","remarks":"Project is not closed yet","evidence":""},
-       {"sno":"105","question":"Is the project backup taken as per contract?","selectVal":"NA","remarks":"Project is not closed yet","evidence":""},
-       {"sno":"106","question":"IS the closure meeting conducted & stakehodlers communicated","selectVal":"NA","remarks":"Project is not closed yet","evidence":""},
-       {"sno":"107","question":"Are all resources released?","selectVal":"NA","remarks":"Project is not closed yet","evidence":""},
-       {"sno":"108","question":"Is the Risk database, Metrics database, Learning database updated with project risk data and shared with organization?","selectVal":"NA","remarks":"Project is not closed yet","evidence":""}
-   ]
- }
- 
- export default data;
+export default PersonalDetails;
