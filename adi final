@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import dayjs from 'dayjs';
-import { Box, Card, CardContent, Grid, Paper, TextField, Autocomplete, Snackbar, Slide, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from "@mui/material";
+import { Box, Card, CardContent, Grid, Paper, TextField, Autocomplete, Snackbar, Slide, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Alert from '@mui/material/Alert';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -238,7 +239,7 @@ const PersonalDetails = () => {
                                         />
                                     </LocalizationProvider>
                                 </Grid>
-                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                <Grid item xs={12} sm={8} md={8} lg={8}>
                                     <FormControl component="fieldset" margin="normal">
                                         <FormLabel component="legend">Height</FormLabel>
                                         <RadioGroup
@@ -251,6 +252,7 @@ const PersonalDetails = () => {
                                             <FormControlLabel value="centimeters" control={<Radio />} label="Centimeters" />
                                             <FormControlLabel value="feets-inches" control={<Radio />} label="Feets/Inches" />
                                         </RadioGroup>
+
                                         {heightUnit === "centimeters" ? (
                                             <TextField
                                                 fullWidth
@@ -268,40 +270,61 @@ const PersonalDetails = () => {
                                                 helperText={formik.touched.HeightCm && formik.errors.HeightCm}
                                             />
                                         ) : (
-                                            <>
-                                                <TextField
-                                                    fullWidth
-                                                    id="HeightFeet"
-                                                    name="HeightFeet"
-                                                    label="Height (ft)"
-                                                    size="small"
-                                                    margin="normal"
-                                                    required
-                                                    InputLabelProps={{ shrink: true }}
-                                                    onChange={formik.handleChange}
-                                                    onBlur={formik.handleBlur}
-                                                    value={formik.values.HeightFeet}
-                                                    error={formik.touched.HeightFeet && !!formik.errors.HeightFeet}
-                                                    helperText={formik.touched.HeightFeet && formik.errors.HeightFeet}
-                                                />
-                                                <TextField
-                                                    fullWidth
-                                                    id="HeightInch"
-                                                    name="HeightInch"
-                                                    label="Height (in)"
-                                                    size="small"
-                                                    margin="normal"
-                                                    required
-                                                    InputLabelProps={{ shrink: true }}
-                                                    onChange={formik.handleChange}
-                                                    onBlur={formik.handleBlur}
-                                                    value={formik.values.HeightInch}
-                                                    error={formik.touched.HeightInch && !!formik.errors.HeightInch}
-                                                    helperText={formik.touched.HeightInch && formik.errors.HeightInch}
-                                                />
-                                            </>
+                                            <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center">
+                                                <Grid item xs={6} sm={6} md={6} lg={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        id="HeightFeet"
+                                                        name="HeightFeet"
+                                                        label="Height (ft)"
+                                                        size="small"
+                                                        margin="normal"
+                                                        required
+                                                        InputLabelProps={{ shrink: true }}
+                                                        onChange={formik.handleChange}
+                                                        onBlur={formik.handleBlur}
+                                                        value={formik.values.HeightFeet}
+                                                        error={formik.touched.HeightFeet && !!formik.errors.HeightFeet}
+                                                        helperText={formik.touched.HeightFeet && formik.errors.HeightFeet}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={6} sm={6} md={6} lg={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        id="HeightInch"
+                                                        name="HeightInch"
+                                                        label="Height (in)"
+                                                        size="small"
+                                                        margin="normal"
+                                                        required
+                                                        InputLabelProps={{ shrink: true }}
+                                                        onChange={formik.handleChange}
+                                                        onBlur={formik.handleBlur}
+                                                        value={formik.values.HeightInch}
+                                                        error={formik.touched.HeightInch && !!formik.errors.HeightInch}
+                                                        helperText={formik.touched.HeightInch && formik.errors.HeightInch}
+                                                    />
+                                                </Grid>
+                                            </Grid>
                                         )}
                                     </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                    <TextField
+                                        fullWidth
+                                        id="IdentificationMarks"
+                                        name="IdentificationMarks"
+                                        label="Identification Marks"
+                                        size="small"
+                                        margin="normal"
+                                        required
+                                        InputLabelProps={{ shrink: true }}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        value={formik.values.IdentificationMarks}
+                                        error={formik.touched.IdentificationMarks && !!formik.errors.IdentificationMarks}
+                                        helperText={formik.touched.IdentificationMarks && formik.errors.IdentificationMarks}
+                                    />
                                 </Grid>
                             </Grid>
                         </CardContent>
@@ -313,125 +336,3 @@ const PersonalDetails = () => {
 };
 
 export default PersonalDetails;
-
-
-
-
-
-
-
-
-
-
-
-
-
-<Grid
-                                        container
-                                        direction="row"
-                                        rowSpacing={0}
-                                        columnSpacing={2}
-                                        justify="flex-end"
-                                        alignItems="center"
-
-                                    >
-                                        <Grid item xs={12} sm={8} md={8} lg={8}>
-                                            <FormControl component="fieldset" margin="normal">
-                                                <FormLabel component="legend">Height</FormLabel>
-                                                <RadioGroup
-                                                    row
-                                                    aria-label="height-unit"
-                                                    name="height-unit"
-                                                    value={heightUnit}
-                                                    onChange={handleHeightUnitChange}
-                                                >
-                                                    <FormControlLabel value="centimeters" control={<Radio />} label="Centimeters" />
-                                                    <FormControlLabel value="feets-inches" control={<Radio />} label="Feets/Inches" />
-                                                </RadioGroup>
-                                                
-                                                {heightUnit === "centimeters" ? (
-                                                    <Grid item xs={6} sm={6} md={6} lg={6}>
-                                                        <TextField
-                                                            fullWidth
-                                                            id="HeightCm"
-                                                            name="HeightCm"
-                                                            label="Height (cm)"
-                                                            size="small"
-                                                            margin="normal"
-                                                            required
-                                                            InputLabelProps={{ shrink: true }}
-                                                            onChange={formik.handleChange}
-                                                            onBlur={formik.handleBlur}
-                                                            value={formik.values.HeightCm}
-                                                            error={formik.touched.HeightCm && !!formik.errors.HeightCm}
-                                                            helperText={formik.touched.HeightCm && formik.errors.HeightCm}
-                                                        />
-                                                    </Grid>
-                                                ) : (
-                                                    <>
-                                                        <Grid
-                                                            container
-                                                            direction="row"
-                                                            rowSpacing={0}
-                                                            columnSpacing={2}
-                                                            justify="flex-end"
-                                                            alignItems="center"
-
-                                                        >
-                                                            <Grid item xs={6} sm={4} md={4} lg={4}>
-                                                                <TextField
-                                                                    fullWidth
-                                                                    id="HeightFeet"
-                                                                    name="HeightFeet"
-                                                                    label="Height (ft)"
-                                                                    size="small"
-                                                                    margin="normal"
-                                                                    required
-                                                                    InputLabelProps={{ shrink: true }}
-                                                                    onChange={formik.handleChange}
-                                                                    onBlur={formik.handleBlur}
-                                                                    value={formik.values.HeightFeet}
-                                                                    error={formik.touched.HeightFeet && !!formik.errors.HeightFeet}
-                                                                    helperText={formik.touched.HeightFeet && formik.errors.HeightFeet}
-                                                                />
-                                                            </Grid>
-                                                            <Grid item xs={6} sm={4} md={4} lg={4}>
-                                                                <TextField
-                                                                    fullWidth
-                                                                    id="HeightInch"
-                                                                    name="HeightInch"
-                                                                    label="Height (in)"
-                                                                    size="small"
-                                                                    margin="normal"
-                                                                    required
-                                                                    InputLabelProps={{ shrink: true }}
-                                                                    onChange={formik.handleChange}
-                                                                    onBlur={formik.handleBlur}
-                                                                    value={formik.values.HeightInch}
-                                                                    error={formik.touched.HeightInch && !!formik.errors.HeightInch}
-                                                                    helperText={formik.touched.HeightInch && formik.errors.HeightInch}
-                                                                />
-                                                            </Grid>
-                                                        </Grid>
-                                                    </>
-                                                )}
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={12} sm={4} md={4} lg={4}>
-                                            <TextField
-                                                fullWidth
-                                                id="IdentificationMarks"
-                                                name="IdentificationMarks"
-                                                label="Identification Marks"
-                                                size="small"
-                                                margin="normal"
-                                                required
-                                                InputLabelProps={{ shrink: true }}
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
-                                                value={formik.values.IdentificationMarks}
-                                                error={formik.touched.IdentificationMarks && !!formik.errors.IdentificationMarks}
-                                                helperText={formik.touched.IdentificationMarks && formik.errors.IdentificationMarks}
-                                            />
-                                        </Grid>
-                                    </Grid>
