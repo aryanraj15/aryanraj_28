@@ -1,39 +1,24 @@
-import React, { useState } from 'react';
-import { Card, CardContent, FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material';
+ <Button sx={{ borderRadius: "5%" }} component="label" variant="contained" startIcon={<CloudUploadIcon />} onClick={handleButtonClick2}>
+                                                    Upload Aadhaar
+                                                </Button>
+                                                <VisuallyHiddenInput
 
-function App() {
-  const [hasExperience, setHasExperience] = useState('no');
+                                                    ref={fileInputRef2}
+                                                    type="file"
+                                                    onChange={handleFileChange2}
+                                                />
 
-  const handleExperienceChange = (event) => {
-    setHasExperience(event.target.value);
-  };
 
-  return (
-    <div>
-      <FormControl component="fieldset">
-        <Typography variant="h6" gutterBottom>
-          Do you have previous experience?
-        </Typography>
-        <RadioGroup
-          aria-label="experience"
-          name="experience"
-          value={hasExperience}
-          onChange={handleExperienceChange}
-        >
-          <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-          <FormControlLabel value="no" control={<Radio />} label="No" />
-        </RadioGroup>
-      </FormControl>
 
-      {hasExperience === 'yes' && (
-        <Card>
-          <CardContent>
-            <Typography variant="body1">Hello</Typography>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
-}
+                                                {formik.values.aadharDoc != "" && (
+                                                    <>
+                                                        {submitDisable === false ? (
+                                                            <Link href="#" underline="none" onClick={(event) => { getFile(event, formik.values.aadharDoc) }}>
+                                                                <Typography>Uploaded File: {formik.values.aadharDocName}</Typography>
+                                                            </Link>
+                                                        ) :
+                                                            <Typography sx={{color:"green",fontSize: "12px"}}>Uploaded File: {formik.values.aadharDocName}</Typography>
+                                                        }
+                                                    </>
 
-export default App;
+                                                )}
