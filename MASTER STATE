@@ -1,4 +1,189 @@
- <Button sx={{ borderRadius: "5%" }} component="label" variant="contained" startIcon={<CloudUploadIcon />} onClick={handleButtonClick2}>
+
+import * as React, { useRef } from 'react';
+import { styled } from '@mui/material/styles';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import Link from '@mui/material/Link';
+import Typography from '@mui/material/Typography';
+import { useFormik } from 'formik';
+
+const VisuallyHiddenInput = styled('input')({
+  display: 'none',
+});
+
+// Styled components
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:nth-of-type(odd)': {
+    backgroundColor: theme.palette.action.hover,
+  },
+  '&:last-child td, &:last-child th': {
+    border: 0,
+  },
+}));
+
+export default function CustomizedTables() {
+  const fileInputRef2 = useRef(null);
+  const fileInputRef3 = useRef(null);
+
+  const formik = useFormik({
+    initialValues: {
+      aadharDoc: '',
+      aadharDocName: '',
+      panDoc: '',
+      panDocName: '',
+    },
+    onSubmit: (values) => {
+      console.log(values);
+    },
+  });
+
+  const handleFileChange2 = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      formik.setFieldValue('aadharDoc', URL.createObjectURL(file));
+      formik.setFieldValue('aadharDocName', file.name);
+    }
+  };
+
+  const handleFileChange3 = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      formik.setFieldValue('panDoc', URL.createObjectURL(file));
+      formik.setFieldValue('panDocName', file.name);
+    }
+  };
+
+  const handleButtonClick2 = () => {
+    fileInputRef2.current.click();
+  };
+
+  const handleButtonClick3 = () => {
+    fileInputRef3.current.click();
+  };
+
+  const getFile = (event, url) => {
+    event.preventDefault();
+    window.open(url, '_blank');
+  };
+
+  return (
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+        <TableHead>
+          <TableRow>
+            <StyledTableCell>S.NO</StyledTableCell>
+            <StyledTableCell>Attachment Type</StyledTableCell>
+            <StyledTableCell>Attachment Name</StyledTableCell>
+            <StyledTableCell>View Link</StyledTableCell>
+            <StyledTableCell>Upload Button</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <StyledTableRow>
+            <StyledTableCell component="th" scope="row">1</StyledTableCell>
+            <StyledTableCell>Aadhar Card</StyledTableCell>
+            <StyledTableCell>{formik.values.aadharDocName}</StyledTableCell>
+            <StyledTableCell>
+              {formik.values.aadharDoc && (
+                <>
+                  {formik.values.submitDisable === false ? (
+                    <Link href="#" underline="none" onClick={(event) => getFile(event, formik.values.aadharDoc)}>
+                      <Typography>Uploaded File: {formik.values.aadharDocName}</Typography>
+                    </Link>
+                  ) : (
+                    <Typography sx={{ color: "green", fontSize: "12px" }}>Uploaded File: {formik.values.aadharDocName}</Typography>
+                  )}
+                </>
+              )}
+            </StyledTableCell>
+            <StyledTableCell>
+              <Button
+                sx={{ borderRadius: "5%" }}
+                component="label"
+                variant="contained"
+                startIcon={<CloudUploadIcon />}
+                onClick={handleButtonClick2}
+              >
+                Upload Aadhar
+              </Button>
+              <VisuallyHiddenInput
+                ref={fileInputRef2}
+                type="file"
+                onChange={handleFileChange2}
+              />
+            </StyledTableCell>
+          </StyledTableRow>
+          <StyledTableRow>
+            <StyledTableCell component="th" scope="row">2</StyledTableCell>
+            <StyledTableCell>Pancard Card</StyledTableCell>
+            <StyledTableCell>{formik.values.panDocName}</StyledTableCell>
+            <StyledTableCell>
+              {formik.values.panDoc && (
+                <>
+                  {formik.values.submitDisable === false ? (
+                    <Link href="#" underline="none" onClick={(event) => getFile(event, formik.values.panDoc)}>
+                      <Typography>Uploaded File: {formik.values.panDocName}</Typography>
+                    </Link>
+                  ) : (
+                    <Typography sx={{ color: "green", fontSize: "12px" }}>Uploaded File: {formik.values.panDocName}</Typography>
+                  )}
+                </>
+              )}
+            </StyledTableCell>
+            <StyledTableCell>
+              <Button
+                sx={{ borderRadius: "5%" }}
+                component="label"
+                variant="contained"
+                startIcon={<CloudUploadIcon />}
+                onClick={handleButtonClick3}
+              >
+                Upload PAN Card
+              </Button>
+              <VisuallyHiddenInput
+                ref={fileInputRef3}
+                type="file"
+                onChange={handleFileChange3}
+              />
+            </StyledTableCell>
+          </StyledTableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<Button sx={{ borderRadius: "5%" }} component="label" variant="contained" startIcon={<CloudUploadIcon />} onClick={handleButtonClick2}>
                                                     Upload Aadhaar
                                                 </Button>
                                                 <VisuallyHiddenInput
