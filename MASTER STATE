@@ -22,3 +22,30 @@
                                                     </>
 
                                                 )}
+
+
+
+<Button sx={{ borderRadius: "5%" }} component="label" variant="contained" startIcon={<CloudUploadIcon />} onClick={handleButtonClick3} >
+                                                    Upload PAN Card
+                                                </Button>
+                                                {/* <VisuallyHiddenInput type="file" /> */}
+                                                <VisuallyHiddenInput
+
+                                                    ref={fileInputRef3}
+                                                    type="file"
+                                                    onChange={handleFileChange3}
+                                                />
+
+
+                                                {formik.values.panDoc != "" && (
+                                                    <>
+                                                        {submitDisable === false ? (
+                                                            <Link href="#" underline="none" onClick={(event) => { getFile(event, formik.values.panDoc) }}>
+                                                                <Typography>Uploaded File: {formik.values.panDocName}</Typography>
+                                                            </Link>
+                                                        ) :
+                                                            <Typography sx={{color:"green",fontSize: "12px"}}>Uploaded File: {formik.values.panDocName}</Typography>
+                                                        }
+                                                    </>
+
+                                                )}
