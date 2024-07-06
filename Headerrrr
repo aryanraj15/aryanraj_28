@@ -1,312 +1,498 @@
-ERROR in ./src/components/docViewer.js 20:0-73
-Module not found: Error: Package path ./dist/esm/entry.webpack is not exported from package C:\Users\aryanraj\OneDrive - KPMG\Desktop\um\HR MODULE LEAVE\leavemng12jun2024\node_modules\react-pdf (see exports field in C:\Users\aryanraj\OneDrive - KPMG\Desktop\um\HR MODULE LEAVE\leavemng12jun2024\node_modules\react-pdf\package.json)
+import React, { useState, useEffect, useRef } from 'react'
+import SearchTable from '../../../components/SearchTableAlt';
+import { Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent, TextField, DialogActions } from '@mui/material';
+import useTitle from '../../../hooks/useTitle';
+import PageTitle from '../../../layouts/PageTitle';
+import { useNavigate } from 'react-router-dom';
+import { H3 } from '../../../components/Typography';
+import WalletIcon from '@mui/icons-material/Wallet';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { format } from 'date-fns'
+import Loader from '../../../components/Loader';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import TrackLeaveRequestStatus from './TrackLeaveRequestStatus';
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs from 'dayjs';
+import Cookies from "js-cookie";
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import CachedIcon from "@mui/icons-material/Cached";
+import SearchIcon from "@mui/icons-material/Search";
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import swal from "sweetalert";
+import { useLocation } from "react-router";
+import { useSnackbar } from "../../../components/Snackbar";
+import LeadgerCard from './LedgerCard';
+import { Grid, Typography, Avatar, Paper } from '@mui/material';
+import { styled } from "@mui/material/styles";
+const FileLeave = () => {
+
+
+    const title = 'Leave Applications';
+    const title2 = 'Search Parameters';
+
+    useTitle(title);
+
+
+    const navigate = useNavigate();
+    const { showSnackbar } = useSnackbar();
+    const user = useSelector((state) => state.loginReducer);
+    console.log(user.data.userdetails.user.userId);
+    const userId = user.data.userdetails.user.userId;
+    const [tableData, setTableData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [leaveBalance, setLeaveBalalnce] = useState([]);
+    const [availableLeaves, setAvailableLeaves] = useState();
+    const [availedLeaves, setAvailedLeaves] = useState();
+    const [balanceLeaves, setBalanceLeaves] = useState();
+    const [open, setOpen] = React.useState(false);
+    const [requestStatus, setRequestStatus] = useState(null);
+    const [reqRemarks, setReqRemarks] = useState(null);
+    const [dubby, setDubby] = useState();
+    const [selectAllApplications, setSelectAllApplications] = useState(false);
+    const resetCheck = useRef();
+    const location = useLocation();
+
+    const Item = styled(Paper)(({ theme }) => ({
+        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+        ...theme.typography.body2,
+        padding: theme.spacing(1),
+        margin: 3,
+        borderRadius: "10px",
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+    }));
+
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
 
 
-import CloseIcon from "@mui/icons-material/Close";
-import NavigateBefore from "@mui/icons-material/NavigateBefore";
-import NavigateNext from "@mui/icons-material/NavigateNext";
-import ZoomInIcon from "@mui/icons-material/ZoomIn";
-import ZoomOutIcon from "@mui/icons-material/ZoomOut";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import React, { useState } from "react";
-
-import { PrintOutlined } from "@mui/icons-material";
-import FileViewer from "react-file-viewer";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
-import { Document, Page, pdfjs } from "react-pdf/dist/esm/entry.webpack";
-//import 'pdfjs-dist/webpack';
-pdfjs.GlobalWorkerOptions.workerSrc = null;
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
-const DocViewer = (props) => {
-  const { file, fileName, isClosed } = props;
-
-  // console.log(file)
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [zoom, setZoom] = useState(2.3);
-  console.log(numPages);
-
-  function onDocumentLoadSuccess({ numPages }) {
-    //setNumPages(null);
-    if (numPages !== null) {
-      try {
-        setNumPages(numPages);
-      } catch (error) {
-        console.log(error.message);
-      }
+    const handleNavigation = () => {
+        console.log('called');
+        navigate('/leave')
     }
-  }
-
-  const handleDialogClose = () => {
-    isClosed(true);
-  };
-
-  const handleZoomIn = () => {
-    setZoom(zoom + 0.2);
-  };
-
-  const handleZoomOut = () => {
-    setZoom(zoom - 0.2);
-  };
-
-  const handlePrint = () => {
-    window.open(file, "_blank", "height=650,width=840");
-  };
-
-  const fileExtension = fileName.split(".").pop().toLowerCase();
-  const isPDF = fileExtension === "pdf";
-
-  return (
-    <Box>
-      <AppBar sx={{ position: "fixed" }}>
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handleDialogClose}
-            aria-label="close"
-          >
-            <CloseIcon sx={{ ml: 2 }} />
-          </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-            {fileName}
-          </Typography>
-
-          <Typography variant="h6" component="div">
-            Page {pageNumber} of {numPages}
-          </Typography>
-          <IconButton
-            edge="start"
-            color="inherit"
-            disabled={pageNumber <= 1}
-            onClick={() => setPageNumber(pageNumber - 1)}
-            aria-label="close"
-          >
-            <NavigateBefore sx={{ ml: 2 }} />
-          </IconButton>
-
-          <IconButton
-            edge="start"
-            color="inherit"
-            disabled={pageNumber >= numPages}
-            onClick={() => setPageNumber(pageNumber + 1)}
-            aria-label="close"
-          >
-            <NavigateNext sx={{ ml: 2 }} />
-          </IconButton>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handleZoomIn}
-            aria-label="close"
-          >
-            <ZoomInIcon sx={{ ml: 2 }} />
-          </IconButton>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handleZoomOut}
-            aria-label="close"
-          >
-            <ZoomOutIcon sx={{ ml: 2 }} />
-          </IconButton>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handlePrint}
-            aria-label="close"
-          >
-            <PrintOutlined sx={{ ml: 2 }} />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Box sx={{ mt: 9,  justifyContent: "center", width: '100%', height: '600px' }}>
-        {isPDF ? (
-          <Document
-            file={file}
-            onLoadSuccess={onDocumentLoadSuccess}
-            loading="Please wait!"
-          >
-            <Page pageNumber={pageNumber} scale={zoom} />
-          </Document>
-        ) : (
-          <FileViewer
-            fileType={fileExtension}
-            filePath={URL.createObjectURL(file)}
-            errorComponent={<div>Error loading file</div>}
-          />
-        )}
-      </Box>
-    </Box>
-  );
-};
-
-export default DocViewer;
 
 
 
 
-npm install @react-pdf-viewer/core
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
+    const fetchDataOnLeaveBalance = async () => {
+        try {
+            const payload = {
+                userId: user.data.userdetails.user.userId,
+            }
 
-import CloseIcon from "@mui/icons-material/Close";
-import NavigateBefore from "@mui/icons-material/NavigateBefore";
-import NavigateNext from "@mui/icons-material/NavigateNext";
-import ZoomInIcon from "@mui/icons-material/ZoomIn";
-import ZoomOutIcon from "@mui/icons-material/ZoomOut";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import React, { useState } from "react";
+            const response = await axios.post(`http://141.148.194.18:8052/leavemanagement/leave-balance-dropdown`, payload, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`
+                }
+            });
+            let sortedLeaveBallenceData = response.data.result.map((value) => {
+                return value;
+            })
 
-import { PrintOutlined } from "@mui/icons-material";
-import FileViewer from "react-file-viewer";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
-import { Document, Page, pdfjs } from 'react-pdf';
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+            setLeaveBalalnce(sortedLeaveBallenceData);
+            console.log(sortedLeaveBallenceData);
 
-const DocViewer = (props) => {
-  const { file, fileName, isClosed } = props;
 
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [zoom, setZoom] = useState(2.3);
-  console.log(numPages);
+            //   if (response.status === 200) {
 
-  function onDocumentLoadSuccess({ numPages }) {
-    if (numPages !== null) {
-      try {
-        setNumPages(numPages);
-      } catch (error) {
-        console.log(error.message);
-      }
+
+            //   }
+        } catch (error) {
+            console.error(error)
+        }
+
     }
-  }
 
-  const handleDialogClose = () => {
-    isClosed(true);
-  };
+    const LeaveBalance = async () => {
+        try {
+            const payload = {
+                userId: user.data.userdetails.user.userId,
+            }
 
-  const handleZoomIn = () => {
-    setZoom(zoom + 0.2);
-  };
+            const response = await axios.post(`http://141.148.194.18:8095/leavemanagement/leave-balances`, payload, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`
+                }
+            });
+            if (response.data.statusCode === 200) {
+                setAvailableLeaves(response.data?.result.availableLeaves);
+                setAvailedLeaves(response.data?.result.availedLeaves);
+                setBalanceLeaves(response.data?.result.balanceLeaves);
 
-  const handleZoomOut = () => {
-    setZoom(zoom - 0.2);
-  };
+            }
 
-  const handlePrint = () => {
-    window.open(file, "_blank", "height=650,width=840");
-  };
+            console.log(response);
 
-  const fileExtension = fileName.split(".").pop().toLowerCase();
-  const isPDF = fileExtension === "pdf";
 
-  return (
-    <Box>
-      <AppBar sx={{ position: "fixed" }}>
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handleDialogClose}
-            aria-label="close"
-          >
-            <CloseIcon sx={{ ml: 2 }} />
-          </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-            {fileName}
-          </Typography>
+        } catch (error) {
+            console.error(error)
+        }
 
-          <Typography variant="h6" component="div">
-            Page {pageNumber} of {numPages}
-          </Typography>
-          <IconButton
-            edge="start"
-            color="inherit"
-            disabled={pageNumber <= 1}
-            onClick={() => setPageNumber(pageNumber - 1)}
-            aria-label="close"
-          >
-            <NavigateBefore sx={{ ml: 2 }} />
-          </IconButton>
+    }
 
-          <IconButton
-            edge="start"
-            color="inherit"
-            disabled={pageNumber >= numPages}
-            onClick={() => setPageNumber(pageNumber + 1)}
-            aria-label="close"
-          >
-            <NavigateNext sx={{ ml: 2 }} />
-          </IconButton>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handleZoomIn}
-            aria-label="close"
-          >
-            <ZoomInIcon sx={{ ml: 2 }} />
-          </IconButton>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handleZoomOut}
-            aria-label="close"
-          >
-            <ZoomOutIcon sx={{ ml: 2 }} />
-          </IconButton>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handlePrint}
-            aria-label="close"
-          >
-            <PrintOutlined sx={{ ml: 2 }} />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Box sx={{ mt: 9, justifyContent: "center", width: '100%', height: '600px' }}>
-        {isPDF ? (
-          <Document
-            file={file}
-            onLoadSuccess={onDocumentLoadSuccess}
-            loading="Please wait!"
-          >
-            <Page pageNumber={pageNumber} scale={zoom} />
-          </Document>
-        ) : (
-          <FileViewer
-            fileType={fileExtension}
-            filePath={URL.createObjectURL(file)}
-            errorComponent={<div>Error loading file</div>}
-          />
-        )}
-      </Box>
-    </Box>
-  );
-};
 
-export default DocViewer;
+    useEffect(() => {
+
+        setIsLoading(true);
+        fetchDataOnLeaveBalance();
+        LeaveBalance();
+    }, [])
 
 
 
+    const validationSchema = Yup.object().shape({
+
+        LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
+        LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
+    });
+
+
+    const formik = useFormik({
+        initialValues: {
+
+            LeaveStartDate: null,
+            LeaveEndDate: null,
+
+        },
+        validationSchema: validationSchema,
+        enableReinitialize: true,
+        onSubmit: (values) => {
+            console.log(values)
+
+        },
+    });
+    console.log(formik.values.LeaveStartDate);
+    console.log(formik.values.LeaveEndDate);
+
+
+
+    const handleResetForm = () => {
+
+        swal({
+            title: "Do you want to reset the search?",
+            buttons: { cancel: "Cancel", confirm: "Confirm" },
+        }).then((userClickedConfirm) => {
+            if (userClickedConfirm) {
+                console.log(userClickedConfirm)
+                formik.setFieldValue("LeaveStartDate", null);
+                formik.setFieldValue("LeaveEndDate", null);
+                resetCheck.current = true
+                // setTableData([]);
+                handleFetchData();
+
+            }
+
+        })
+
+    };
+
+    const handleFetchData = async () => {
+
+        try {
+            const payload = {
+                userId: userId,
+                rqstFrom: resetCheck.current ? null : formik.values.LeaveStartDate,
+                rqstTo: resetCheck.current ? null : formik.values.LeaveEndDate
+            }
+
+            const response = await axios.post("http://141.148.194.18:8052/leavemanagement/leave-applied-leaves", payload,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get("token")}`
+                    }
+                });
+            const formattedData = response.data.result.map((item, index) => {
+                const fromDate = item.rqstFromDate + ":" + item.rqstFromTime;
+                const toDate = item.rqstToDate + ":" + item.rqstToTime;
+                return {
+                    ...item,
+                    index: index + 1,
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+
+            });
+
+            setTableData(formattedData);
+            console.log('kp-tableDataResponse', response.data);
+
+
+
+            // setTableData(response.data.result);
+            if (response.data.status === true) {
+
+                console.log('kparyan', tableData);
+                console.log('kp-tableData2', tableData);
+                showSnackbar("Data fetched successfully", "success");
+
+            }
+        } catch (error) {
+
+            console.error(error);
+        }
+        finally {
+            setIsLoading(false);
+            resetCheck.current = false
+        }
+    }
+
+    useEffect(() => {
+        handleFetchData();
+        setIsLoading(true);
+    }, [])
+
+    console.log('kp-tableDataAfter', tableData)
+    const columns = [
+        {
+            field: "index", //keep this fixed, index should be present for all tables
+            headerName: "S.No",
+            flex: 0.1,
+            minWidth: 80,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "rqstId",
+            headerName: "Leave ID",
+            flex: 0.3,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Link
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => {
+                        const requestId = params.row.rqstId;
+                        navigate("/leaveapplicationview", { state: { requestId } });
+                    }}
+                >
+                    {params.value}
+                </Link>
+            ),
+        },
+        {
+            field: "leaveTypeDesc",
+            headerName: "Leave Type",
+            flex: 0.3,
+            minWidth: 160,
+            headerClassName: "super-app-theme--header",
+        },
+
+
+
+        {
+            field: "fromDate",
+            headerName: "Leave Start",
+            flex: 0.3,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "toDate",
+            headerName: "Leave End",
+            flex: 0.3,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "daysOfLeave",
+            headerName: "Leave Duration",
+            flex: 0.3,
+            minWidth: 80,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "rqstStatusDesc",
+            headerName: "Leave Current Status",
+            flex: 0.3,
+            minWidth: 240,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "requestStatus",
+            headerName: "Track Status",
+            flex: 0.3,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Link onClick={() => {
+                    setReqRemarks(params.row.remarks);
+                    setRequestStatus(params.value);
+                    handleClickOpen();
+                    setDubby(params.row.rqstId);
+                }}>
+                    <GpsFixedIcon color='primary' />
+                </Link>
+            )
+        },
+
+
+    ];
 
 
 
 
+    console.log('kp-tabledata3', tableData)
+    return (
+        <>
+            {
+                isLoading && <Loader />
+            }
+            <Card sx={{ my: 2 }} elevation={3}>
+                <CardContent>
+                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
+                        <WalletIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Leave Balance</H3>
+                    </div>
+                    <Card >
+                        <Box sx={{ flexGrow: 1, mt: 1, elevation: "0" }}>
+                            <Grid container spacing={2} columns={16}>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Available Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {availableLeaves}DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    {/* Render the dynamically chosen icon */}
+                                                    <Avatar >
+
+                                                    </Avatar>
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Availed Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {availedLeaves} DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    {/* Render the dynamically chosen icon */}
+                                                    <Avatar >
+
+                                                    </Avatar>
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Balance Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {balanceLeaves} DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    {/* Render the dynamically chosen icon */}
+                                                    <Avatar >
+
+                                                    </Avatar>
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                            </Grid>
 
 
 
+                            <Grid container spacing={2} columns={16}>
+                                {leaveBalance.map((value, index) => (<LeadgerCard resData={value} key={index} />))}
+
+                            </Grid>
+
+
+                        </Box>
+
+                    </Card>
+                    <Grid sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button sx={{ float: 'right', borderRadius: '4px' }} variant={'contained'} onClick={handleNavigation}>Apply for a new leave</Button>
+                    </Grid>
+
+                </CardContent>
+            </Card>
+
+
+            <Card sx={{ my: 2 }} elevation={3}>
+                <CardContent>
+
+                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
+                        <SummarizeIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end"> Leave Applications</H3>
+                    </div>
+                    <Box component={"div"} >
+
+                        <SearchTable
+                            columns={columns}
+                            data={tableData}
+                            isCheckbox={false}
+                            isHideDensity={false}
+                            isHideExport={true}
+                            isHideFilter={true}
+                            isHideColumn={true}
+                            isHidePaging={false}
+                            name="abc"
+                            id="hjjh"
+                        />
+                    </Box>
+                </CardContent>
+            </Card>
+            <Dialog
+                fullWidth
+                maxWidth={'md'}
+                open={open}
+                onClose={handleClose}
+            >
+                <DialogContent >
+                    <TrackLeaveRequestStatus rqstId={dubby} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Close</Button>
+
+                </DialogActions>
+            </Dialog>
+        </>
+    )
+}
+
+//aryan
+export default FileLeave
