@@ -1,421 +1,354 @@
-// import React, { useState } from 'react';
-// import {
-//     Table,
-//     TableBody,
-//     Autocomplete,
-//     TableCell,
-//     TableContainer,
-//     TableHead,
-//     TableRow,
-//     Paper,
-//     Button,
-//     IconButton,
-//     TextField,
-//     MenuItem,
-//     Select,
-//     FormControl,
-//     Grid,
-// } from '@mui/material';
-
-// import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-// import { styled } from '@mui/material/styles';
-// import DeleteIcon from '@mui/icons-material/Delete';
-// import DatePicker from '@mui/lab/DatePicker';
-
-// const QualificationOptions = ['Option 1', 'Option 2', 'Option 3'];
-// const InstituteOptions = ['Institute 1', 'Institute 2', 'Institute 3'];
-
-// function CertificateTable() {
-//     const [rows, setRows] = useState([
-//         {
-//             nameofcourse: '', 
-//             startDate: null,
-//             endDate: null,
-//             courseduration: '',
-//             upload:'',
-//         },
-//     ]);
-
-//     const addRow = () => {
-//         setRows([
-//             ...rows,
-//             {
-//             nameofcourse: '', 
-//             startDate: null,
-//             endDate: null,
-//             courseduration: '',
-//             upload:'',
-//             },
-//         ]);
-//     };
-
-//     const deleteRow = (index) => {
-//         const newRows = [...rows];
-//         newRows.splice(index, 1);
-//         setRows(newRows);
-//     };
-
-//     const handleChange = (index, field, value) => {
-//         const newRows = [...rows];
-//         newRows[index][field] = value;
-//         setRows(newRows);
-//     };
-
-//     return (
-//         <div>
-           
-//             <TableContainer component={Paper}>
-//                 <Table  >
-
-//                     <TableHead>
-//                         <TableRow>
-//                             <TableCell >Name of the Course</TableCell>
-                            
-//                             <TableCell>Start Date</TableCell>
-//                             <TableCell>End Date</TableCell>
-
-//                             <TableCell>Course Duration</TableCell>
-//                             <TableCell>Upload</TableCell>
-                            
-                            
-//                             <TableCell>Action</TableCell>
-//                         </TableRow>
-//                     </TableHead>
-
-
-//                     <TableBody>
-//                         {rows.map((row, index) => (
-//                             <TableRow key={index}>
-                                
-
-//                                 <TableCell>
-
-//                                     <TextField
-//                                         type='small'
-//                                         margin="normal"
-//                                         fullWidth
-//                                         label="Name of the Course"
-//                                         variant="outlined"
-//                                         style={{ width: "150px", padding: 0 }}
-
-//                                     />
-//                                 </TableCell>
-                                
-
-
-//                                 <TableCell>
-//                                     <TextField
-//                                         type="date"
-//                                         variant="outlined"
-//                                         sx={{ mt: 1.5, padding: 0 }}
-
-//                                     />
-//                                 </TableCell>
-
-
-//                                 <TableCell>
-//                                     <TextField
-//                                         type="date"
-//                                         variant="outlined"
-//                                         sx={{ mt: 1.5, padding: 0 }}
-
-//                                     />
-//                                 </TableCell>
-//                                 <TableCell>
-
-//                                     <TextField
-//                                         type='small'
-//                                         margin="normal"
-//                                         fullWidth
-//                                         label="Course Duration"
-//                                         variant="outlined"
-//                                         style={{ width: "150px", padding: 0 }}
-
-//                                     />
-//                                 </TableCell>
-
-
-
-//                                 <TableCell>
-//                                     <Button sx={{ mb: 2 }} component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-//                                         Upload
-
-//                                     </Button>
-//                                 </TableCell>
-
-
-//                                 <TableCell>
-//                                     <IconButton onClick={() => deleteRow(index)}>
-//                                         <DeleteIcon />
-//                                     </IconButton>
-//                                 </TableCell>
-
-
-//                             </TableRow>
-//                         ))}
-//                     </TableBody>
-//                 </Table>
-//             </TableContainer>
-//             <Button variant="contained" color="primary" onClick={addRow} sx={{margin:2}}>
-//                 Add 
-//             </Button>
-//         </div>
-//     );
-// }
-
-// export default CertificateTable;
-
-
-
-
-
-
-
-import React, { useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Button,
-  Input,
-  Autocomplete,
-  TextField // Import TextField
-} from "@mui/material";
+import React, { useState, useEffect, useRef } from 'react';
+import { Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent, TextField, DialogActions, Grid, Typography, Avatar, Paper } from '@mui/material';
+import useTitle from '../../../hooks/useTitle';
+import PageTitle from '../../../layouts/PageTitle';
+import { useNavigate } from 'react-router-dom';
+import { H3 } from '../../../components/Typography';
+import WalletIcon from '@mui/icons-material/Wallet';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import Cookies from "js-cookie";
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import CachedIcon from "@mui/icons-material/Cached";
+import SearchIcon from "@mui/icons-material/Search";
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import swal from "sweetalert";
+import { useLocation } from "react-router";
+import { useSnackbar } from "../../../components/Snackbar";
+import LeadgerCard from './LedgerCard';
 import { styled } from "@mui/material/styles";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-const qualifications = [
-  "Bachelor's Degree",
-  "Master's Degree",
-  "Ph.D.",
-  "Diploma",
-  "Other"
-];
+import Loader from '../../../components/Loader';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import TrackLeaveRequestStatus from './TrackLeaveRequestStatus';
 
-const CertificateTable = () => {
-  const validationSchema = Yup.object().shape({
-    data: Yup.array().of(
-      Yup.object().shape({
-        nameoftheCourse: Yup.string().required("Name of the Course is required"),
-        startDate: Yup.date().required("Start Date is required"),
-        endDate: Yup.date().required("End Date is required"),
-        courseDuration: Yup.string().required("Work Experience is required"),
-    
-      })
-    )
-  });
+const FileLeave = () => {
+    const title = 'Leave Applications';
+    const title2 = 'Search Parameters';
+    useTitle(title);
 
-  const formik = useFormik({
-    initialValues: {
-      data: [
-        {
-         nameoftheCourse: "",
-          startDate: "",
-          endDate: "",
-          courseDuration: ""
+    const navigate = useNavigate();
+    const { showSnackbar } = useSnackbar();
+    const user = useSelector((state) => state.loginReducer);
+    const userId = user.data.userdetails.user.userId;
+    const [tableData, setTableData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [leaveBalance, setLeaveBalalnce] = useState([]);
+    const [availableLeaves, setAvailableLeaves] = useState();
+    const [availedLeaves, setAvailedLeaves] = useState();
+    const [balanceLeaves, setBalanceLeaves] = useState();
+    const [open, setOpen] = useState(false);
+    const [requestStatus, setRequestStatus] = useState(null);
+    const [reqRemarks, setReqRemarks] = useState(null);
+    const [dubby, setDubby] = useState();
+    const [selectAllApplications, setSelectAllApplications] = useState(false);
+    const resetCheck = useRef();
+    const location = useLocation();
+
+    const [isLeaveBalanceOpen, setIsLeaveBalanceOpen] = useState(false);
+
+    const Item = styled(Paper)(({ theme }) => ({
+        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+        ...theme.typography.body2,
+        padding: theme.spacing(1),
+        margin: 3,
+        borderRadius: "10px",
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+    }));
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleNavigation = () => {
+        navigate('/leave');
+    };
+
+    const fetchDataOnLeaveBalance = async () => {
+        try {
+            const payload = { userId: userId };
+            const response = await axios.post(`http://141.148.194.18:8052/leavemanagement/leave-balance-dropdown`, payload, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`
+                }
+            });
+            const sortedLeaveBallenceData = response.data.result;
+            setLeaveBalalnce(sortedLeaveBallenceData);
+        } catch (error) {
+            console.error(error);
         }
-      ]
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      // Handle form submission here
-      console.log("Form submitted with values:", values);
-    }
-  });
+    };
 
-  const handleDelete = (index) => {
-    formik.values.data.splice(index, 1);
-    formik.setValues({ ...formik.values });
-  };
+    const LeaveBalance = async () => {
+        try {
+            const payload = { userId: userId };
+            const response = await axios.post(`http://141.148.194.18:8095/leavemanagement/leave-balances`, payload, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`
+                }
+            });
+            if (response.data.statusCode === 200) {
+                setAvailableLeaves(response.data?.result.availableLeaves);
+                setAvailedLeaves(response.data?.result.availedLeaves);
+                setBalanceLeaves(response.data?.result.balanceLeaves);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
-  const handleAdd = () => {
-    formik.values.data.push({
-      nameoftheCourse: "",
-      startDate: "",
-      endDate: "",
-      courseDuration: ""
+    useEffect(() => {
+        setIsLoading(true);
+        fetchDataOnLeaveBalance();
+        LeaveBalance();
+    }, []);
+
+    const validationSchema = Yup.object().shape({
+        LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
+        LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
     });
-    formik.setValues({ ...formik.values });
-  };
 
-  const VisuallyHiddenInput = styled("input")({
-    clip: "rect(0 0 0 0)",
-    clipPath: "inset(50%)",
-    height: 1,
-    overflow: "hidden",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    whiteSpace: "nowrap",
-    width: 1
-  });
+    const formik = useFormik({
+        initialValues: {
+            LeaveStartDate: null,
+            LeaveEndDate: null,
+        },
+        validationSchema: validationSchema,
+        enableReinitialize: true,
+        onSubmit: (values) => {
+            console.log(values);
+        },
+    });
 
-  return (
-    <form onSubmit={formik.handleSubmit}>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name of the Course</TableCell>
-              <TableCell>Start Date</TableCell>
-              <TableCell>End Date</TableCell>
-              <TableCell>Course Duration</TableCell>
-              <TableCell>Upload</TableCell>
-              <TableCell>Action</TableCell>
-            </TableRow>
-          </TableHead>
+    const handleResetForm = () => {
+        swal({
+            title: "Do you want to reset the search?",
+            buttons: { cancel: "Cancel", confirm: "Confirm" },
+        }).then((userClickedConfirm) => {
+            if (userClickedConfirm) {
+                formik.setFieldValue("LeaveStartDate", null);
+                formik.setFieldValue("LeaveEndDate", null);
+                resetCheck.current = true;
+                handleFetchData();
+            }
+        });
+    };
 
-          <TableBody>
-            {formik.values.data.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <TextField
-                    margin="dense"
-                    required
-                    size="small"
-                    sx={{ width: "150px" }}
-                    fullWidth
-                    type="text"
-                    name={`data[${index}].nameoftheCourse`}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.data[index].nameoftheCourse}
-                    error={
-                      formik.touched.nameoftheCourse &&
-                      !!formik.errors.nameoftheCourse
-                    }
-                    helperText={
-                      formik.touched.nameoftheCourse &&
-                      formik.errors.nameoftheCourse
-                    }
-                  />
-                </TableCell>
+    const handleFetchData = async () => {
+        try {
+            const payload = {
+                userId: userId,
+                rqstFrom: resetCheck.current ? null : formik.values.LeaveStartDate,
+                rqstTo: resetCheck.current ? null : formik.values.LeaveEndDate,
+            };
+            const response = await axios.post("http://141.148.194.18:8052/leavemanagement/leave-applied-leaves", payload, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`
+                }
+            });
+            const formattedData = response.data.result.map((item, index) => ({
+                ...item,
+                index: index + 1,
+                fromDate: item.rqstFromDate + ":" + item.rqstFromTime,
+                toDate: item.rqstToDate + ":" + item.rqstToTime,
+            }));
+            setTableData(formattedData);
+            if (response.data.status === true) {
+                showSnackbar("Data fetched successfully", "success");
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+            resetCheck.current = false;
+        }
+    };
 
-                <TableCell>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Start Date"
-                      id="startDate"
-                      name="startDate"
-                   
-                      sx={{ width: "100%" }}
-                      renderInput={(params) => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          sx={{ width: "150px" }}
-                          size="small"
-                          required
-                          error={
-                            formik.touched.startDate &&
-                            Boolean(formik.errors.startDate)
-                          }
-                          helperText={
-                            formik.touched.startDate &&
-                            formik.errors.startDate
-                          }
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
+    useEffect(() => {
+        handleFetchData();
+        setIsLoading(true);
+    }, []);
+
+    const columns = [
+        { field: "index", headerName: "S.No", flex: 0.1, minWidth: 80, headerClassName: "super-app-theme--header" },
+        {
+            field: "rqstId",
+            headerName: "Leave ID",
+            flex: 0.3,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Link sx={{ cursor: "pointer" }} onClick={() => navigate("/leaveapplicationview", { state: { requestId: params.row.rqstId } })}>
+                    {params.value}
+                </Link>
+            ),
+        },
+        { field: "leaveTypeDesc", headerName: "Leave Type", flex: 0.3, minWidth: 160, headerClassName: "super-app-theme--header" },
+        { field: "fromDate", headerName: "Leave Start", flex: 0.3, minWidth: 180, headerClassName: "super-app-theme--header" },
+        { field: "toDate", headerName: "Leave End", flex: 0.3, minWidth: 180, headerClassName: "super-app-theme--header" },
+        { field: "daysOfLeave", headerName: "Leave Duration", flex: 0.3, minWidth: 80, headerClassName: "super-app-theme--header" },
+        { field: "rqstStatusDesc", headerName: "Leave Current Status", flex: 0.3, minWidth: 240, headerClassName: "super-app-theme--header" },
+        {
+            field: "requestStatus",
+            headerName: "Track Status",
+            flex: 0.3,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Link onClick={() => {
+                    setReqRemarks(params.row.remarks);
+                    setRequestStatus(params.value);
+                    handleClickOpen();
+                    setDubby(params.row.rqstId);
+                }}>
+                    <GpsFixedIcon color='primary' />
+                </Link>
+            ),
+        },
+    ];
+
+    return (
+        <>
+            {isLoading && <Loader />}
+            <Card sx={{ my: 2 }} elevation={3}>
+                <CardContent>
+                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
+                        <WalletIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Leave Balance</H3>
+                    </div>
+                    <Card>
+                        <Box sx={{ flexGrow: 1, mt: 1, elevation: "0" }}>
+                            <Grid container spacing={2} columns={16}>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Available Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {availableLeaves} DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    <Avatar />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Availed Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {availedLeaves} DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    <Avatar />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Balance Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {balanceLeaves} DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    <Avatar />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                            </Grid>
+
+                            <Button variant="contained" onClick={() => setIsLeaveBalanceOpen(!isLeaveBalanceOpen)}>
+                                {isLeaveBalanceOpen ? 'Hide Leave Balance' : 'Show Leave Balance'}
+                            </Button>
+
+                            {isLeaveBalanceOpen && (
+                                <>
+                                    <IconButton onClick={() => setIsLeaveBalanceOpen(false)}>
+                                        <span>Close</span>
+                                    </IconButton>
+                                    <Grid container spacing={2} columns={16}>
+                                        {leaveBalance.map((value, index) => (<LeadgerCard resData={value} key={index} />))}
+                                    </Grid>
+                                </>
+                            )}
+                        </Box>
+                    </Card>
+                    <Grid sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button sx={{ float: 'right', borderRadius: '4px' }} variant={'contained'} onClick={handleNavigation}>Apply for a new leave</Button>
+                    </Grid>
+                </CardContent>
+            </Card>
+
+            <Card sx={{ my: 2 }} elevation={3}>
+                <CardContent>
+                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
+                        <SummarizeIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end"> Leave Applications</H3>
+                    </div>
+                    <Box component={"div"} >
+                        <SearchTable
+                            columns={columns}
+                            data={tableData}
+                            isCheckbox={false}
+                            isHideDensity={false}
+                            isHideExport={true}
+                            isHideFilter={true}
+                            isHideColumn={true}
+                            isHidePaging={false}
+                            name="abc"
+                            id="hjjh"
                         />
-                      )}
-                    />
-                  </LocalizationProvider>
-                </TableCell>
-                <TableCell>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="End Date"
-                      id="endDate"
-                      name="endDate"
-                      
-                      sx={{ width: "100%" }}
-                      renderInput={(params) => (
-                        <TextField
-                          fullWidth
-                          sx={{ width: "150px" }}
-                          {...params}
-                          size="small"
-                          required
-                          error={
-                            formik.touched.endDate &&
-                            Boolean(formik.errors.endDate)
-                          }
-                          helperText={
-                            formik.touched.endDate &&
-                            formik.errors.endDate
-                          }
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                        />
-                      )}
-                    />
-                  </LocalizationProvider>
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    margin="0"
-                    required
-                    size="small"
-                    fullWidth
-                    sx={{ width: "150px"}}
-                    type="text"
-                    name={`data[${index}].courseDuration`}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.data[index].courseDuration}
-                    error={
-                      formik.touched.courseDuration &&
-                      !!formik.errors.courseDuration
-                    }
-                    helperText={
-                      formik.touched.courseDuration &&
-                      formik.errors.courseDuration
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button
-                    sx={{ mb: 2 }}
-                    component="label"
-                    variant="contained"
-                    startIcon={<CloudUploadIcon />}
-                  >
-                    Upload
-                    <VisuallyHiddenInput type="file" />
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleDelete(index)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Button
-        type="button"
-        variant="contained"
-        color="primary"
-        onClick={handleAdd}
-      >
-        Add
-      </Button>
-    </form>
-  );
-};
+                    </Box>
+                </CardContent>
+            </Card>
+            <Dialog
+                fullWidth
+                maxWidth={'md'}
+                open={open}
+                onClose={handleClose}
+            >
+                <DialogContent >
+                    <TrackLeaveRequestStatus rqstId={dubby} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Close</Button>
+                </DialogActions>
+            </Dialog>
+        </>
+    );
+}
 
-export default CertificateTable;
-
+export default FileLeave;
 
