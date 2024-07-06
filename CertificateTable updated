@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import SearchTable from '../../../components/SearchTableAlt';
 import { Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent, TextField, DialogActions } from '@mui/material';
@@ -31,6 +32,7 @@ import { styled } from "@mui/material/styles";
 
 const FileLeave = () => {
     const title = 'Leave Applications';
+    const title2 = 'Search Parameters';
     useTitle(title);
 
     const navigate = useNavigate();
@@ -39,7 +41,7 @@ const FileLeave = () => {
     const userId = user.data.userdetails.user.userId;
     const [tableData, setTableData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [leaveBalance, setLeaveBalance] = useState([]);
+    const [leaveBalance, setLeaveBalalnce] = useState([]);
     const [availableLeaves, setAvailableLeaves] = useState();
     const [availedLeaves, setAvailedLeaves] = useState();
     const [balanceLeaves, setBalanceLeaves] = useState();
@@ -50,7 +52,7 @@ const FileLeave = () => {
     const [selectAllApplications, setSelectAllApplications] = useState(false);
     const resetCheck = useRef();
     const location = useLocation();
-    const [hover, setHover] = useState(false);  // State to track hover
+    const [hover, setHover] = useState(false);
 
     const Item = styled(Paper)(({ theme }) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -76,18 +78,12 @@ const FileLeave = () => {
 
     const fetchDataOnLeaveBalance = async () => {
         try {
-            const payload = {
-                userId: user.data.userdetails.user.userId,
-            };
-
+            const payload = { userId: user.data.userdetails.user.userId };
             const response = await axios.post(`http://141.148.194.18:8052/leavemanagement/leave-balance-dropdown`, payload, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
+                headers: { Authorization: `Bearer ${Cookies.get("token")}` }
             });
-
-            let sortedLeaveBalanceData = response.data.result.map((value) => value);
-            setLeaveBalance(sortedLeaveBalanceData);
+            const sortedLeaveBallenceData = response.data.result.map((value) => value);
+            setLeaveBalalnce(sortedLeaveBallenceData);
         } catch (error) {
             console.error(error);
         }
@@ -95,19 +91,14 @@ const FileLeave = () => {
 
     const LeaveBalance = async () => {
         try {
-            const payload = {
-                userId: user.data.userdetails.user.userId,
-            };
-
+            const payload = { userId: user.data.userdetails.user.userId };
             const response = await axios.post(`http://141.148.194.18:8095/leavemanagement/leave-balances`, payload, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
+                headers: { Authorization: `Bearer ${Cookies.get("token")}` }
             });
             if (response.data.statusCode === 200) {
-                setAvailableLeaves(response.data?.result.availableLeaves);
-                setAvailedLeaves(response.data?.result.availedLeaves);
-                setBalanceLeaves(response.data?.result.balanceLeaves);
+                setAvailableLeaves(response.data.result.availableLeaves);
+                setAvailedLeaves(response.data.result.availedLeaves);
+                setBalanceLeaves(response.data.result.balanceLeaves);
             }
         } catch (error) {
             console.error(error);
@@ -126,15 +117,10 @@ const FileLeave = () => {
     });
 
     const formik = useFormik({
-        initialValues: {
-            LeaveStartDate: null,
-            LeaveEndDate: null,
-        },
+        initialValues: { LeaveStartDate: null, LeaveEndDate: null },
         validationSchema: validationSchema,
         enableReinitialize: true,
-        onSubmit: (values) => {
-            console.log(values);
-        },
+        onSubmit: (values) => { console.log(values); },
     });
 
     const handleResetForm = () => {
@@ -158,11 +144,8 @@ const FileLeave = () => {
                 rqstFrom: resetCheck.current ? null : formik.values.LeaveStartDate,
                 rqstTo: resetCheck.current ? null : formik.values.LeaveEndDate
             };
-
             const response = await axios.post("http://141.148.194.18:8052/leavemanagement/leave-applied-leaves", payload, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
+                headers: { Authorization: `Bearer ${Cookies.get("token")}` }
             });
             const formattedData = response.data.result.map((item, index) => {
                 const fromDate = item.rqstFromDate + ":" + item.rqstFromTime;
@@ -174,10 +157,8 @@ const FileLeave = () => {
                     toDate: toDate,
                 };
             });
-
             setTableData(formattedData);
-
-            if (response.data.status === true) {
+            if (response.data.status) {
                 showSnackbar("Data fetched successfully", "success");
             }
         } catch (error) {
@@ -194,13 +175,7 @@ const FileLeave = () => {
     }, []);
 
     const columns = [
-        {
-            field: "index",
-            headerName: "S.No",
-            flex: 0.1,
-            minWidth: 80,
-            headerClassName: "super-app-theme--header",
-        },
+        { field: "index", headerName: "S.No", flex: 0.1, minWidth: 80, headerClassName: "super-app-theme--header" },
         {
             field: "rqstId",
             headerName: "Leave ID",
@@ -208,52 +183,19 @@ const FileLeave = () => {
             minWidth: 100,
             headerClassName: "super-app-theme--header",
             renderCell: (params) => (
-                <Link
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
-                        const requestId = params.row.rqstId;
-                        navigate("/leaveapplicationview", { state: { requestId } });
-                    }}
-                >
+                <Link sx={{ cursor: "pointer" }} onClick={() => {
+                    const requestId = params.row.rqstId;
+                    navigate("/leaveapplicationview", { state: { requestId } });
+                }}>
                     {params.value}
                 </Link>
             ),
         },
-        {
-            field: "leaveTypeDesc",
-            headerName: "Leave Type",
-            flex: 0.3,
-            minWidth: 160,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "fromDate",
-            headerName: "Leave Start",
-            flex: 0.3,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "toDate",
-            headerName: "Leave End",
-            flex: 0.3,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "daysOfLeave",
-            headerName: "Leave Duration",
-            flex: 0.3,
-            minWidth: 80,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "rqstStatusDesc",
-            headerName: "Leave Current Status",
-            flex: 0.3,
-            minWidth: 240,
-            headerClassName: "super-app-theme--header",
-        },
+        { field: "leaveTypeDesc", headerName: "Leave Type", flex: 0.3, minWidth: 160, headerClassName: "super-app-theme--header" },
+        { field: "fromDate", headerName: "Leave Start", flex: 0.3, minWidth: 180, headerClassName: "super-app-theme--header" },
+        { field: "toDate", headerName: "Leave End", flex: 0.3, minWidth: 180, headerClassName: "super-app-theme--header" },
+        { field: "daysOfLeave", headerName: "Leave Duration", flex: 0.3, minWidth: 80, headerClassName: "super-app-theme--header" },
+        { field: "rqstStatusDesc", headerName: "Leave Current Status", flex: 0.3, minWidth: 240, headerClassName: "super-app-theme--header" },
         {
             field: "requestStatus",
             headerName: "Track Status",
@@ -278,126 +220,44 @@ const FileLeave = () => {
             {isLoading && <Loader />}
             <Card sx={{ my: 2 }} elevation={3}>
                 <CardContent>
-                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
-                        <WalletIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Leave Balance</H3>
+                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "1px solid #f1f1f1" }}>
+                        <H3 sx={{ my: 0.5, fontWeight: 600 }}>{title}</H3>
                     </div>
-                    <Card
-                        onMouseEnter={() => setHover(true)}
-                        onMouseLeave={() => setHover(false)}
-                    >
-                        <Box sx={{ flexGrow: 1, mt: 1, elevation: "0" }}>
-                            <Grid container spacing={2} columns={16}>
-                                <Grid item xs={5}>
-                                    <Item>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm container>
-                                                <Grid item xs container direction="column" spacing={2}>
-                                                    <Grid item xs>
-                                                        <Typography gutterBottom component="div">
-                                                            Available Leaves
-                                                        </Typography>
-                                                        <Typography variant="h6" gutterBottom>
-                                                            {availableLeaves} DAYS
-                                                        </Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Avatar />
-                                                </Grid>
+                    <Grid container spacing={2}>
+                        <Grid item xs={5}>
+                            <Item
+                                onMouseEnter={() => setHover(true)}
+                                onMouseLeave={() => setHover(false)}
+                            >
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm container>
+                                        <Grid item xs container direction="column" spacing={2}>
+                                            <Grid item xs>
+                                                <Typography gutterBottom component="div">
+                                                    Available Leaves
+                                                </Typography>
+                                                <Typography variant="h6" gutterBottom>
+                                                    {availableLeaves} DAYS
+                                                </Typography>
                                             </Grid>
                                         </Grid>
-                                    </Item>
-                                </Grid>
-                                <Grid item xs={5}>
-                                    <Item>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm container>
-                                                <Grid item xs container direction="column" spacing={2}>
-                                                    <Grid item xs>
-                                                        <Typography gutterBottom component="div">
-                                                            Availed Leaves
-                                                        </Typography>
-                                                        <Typography variant="h6" gutterBottom>
-                                                            {availedLeaves} DAYS
-                                                        </Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Avatar />
-                                                </Grid>
-                                            </Grid>
+                                        <Grid item>
+                                            <Avatar />
                                         </Grid>
-                                    </Item>
+                                    </Grid>
                                 </Grid>
-                                <Grid item xs={5}>
-                                    <Item>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm container>
-                                                <Grid item xs container direction="column" spacing={2}>
-                                                    <Grid item xs>
-                                                        <Typography gutterBottom component="div">
-                                                            Balance Leaves
-                                                        </Typography>
-                                                        <Typography variant="h6" gutterBottom>
-                                                            {balanceLeaves} DAYS
-                                                        </Typography>
-                                                    </Grid>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Avatar />
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-                                    </Item>
-                                </Grid>
-                            </Grid>
-
-                            {hover && (
-                                <Grid container spacing={2} columns={16}>
-                                    {leaveBalance.map((value, index) => (
-                                        <LeadgerCard resData={value} key={index} />
-                                    ))}
-                                </Grid>
-                            )}
-                        </Box>
-                    </Card>
-                    <Grid sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button sx={{ float: 'right', borderRadius: '4px' }} variant={'contained'} onClick={handleNavigation}>Apply for a new leave</Button>
+                            </Item>
+                        </Grid>
                     </Grid>
+                    {hover && (
+                        <Grid container spacing={2} columns={16}>
+                            {leaveBalance.map((value, index) => (
+                                <LeadgerCard resData={value} key={index} />
+                            ))}
+                        </Grid>
+                    )}
                 </CardContent>
             </Card>
-
-            <Card sx={{ my: 2 }} elevation={3}>
-                <CardContent>
-                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
-                        <SummarizeIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end"> Leave Applications</H3>
-                    </div>
-                    <Box component={"div"}>
-                        <SearchTable
-                            columns={columns}
-                            data={tableData}
-                            isCheckbox={false}
-                            isHideDensity={false}
-                            isHideExport={true}
-                            isHideFilter={true}
-                            isHideColumn={true}
-                            isHidePaging={false}
-                            name="abc"
-                            id="hjjh"
-                        />
-                    </Box>
-                </CardContent>
-            </Card>
-            <Dialog fullWidth maxWidth={'md'} open={open} onClose={handleClose}>
-                <DialogContent>
-                    <TrackLeaveRequestStatus rqstId={dubby} />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Close</Button>
-                </DialogActions>
-            </Dialog>
         </>
     );
 };
