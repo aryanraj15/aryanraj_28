@@ -128,3 +128,172 @@ export const calculateSuperannuationDate = (dob) => {
  
   return retirementDate;
 };
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from "react";
+import { LocalizationProvider, DatePicker } from '@mui/lab';
+import AdapterDayjs from '@mui/lab/AdapterDayjs';
+import dayjs from 'dayjs';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+
+export const calculateSuperannuationDate = (dob, retirementAge) => {
+  const birthDate = new Date(dob);
+  const retirementDate = new Date(birthDate);
+  retirementDate.setFullYear(retirementDate.getFullYear() + retirementAge);
+
+  if (birthDate.getDate() === 1) {
+    retirementDate.setMonth(retirementDate.getMonth() - 1);
+    retirementDate.setDate(0); // Last day of the previous month
+  } else {
+    retirementDate.setMonth(retirementDate.getMonth() + 1);
+    retirementDate.setDate(0); // Last day of the same month
+  }
+
+  return retirementDate;
+};
+
+const YourComponent = () => {
+  const [retirementAgeList, setRetirementAgeList] = useState(0);
+  const [cradeList, setCradeList] = useState([]);
+  const [isCradeType, setIsCradeType] = useState(false);
+
+  const formik = useFormik({
+    initialValues: {
+      dob: '',
+      serviceType: '',
+      superannuationDate: ''
+    },
+    // your validation and submit logic here
+  });
+
+  useEffect(() => {
+    if (formik.values.dob && retirementAgeList) {
+      const superannuationDate = calculateSuperannuationDate(formik.values.dob, retirementAgeList);
+      formik.setFieldValue("superannuationDate", dayjs(superannuationDate).format("YYYY-MM-DD"));
+    }
+  }, [formik.values.dob, retirementAgeList]);
+
+  return (
+    <>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+        <DatePicker
+          label="Date of Birth"
+          inputFormat="DD-MM-YYYY"
+          maxDate={new Date()}
+          id="dob"
+          name="dob"
+          value={formik.values.dob}
+          InputLabelProps={{ shrink: true }}
+          onChange={(value) => {
+            if (value === null) {
+              formik.setFieldValue("dob", "");
+            } else {
+              formik.setFieldValue("dob", dayjs(value).format("YYYY-MM-DD"));
+            }
+          }}
+          renderInput={(params) => (
+            <TextField
+              size="small"
+              fullWidth
+              margin="normal"
+              name="dob"
+              required
+              {...params}
+              error={formik.touched.dob && Boolean(formik.errors.dob)}
+              helperText={formik.touched.dob && formik.errors.dob}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+          )}
+        />
+      </LocalizationProvider>
+
+      <Autocomplete
+        disablePortal
+        margin="normal"
+        size="small"
+        id="serviceType"
+        name="serviceType"
+        options={serviceList}
+        value={serviceList.find((option) => option.id === formik.values.serviceType) || null}
+        onChange={(e, value) => {
+          if (value === null) {
+            formik.setFieldValue("serviceType", null);
+          } else {
+            formik.setFieldValue("serviceType", value.id);
+            axios.get(`http://141.148.194.18:8052/payroll/employee/dropdown/cadre/${value.id}`, {
+              headers: {
+                Authorization: `Bearer ${Cookies.get("token")}`
+              }
+            }).then(response => {
+              if (response.status === 200) {
+                setCradeList(response.data);
+                setRetirementAgeList(response.data[0].retirementAge);
+                setIsCradeType(false);
+              }
+              console.log(response.data[0].retirementAge);
+            }).catch(error => {
+              setCradeList([]);
+              console.log(error);
+            });
+          }
+        }}
+        getOptionLabel={(value) => value.label}
+        sx={{ width: "100%", mt: 2 }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Service Type"
+            InputLabelProps={{ shrink: true }}
+            onBlur={formik.handleBlur}
+            helperText={formik.errors.serviceType && formik.touched.serviceType ? formik.errors.serviceType : null}
+            error={formik.errors.serviceType && formik.touched.serviceType ? true : false}
+          />
+        )}
+      />
+
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+        <DatePicker
+          label="Superannuation Date"
+          inputFormat="DD-MM-YYYY"
+          id="superannuationDate"
+          name="superannuationDate"
+          value={formik.values.superannuationDate}
+          InputLabelProps={{ shrink: true }}
+          onChange={(value) => {
+            if (value === null) {
+              formik.setFieldValue("superannuationDate", "");
+            } else {
+              formik.setFieldValue("superannuationDate", dayjs(value).format("YYYY-MM-DD"));
+            }
+          }}
+          renderInput={(params) => (
+            <TextField
+              size="small"
+              fullWidth
+              margin="normal"
+              name="superannuationDate"
+              required
+              {...params}
+              error={formik.touched.superannuationDate && Boolean(formik.errors.superannuationDate)}
+              helperText={formik.touched.superannuationDate && formik.errors.superannuationDate}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+          )}
+        />
+      </LocalizationProvider>
+    </>
+  );
+};
+
+export default YourComponent;
