@@ -56,6 +56,462 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 SearchModal.propTypes = {
   closeModal: PropTypes.func.isRequired,
+  onOfficeSelect: PropTypes.func.isRequired // New prop for the callback
+}
+
+export default function SearchModal(props) {
+  const { closeModal, onOfficeSelect } = props;
+  const [open, setOpen] = useState(true);
+  const [rowSelected, setRowSelected] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [officeData, setOfficeData] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+
+  const handleClose = () => {
+    setOpen(false);
+    closeModal();
+    // Clear the selected office name when the modal is closed
+    onOfficeSelect('');
+  };
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  const proceed = () => {
+    if (rowSelected) {
+      setShowAlert(false);
+      setOpen(false);
+      closeModal();
+      // Call the callback function to pass the selected office name
+      const selectedOffice = officeData.find(office => office.id === selectedRow);
+      onOfficeSelect(selectedOffice.officeName);
+    } else {
+      setShowAlert(true);
+    }
+  };
+
+  const columns = [
+    {
+      field: "id",
+      headerClassName: "super-app-theme--header",
+      headerName: "S No.",
+      width: 60,
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    {
+      field: "select",
+      headerClassName: "super-app-theme--header",
+      headerName: "Select",
+      width: 200,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        return (
+          <Radio
+            checked={selectedRow === params.row.id}
+            onChange={() => {
+              setSelectedRow(params.row.id);
+              setRowSelected(true);
+              setShowAlert(false);
+            }}
+            value={params.row.id}
+          />
+        )
+      },
+      disableColumnMenu: true,
+    },
+    {
+      field: "officeName",
+      headerClassName: "super-app-theme--header",
+      headerName: "Office Name",
+      width: 400,
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    {
+      field: "address",
+      headerClassName: "super-app-theme--header",
+      headerName: "Address",
+      width: 500,
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+  ];
+
+  useEffect(() => {
+    // Fetch states
+    axios.get('http://141.148.194.18:8052/payroll/employee/dropdown/state', {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("token")}`
+      }
+    })
+      .then(response => {
+        setStates(response.data);
+      })
+      .catch(error => {
+        console.error('There was an error fetching the states!', error);
+      });
+  }, []);
+
+  const handleStateChange = (event, value) => {
+    if (value) {
+      setSelectedState(value);
+      // Fetch districts
+      axios.get(`http://141.148.194.18:8052/payroll/employee/dropdown/district/${value.id}`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`
+        }
+      })
+        .then(response => {
+          setDistricts(response.data);
+        })
+        .catch(error => {
+          console.error('There was an error fetching the districts!', error);
+        });
+    } else {
+      setDistricts([]);
+    }
+  };
+
+  const handleDistrictChange = (event, value) => {
+    setSelectedDistrict(value);
+  };
+
+  const handleSearch = () => {
+    const payload = {
+      deptId: 1,
+      stateId: selectedState ? selectedState.id : null,
+      districtId: selectedDistrict ? selectedDistrict.id : null,
+      officeName: null
+    };
+
+    axios.post('http://141.148.194.18:8052/payroll/employee/dropdown/office', payload, {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("token")}`
+      }
+    })
+      .then(response => {
+        setOfficeData(response.data);
+      })
+      .catch(error => {
+        console.error('There was an error fetching the office data!', error);
+      });
+  };
+
+  const handleReset = () => {
+    setSelectedState(null);
+    setSelectedDistrict(null);
+    setOfficeData([]);
+    setDistricts([]);
+  };
+
+  return (
+    <div>
+      <Dialog
+        open={open}
+        TransitionComponent={Transition}
+        fullScreen={fullScreen}
+        keepMounted
+        onClose={handleClose}
+        maxWidth="700PX"
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle>
+          <CloseIcon
+            sx={{
+              float: "right",
+              ":hover": { color: "white", backgroundColor: "#286cb4" },
+            }}
+            onClick={handleClose}
+          />
+          <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
+            <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Search Office List</H3>
+          </div>
+          <Divider />
+        </DialogTitle>
+        <DialogContent>
+          <Card>
+            <CardContent>
+              <Grid
+                container
+                direction="row"
+                rowSpacing={0}
+                columnSpacing={2}
+                justify="flex-end"
+                alignItems="center"
+                sx={{ mb: 1 }}
+              >
+                <Grid item xs={12} sm={6} md={4} lg={4}>
+                  <Autocomplete
+                    disablePortal
+                    margin="normal"
+                    size="small"
+                    id="state"
+                    name="state"
+                    options={states}
+                    value={selectedState}
+                    onChange={handleStateChange}
+                    getOptionLabel={(option) => option.label}
+                    sx={{ width: "100%", mt: 2 }}
+                    renderInput={(params) => (
+                      <TextField {...params}
+                        label="State"
+                        required
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} lg={4}>
+                  <Autocomplete
+                    disablePortal
+                    margin="normal"
+                    size="small"
+                    id="district"
+                    name="district"
+                    options={districts}
+                    value={selectedDistrict}
+                    onChange={handleDistrictChange}
+                    getOptionLabel={(option) => option.label}
+                    sx={{ width: "100%", mt: 2 }}
+                    renderInput={(params) => (
+                      <TextField {...params}
+                        label="District"
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} lg={4} alignItems="center">
+                  <Box display="flex" sx={{ mt: 2 }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      sx={{ marginRight: "10px" }}
+                      onClick={handleSearch}
+                    >
+                      Search
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={handleReset}
+                    >
+                      <CachedIcon />
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+          <Box component={"div"}>
+            <SearchTable
+              columns={columns}
+              isCheckbox={false}
+              isHideDensity={false}
+              isHideExport={true}
+              isHideFilter={true}
+              isHideColumn={true}
+              isHidePaging={false}
+              data={officeData}
+              name="abc"
+              id="hjjh"
+            />
+          </Box>
+          {showAlert && (
+            <DialogActions style={{ justifyContent: "flex-start" }}>
+              <Alert variant="standard" severity="error">
+                Please select a row in table
+              </Alert>
+            </DialogActions>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Stack direction="row" display="flex" justifyContent="flex-end">
+            <Button
+              variant="contained"
+              autoFocus
+              onClick={proceed}
+              sx={{ mb: 3, mr: 2 }}
+            >
+              Proceed
+            </Button>
+            <Button
+              variant="outlined"
+              autoFocus
+              onClick={handleClose}
+              sx={{ mb: 3 }}
+            >
+              Cancel
+            </Button>
+          </Stack>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
+
+
+
+import React, { useState } from 'react';
+import SearchModal from './SearchModal';
+import {
+  TextField,
+  IconButton,
+  Grid,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const PersonalDetails = () => {
+  const [openModal, setOpenModal] = useState(false);
+  const [currentOffice, setCurrentOffice] = useState('');
+
+  const formik = useFormik({
+    initialValues: {
+      currentOffice: currentOffice,
+    },
+    validationSchema: Yup.object({
+      currentOffice: Yup.string().required('Current Office is required'),
+    }),
+    onSubmit: (values) => {
+      // Handle form submission
+    },
+  });
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setCurrentOffice('');
+    formik.setFieldValue('currentOffice', '');
+  };
+
+  const handleOfficeSelect = (officeName) => {
+    setCurrentOffice(officeName);
+    formik.setFieldValue('currentOffice', officeName);
+  };
+
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={11} md={11} lg={11}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="currentOffice"
+            label="Current Office"
+            name="currentOffice"
+            value={formik.values.currentOffice || ""}
+            InputLabelProps={{ shrink: true }}
+            size="small"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.currentOffice && Boolean(formik.errors.currentOffice)}
+            helperText={formik.touched.currentOffice && formik.errors.currentOffice}
+          />
+        </Grid>
+        <Grid item xs={12} sm={1} md={1} lg={1}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={handleOpenModal}
+            aria-label="search"
+            sx={{ alignItems: "right", display: "flex" }}
+          >
+            <SearchIcon />
+          </IconButton>
+        </Grid>
+      </Grid>
+      {openModal && (
+        <SearchModal
+          closeModal={handleCloseModal}
+          onOfficeSelect={handleOfficeSelect}
+        />
+      )}
+    </form>
+  );
+};
+
+export default PersonalDetails;
+
+
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
+import Cookies from "js-cookie";
+import CachedIcon from '@mui/icons-material/Cached';
+import CloseIcon from "@mui/icons-material/Close";
+import SearchIcon from '@mui/icons-material/Search';
+import {
+  Autocomplete,
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  TableCell,
+  Divider,
+  TableRow,
+  TextField,
+  Dialog,
+  Alert,
+  Button,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Radio,
+  Slide,
+  Stack
+} from "@mui/material";
+import { H3 } from "../../components/Typography";
+import { tableCellClasses } from "@mui/material/TableCell";
+import { styled, useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import PropTypes from "prop-types";
+import SearchTable from '../../components/SearchTableAlt';
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: "#2169b3",
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.action.hover,
+  },
+  "&:last-child td, &:last-child th": {
+    border: 0,
+  },
+}));
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+SearchModal.propTypes = {
+  closeModal: PropTypes.func.isRequired,
   onProceed: PropTypes.func,
   onOfficeSelect: PropTypes.func.isRequired // New prop for the callback
 }
