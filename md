@@ -333,4 +333,64 @@ export default function AlertDialogSlide(props) {
             )}
 
 
+
+
+
+Method 	GET
+URL	http://141.148.194.18:8052/payroll/employee/dropdown/state
+Payload	
+Response	[
+    {
+        "id": 1,
+        "label": "Bihar"
+    }
+]
+
+
+
+
+GET
+http://141.148.194.18:8052/payroll/employee/dropdown/district/{stateId}
+
+[
+    {
+        "id": 2,
+        "label": "Patna"
+    },
+    {
+        "id": 3,
+        "label": "Tirhut"
+    },
+    {
+        "id": 4,
+        "label": "Saran"
+    },
+    {
+        "id": 5,
+        "label": "Darbhanga"
+    },
+    {
+        "id": 6,
+        "label": "Kosi"
+    },
+    {
+        "id": 7,
+        "label": "Purnia"
+    },
+    {
+        "id": 8,
+        "label": "Bhagalpur"
+    },
+    {
+        "id": 9,
+        "label": "Munger"
+    },
+    {
+        "id": 10,
+        "label": "Magadh"
+    }
+]
+
+
+
             
