@@ -1,3 +1,38 @@
+<TextField
+                                                            margin="normal"
+                                                            required
+                                                            fullWidth
+                                                            id="currentOffice"
+                                                            label="Current Office"
+                                                            name="currentOffice"
+                                                            value={formik.values.currentOffice || ""}
+                                                            InputLabelProps={{ shrink: true }}
+                                                            size="small"
+                                                            onChange={formik.handleChange}
+                                                            onBlur={formik.handleBlur}
+                                                            error={
+                                                                formik.touched.currentOffice &&
+                                                                Boolean(formik.errors.currentOffice)
+                                                            }
+                                                            helperText={
+                                                                formik.touched.currentOffice && formik.errors.currentOffice
+                                                            }
+                                                            
+                                                        />
+                                                       
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={1} md={1} lg={1}>
+                                                        <IconButton
+                                                            edge="start"
+                                                            color="inherit"
+                                                            onClick={() => { setOpenModal(true) }}
+                                                            aria-label="search"
+                                                            sx={{ alignItems: "right", display: "flex" }}
+                                                        >
+                                                            <SearchIcon />
+                                                        </IconButton>
+                                                    </Grid>
+
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import Cookies from "js-cookie";
