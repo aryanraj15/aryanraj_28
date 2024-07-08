@@ -393,4 +393,241 @@ http://141.148.194.18:8052/payroll/employee/dropdown/district/{stateId}
 
 
 
-            
+
+
+
+
+
+
+
+
+
+            import React, { useState } from "react";
+import CachedIcon from '@mui/icons-material/Cached';
+import CloseIcon from "@mui/icons-material/Close";
+import SearchIcon from '@mui/icons-material/Search';
+import {
+  Autocomplete,
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  TableCell,
+  Divider,
+  TableRow,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Radio,
+  Slide,
+  Stack,
+  useTheme,
+  useMediaQuery,
+  Alert,
+  Button
+} from "@mui/material";
+import { H3 } from "../../components/Typography";
+import PropTypes from "prop-types";
+import SearchTable from '../../components/SearchTableAlt';
+import { styled } from "@mui/material/styles";
+import { tableCellClasses } from "@mui/material/TableCell";
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: "#2169b3",
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.action.hover,
+  },
+  "&:last-child td, &:last-child th": {
+    border: 0,
+  },
+}));
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+AlertDialogSlide.propTypes = {
+  closeModal: PropTypes.func.isRequired,
+  onProceed: PropTypes.func,
+};
+
+export default function AlertDialogSlide(props) {
+  const { closeModal } = props;
+  const [open, setOpen] = useState(true);
+  const [rowSelected, setRowSelected] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+    closeModal();
+  };
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const [selectedRow, setSelectedRow] = useState(null);
+  const rows = [{ id: 1, select: '', office: 'Office 1', address: 'Mangalagiri' }];
+
+  const proceed = () => {
+    if (rowSelected) {
+      setShowAlert(false);
+      setOpen(false);
+      closeModal();
+      // props.onProceed(selectedRow);
+    } else {
+      setShowAlert(true);
+    }
+  };
+
+  const columns = [
+    // Your columns definition
+  ];
+
+  return (
+    <div>
+      <Dialog
+        open={open}
+        TransitionComponent={Transition}
+        fullScreen={fullScreen}
+        keepMounted
+        onClose={handleClose}
+        maxWidth="700PX"
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle>
+          <CloseIcon
+            sx={{
+              float: "right",
+              ":hover": { color: "white", backgroundColor: "#286cb4" },
+            }}
+            onClick={handleClose}
+          />
+          <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
+            <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Search Office List</H3>
+          </div>
+          <Divider />
+        </DialogTitle>
+        <DialogContent>
+          <Card>
+            <CardContent>
+              <Grid
+                container
+                direction="row"
+                rowSpacing={0}
+                columnSpacing={2}
+                justify="flex-end"
+                alignItems="center"
+                sx={{ mb: 1 }}
+              >
+                <Grid item xs={12} sm={6} md={4} lg={4}>
+                  <Autocomplete
+                    disablePortal
+                    margin="normal"
+                    size="small"
+                    id="state"
+                    name="state"
+                    getOptionLabel={(value) => value.label}
+                    sx={{ width: "100%", mt: 2 }}
+                    renderInput={(params) => (
+                      <TextField {...params}
+                        label="State"
+                        required
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} lg={4}>
+                  <Autocomplete
+                    disablePortal
+                    margin="normal"
+                    size="small"
+                    id="district"
+                    name="district"
+                    getOptionLabel={(value) => value.label}
+                    sx={{ width: "100%", mt: 2 }}
+                    renderInput={(params) => (
+                      <TextField {...params}
+                        label="District"
+                        required
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} lg={4}>
+                  <Box>
+                    <Button
+                      sx={{ minWidth: 100, ml: 1 }}
+                      variant="contained"
+                      type="submit"
+                    >
+                      Search&nbsp; <SearchIcon />
+                    </Button>
+                    <Button
+                      sx={{ minWidth: 100, ml: 1 }}
+                      variant="outlined"
+                    >
+                      Reset&nbsp;<CachedIcon />
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+          <Box component={"div"} >
+            <SearchTable
+              columns={columns}
+              isCheckbox={false}
+              isHideDensity={false}
+              isHideExport={true}
+              isHideFilter={true}
+              isHideColumn={true}
+              isHidePaging={false}
+              data={rows}
+              name="abc"
+              id="hjjh"
+            />
+          </Box>
+          {showAlert && (
+            <DialogActions style={{ justifyContent: "flex-start" }}>
+              <Alert variant="standard" severity="error">
+                Please select a row in table
+              </Alert>
+            </DialogActions>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Stack direction="row" display="flex" justifyContent="flex-end">
+            <Button
+              variant="contained"
+              autoFocus
+              onClick={proceed}
+              sx={{ mb: 3, mr: 2 }}
+            >
+              Proceed
+            </Button>
+            <Button
+              variant="outlined"
+              autoFocus
+              onClick={handleClose}
+              sx={{ mb: 3 }}
+            >
+              Cancel
+            </Button>
+          </Stack>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
+
