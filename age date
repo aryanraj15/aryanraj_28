@@ -1,3 +1,23 @@
+<Grid item xs={12} sm={1} md={1} lg={1}>
+  <IconButton
+    edge="start"
+    color="inherit"
+    onClick={() => { setOpenModal(true) }}
+    aria-label="search"
+    sx={{ alignItems: "right", display: "flex" }}
+  >
+    <SearchIcon />
+  </IconButton>
+</Grid>
+
+{openModal && (
+  <SearchModal
+    closeModal={() => setOpenModal(false)}
+  />
+)}
+
+
+
 SearchModal.js:465 Warning: React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
 import React, { useEffect, useState } from "react";
 import CachedIcon from '@mui/icons-material/Cached';
