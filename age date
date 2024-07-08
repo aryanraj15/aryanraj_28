@@ -1,4 +1,4 @@
-
+SearchModal.js:465 Warning: React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
 import React, { useEffect, useState } from "react";
 import CachedIcon from '@mui/icons-material/Cached';
 import CloseIcon from "@mui/icons-material/Close";
