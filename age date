@@ -1,3 +1,22 @@
+
+Method 	POST
+URL	http://141.148.194.18:8052/payroll/employee/dropdown/office
+Payload	{
+    "deptId": 1,
+    "stateId": null,
+    "districtId": null,
+    "officeName": null
+}
+
+Response	[
+    {
+        "id": 1,
+        "officeName": "test office",
+        "address": "test12345"
+    }
+]
+
+
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import Cookies from "js-cookie";
