@@ -1,339 +1,105 @@
-import React, { useState } from "react";
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import dayjs from 'dayjs';
-import { Box, Card, CardContent, Grid, Paper, TextField, Autocomplete, Snackbar, Slide, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import Alert from '@mui/material/Alert';
-
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    margin: 3,
-    borderRadius: "10px",
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-}));
-
-const PersonalDetails = () => {
-    const [heightUnit, setHeightUnit] = useState("centimeters");
-    const [openToast, setOpenToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastSeverity, setToastSeverity] = useState("info");
-
-    const handleHeightUnitChange = (event) => {
-        setHeightUnit(event.target.value);
-    };
-
-    const validationSchema = Yup.object().shape({
-        prefix: Yup.string().required("Prefix is required").nullable(),
-        firstName: Yup.string().required("First Name is required").nullable(),
-        MiddleName: Yup.string().required("Middle Name is required").nullable(),
-        LastName: Yup.string().required("Last Name is required").nullable(),
-        Gender: Yup.string().required("Gender is required").nullable(),
-        DateofBirth: Yup.string().required("Date of Birth is required").nullable(),
-        Height: Yup.string().required("Height is required").nullable(),
-        IdentificationMarks: Yup.string().required("Identification Marks is required").nullable(),
-        FatherName: Yup.string().required("Father Name is required").nullable(),
-        MotherName: Yup.string().required("Mother Name is required").nullable(),
-        MaritalStatus: Yup.string().required("Marital Status is required").nullable(),
-        spouseName: Yup.string().required("Spouse Name is required").nullable(),
-        Disabled: Yup.string().required("Disabled status is required").nullable(),
-        Description: Yup.string()
-            .required("Description is required")
-            .nullable()
-            .test('word-count', 'Your word length is greater than 200 words', (value) => {
-                if (!value) return true;
-                const wordCount = value.trim().split(/\s+/).length;
-                return wordCount <= 200;
-            }),
-    });
-
-    const formik = useFormik({
-        initialValues: {
-            prefix: "",
-            firstName: "",
-            MiddleName: "",
-            LastName: "",
-            Gender: "",
-            DateofBirth: "",
-            Height: "",
-            IdentificationMarks: "",
-            FatherName: "",
-            MotherName: "",
-            MaritalStatus: "",
-            spouseName: "",
-            Disabled: ""
-        },
-        validationSchema: validationSchema,
-        onSubmit: (values) => {
-            console.log(values);
-        },
-    });
-
-    const handleClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-        setOpenToast(false);
-    };
-
-    return (
-        <>
-            <Box>
-                <form onSubmit={formik.handleSubmit}>
-                    <div>
-                        <Snackbar
-                            open={openToast}
-                            autoHideDuration={6000}
-                            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                            onClose={handleClose}
-                            TransitionComponent={(props) => <Slide {...props} direction="left" />}
-                        >
-                            <Alert onClose={handleClose} severity={toastSeverity}
-                                sx={{
-                                    width: '100%',
-                                    padding: { sm: '15px', xs: '10px' },
-                                    borderRadius: '15px',
-                                    fontSize: { sm: '16px', xs: '14px' },
-                                    boxShadow: "0 0 10px #999",
-                                    marginTop: { sm: '25px', xs: '20px' }
-                                }}>
-                                {toastMessage}
-                            </Alert>
-                        </Snackbar>
-                    </div>
-                    <Card>
-                        <CardContent>
-                            <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
-                                <CalendarMonthIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-                                <Typography variant="h6" sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Apply Leave</Typography>
-                            </div>
-                            <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center" sx={{ mb: 1 }}>
-                                <Grid item xs={12} sm={4} md={4} lg={4}>
-                                    <Autocomplete
-                                        disablePortal
-                                        margin="normal"
-                                        size="small"
-                                        id="prefix"
-                                        name="prefix"
-                                        onChange={(e, value) => formik.setFieldValue("prefix", value ? value.id : null)}
-                                        getOptionLabel={(value) => value.label}
-                                        sx={{ width: "100%", mt: 2 }}
-                                        renderInput={(params) => (
-                                            <TextField {...params}
-                                                label="Prefix"
-                                                required
-                                                InputLabelProps={{ shrink: true }}
-                                                onBlur={formik.handleBlur}
-                                                helperText={formik.errors.prefix && formik.touched.prefix ? formik.errors.prefix : null}
-                                                error={formik.errors.prefix && formik.touched.prefix ? true : false}
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-                            </Grid>
-                            <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-end" alignItems="center">
-                                <Grid item xs={12} sm={4} md={4} lg={4}>
-                                    <TextField
-                                        fullWidth
-                                        id="firstName"
-                                        name="firstName"
-                                        label="First Name"
-                                        size="small"
-                                        margin="normal"
-                                        required
-                                        InputLabelProps={{ shrink: true }}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        value={formik.values.firstName}
-                                        error={formik.touched.firstName && !!formik.errors.firstName}
-                                        helperText={formik.touched.firstName && formik.errors.firstName}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={4} md={4} lg={4}>
-                                    <TextField
-                                        fullWidth
-                                        id="MiddleName"
-                                        name="MiddleName"
-                                        label="Middle Name"
-                                        size="small"
-                                        margin="normal"
-                                        required
-                                        InputLabelProps={{ shrink: true }}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        value={formik.values.MiddleName}
-                                        error={formik.touched.MiddleName && !!formik.errors.MiddleName}
-                                        helperText={formik.touched.MiddleName && formik.errors.MiddleName}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={4} md={4} lg={4}>
-                                    <TextField
-                                        fullWidth
-                                        id="LastName"
-                                        name="LastName"
-                                        label="Last Name"
-                                        size="small"
-                                        margin="normal"
-                                        required
-                                        InputLabelProps={{ shrink: true }}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        value={formik.values.LastName}
-                                        error={formik.touched.LastName && !!formik.errors.LastName}
-                                        helperText={formik.touched.LastName && formik.errors.LastName}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={4} md={4} lg={4}>
-                                    <Autocomplete
-                                        disablePortal
-                                        margin="normal"
-                                        size="small"
-                                        id="Gender"
-                                        name="Gender"
-                                        onChange={(e, value) => formik.setFieldValue("Gender", value ? value.id : null)}
-                                        getOptionLabel={(value) => value.label}
-                                        sx={{ width: "100%", mt: 2 }}
-                                        renderInput={(params) => (
-                                            <TextField {...params}
-                                                label="Gender"
-                                                required
-                                                InputLabelProps={{ shrink: true }}
-                                                onBlur={formik.handleBlur}
-                                                helperText={formik.errors.Gender && formik.touched.Gender ? formik.errors.Gender : null}
-                                                error={formik.errors.Gender && formik.touched.Gender ? true : false}
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={4} md={4} lg={4}>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en"}>
-                                        <DatePicker
-                                            id="DateofBirth"
-                                            name="DateofBirth"
-                                            label="Date of Birth"
-                                            format="YYYY-MM-DD"
-                                            disableFuture
-                                            value={formik.values.DateofBirth}
-                                            onChange={(value) => {
-                                                const formattedDate = value ? dayjs(value).format("YYYY-MM-DD") : null;
-                                                formik.setFieldValue("DateofBirth", formattedDate);
-                                            }}
-                                            renderInput={(params) => (
-                                                <TextField {...params}
-                                                    fullWidth
-                                                    size="small"
-                                                    margin="normal"
-                                                    required
-                                                    InputLabelProps={{ shrink: true }}
-                                                    onBlur={formik.handleBlur}
-                                                    helperText={formik.touched.DateofBirth && formik.errors.DateofBirth}
-                                                    error={formik.touched.DateofBirth && !!formik.errors.DateofBirth}
-                                                />
-                                            )}
-                                        />
-                                    </LocalizationProvider>
-                                </Grid>
-                                <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    <FormControl component="fieldset" margin="normal">
-                                        <FormLabel component="legend">Height</FormLabel>
-                                        <RadioGroup
-                                            row
-                                            aria-label="height-unit"
-                                            name="height-unit"
-                                            value={heightUnit}
-                                            onChange={handleHeightUnitChange}
-                                        >
-                                            <FormControlLabel value="centimeters" control={<Radio />} label="Centimeters" />
-                                            <FormControlLabel value="feets-inches" control={<Radio />} label="Feets/Inches" />
-                                        </RadioGroup>
-
-                                        {heightUnit === "centimeters" ? (
-                                            <TextField
-                                                fullWidth
-                                                id="HeightCm"
-                                                name="HeightCm"
-                                                label="Height (cm)"
-                                                size="small"
-                                                margin="normal"
-                                                required
-                                                InputLabelProps={{ shrink: true }}
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
-                                                value={formik.values.HeightCm}
-                                                error={formik.touched.HeightCm && !!formik.errors.HeightCm}
-                                                helperText={formik.touched.HeightCm && formik.errors.HeightCm}
-                                            />
-                                        ) : (
-                                            <Grid container direction="row" rowSpacing={0} columnSpacing={2} justify="flex-start" alignItems="center">
-                                                <Grid item xs={6} sm={6} md={6} lg={6}>
-                                                    <TextField
-                                                        fullWidth
-                                                        id="HeightFeet"
-                                                        name="HeightFeet"
-                                                        label="Height (ft)"
-                                                        size="small"
-                                                        margin="normal"
-                                                        required
-                                                        InputLabelProps={{ shrink: true }}
-                                                        onChange={formik.handleChange}
-                                                        onBlur={formik.handleBlur}
-                                                        value={formik.values.HeightFeet}
-                                                        error={formik.touched.HeightFeet && !!formik.errors.HeightFeet}
-                                                        helperText={formik.touched.HeightFeet && formik.errors.HeightFeet}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={6} sm={6} md={6} lg={6}>
-                                                    <TextField
-                                                        fullWidth
-                                                        id="HeightInch"
-                                                        name="HeightInch"
-                                                        label="Height (in)"
-                                                        size="small"
-                                                        margin="normal"
-                                                        required
-                                                        InputLabelProps={{ shrink: true }}
-                                                        onChange={formik.handleChange}
-                                                        onBlur={formik.handleBlur}
-                                                        value={formik.values.HeightInch}
-                                                        error={formik.touched.HeightInch && !!formik.errors.HeightInch}
-                                                        helperText={formik.touched.HeightInch && formik.errors.HeightInch}
-                                                    />
-                                                </Grid>
+<Grid item xs={12} sm={4} md={4} lg={4}>
+                                                <FormControl>
+                                                    <FormLabel id="demo-row-radio-buttons-group-label">
+                                                        Disability (yes/no)
+                                                    </FormLabel>
+                                                    <RadioGroup
+                                                        row
+                                                        aria-labelledby="demo-row-radio-buttons-group-label"
+                                                        name="physicallyHandicapped"
+                                                        value={formik.values.physicallyHandicapped}
+                                                        onChange={(e) => {
+                                                            formik.setFieldValue("disabilityPercentage", "");
+                                                            formik.setFieldValue("disabilitype", "");
+                                                            formik.handleChange(e);
+                                                        }}
+                                                    >
+                                                        <FormControlLabel
+                                                            value="true"
+                                                            control={<Radio />}
+                                                            label="Yes" />
+                                                        <FormControlLabel
+                                                            value="false"
+                                                            control={<Radio />}
+                                                            label="No" />
+                                                    </RadioGroup>
+                                                    {formik.touched.physicallyHandicapped &&
+                                                        formik.errors.physicallyHandicapped && (
+                                                            <FormHelperText error>
+                                                                {formik.errors.physicallyHandicapped}
+                                                            </FormHelperText>
+                                                        )}
+                                                </FormControl>
                                             </Grid>
-                                        )}
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    <TextField
-                                        fullWidth
-                                        id="IdentificationMarks"
-                                        name="IdentificationMarks"
-                                        label="Identification Marks"
-                                        size="small"
-                                        margin="normal"
-                                        required
-                                        InputLabelProps={{ shrink: true }}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        value={formik.values.IdentificationMarks}
-                                        error={formik.touched.IdentificationMarks && !!formik.errors.IdentificationMarks}
-                                        helperText={formik.touched.IdentificationMarks && formik.errors.IdentificationMarks}
-                                    />
-                                </Grid>
-                            </Grid>
-                        </CardContent>
-                    </Card>
-                </form>
-            </Box>
-        </>
-    );
-};
-
-export default PersonalDetails;
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                <Autocomplete
+                                                    disablePortal
+                                                    margin="normal"
+                                                    size="small"
+                                                    id="disabilityType"
+                                                    name="disabilityType"
+                                                    options={disabilityList}
+                                                    value={
+                                                        disabilityList.find(
+                                                            (option) =>
+                                                                option.id ===
+                                                                formik.values.disabilityType
+                                                        ) || null
+                                                    }
+                                                    onChange={(e, value) => {
+                                                        if (value === null) {
+                                                            formik.setFieldValue("disabilityType", null);
+                                                        } else formik.setFieldValue("disabilityType", value.id);
+                                                    }}
+                                                    getOptionLabel={(value) => value.label}
+                                                    sx={{ width: "100%", mt: 2, mb: 1 }}
+                                                    renderInput={(params) => (
+                                                        <TextField
+                                                            {...params}
+                                                            label="Type of Disability"
+                                                            //  required
+                                                            onBlur={formik.handleBlur}
+                                                            InputLabelProps={{ shrink: true }}
+                                                            helperText={
+                                                                formik.errors.disabilityType &&
+                                                                    formik.touched.disabilityType
+                                                                    ? formik.errors.disabilityType
+                                                                    : null
+                                                            }
+                                                            error={
+                                                                formik.errors.disabilityType &&
+                                                                    formik.touched.disabilityType
+                                                                    ? true
+                                                                    : false
+                                                            }
+                                                        />
+                                                    )}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                <TextField
+                                                    margin="normal"
+                                                    //  required
+                                                    fullWidth
+                                                    type="text"
+                                                    id="disabilityPercentage"
+                                                    name="disabilityPercentage"
+                                                    label="Percentage of Disability"
+                                                    size="small"
+                                                    InputLabelProps={{ shrink: true }}
+                                                    onChange={(e) => {
+                                                        if (e.target.value < 0 || e.target.value > 100) {
+                                                            alert("Disability Percentage should be between 0 and 100")
+                                                            formik.setFieldValue("disabilityPercentage", "")
+                                                            return;
+                                                        }
+                                                        else {
+                                                            formik.setFieldValue("disabilityPercentage", e.target.value)
+                                                        }
+                                                    }}
+                                                    onBlur={formik.handleBlur}
+                                                    value={formik.values.disabilityPercentage}
+                                                    error={formik.touched.disabilityPercentage && !!formik.errors.disabilityPercentage}
+                                                    helperText={formik.touched.disabilityPercentage && formik.errors.disabilityPercentage}
+                                                />
+                                            </Grid>
