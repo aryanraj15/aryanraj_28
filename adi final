@@ -1,3 +1,14 @@
+"disabilityDetails": [
+        {
+            "disabilityType": 209,
+            "disabilityPercent": 10
+        },
+        {
+            "disabilityType": 211,
+            "disabilityPercent": 90
+        }
+    ]
+
 
 <Autocomplete
     disablePortal
