@@ -1,5 +1,12 @@
     const [disabilityList, setTypeofDisabilityList] = useState([]);
 
+ const [disabilityList, setDisabilityList] = useState([
+        { id: '1', label: 'Visual Impairment' },
+        { id: '2', label: 'Hearing Impairment' },
+        { id: '3', label: 'Locomotor Disability' },
+        { id: '4', label: 'Mental Illness' },
+    ]);
+
 
 import React, { useState, useEffect } from 'react';
 import {
