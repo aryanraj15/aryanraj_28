@@ -1,3 +1,56 @@
+<React.Fragment>
+                                                    {disabilities.map((disability, index) => (
+                                                        <Grid
+                                                            container
+                                                            direction="row"
+                                                            rowSpacing={0}
+                                                            columnSpacing={2}
+                                                            justify="flex-end"
+                                                            alignItems="center"
+                                                            key={index}
+                                                        >
+                                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                                <Autocomplete
+                                                                    disablePortal
+                                                                    margin="normal"
+                                                                    size="small"
+                                                                    id={`disabilityType-${index}`}
+                                                                    name={`disabilityType-${index}`}
+                                                                    options={availableDisabilities}
+                                                                    value={availableDisabilities.find(option => option.id === disability.type) || null}
+                                                                    onChange={(e, value) => handleDisabilityChange(index, value)}
+                                                                    getOptionLabel={(option) => option.name}
+                                                                    renderInput={(params) => <TextField {...params} label="Type of Disability" />}
+                                                                />
+                                                            </Grid>
+                                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                                <TextField
+                                                                    fullWidth
+                                                                    id={`disabilityPercentage-${index}`}
+                                                                    name={`disabilityPercentage-${index}`}
+                                                                    label="Disability Percentage"
+                                                                    type="number"
+                                                                    InputLabelProps={{ shrink: true }}
+                                                                    value={disability.percentage}
+                                                                    onChange={(e) => handlePercentageChange(index, e.target.value)}
+                                                                    error={formik.touched[`disabilityPercentage-${index}`] && Boolean(formik.errors[`disabilityPercentage-${index}`])}
+                                                                    helperText={formik.touched[`disabilityPercentage-${index}`] && formik.errors[`disabilityPercentage-${index}`]}
+                                                                />
+                                                            </Grid>
+                                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                                <IconButton onClick={() => handleRemoveDisability(index)} aria-label="delete" className={classes.buttonIcon} disabled={disabilities.length === 1}>
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                            </Grid>
+                                                        </Grid>
+                                                    ))}
+                                                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                        <IconButton onClick={handleAddDisability} aria-label="add" className={classes.buttonIcon}>
+                                                            <AddIcon />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </React.Fragment>
+
 import SaveIcon from '@mui/icons-material/Save';
 import SearchIcon from '@mui/icons-material/Search';
 
