@@ -1,4 +1,4 @@
-
+currentOffice: values.currentOffice,
 const handleCloseModal = () => {
     setOpenModal(false);
     setCurrentOffice('');
