@@ -1,3 +1,493 @@
+import SaveIcon from '@mui/icons-material/Save';
+import SearchIcon from '@mui/icons-material/Search';
+
+import axios from 'axios';
+import dayjs from "dayjs";
+import { useFormik } from 'formik';
+import Cookies from "js-cookie";
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import * as Yup from 'yup';
+import { useSnackbar } from "../../components/Snackbar";
+
+
+const validationSchema = Yup.object().shape({
+    prefix: Yup.string().required("Prefix is required"),
+    firstName: Yup.string().required("First Name is required"),
+    lastName: Yup.string().required("Last Name is required"),
+    gender: Yup.string().required("Gender is required").nullable(),
+    dob: Yup.string().required("Date of Birth is required").nullable(),
+    height: Yup.string().required("Height is required").nullable(),
+ 
+    currentOffice: Yup.string().required('Current Office is required'),
+
+    // apcosId: Yup.string().required('Apcos Id is required'),
+    // id: Yup.string().required('id is required'),
+});
+const SavePersonalDetails = ({ formData, setFormData, prevData, onButtonClick }) => {
+    const classes = useAlertSaveStyles();
+    const user = useSelector((state) => state.loginReducer);
+   
+    const [currentOffice, setCurrentOffice] = useState('');
+    const [disabilities, setDisabilities] = useState([]);
+    const [disabilityList, setTypeofDisabilityList] = useState([]);
+    const [availableDisabilities, setAvailableDisabilities] = useState([]); // Initialize as empty array
+
+    useEffect(() => {
+        axios.get(`http://141.148.194.18:8052/payroll/employee/dropdown/state`, {
+            headers: {
+                Authorization: `Bearer ${Cookies.get("token")}`
+            }
+        }).then(response => {
+            console.log(response)
+            if (response.status === 200) {
+                setStatelist(response.data);
+            }
+            console.log(response);
+        })
+        .catch(error => {
+            setStatelist([]);
+            console.log(error);
+        });
+
+        axios.get(`http://141.148.194.18:8052/payroll/employee/dropdown-init`, {
+            headers: {
+                Authorization: `Bearer ${Cookies.get("token")}`
+            }
+        }).then(response => {
+            if (response.status === 200) {
+                setCategoryList(response.data.socialCategory);
+                setTypeofDisabilityList(response.data.typesOfDisability);
+                setDepartmentList(response.data.department);
+                setGpfPranList(response.data.gpfPranType)
+                setSrcOfRecruitmentList(response.data.sourceOfRecruitment);
+                setHeightList(response.data.heightCmFeet)
+                setPayslipAuthorityList(response.data.payslipAuthority)
+                setQuarterTypelist(response.data.quarterType)
+                setJoiningTimeList(response.data.joiningTime)
+                // Initialize available disabilities here initially
+                setAvailableDisabilities(response.data.typesOfDisability || []);
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    }, []);
+
+    const formik = useFormik({
+        initialValues: {
+            physicallyHandicapped: 'false',
+            disabilityType: '',
+            disabilityPercentage: null,
+            currentOffice: currentOffice,
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            savePersonalDetails();
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                pageone: { formik: formik.values, familyDetailsFormik: familyDetailsFormik.values, image: imageUploadedFile, disable: disableoption, disableOtp: isOtpButtonDisabled, Next: showNext }
+            }));
+        },
+    });
+
+    const handleOpenModal = () => {
+        setOpenModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setCurrentOffice('');
+        formik.setFieldValue('currentOffice', '');
+    };
+
+    const handleOfficeSelect = (officeName) => {
+        setCurrentOffice(officeName);
+        formik.setFieldValue('currentOffice', officeName);
+    };
+
+    useEffect(() => {
+        if (formik.values.physicallyHandicapped === 'true' && disabilities.length === 0) {
+            handleAddDisability();
+        }
+    }, [formik.values.physicallyHandicapped]);
+
+    const handleAddDisability = () => {
+        setDisabilities([...disabilities, { type: '', percentage: '' }]);
+    };
+
+    const handleRemoveDisability = (index) => {
+        if (index === 0) return; // Prevent removing the first row
+        const updatedDisabilities = [...disabilities];
+        updatedDisabilities.splice(index, 1);
+        setDisabilities(updatedDisabilities);
+        // Add removed disability back to availableDisabilities
+        if (disabilities[index]?.type) {
+            setAvailableDisabilities([...availableDisabilities, disabilities[index].type]);
+        }
+    };
+
+    const handleDisabilityChange = (index, value) => {
+        const updatedDisabilities = [...disabilities];
+        updatedDisabilities[index].type = value ? value.id : '';
+        setDisabilities(updatedDisabilities);
+        setAvailableDisabilities(availableDisabilities.filter(dis => dis !== value.id));
+    };
+
+    const handlePercentageChange = (index, value) => {
+        const updatedDisabilities = [...disabilities];
+        updatedDisabilities[index].percentage = value;
+        setDisabilities(updatedDisabilities);
+    };
+
+    const savePersonalDetails = async () => {
+        try {
+            let body = {
+                "isDisabled": formik.values.physicallyHandicapped,
+                "appointOrdNo": 'ORD123',
+                "appointOrdDate": formik.values.appointmentOrdDate,
+                "distId": formik.values.distIdcommunication,
+                "pincode": formik.values.pincodecomm,
+                "disabilityDetails": formik.values.physicallyHandicapped === "true" ? disabilities.map(disability => ({
+                    "disabilityType": disability.type,
+                    "disabilityPercent": disability.percentage
+                })) : []
+            };
+            const res = await axios.post(
+                `${process.env.REACT_APP_PAYROLL_API_URL}/employee/personal-details`,
+                body,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get("token")}`
+                    }
+                }
+            );
+            console.log("the saved details are", res);
+            if (res.data.statusCode === 200) {
+                showSnackbar(res.data.message + " " + res.data.result, "success");
+            }
+        } catch (error) {
+            showSnackbar("Data has not saved", "error");
+            console.log(error.message);
+        }
+    };
+
+    return (
+        <>
+            <Grid container>
+                <Grid item xs={12}>
+                    <Card>
+                        <CardContent>
+                            <form onSubmit={formik.handleSubmit}>
+                                <Card sx={{ boxShadow: "none" }}>
+                                    <CardContent>
+                                        <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
+                                            <PersonIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+                                            <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Employee Personal Details</H3>
+                                        </div>
+                                        <Divider />
+                                        <Grid
+                                            container
+                                            direction="row"
+                                            rowSpacing={0}
+                                            columnSpacing={2}
+                                            justify="flex-end"
+                                            alignItems="center"
+                                            sx={{ mb: 1 }}
+                                        >
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                <FormControl>
+                                                    <FormLabel id="demo-row-radio-buttons-group-label">
+                                                        Disability (yes/no)
+                                                    </FormLabel>
+                                                    <RadioGroup
+                                                        row
+                                                        aria-labelledby="demo-row-radio-buttons-group-label"
+                                                        name="physicallyHandicapped"
+                                                        value={formik.values.physicallyHandicapped}
+                                                        onChange={(e) => {
+                                                            formik.setFieldValue("physicallyHandicapped", e.target.value);
+                                                            if (e.target.value === 'false') {
+                                                                setDisabilities([]);
+                                                                setAvailableDisabilities(disabilityList.map(dis => dis.id)); // Reset available disabilities
+                                                            }
+                                                        }}
+                                                    >
+                                                        <FormControlLabel
+                                                            value="true"
+                                                            control={<Radio />}
+                                                            label="Yes"
+                                                        />
+                                                        <FormControlLabel
+                                                            value="false"
+                                                            control={<Radio />}
+                                                            label="No"
+                                                        />
+                                                    </RadioGroup>
+                                                    {formik.touched.physicallyHandicapped &&
+                                                        formik.errors.physicallyHandicapped && (
+                                                            <FormHelperText error>
+                                                                {formik.errors.physicallyHandicapped}
+                                                            </FormHelperText>
+                                                        )}
+                                                </FormControl>
+                                            </Grid>
+                                            {formik.values.physicallyHandicapped === 'true' && (
+                                                <React.Fragment>
+                                                    {disabilities.map((disability, index) => (
+                                                        <Grid
+                                                            container
+                                                            direction="row"
+                                                            rowSpacing={0}
+                                                            columnSpacing={2}
+                                                            justify="flex-end"
+                                                            alignItems="center"
+                                                            key={index}
+                                                        >
+                                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                                <Autocomplete
+                                                                    disablePortal
+                                                                    margin="normal"
+                                                                    size="small"
+                                                                    id={`disabilityType-${index}`}
+                                                                    name={`disabilityType-${index}`}
+                                                                    options={disabilityList.filter(dis => availableDisabilities.includes(dis.id))}
+                                                                    value={disabilityList.find(option => option.id === disability.type) || null}
+                                                                    onChange={(e, value) => handleDisabilityChange(index, value)}
+                                                                    getOptionLabel={(value) => value.label}
+                                                                    sx={{ width: "100%", mt: 2, mb: 1 }}
+                                                                    renderInput={(params) => (
+                                                                        <TextField
+                                                                            {...params}
+                                                                            label="Type of Disability"
+                                                                            onBlur={formik.handleBlur}
+                                                                            InputLabelProps={{ shrink: true }}
+                                                                            helperText={formik.errors[`disabilityType-${index}`] || ''}
+                                                                            error={!!formik.errors[`disabilityType-${index}`]}
+                                                                        />
+                                                                    )}
+                                                                />
+                                                            </Grid>
+                                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                                <TextField
+                                                                    margin="normal"
+                                                                    fullWidth
+                                                                    type="number"
+                                                                    id={`disabilityPercentage-${index}`}
+                                                                    name={`disabilityPercentage-${index}`}
+                                                                    label="Percentage of Disability"
+                                                                    size="small"
+                                                                    InputLabelProps={{ shrink: true }}
+                                                                    onChange={(e) => handlePercentageChange(index, e.target.value)}
+                                                                    onBlur={formik.handleBlur}
+                                                                    value={disability.percentage}
+                                                                    error={!!formik.errors[`disabilityPercentage-${index}`]}
+                                                                    helperText={formik.errors[`disabilityPercentage-${index}`] || ''}
+                                                                />
+                                                            </Grid>
+                                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                                <IconButton onClick={() => handleRemoveDisability(index)} color="error" disabled={index === 0}>
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                                <IconButton onClick={handleAddDisability} color="primary">
+                                                                    <AddIcon />
+                                                                </IconButton>
+                                                            </Grid>
+                                                        </Grid>
+                                                    ))}
+                                                </React.Fragment>
+                                            )}
+
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                <TextField
+                                                    margin="normal"
+                                                    required
+                                                    fullWidth
+                                                    type="text"
+                                                    id="officialEmail"
+                                                    name="officialEmail"
+                                                    label="Official Email Id"
+                                                    size="small"
+                                                    InputLabelProps={{ shrink: true }}
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    value={formik.values.officialEmail}
+                                                    error={formik.touched.officialEmail && !!formik.errors.officialEmail}
+                                                    helperText={formik.touched.officialEmail && formik.errors.officialEmail}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                <TextField
+                                                    margin="normal"
+                                                    required
+                                                    fullWidth
+                                                    type="text"
+                                                    id="officialMobile"
+                                                    name="officialMobile"
+                                                    label="Official Mobile Number"
+                                                    size="small"
+                                                    InputLabelProps={{ shrink: true }}
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    value={formik.values.officialMobile}
+                                                    error={formik.touched.officialMobile && !!formik.errors.officialMobile}
+                                                    helperText={formik.touched.officialMobile && formik.errors.officialMobile}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                <Autocomplete
+                                                    disablePortal
+                                                    margin="normal"
+                                                    size="small"
+                                                    id="nationality"
+                                                    name="nationality"
+                                                    options={nationalityList}
+                                                    value={
+                                                        nationalityList.find(
+                                                            (option) =>
+                                                                option.id ===
+                                                                formik.values.nationality
+                                                        ) || null
+                                                    }
+                                                    onChange={(e, value) => {
+                                                        if (value === null) {
+                                                            formik.setFieldValue("nationality", null);
+                                                        } else formik.setFieldValue("nationality", value.id);
+                                                    }}
+                                                    getOptionLabel={(value) => value.label}
+                                                    sx={{ width: "100%", mt: 2, mb: 1 }}
+                                                    renderInput={(params) => (
+                                                        <TextField
+                                                            {...params}
+                                                            label="Nationality"
+                                                            required
+                                                            onBlur={formik.handleBlur}
+                                                            InputLabelProps={{ shrink: true }}
+                                                            helperText={
+                                                                formik.errors.nationality &&
+                                                                    formik.touched.nationality
+                                                                    ? formik.errors.nationality
+                                                                    : null
+                                                            }
+                                                            error={
+                                                                formik.errors.nationality &&
+                                                                    formik.touched.nationality
+                                                                    ? true
+                                                                    : false
+                                                            }
+                                                        />
+                                                    )}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={4} lg={4}>
+                                                <Autocomplete
+                                                    disablePortal
+                                                    margin="normal"
+                                                    size="small"
+                                                    id="religion"
+                                                    name="religion"
+                                                    options={religionList}
+                                                    value={
+                                                        religionList.find(
+                                                            (option) =>
+                                                                option.id ===
+                                                                formik.values.religion
+                                                        ) || null
+                                                    }
+                                                    onChange={(e, value) => {
+                                                        if (value === null) {
+                                                            formik.setFieldValue("religion", null);
+                                                        } else formik.setFieldValue("religion", value.id);
+                                                    }}
+                                                    getOptionLabel={(value) => value.label}
+                                                    sx={{ width: "100%", mt: 2, mb: 1 }}
+                                                    renderInput={(params) => (
+                                                        <TextField
+                                                            {...params}
+                                                            label="Religion"
+                                                            required
+                                                            onBlur={formik.handleBlur}
+                                                            InputLabelProps={{ shrink: true }}
+                                                            helperText={
+                                                                formik.errors.religion &&
+                                                                    formik.touched.religion
+                                                                    ? formik.errors.religion
+                                                                    : null
+                                                            }
+                                                            error={
+                                                                formik.errors.religion &&
+                                                                    formik.touched.religion
+                                                                    ? true
+                                                                    : false
+                                                            }
+                                                        />
+                                                    )}
+                                                />
+                                            </Grid>
+                                        </Grid>
+                                    </CardContent>
+                                </Card>
+                                <Box display="flex" justifyContent="center" alignItems="center">
+                                    <Button
+                                        sx={{
+                                            minWidth: 100,
+                                            ml: 1,
+                                            mt: 2,
+                                        }}
+                                        variant="contained"
+                                        type="submit"
+                                        disabled={submitDisable}
+                                        onClick={() => {
+                                            setFormData((prevFormData) => ({
+                                                ...prevFormData,
+                                                pageone: { formik: formik.values, familyDetailsFormik: familyDetailsFormik.values, image: imageUploadedFile, disable: disableoption, disableOtp: isOtpButtonDisabled, Next: showNext }
+                                            }));
+                                        }}
+                                    >
+                                        SUBMIT&nbsp;
+                                        <SaveIcon></SaveIcon>
+                                    </Button>
+                                    <Button
+                                        sx={{
+                                            minWidth: 100, ml: 1, mt: 2
+                                        }}
+                                        variant="outlined"
+                                        onClick={() => {
+                                            onButtonClick("pagetwo")
+                                        }}
+                                    >
+                                        NEXT &nbsp;
+                                        <NavigateNextIcon />
+                                    </Button>
+                                </Box>
+                            </form>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+            {openModal && (
+                <SearchModal
+                    closeModal={handleCloseModal}
+                    onOfficeSelect={handleOfficeSelect}
+                />
+            )}
+        </>
+    );
+};
+
+export default SavePersonalDetails;
+
+
+
+
+
+
+
+
+
+
+
+
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import FeedIcon from '@mui/icons-material/Feed';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
