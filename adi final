@@ -1,4 +1,53 @@
-    const [disabilityList, setTypeofDisabilityList] = useState([]);
+
+<Autocomplete
+    disablePortal
+    margin="normal"
+    size="small"
+    id={`disabilityType-${index}`}
+    name={`disabilityType-${index}`}
+    options={availableDisabilities}
+    value={disabilityList.find(option => option.id === disability.type) || null}
+    onChange={(e, value) => handleDisabilityChange(index, value)}
+    getOptionLabel={(value) => value.label}
+    sx={{ width: "100%", mt: 2, mb: 1 }}
+    renderInput={(params) => (
+        <TextField
+            {...params}
+            label="Type of Disability"
+            onBlur={formik.handleBlur}
+            InputLabelProps={{ shrink: true }}
+            helperText={formik.errors[`disabilityType-${index}`] || ''}
+            error={!!formik.errors[`disabilityType-${index}`]}
+        />
+    )}
+/>
+
+const handleDisabilityChange = (index, value) => {
+    const updatedDisabilities = [...disabilities];
+    updatedDisabilities[index].type = value ? value.id : '';
+    setDisabilities(updatedDisabilities);
+    setAvailableDisabilities(disabilityList.filter(dis => !updatedDisabilities.some(d => d.type === dis.id)));
+};
+onChange={(e) => {
+    formik.setFieldValue("physicallyHandicapped", e.target.value);
+    if (e.target.value === 'false') {
+        setDisabilities([{ type: '', percentage: '' }]);
+        setAvailableDisabilities(disabilityList);
+    }
+}}
+
+
+
+
+
+
+
+
+
+
+
+
+const [disabilityList, setTypeofDisabilityList] = useState([]);
 
  const [disabilityList, setDisabilityList] = useState([
         { id: '1', label: 'Visual Impairment' },
