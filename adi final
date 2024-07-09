@@ -1,3 +1,6 @@
+    const [disabilityList, setTypeofDisabilityList] = useState([]);
+
+
 import React, { useState, useEffect } from 'react';
 import {
     Grid, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, FormHelperText,
