@@ -4,6 +4,180 @@ import {
     Autocomplete, TextField, IconButton, Button
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import { useFormik } from 'formik';
+
+const DisabilityForm = ({ disabilityList = [] }) => {
+    const [disabilities, setDisabilities] = useState([]);
+    const [availableDisabilities, setAvailableDisabilities] = useState(disabilityList);
+
+    const formik = useFormik({
+        initialValues: {
+            physicallyHandicapped: '',
+        },
+        validate: values => {
+            const errors = {};
+            if (values.physicallyHandicapped === 'true') {
+                disabilities.forEach((disability, index) => {
+                    if (!disability.type) {
+                        errors[`disabilityType-${index}`] = 'Required';
+                    }
+                    if (!disability.percentage) {
+                        errors[`disabilityPercentage-${index}`] = 'Required';
+                    } else if (disability.percentage < 0 || disability.percentage > 100) {
+                        errors[`disabilityPercentage-${index}`] = 'Disability Percentage should be between 0 and 100';
+                    }
+                });
+            }
+            return errors;
+        },
+        onSubmit: values => {
+            console.log('Form data', values);
+        }
+    });
+
+    useEffect(() => {
+        if (formik.values.physicallyHandicapped === 'true' && disabilities.length === 0) {
+            handleAddDisability();
+        }
+    }, [formik.values.physicallyHandicapped]);
+
+    const handleAddDisability = () => {
+        setDisabilities([...disabilities, { type: '', percentage: '' }]);
+    };
+
+    const handleRemoveDisability = (index) => {
+        if (index === 0) return; // Prevent removing the first row
+        const updatedDisabilities = [...disabilities];
+        const removed = updatedDisabilities.splice(index, 1);
+        setDisabilities(updatedDisabilities);
+        setAvailableDisabilities([...availableDisabilities, removed[0]]);
+    };
+
+    const handleDisabilityChange = (index, value) => {
+        const updatedDisabilities = [...disabilities];
+        updatedDisabilities[index].type = value ? value.id : '';
+        setDisabilities(updatedDisabilities);
+        setAvailableDisabilities(disabilityList.filter(dis => !updatedDisabilities.some(d => d.type === dis.id)));
+    };
+
+    const handlePercentageChange = (index, value) => {
+        const updatedDisabilities = [...disabilities];
+        updatedDisabilities[index].percentage = value;
+        setDisabilities(updatedDisabilities);
+    };
+
+    return (
+        <form onSubmit={formik.handleSubmit}>
+            <Grid container spacing={3}>
+                <Grid item xs={12} sm={4} md={4} lg={4}>
+                    <FormControl>
+                        <FormLabel id="demo-row-radio-buttons-group-label">
+                            Disability (yes/no)
+                        </FormLabel>
+                        <RadioGroup
+                            row
+                            aria-labelledby="demo-row-radio-buttons-group-label"
+                            name="physicallyHandicapped"
+                            value={formik.values.physicallyHandicapped}
+                            onChange={(e) => {
+                                formik.setFieldValue("physicallyHandicapped", e.target.value);
+                                if (e.target.value === 'false') {
+                                    setDisabilities([]);
+                                }
+                            }}
+                        >
+                            <FormControlLabel
+                                value="true"
+                                control={<Radio />}
+                                label="Yes" />
+                            <FormControlLabel
+                                value="false"
+                                control={<Radio />}
+                                label="No" />
+                        </RadioGroup>
+                        {formik.touched.physicallyHandicapped &&
+                            formik.errors.physicallyHandicapped && (
+                                <FormHelperText error>
+                                    {formik.errors.physicallyHandicapped}
+                                </FormHelperText>
+                            )}
+                    </FormControl>
+                </Grid>
+                {formik.values.physicallyHandicapped === 'true' && (
+                    <React.Fragment>
+                        {disabilities.map((disability, index) => (
+                            <React.Fragment key={index}>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                    <Autocomplete
+                                        disablePortal
+                                        margin="normal"
+                                        size="small"
+                                        id={`disabilityType-${index}`}
+                                        name={`disabilityType-${index}`}
+                                        options={availableDisabilities}
+                                        value={availableDisabilities.find(option => option.id === disability.type) || null}
+                                        onChange={(e, value) => handleDisabilityChange(index, value)}
+                                        getOptionLabel={(value) => value.label}
+                                        sx={{ width: "100%", mt: 2, mb: 1 }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Type of Disability"
+                                                onBlur={formik.handleBlur}
+                                                InputLabelProps={{ shrink: true }}
+                                                helperText={formik.errors[`disabilityType-${index}`] || ''}
+                                                error={!!formik.errors[`disabilityType-${index}`]}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                    <TextField
+                                        margin="normal"
+                                        fullWidth
+                                        type="number"
+                                        id={`disabilityPercentage-${index}`}
+                                        name={`disabilityPercentage-${index}`}
+                                        label="Percentage of Disability"
+                                        size="small"
+                                        InputLabelProps={{ shrink: true }}
+                                        onChange={(e) => handlePercentageChange(index, e.target.value)}
+                                        onBlur={formik.handleBlur}
+                                        value={disability.percentage}
+                                        error={!!formik.errors[`disabilityPercentage-${index}`]}
+                                        helperText={formik.errors[`disabilityPercentage-${index}`] || ''}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={4} md={4} lg={4}>
+                                    <IconButton onClick={() => handleRemoveDisability(index)} color="error" disabled={index === 0}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                    <IconButton onClick={handleAddDisability} color="primary">
+                                        <AddIcon />
+                                    </IconButton>
+                                </Grid>
+                            </React.Fragment>
+                        ))}
+                    </React.Fragment>
+                )}
+            </Grid>
+            <Button type="submit" variant="contained" color="primary">
+                Submit
+            </Button>
+        </form>
+    );
+};
+
+export default DisabilityForm;
+
+
+import React, { useState, useEffect } from 'react';
+import {
+    Grid, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, FormHelperText,
+    Autocomplete, TextField, IconButton, Button
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useFormik } from 'formik';
 
 const DisabilityForm = ({ disabilityList = [] }) => {
