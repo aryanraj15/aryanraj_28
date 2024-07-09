@@ -1,4 +1,53 @@
-                                             <Grid item xs={12} sm={4} md={4} lg={4}>
+ <Autocomplete
+                                    multiple
+                                    margin="normal"
+                                    disableCloseOnSelect
+                                    limitedTags={10}
+                                    fullWidth
+                                    size='small'
+                                    id="item"
+                                    name="item"
+                                    options={itemOptions}
+                                    getOptionLabel={(value) => value.label}
+                                    value={itemOptions.filter(value => formik.values.item?.some(item => item.id === value.id)) || []}
+                                    renderOption={(props, value, { selected }) => (
+                                        <li {...props}>
+                                            <Checkbox
+                                                icon={icon}
+                                                checkedIcon={checkedIcon}
+                                                style={{ marginRight: 8 }}
+                                                checked={selected}
+                                            />
+                                            {value.label}
+                                        </li>
+                                    )}
+
+                                    onChange={(e, selectedValues) => {
+                                        // console.log("SelectedValue", selectedValues)
+                                        if (selectedValues && selectedValues.length > 0) {
+                                            formik.setFieldValue("item", selectedValues);
+                                        }
+                                        else {
+                                            formik.setFieldValue("item", null);
+                                        }
+
+
+                                    }}
+                                    sx={{ width: "100%" }}
+                                    renderInput={(params) => <TextField {...params} label="Add Stocks"
+                                        onBlur={formik.handleBlur}
+                                        helperText={formik.errors.item && formik.touched.item ? formik.errors.item : null}
+                                        error={formik.errors.item && formik.touched.item ? true : false}
+                                    />}
+                                />
+
+
+
+
+
+
+
+<Grid item xs={12} sm={4} md={4} lg={4}>
                                                 <FormControl>
                                                     <FormLabel id="demo-row-radio-buttons-group-label">
                                                         Disability (yes/no)
