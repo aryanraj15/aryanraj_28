@@ -1,3 +1,157 @@
+15.	Entitlement Payhead List – Payment/Earning
+Method 	POST
+URL	http://141.148.194.18:8052/payroll/employee/entitlement-details/payment
+Payload	{
+    "payCommissionId":32,
+    "grpId":1,
+    "serviceTypeId":10,
+    "payLevelId":105,
+    "departmentId":2,
+    "designationId":1
+}
+
+Response	[
+    {
+        "payheadName": "Band Pay",
+        "payheadId": 12,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Dearness Allowance",
+        "payheadId": 13,
+        "amount": "234000"
+    },
+    {
+        "payheadName": "Dearness Allowance",
+        "payheadId": 13,
+        "amount": "123"
+    },
+    {
+        "payheadName": "Dearness Allowance",
+        "payheadId": 13,
+        "amount": "120000"
+    },
+    {
+        "payheadName": "Grade Pay",
+        "payheadId": 14,
+        "amount": "0"
+    },
+    {
+        "payheadName": "House Rent Allowance",
+        "payheadId": 15,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Special Pay",
+        "payheadId": 16,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Medical Allowance",
+        "payheadId": 17,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Other Allowances",
+        "payheadId": 18,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Basic Pay",
+        "payheadId": 1,
+        "amount": "50000"
+    },
+    {
+        "payheadName": "City Transport allowance",
+        "payheadId": 19,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Dearness Pay",
+        "payheadId": 20,
+        "amount": "0"
+    }
+]
+
+
+16.	Entitlement Payhead List - Deduction
+Method 	POST
+URL	http://141.148.194.18:8052/payroll/employee/entitlement-details/deduction
+Payload	{
+    "payCommissionId":32,
+    "grpId":1,
+    "serviceTypeId":10,
+    "payLevelId":105,
+    "departmentId":2,
+    "designationId":1
+}
+
+Response	[
+    {
+        "payheadName": "GPF Recovery State Govt. Employees_2",
+        "payheadId": 21,
+        "amount": "0"
+    },
+    {
+        "payheadName": "GPF Recovery State Govt. Employees_1",
+        "payheadId": 22,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Professional Tax",
+        "payheadId": 25,
+        "amount": "0"
+    },
+    {
+        "payheadName": "NPS contribution employee",
+        "payheadId": 26,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Income Tax (Monthly Contribution)",
+        "payheadId": 27,
+        "amount": "0"
+    },
+    {
+        "payheadName": "House Rent Deduction General Pool",
+        "payheadId": 28,
+        "amount": "0"
+    },
+    {
+        "payheadName": "GIS State Govt. Employees",
+        "payheadId": 29,
+        "amount": "0"
+    },
+    {
+        "payheadName": "GPF State Govt. Employees",
+        "payheadId": 30,
+        "amount": "0"
+    }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Method 	POST
 URL	http://141.148.194.18:8052/payroll/employee/entitlement-data
 Payload	{
