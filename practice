@@ -1,3 +1,83 @@
+
+
+Method 	POST
+URL	http://141.148.194.18:8052/payroll/employee/entitlement-data
+
+Payload	{
+    "refNo":"BRD0000000000016"
+}
+
+Response	{
+    "empId": "BRD0000000000016",
+    "gpfPranType": {
+        "id": 205,
+        "label": "GRF No"
+    },
+    "designation": {
+        "id": 1,
+        "label": "Manager"
+    },
+    "department": {
+        "id": 1,
+        "label": "Finance Department"
+    },
+    "employeeName": "John ADoe",
+    "dob": "01-01-1990",
+    "mobileNo": "9234567890",
+    "serviceType": {
+        "id": 1,
+        "label": "All india Service(AIS)"
+    },
+    "office": {
+        "id": 1,
+        "label": "Bihar Trust Office"
+    },
+    "group": {
+        "id": 1,
+        "label": "grp test"
+    },
+    "govtQuarterType": true,
+    "disability": [
+        {
+            "disabilityType": {
+                "id": 209,
+                "label": "Deaf & Dumb"
+            },
+            "percentage": 10
+        },
+        {
+            "disabilityType": {
+                "id": 211,
+                "label": "Mental Disorder"
+            },
+            "percentage": 90
+        }
+    ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Method 	POST
 URL	http://141.148.194.18:8052/payroll/employee/entitlement-details
 Payload	{
