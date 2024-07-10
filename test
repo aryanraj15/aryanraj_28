@@ -1,835 +1,377 @@
-import React, { useEffect, useState, useRef } from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import Snackbar from '@mui/material/Snackbar';
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { Card, CardContent, Link, Slide } from "@mui/material";
-import useTitle from "../../../hooks/useTitle";
-import PageTitle from "../../../layouts/PageTitle";
-import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { H3 } from "../../../components/Typography";
-import AlertConfirm from "react-alert-confirm";
-import { useSnackbar } from "../../../components/Snackbar";
-import "react-alert-confirm/lib/style.css";
-import Typography from '@mui/material/Typography';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
-import axios from 'axios';
-import { useSelector } from "react-redux";
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import IconButton from '@mui/material/IconButton';
-import AlarmIcon from '@mui/icons-material/Alarm';
-import DateRangeIcon from '@mui/icons-material/DateRange';
-import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import Cookies from "js-cookie";
-function TransitionLeft(props) {
-  return <Slide {...props} direction="left" />;
-}
-const today = dayjs();
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  margin: 3,
-  borderRadius: "10px",
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
-
-const Leave = () => {
-  const [selectedLeaveStartDate, setSelectedLeaveStartDate] = useState(null);
-  const [leavelist, setLeaveList] = useState([]);
-  const [leaveBalance, setLeaveBalalnce] = useState([]);
-  const [balance, setBalalnce] = useState([]);
-  // const [suffix, setSuffix] = useState(null);
-  // const [priffix, setPriffix] = useState(null);
-
-  const [emergencyList, setEmergencyList] = useState([]);
-  const [stationlist, setStationList] = useState([]);
-  const [startTimeList, setStartTimeList] = useState([]);
-  const [endTimeList, setEndTimeList] = useState([]);
-  const [mangerName, setMangeName] = useState([]);
-  const [employeeType, setEmployeeType] = useState();
-  const [passbookUploadedFile, setLeaveDocument] = useState(null);
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastSeverity, setToastSeverity] = useState("info");
-  const [showLink, setShowLink] = useState(true);
-  const [disabledbutton, setDisabledbutton] = useState(true);
-
-
-  const [availableDuration, setAvailableDuration] = useState(0);
-  // const [preffixsuffixbutton, setPreffixsuffixbutton] = useState(false);
-  const user = useSelector((state) => state.loginReducer);
-
-  const [allowedFile, setAllowedFile] = useState('');
-
-  const fileInputRef = useRef(null)
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  }
-  let selectedFile = []
-  const handleFileChange = (event) => {
-
-    const File = event.target.files[0];
-
-    if (!File) {
-      return;
-    }
-    const fileSizeKB = File.size / 1024;
-
-    if (fileSizeKB > 300) {
-      console.error("File size exceeded");
-      alert("Attachment should be less than 200KB");
-      setLeaveDocument(null);
-      return;
-    }
-
-    const allowedFormats = ["application/pdf", "image/jpeg", "image/png"];
-    if (!allowedFormats.includes(File.type)) {
-      console.log(File.type);
-      console.error("Invalid file format");
-      alert("Invalid file format. Please choose JPG, PNG, or PDF.");
-      setLeaveDocument(null);
-      return;
-    }
-
-    console.log(File.name)
-    //  setSelectedFile(File)
-
-    selectedFile = event.target.files[0];
-    setLeaveDocument(selectedFile)
-    if (selectedFile) {
-
-      uploadFile()
-    }
-  }
-
-
-  const validationSchema = Yup.object().shape({
-    Leave: Yup.string().required("Leave is Required").nullable(),
-    // ApplyingDueToAnyEmergency: Yup.string().required("Applying Due To Any Emergency is Required").nullable(),
-    StationLeave: Yup.string().required("Station Leave is required").nullable(),
-    LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
-    LeavestartTime: Yup.string().required("Leave Start Time is required").nullable(),
-    LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
-    LeaveEndTime: Yup.string().required("Leave End Time is required").nullable(),
-
-    Description: Yup.string()
-      .required("Description is required")
-      .nullable()
-      .test('word-count', 'Your word length is greater than 200 words', (value) => {
-        if (!value) return true; // Skip validation if the value is empty or null
-        const wordCount = value.trim().split(/\s+/).length;
-        return wordCount <= 200;
-      }),
-  });
-
-  const formik = useFormik({
-    initialValues: {
-      Leave: '',
-      Balance: '0',
-      ApplyingDueToAnyEmergency: '',
-      StationLeave: '',
-      LeaveStartDate: null,
-      LeavestartTime: "",
-      LeaveEndDate: null,
-      LeaveEndTime: '',
-      Prefix: '',
-      Suffix: '',
-      ReportingDesignation: '',
-      Description: '',
-      LeaveVirtualPath: '',
-      LeaveFile: '',
-      LeaveFileName: '',
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      console.log(values)
-      // handleRedirect();
-    },
-  });
-
-  const AbsenceBalance = (formik.values.Balance);
-  const checkValid = () => {
-    formik
-      .validateForm()
-      .then((formErrors) => {
-        if (Object.keys(formErrors).length > 0) {
-
-          console.log(Object.keys(formErrors))
-          //alert(Object.keys(formErrors))
-          // alert("Please fill all the required * fields");
-          setToastMessage("Please fill all the required * fields");
-          setToastSeverity("error");
-          setOpenToast(true);
-        } else {
-          handleRedirect();
-          setDisabledbutton(false);
-        }
-      })
-      .catch((err) => {
-        // formik.setSubmitting(false);
-      });
-  };
-
-
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
-
-  // const numberofDays = getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate, formik.values.LeavestartTime, formik.values.LeaveEndTime);
-
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpenToast(false);
-  };
-  const fetchDropdownData = async () => {
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8052/leavemanagement/initiate-application",
-        {
-          userId: user.data.userdetails.user.userId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-      );
-      // Handle the response data as needed
-      console.log(response.data.result);
-      if (response.data.statusCode === 200) {
-        setStationList(response.data.result.station);
-        setEmergencyList(response.data.result.emergency);
-        setEndTimeList(response.data.result.leaveToTime);
-        setStartTimeList(response.data.result.leaveFromTime);
-        setLeaveBalalnce(response.data.result.leaveBalance);
-
-
-      }
-
-    } catch (error) {
-      // Handle errors
-      setStationList([]);
-      setEmergencyList([]);
-      setEndTimeList([]);
-      setStartTimeList([]);
-      setLeaveBalalnce([]);
-      console.error("Error fetching user details:", error);
-    }
-  };
-
-  const fetchData = async () => {
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8052/leavemanagement/get-user-details",
-        {
-          userId: user.data.userdetails.user.userId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-      );
-      // Handle the response data as needed
-      console.log(response.data.result[0].employeeType);
-      if (response.data.statusCode === 200) {
-        setMangeName(response.data.result[0].managerName);
-        setEmployeeType(response.data.result[0].employeeType);
-
-      }
-
-    } catch (error) {
-      // Handle errors
-      console.error("Error fetching user details:", error);
-    }
-  };
-
-  useEffect(() => {
-
-    fetchData();
-    fetchDropdownData();
-
-  }, [])
-
-  useEffect(() => {
-
-    if (formik.values.LeaveStartDate && formik.values.LeaveEndDate && formik.values.LeaveEndTime && formik.values.LeavestartTime) {
-      sendpreffixAndsuffix();
-    }
-
-
-  }, [formik.values.LeaveStartDate, formik.values.LeaveEndDate, formik.values.LeaveEndTime, formik.values.LeavestartTime])
-
-
-
-  const saveLeaveDetails = async (data) => {
-
-    try {
-      const formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
-      const formattedEndDate = dayjs(formik.values.LeaveEndDate).format("YYYY-MM-DD");
-      // const formattedPreffix = dayjs(formik.values.preffix).format("YYYY-MM-DD");
-      // const formattedSuffix = dayjs(formik.values.suffix).format("YYYY-MM-DD");
-
-
-      const body = {
-        userId: user.data.userdetails.user.userId,
-        leaveTypeId: formik.values.Leave,
-        rqstFrom: formattedStartDate,
-        rqstTimeFrom: formik.values.LeavestartTime,
-        rqstTo: formattedEndDate,
-        rqstTimeTo: formik.values.LeaveEndTime,
-        preffix: formik.values.preffix === "NA" ? null : formik.values.preffix,
-        suffix: formik.values.suffix === "NA" ? null : formik.values.suffix,
-        isEmergencyLeave: formik.values.ApplyingDueToAnyEmergency,
-        isStationLeave: formik.values.StationLeave,
-        reason: formik.values.Description,
-        filePath: formik.values.LeaveVirtualPath,
-        // rqstStatus: 67,
-      };
-
-      console.log("the saved details  body", body);
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/new-leave-submit`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-
-      );
-      console.log("the saved details  areeeeee", res);
-      if (res.data.statusCode == 200) {
-        console.log("the result ", res.data.result);
-        callConfirmDialogMessage(res.data.message);
-        // setToastMessage(res.data.message)
-        // setToastSeverity("success");
-        // setOpenToast(true);
-        // setTimeout(() => {
-        //   navigate('/addAbsence')
-        // }, 1500);
-
-        //showSnackbar("Saved Successfully", 'success');
-        //navigate('/viewleave')
-        // alert(res.data.message);
-        // navigate('/Submitted')
-        // navigate('/BasicEmploymentFormPreview')
-      }
-    } catch (error) {
-      alert("Data has not saved", error);
-      console.log(error.message);
-    }
-  };
-
-
-
-  const sendpreffixAndsuffix = async (data) => {
-
-    try {
-      const formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
-      const formattedEndDate = dayjs(formik.values.LeaveEndDate).format("YYYY-MM-DD");
-
-      console.log(formattedStartDate)
-
-      const body = {
-        userId: user.data.userdetails.user.userId,
-        rqstFrom: formattedStartDate,
-        rqstTimeFrom: formik.values.LeavestartTime,
-        rqstTo: formattedEndDate,
-        rqstTimeTo: formik.values.LeaveEndTime,
-
-
-      };
-
-      console.log("send preffix Andsuffix", body);
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/cal-prefix-suffix`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-
-      );
-      console.log("send preffix Andsuffix", res);
-      if (res.data.statusCode == 200) {
-        console.log("the result ", res.data.result);
-
-        formik.setFieldValue("suffix", res.data.result.suffix);
-        formik.setFieldValue("preffix", res.data.result.preffix);
-        formik.setFieldValue("ApplyingDueToAnyEmergency", res.data.result.isEmergencyLeave);
-        setAvailableDuration(res.data.result.totalDaysCount);
-
-
-
-        // setSuffix(res.data.result.suffix);
-        // setPriffix(res.data.result.preffix);
-        //setOpenToast(true);
-        showSnackbar("Preffix and suffix Calculated Successfully", 'success');
-
-      }
-    } catch (error) {
-      //alert("No data found", error);
-      console.log(error.message);
-    }
-  };
-
-
-
-  const uploadFile = async () => {
-    var bodyFormData = new FormData();
-    console.log(selectedFile)
-    bodyFormData.append("file", selectedFile);
-
-    try {
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/uploadAttachment`,
-        bodyFormData,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-      );
-
-      if (res.data.statusCode === 200) {
-        formik.setFieldValue("LeaveFile", selectedFile);
-        formik.setFieldValue("LeaveFileName", selectedFile.name);
-        formik.setFieldValue("LeaveVirtualPath", res.data.result[0].virtualPath);
-        console.log(res.data)
-        setToastMessage(res.data.message)
-        setToastSeverity("success");
-        setOpenToast(true);
-      } else {
-        console.log('bad request');
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  console.log('kp-UploadedFile Type', formik.values.LeaveFile);
-  useEffect(() => {
-    if (formik.values.LeaveFile.type === "application/pdf") {
-      setAllowedFile('application/pdf');
-    }
-    else if (formik.values.LeaveFile.type === "image/jpeg") {
-      setAllowedFile('image/jpeg');
-    }
-    else if (formik.values.LeaveFile.type === "image/png") {
-      setAllowedFile('image/png')
-    }
-    else {
-      setAllowedFile('');
-    }
-  }, [formik.values.LeaveFile])
-  const showFile = (attachment) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const data = event.target.result;
-      const blob = new Blob([data], { type: allowedFile });
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank')
-    }
-    reader.readAsArrayBuffer(attachment);
-  }
-  const handleViewDocument = () => {
-
-    if (formik.values.LeaveFile) {
-      console.log(formik.values.LeaveFile);
-      showFile(formik.values.LeaveFile)
-    }
-  }
-
-  const filterEndTimeValues = (startTimeId) => {
-    if (startTimeId === 155 && formik.values.LeaveStartDate === formik.values.LeaveEndDate) {
-      // If starttimeId is 2, filter out the value with id 2 from time2
-      return endTimeList.filter((value) => value.typeId !== 156);
-    }
-    return endTimeList; // Otherwise, return the original time2 array
-  };
-
-  // function getNumberOfDays(start, end, startTimeId, endTimeId) {
-  //   if (!start || !end) {
-  //     return 0;
-  //   }
-
-  //   const date1 = new Date(start);
-  //   const date2 = new Date(end);
-  //   const oneDay = 1000 * 60 * 60 * 24;
-
-  //   const diffInTime = date2.getTime() - date1.getTime();
-  //   let diffInDays = Math.round(diffInTime / oneDay);
-
-
-  //   if (startTimeId === 154 && endTimeId === 156) {
-  //     diffInDays -= 0.5;
-  //   }
-  //   if (startTimeId === 155 && endTimeId === 156) {
-  //     diffInDays -= 1;
-  //   }
-  //   if (startTimeId === 155 && !endTimeId || startTimeId === 155 && endTimeId === 157) {
-  //     diffInDays -= 0.5;
-  //   }
-
-
-  //   return diffInDays + 1;
-  // }
-
-  // console.log(numberofDays)
-
-  const title = "Leave Application Form";
-  useTitle(title);
-
-  const navigate = useNavigate();
-
-  const handleRedirect = () => {
-    callConfirmDialog();
-  }
-
-  const { showSnackbar } = useSnackbar();
-
-  const callConfirmDialogMessage = async (strMessage) => {
-    AlertConfirm.config({
-      okText: "Ok",
-    });
-    const [action] = await AlertConfirm.alert(<span><b>{strMessage}</b></span>);
-    action && navigate("/addAbsence");
-  };
-
-  const callConfirmDialog = async () => {
-    console.log('kp-confirm');
-    const [action] = await AlertConfirm({
-      title: "Confirm",
-      desc: "Are you sure, you want to submit?",
-    });
-    AlertConfirm.config({
-      okText: "Submit",
-      cancelText: "Cancel",
-    });
-    if (action) {
-      console.log('kp-saved');
-
-      saveLeaveDetails();
-    }
-
-  };
-
-  
-  return (
-    <>
-
-      <Box>
-        <form onSubmit={formik.handleSubmit}>
-          <div>
-            <Snackbar
-              open={openToast}
-              autoHideDuration={6000}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={handleClose}
-              TransitionComponent={TransitionLeft}
-            >
-              <Alert onClose={handleClose} severity={toastSeverity}
-                sx={{
-                  width: '100%',
-                  padding: { sm: '15px', xs: '10px' },
-                  borderRadius: '15px',
-                  fontSize: { sm: '16px', xs: '14px' },
-                  boxShadow: "0 0 10px #999",
-                  marginTop: { sm: '25px', xs: '20px' }
-                }}>
-                {toastMessage}
-              </Alert>
-            </Snackbar>
-          </div>
-          <Card>
-            <CardContent>
-              <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
-                <CalendarMonthIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-                <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Apply Leave</H3>
-              </div>
-              
-
-                   
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <hr
-                  style={{
-                    background: "#000000",
-                    height: "1px",
-                    border: "none",
-                  }}
-                />
-                <Stack direction="row" spacing={1} sx={{ float: 'right' }}>
-                  <IconButton color="secondary" aria-label="add an alarm">
-                    <WorkHistoryIcon />
-                    <Typography sx={{ float: 'right', ml: 1 }}> Available Leave {AbsenceBalance} DAYS.</Typography>
-                  </IconButton>
-                </Stack>
-
-
-              </Grid>
-            </CardContent>
-          </Card>
-         
-          <Box sx={{ flexGrow: 1 }}>
-            <Stack sx={{ width: '100%' }} spacing={0}>
-              {employeeType ===106 ? (
-                availableDuration > AbsenceBalance && (
-                setDisabledbutton(false),
-                <Alert severity="warning">Sorry, you cannot apply for {availableDuration} days of leave because it exceeds your available leave balance. Your current balance is {AbsenceBalance} days. Please adjust your leave request. You are short of {availableDuration - AbsenceBalance} days</Alert>
-              )
-              ):(
-                (employeeType ===104 || employeeType ===105) &&(
-                  availableDuration > AbsenceBalance && (
-                    <Alert severity="warning">You have only {AbsenceBalance} Days leave. A loss of Pay for {availableDuration - AbsenceBalance} days will be deducted from your Salary Balance</Alert>
-                )
-              ))}
-               
-              {}
-            </Stack>
-          </Box>
-          <Card>
-            <CardContent>
-
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // justifyContent="center"
-              // sx={{}}
-              >
-                <Grid item xs={12} sm={12} md={12} lg={12} >
-                  <Stack direction="row" spacing={1} sx={{ float: 'right' }}>
-                    <IconButton color="secondary" aria-label="add an alarm">
-                      <DateRangeIcon />
-                      <Typography sx={{ float: 'right', ml: 1 }}> Absence Duration {availableDuration} DAYS.</Typography>
-                    </IconButton>
-
-                  </Stack>
-                </Grid>
-
-              </Grid>
-
-              <Grid item xs={12} sm={12} md={12} lg={12}>
-                <hr
-                  style={{
-
-                    background: "#000000",
-                    height: "1px",
-                    border: "none",
-                  }}
-                />
-              </Grid>
-
-
-              <div style={{ color: "red", marginBottom: "15px", fontSize: "12px" }}>
-                <p>
-                  <b>Note:</b> Please check your leave preffix and suffix dates according to your selected leave Date.
-                </p>
-              </div>
-
-
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-                sx={{ mt: 1 }}
-
-              >
-
-                <Grid item xs={12} sm={6} md={4} lg={4}>
-                  <TextField
-                    margin="0"
-                    fullWidth
-                    id="Prefix"
-                    label="Prefix"
-                    name="Prefix"
-                    disabled
-                    size="small"
-                    value={formik.values.preffix || ""}
-                    InputLabelProps={{ shrink: true }}
-
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4} lg={4}>
-
-                  <TextField
-                    margin="0"
-                    fullWidth
-                    id="Suffix"
-                    label="Suffix"
-                    name="Suffix"
-                    disabled
-                    size="small"
-                    value={formik.values.suffix || ""}
-                    InputLabelProps={{ shrink: true }}
-
-                  />
-
-                </Grid>
-                {/* <Grid item xs={12} sm={6} md={4} lg={4}>
-
-                  <Button variant="outlined" color="primary" sx={{ borderRadius: '4px', mb: 2 }}
-                    // onClick={() => {
-                    //   sendpreffixAndsuffix();
-                    // }}
-                  >
-                    Calculate preffix & Suffix</Button>
-
-                </Grid> */}
-
-              </Grid>
-
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // sx={{ mt: 1 }}
-              >
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <TextField
-                    margin="0"
-                    fullWidth
-                    id="ReportingDesignation"
-                    label="Reporting User"
-                    name="ReportingDesignation"
-                    value={mangerName}
-                    disabled
-
-                    size="small"
-                  />
-
-                </Grid>
-              </Grid>
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-
-              >
-                <Grid item xs={12} sm={4} md={4} lg={8}>
-                  <TextField
-                    margin="0"
-                    required
-                    fullWidth
-                    multiline
-                    rows={4}
-                    id="Description"
-                    label="Reason/Description"
-                    name="Description"
-                    value={formik.values.Description || ""}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.Description &&
-                      Boolean(formik.errors.Description)
-                    }
-                    helperText={
-                      formik.touched.Description &&
-                      formik.errors.Description
-                    }
-
-                  />
-
-                </Grid>
-
-
-                <Grid item xs={12} sm={6} md={6} lg={6} sx={{ mb: '15px' }}>
-
-                  <Button
-                    sx={{ borderRadius: '4px' }}
-                    component="label"
-                    variant="contained"
-                    tabIndex={-1}
-                    startIcon={<CloudUploadIcon />}
-                    onClick={handleButtonClick}
-                  >
-                    Upload Document
-                    {/* <VisuallyHiddenInput type="file" /> */}
-                  </Button>
-
-                  <VisuallyHiddenInput
-                    ref={fileInputRef}
-                    type="file"
-                    onChange={handleFileChange}
-                  />
-                  <Button variant="outlined" sx={{ borderRadius: '4px', marginLeft: '8px' }} component="label" disabled={!formik.values.LeaveFile ?? true} onClick={handleViewDocument}>
-                    View Document
-                  </Button>
-                  {formik.values.LeaveFile && (
-                    <>
-                      {showLink === true ? (
-
-                        <Typography>Uploaded File: {formik.values.LeaveFileName}</Typography>
-
-                      ) : (
-                        <Typography sx={{ color: 'green', fontSize: '12px' }}>
-                          Uploaded File: {formik.values.LeaveFileName}
-                        </Typography>
-                      )}
-                    </>
-                  )}
-
-                </Grid>
-                {disabledbutton && (
-                  <Grid item xs={12} sm={12} md={12} lg={12} sx={{ width: '100%' }}>
-
-                    <Button type="submit" 
-                    // disabled={availableDuration > AbsenceBalance}
-                    
-                    variant="contained" sx={{ float: 'right', borderRadius: '4px' }}
-
-                      onClick={() => {
-                        // saveLeaveDetails();
-                        checkValid();
-                      }}
-
-                    >
-                      Submit</Button>
-                  </Grid>
-                )}
-
-              </Grid>
-            </CardContent>
-          </Card>
-        </form>
-      </Box>
-
-    </>
-  );
+Method 	POST
+URL	http://141.148.194.18:8052/payroll/employee/entitlement-data
+Payload	{
+    "refNo":"BRD0000000000016"
 }
 
-export default Leave;
+Response	{
+    "empId": "BRD0000000000016",
+    "gpfPranType": {
+        "id": 205,
+        "label": "GRF No"
+    },
+    "designation": {
+        "id": 1,
+        "label": "Manager"
+    },
+    "department": {
+        "id": 1,
+        "label": "Finance Department"
+    },
+    "employeeName": "John ADoe",
+    "dob": "01-01-1990",
+    "mobileNo": "9234567890",
+    "serviceType": {
+        "id": 1,
+        "label": "All india Service(AIS)"
+    },
+    "office": {
+        "id": 1,
+        "label": "Bihar Trust Office"
+    },
+    "group": {
+        "id": 1,
+        "label": "grp test"
+    },
+    "govtQuarterType": true,
+    "disability": [
+        {
+            "disabilityType": {
+                "id": 209,
+                "label": "Deaf & Dumb"
+            },
+            "percentage": 10
+        },
+        {
+            "disabilityType": {
+                "id": 211,
+                "label": "Mental Disorder"
+            },
+            "percentage": 90
+        }
+    ]
+}
+
+
+13.	Hra Tier Dropdown
+Method 	GET
+URL	http://141.148.194.18:8052/payroll/employee/dropdown/hra-tier
+Payload	
+Response	[
+    {
+        "id": 1,
+        "label": "Rate"
+    },
+    {
+        "id": 3,
+        "label": "Rate "
+    },
+    {
+        "id": 2,
+        "label": "Rate test"
+    },
+    {
+        "id": 18,
+        "label": "TE01"
+    },
+    {
+        "id": 17,
+        "label": "Th08"
+    },
+    {
+        "id": 8,
+        "label": "Tier Eng"
+    },
+    {
+        "id": 14,
+        "label": "Tier Eng05"
+    },
+    {
+        "id": 15,
+        "label": "Tier Eng07"
+    },
+    {
+        "id": 9,
+        "label": "Tier English 2"
+    },
+    {
+        "id": 7,
+        "label": "Tier Name Eng Testing"
+    },
+    {
+        "id": 16,
+        "label": "Tier08"
+    },
+    {
+        "id": 4,
+        "label": "Tier1"
+    },
+    {
+        "id": 5,
+        "label": "Tier2"
+    },
+    {
+        "id": 10,
+        "label": "Tier5"
+    },
+    {
+        "id": 19,
+        "label": "Tier9"
+    },
+    {
+        "id": 11,
+        "label": "asdw"
+    },
+    {
+        "id": 12,
+        "label": "asdw"
+    },
+    {
+        "id": 13,
+        "label": "tE"
+    }
+]
+
+
+
+
+14.	CTA Entitlement Dropdown
+Method 	GET
+URL	http://141.148.194.18:8052/payroll/employee/dropdown/cta-entitlement
+Payload	
+Response	[
+    {
+        "label": "Bihar Bhawan",
+        "id": 204
+    },
+    {
+        "label": "City Entitled for higher rate",
+        "id": 202
+    },
+    {
+        "label": "Other City",
+        "id": 203
+    }
+]
+
+
+
+
+
+Method 	POST
+URL	http://141.148.194.18:8052/payroll/employee/entitlement-data
+Payload	{
+    "refNo":"BRD0000000000016"
+}
+
+Response	{
+    "empId": "BRD0000000000016",
+    "gpfPranType": {
+        "id": 205,
+        "label": "GRF No"
+    },
+    "designation": {
+        "id": 1,
+        "label": "Manager"
+    },
+    "department": {
+        "id": 1,
+        "label": "Finance Department"
+    },
+    "employeeName": "John ADoe",
+    "dob": "01-01-1990",
+    "mobileNo": "9234567890",
+    "serviceType": {
+        "id": 1,
+        "label": "All india Service(AIS)"
+    },
+    "office": {
+        "id": 1,
+        "label": "Bihar Trust Office"
+    },
+    "group": {
+        "id": 1,
+        "label": "grp test"
+    },
+    "govtQuarterType": true,
+    "disability": [
+        {
+            "disabilityType": {
+                "id": 209,
+                "label": "Deaf & Dumb"
+            },
+            "percentage": 10
+        },
+        {
+            "disabilityType": {
+                "id": 211,
+                "label": "Mental Disorder"
+            },
+            "percentage": 90
+        }
+    ]
+}
+
+
+13.	Hra Tier Dropdown
+Method 	GET
+URL	http://141.148.194.18:8052/payroll/employee/dropdown/hra-tier
+Payload	
+Response	[
+    {
+        "id": 1,
+        "label": "Rate"
+    },
+    {
+        "id": 3,
+        "label": "Rate "
+    },
+    {
+        "id": 2,
+        "label": "Rate test"
+    },
+    {
+        "id": 18,
+        "label": "TE01"
+    },
+    {
+        "id": 17,
+        "label": "Th08"
+    },
+    {
+        "id": 8,
+        "label": "Tier Eng"
+    },
+    {
+        "id": 14,
+        "label": "Tier Eng05"
+    },
+    {
+        "id": 15,
+        "label": "Tier Eng07"
+    },
+    {
+        "id": 9,
+        "label": "Tier English 2"
+    },
+    {
+        "id": 7,
+        "label": "Tier Name Eng Testing"
+    },
+    {
+        "id": 16,
+        "label": "Tier08"
+    },
+    {
+        "id": 4,
+        "label": "Tier1"
+    },
+    {
+        "id": 5,
+        "label": "Tier2"
+    },
+    {
+        "id": 10,
+        "label": "Tier5"
+    },
+    {
+        "id": 19,
+        "label": "Tier9"
+    },
+    {
+        "id": 11,
+        "label": "asdw"
+    },
+    {
+        "id": 12,
+        "label": "asdw"
+    },
+    {
+        "id": 13,
+        "label": "tE"
+    }
+]
+
+
+
+
+14.	CTA Entitlement Dropdown
+Method 	GET
+URL	http://141.148.194.18:8052/payroll/employee/dropdown/cta-entitlement
+Payload	
+Response	[
+    {
+        "label": "Bihar Bhawan",
+        "id": 204
+    },
+    {
+        "label": "City Entitled for higher rate",
+        "id": 202
+    },
+    {
+        "label": "Other City",
+        "id": 203
+    }
+]
+
+
+
+
+
+
+
+16.	Entitlement Payhead List - Deduction
+Method 	POST
+URL	http://141.148.194.18:8052/payroll/employee/entitlement-details/deduction
+Payload	{
+    "payCommissionId":32,
+    "grpId":1,
+    "serviceTypeId":10,
+    "payLevelId":105,
+    "departmentId":2,
+    "designationId":1
+}
+
+Response	[
+    {
+        "payheadName": "GPF Recovery State Govt. Employees_2",
+        "payheadId": 21,
+        "amount": "0"
+    },
+    {
+        "payheadName": "GPF Recovery State Govt. Employees_1",
+        "payheadId": 22,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Professional Tax",
+        "payheadId": 25,
+        "amount": "0"
+    },
+    {
+        "payheadName": "NPS contribution employee",
+        "payheadId": 26,
+        "amount": "0"
+    },
+    {
+        "payheadName": "Income Tax (Monthly Contribution)",
+        "payheadId": 27,
+        "amount": "0"
+    },
+    {
+        "payheadName": "House Rent Deduction General Pool",
+        "payheadId": 28,
+        "amount": "0"
+    },
+    {
+        "payheadName": "GIS State Govt. Employees",
+        "payheadId": 29,
+        "amount": "0"
+    },
+    {
+        "payheadName": "GPF State Govt. Employees",
+        "payheadId": 30,
+        "amount": "0"
+    }
+]
+
