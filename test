@@ -1,3 +1,46 @@
+6.	Save Pay Entitlement 
+Method 	POST
+URL	http://141.148.194.18:8052/payroll/employee/pay-entitlement
+Payload	{
+  "refNo": "BRD0000000000020",
+  "hraTier": 4,
+  "basicPay": 50000,
+  "isCtaApplicable": false,
+  "ctaEntitlement": 204,
+  "paylevel": 105,
+  "pcId": 32,
+  "isNpsOpted": false,
+  "isMedicalStop": false,
+  "isDaStop": false,
+  "payEntitlementList": [
+    {
+      "payheadValue": 2000,
+      "payheadId": 12
+    },
+    {
+      "payheadValue": 1500,
+      "payheadId": 14
+    }
+  ]
+}
+
+
+Response	{
+    "status": true,
+    "message": "Pay Entitlement Details saved successfully",
+    "result": "Employee Reference Number: BRD0000000000020",
+    "statusCode": 200
+}
+
+
+
+
+
+
+
+
+
+
 15.	Entitlement Payhead List – Payment/Earning
 Method 	POST
 URL	http://141.148.194.18:8052/payroll/employee/entitlement-details/payment
