@@ -1,3 +1,70 @@
+
+
+Entitlement Dropdown Init
+Method
+	
+GET
+
+
+URL
+	
+http://141.148.194.18:8052/payroll/employee/entitlement/dropdown-init
+
+
+Payload
+	
+ 
+
+
+Response
+	
+{
+   "npsOpted": [
+       {
+           "label": "No",
+           "id": 332
+       },
+       {
+           "label": "Yes",
+           "id": 333
+       }
+   ],
+   "medicalStop": [
+       {
+           "label": "No",
+           "id": 324
+       },
+       {
+           "label": "Yes",
+           "id": 325
+       }
+   ],
+   "daStop": [
+       {
+           "label": "No",
+           "id": 326
+       },
+       {
+           "label": "Yes",
+           "id": 327
+       }
+   ],
+   "ctaAllowanceApplicable": [
+       {
+           "label": "No / Vehicle Alloted",
+           "id": 328
+       },
+       {
+           "label": "Yes",
+           "id": 329
+       }
+   ]
+}
+ 
+ 
+
+
+
 6.	Save Pay Entitlement 
 Method 	POST
 URL	http://141.148.194.18:8052/payroll/employee/pay-entitlement
