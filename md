@@ -1,3 +1,21 @@
+{
+    "status": true,
+    "message": "Prefix and Suffix Calculated Successfully",
+    "result": [
+        {
+            "typeId": 1,
+            "time": "10:00:00",
+            "showTime": "10:00 AM"
+        },
+        {
+            "typeId": 2,
+            "time": "14:00:00",
+            "showTime": "02:00 PM"
+        }
+    ],
+    "statusCode": 200
+}
+
 import React, { useEffect, useState, useRef } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
