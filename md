@@ -1,3 +1,34 @@
+ const onValueChange = (e) => {
+    console.log(e.target.value);
+    formik.setFieldValue('radiovalue', e.target.value);
+  };
+
+<Grid item xs={12} md={6}>
+                    <FormControl component="fieldset">
+                      <FormLabel component="legend">Start Time</FormLabel>
+                      <RadioGroup
+                        aria-label="startTime"
+                        name="radiovalue"
+                        value={formik.values.radiovalue}
+                        onChange={onValueChange}
+                      >
+                        {startTimecheck.map((item, index) => (
+                          <FormControlLabel
+                            key={index}
+                            value={item.value}
+                            control={<Radio />}
+                            label={item.label}
+                          />
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                  </Grid>
+
+
+
+
+
+                              
 {
     "status": true,
     "message": "Prefix and Suffix Calculated Successfully",
