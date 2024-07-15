@@ -1,438 +1,107 @@
-
-import React, { useState, useEffect, useRef } from 'react'
-import SearchTable from '../../../components/SearchTableAlt';
-import { Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent, TextField, DialogActions } from '@mui/material';
-import useTitle from '../../../hooks/useTitle';
-import PageTitle from '../../../layouts/PageTitle';
-import { useNavigate } from 'react-router-dom';
-import { H3 } from '../../../components/Typography';
-import WalletIcon from '@mui/icons-material/Wallet';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { format } from 'date-fns'
-import Loader from '../../../components/Loader';
-import GpsFixedIcon from '@mui/icons-material/GpsFixed';
-import TrackLeaveRequestStatus from './TrackLeaveRequestStatus';
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs from 'dayjs';
-import Cookies from "js-cookie";
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import CachedIcon from "@mui/icons-material/Cached";
-import SearchIcon from "@mui/icons-material/Search";
-import SummarizeIcon from '@mui/icons-material/Summarize';
-import swal from "sweetalert";
-import { useLocation } from "react-router";
-import { useSnackbar } from "../../../components/Snackbar";
-import LeadgerCard from './LedgerCard';
-import { Grid, Typography, Avatar, Paper } from '@mui/material';
-import { styled } from "@mui/material/styles";
-
-const FileLeave = () => {
-    const title = 'Leave Applications';
-    const title2 = 'Search Parameters';
-
-    useTitle(title);
-
-    const navigate = useNavigate();
-    const { showSnackbar } = useSnackbar();
-    const user = useSelector((state) => state.loginReducer);
-    console.log(user.data.userdetails.user.userId);
-    const userId = user.data.userdetails.user.userId;
-    const [tableData, setTableData] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [leaveBalance, setLeaveBalalnce] = useState([]);
-    const [availableLeaves, setAvailableLeaves] = useState();
-    const [availedLeaves, setAvailedLeaves] = useState();
-    const [balanceLeaves, setBalanceLeaves] = useState();
-    const [open, setOpen] = React.useState(false);
-    const [requestStatus, setRequestStatus] = useState(null);
-    const [reqRemarks, setReqRemarks] = useState(null);
-    const [dubby, setDubby] = useState();
-    const [selectAllApplications, setSelectAllApplications] = useState(false);
-    const resetCheck = useRef();
-    const location = useLocation();
     const [hover, setHover] = useState(false);
+ {hover && (
+                                <Box sx={style}>
+                            <Grid container spacing={2} columns={16}>
+                                {leaveBalance.map((value, index) => (<LeadgerCard resData={value} key={index} />))}
 
-    const Item = styled(Paper)(({ theme }) => ({
-        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-        ...theme.typography.body2,
-        padding: theme.spacing(1),
-        margin: 3,
-        borderRadius: "10px",
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        transition: 'all 0.3s ease',  // Add smooth transition
-        '&:hover': {
-            transform: 'scale(1.05)',  // Slightly scale the item on hover
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',  // Add a shadow on hover
-        }
-    }));
-
-    const style = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 700,
-        bgcolor: 'background.paper',
-        border: '05 px solid #000',
-        boxShadow: 24,
-        p: 2
-    };
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const handleNavigation = () => {
-        console.log('called');
-        navigate('/leave')
-    };
-
-    const fetchDataOnLeaveBalance = async () => {
-        try {
-            const payload = {
-                userId: user.data.userdetails.user.userId,
-            }
-
-            const response = await axios.post(`http://141.148.194.18:8052/leavemanagement/leave-balance-dropdown`, payload, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            });
-            let sortedLeaveBallenceData = response.data.result.map((value) => {
-                return value;
-            })
-
-            setLeaveBalalnce(sortedLeaveBallenceData);
-            console.log(sortedLeaveBallenceData);
-        } catch (error) {
-            console.error(error)
-        }
-    }
-
-    const LeaveBalance = async () => {
-        try {
-            const payload = {
-                userId: user.data.userdetails.user.userId,
-            }
-
-            const response = await axios.post(`http://141.148.194.18:8095/leavemanagement/leave-balances`, payload, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            });
-            if (response.data.statusCode === 200) {
-                setAvailableLeaves(response.data?.result.availableLeaves);
-                setAvailedLeaves(response.data?.result.availedLeaves);
-                setBalanceLeaves(response.data?.result.balanceLeaves);
-            }
-
-            console.log(response);
-        } catch (error) {
-            console.error(error)
-        }
-    }
-
-    useEffect(() => {
-        setIsLoading(true);
-        fetchDataOnLeaveBalance();
-        LeaveBalance();
-    }, []);
-
-    const validationSchema = Yup.object().shape({
-        LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
-        LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
-    });
-
-    const formik = useFormik({
-        initialValues: {
-            LeaveStartDate: null,
-            LeaveEndDate: null,
-        },
-        validationSchema: validationSchema,
-        enableReinitialize: true,
-        onSubmit: (values) => {
-            console.log(values)
-        },
-    });
-
-    console.log(formik.values.LeaveStartDate);
-    console.log(formik.values.LeaveEndDate);
-
-    const handleResetForm = () => {
-        swal({
-            title: "Do you want to reset the search?",
-            buttons: { cancel: "Cancel", confirm: "Confirm" },
-        }).then((userClickedConfirm) => {
-            if (userClickedConfirm) {
-                console.log(userClickedConfirm)
-                formik.setFieldValue("LeaveStartDate", null);
-                formik.setFieldValue("LeaveEndDate", null);
-                resetCheck.current = true
-                handleFetchData();
-            }
-        })
-    };
-
-    const handleFetchData = async () => {
-        try {
-            const payload = {
-                userId: userId,
-                rqstFrom: resetCheck.current ? null : formik.values.LeaveStartDate,
-                rqstTo: resetCheck.current ? null : formik.values.LeaveEndDate
-            }
-
-            const response = await axios.post("http://141.148.194.18:8052/leavemanagement/leave-applied-leaves", payload,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get("token")}`
-                    }
-                });
-            const formattedData = response.data.result.map((item, index) => {
-                const fromDate = item.rqstFromDate + ":" + item.rqstFromTime;
-                const toDate = item.rqstToDate + ":" + item.rqstToTime;
-                return {
-                    ...item,
-                    index: index + 1,
-                    fromDate: fromDate,
-                    toDate: toDate,
-                };
-            });
-
-            setTableData(formattedData);
-            console.log('kp-tableDataResponse', response.data);
-
-            if (response.data.status === true) {
-                console.log('kparyan', tableData);
-                console.log('kp-tableData2', tableData);
-                showSnackbar("Data fetched successfully", "success");
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-            resetCheck.current = false
-        }
-    }
-
-    useEffect(() => {
-        handleFetchData();
-        setIsLoading(true);
-    }, [])
-
-    console.log('kp-tableDataAfter', tableData)
-    const columns = [
-        {
-            field: "index", //keep this fixed, index should be present for all tables
-            headerName: "S.No",
-            flex: 0.1,
-            minWidth: 80,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "rqstId",
-            headerName: "Leave ID",
-            flex: 0.3,
-            minWidth: 100,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
-                        const requestId = params.row.rqstId;
-                        console.log('clicked')
-                        navigate(`/leavedetails/${requestId}`);
-                    }}
-                >
-                    {params.row.rqstId}
-                </Link>
-            ),
-        },
-        {
-            field: "leaveType",
-            headerName: "Leave Type",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "fromDate",
-            headerName: "From Date",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "toDate",
-            headerName: "To Date",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "rqstDate",
-            headerName: "Requested Date",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "approvedDate",
-            headerName: "Approved Date",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "noOfDays",
-            headerName: "No of Days",
-            flex: 0.3,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-        },
-        {
-            field: "currentStatus",
-            headerName: "Status",
-            flex: 0.2,
-            minWidth: 200,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => {
-                const status = params.row.currentStatus;
-                let statusColor = "";
-                switch (status) {
-                    case "APPROVED":
-                        statusColor = "green";
-                        break;
-                    case "PENDING":
-                        statusColor = "orange";
-                        break;
-                    case "REJECTED":
-                        statusColor = "red";
-                        break;
-                    default:
-                        statusColor = "black";
-                }
-                return <span style={{ color: statusColor, fontWeight: 'bold' }}>{status}</span>;
-            },
-        },
-        {
-            field: "track",
-            headerName: "Track",
-            flex: 0.2,
-            minWidth: 100,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Button variant="contained" onClick={() => {
-                    handleClickOpen()
-                    console.log('row', params.row.rqstId)
-                    setDubby(params.row.rqstId);
-                }}>
-                    Track
-                </Button>
-            ),
-        },
-    ];
-
-    return (
-        <>
-            <PageTitle title={title} />
-            <PageTitle title={title2} />
-            <Card>
-                <CardContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={4} md={4}>
-                            <Item elevation={3}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        label="Leave Start Date"
-                                        value={formik.values.LeaveStartDate}
-                                        onChange={(newValue) => formik.setFieldValue("LeaveStartDate", dayjs(newValue))}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                fullWidth
-                                                name="LeaveStartDate"
-                                                error={Boolean(formik.touched.LeaveStartDate && formik.errors.LeaveStartDate)}
-                                                helperText={formik.touched.LeaveStartDate && formik.errors.LeaveStartDate}
-                                            />
-                                        )}
-                                    />
-                                </LocalizationProvider>
-                            </Item>
-                        </Grid>
-                        <Grid item xs={12} sm={4} md={4}>
-                            <Item elevation={3}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        label="Leave End Date"
-                                        value={formik.values.LeaveEndDate}
-                                        onChange={(newValue) => formik.setFieldValue("LeaveEndDate", dayjs(newValue))}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                fullWidth
-                                                name="LeaveEndDate"
-                                                error={Boolean(formik.touched.LeaveEndDate && formik.errors.LeaveEndDate)}
-                                                helperText={formik.touched.LeaveEndDate && formik.errors.LeaveEndDate}
-                                            />
-                                        )}
-                                    />
-                                </LocalizationProvider>
-                            </Item>
-                        </Grid>
-                        <Grid item xs={12} sm={2} md={2}>
-                            <Item elevation={3}>
-                                <IconButton onClick={formik.handleSubmit}>
-                                    <SearchIcon />
-                                </IconButton>
-                                <IconButton onClick={handleResetForm}>
-                                    <CachedIcon />
-                                </IconButton>
-                            </Item>
-                        </Grid>
-                    </Grid>
-                </CardContent>
-            </Card>
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    minHeight: '80vh',
-                }}
-            >
-                {isLoading ? (
-                    <Loader />
-                ) : (
-                    <SearchTable rows={tableData} columns={columns} />
-                )}
-            </Box>
-
-            <Dialog open={open} onClose={handleClose}>
-                <DialogContent>
-                    <TrackLeaveRequestStatus requestId={dubby} />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Close</Button>
-                </DialogActions>
-            </Dialog>
-        </>
-    )
-}
-
-export default FileLeave
+                            </Grid>
+                            </Box>
+                            )}
 
 
+<Card >
+                        <Box sx={{ flexGrow: 1, mt: 1, elevation: "0" }}>
+                            <Grid container spacing={2} columns={16}>
+                                <Grid item xs={5}>
+                                    <Item  
+                                    onMouseEnter={() => setHover(true)}
+                                    onMouseLeave={() => setHover(false)}>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Available Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {availableLeaves}DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    {/* Render the dynamically chosen icon */}
+                                                    <Avatar >
+
+                                                    </Avatar>
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Availed Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {availedLeaves} DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    {/* Render the dynamically chosen icon */}
+                                                    <Avatar >
+
+                                                    </Avatar>
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Balance Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {balanceLeaves} DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    {/* Render the dynamically chosen icon */}
+                                                    <Avatar >
+
+                                                    </Avatar>
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                            </Grid>
 
 
+                            {hover && (
+                                <Box sx={style}>
+                            <Grid container spacing={2} columns={16}>
+                                {leaveBalance.map((value, index) => (<LeadgerCard resData={value} key={index} />))}
+
+                            </Grid>
+                            </Box>
+                            )}
+
+
+                        </Box>
+
+                    </Card>
 
 
 
