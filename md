@@ -1,3 +1,10 @@
+      const formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
+
+      const result = formattedStartDate.concat("T", formik.values.radiostartvalue);
+      console.log(result)
+ 
+ 
+ 
  const onValueChange = (e) => {
     console.log(e.target.value);
     formik.setFieldValue('radiovalue', e.target.value);
