@@ -1,3 +1,112 @@
+import React, { useState } from 'react';
+import { Box, Card, Grid, Typography, Avatar } from '@mui/material';
+
+const style = {
+  transition: 'opacity 0.3s ease-in-out',
+  opacity: 0,
+  visibility: 'hidden',
+  position: 'absolute',
+  top: '100%',
+  left: 0,
+  right: 0,
+  backgroundColor: 'white',
+  zIndex: 1,
+};
+
+const visibleStyle = {
+  ...style,
+  opacity: 1,
+  visibility: 'visible',
+};
+
+const LeaveBalanceCard = ({ leaveBalance, availableLeaves, availedLeaves, balanceLeaves }) => {
+  const [hover, setHover] = useState(false);
+
+  return (
+    <Card>
+      <Box sx={{ flexGrow: 1, mt: 1, position: 'relative' }}>
+        <Grid container spacing={2} columns={16}>
+          <Grid item xs={5}>
+            <Box
+              onMouseEnter={() => setHover(true)}
+              onMouseLeave={() => setHover(false)}
+            >
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm container>
+                  <Grid item xs container direction="column" spacing={2}>
+                    <Grid item xs>
+                      <Typography gutterBottom component="div">
+                        Available Leaves
+                      </Typography>
+                      <Typography variant="h6" gutterBottom>
+                        {availableLeaves} DAYS
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid item>
+                    <Avatar />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Box>
+          </Grid>
+          <Grid item xs={5}>
+            <Box>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm container>
+                  <Grid item xs container direction="column" spacing={2}>
+                    <Grid item xs>
+                      <Typography gutterBottom component="div">
+                        Availed Leaves
+                      </Typography>
+                      <Typography variant="h6" gutterBottom>
+                        {availedLeaves} DAYS
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid item>
+                    <Avatar />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Box>
+          </Grid>
+          <Grid item xs={5}>
+            <Box>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm container>
+                  <Grid item xs container direction="column" spacing={2}>
+                    <Grid item xs>
+                      <Typography gutterBottom component="div">
+                        Balance Leaves
+                      </Typography>
+                      <Typography variant="h6" gutterBottom>
+                        {balanceLeaves} DAYS
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid item>
+                    <Avatar />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Box>
+          </Grid>
+        </Grid>
+
+        <Box sx={hover ? visibleStyle : style}>
+          <Grid container spacing={2} columns={16}>
+            {leaveBalance.map((value, index) => (
+              <LeadgerCard resData={value} key={index} />
+            ))}
+          </Grid>
+        </Box>
+      </Box>
+    </Card>
+  );
+};
+
+export default LeaveBalanceCard;
 
 
 
