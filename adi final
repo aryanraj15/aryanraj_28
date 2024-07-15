@@ -1,154 +1,516 @@
- <Autocomplete
-                                    multiple
-                                    margin="normal"
-                                    disableCloseOnSelect
-                                    limitedTags={10}
-                                    fullWidth
-                                    size='small'
-                                    id="item"
-                                    name="item"
-                                    options={itemOptions}
-                                    getOptionLabel={(value) => value.label}
-                                    value={itemOptions.filter(value => formik.values.item?.some(item => item.id === value.id)) || []}
-                                    renderOption={(props, value, { selected }) => (
-                                        <li {...props}>
-                                            <Checkbox
-                                                icon={icon}
-                                                checkedIcon={checkedIcon}
-                                                style={{ marginRight: 8 }}
-                                                checked={selected}
-                                            />
-                                            {value.label}
-                                        </li>
-                                    )}
-
-                                    onChange={(e, selectedValues) => {
-                                        // console.log("SelectedValue", selectedValues)
-                                        if (selectedValues && selectedValues.length > 0) {
-                                            formik.setFieldValue("item", selectedValues);
-                                        }
-                                        else {
-                                            formik.setFieldValue("item", null);
-                                        }
-
-
-                                    }}
-                                    sx={{ width: "100%" }}
-                                    renderInput={(params) => <TextField {...params} label="Add Stocks"
-                                        onBlur={formik.handleBlur}
-                                        helperText={formik.errors.item && formik.touched.item ? formik.errors.item : null}
-                                        error={formik.errors.item && formik.touched.item ? true : false}
-                                    />}
-                                />
+import React, { useState, useEffect, useRef } from 'react'
+import SearchTable from '../../../components/SearchTableAlt';
+import { Box, Card, CardContent, IconButton, Stack, Button, Link, Dialog, DialogContent, TextField, DialogActions } from '@mui/material';
+import useTitle from '../../../hooks/useTitle';
+import PageTitle from '../../../layouts/PageTitle';
+import { useNavigate } from 'react-router-dom';
+import { H3 } from '../../../components/Typography';
+import WalletIcon from '@mui/icons-material/Wallet';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { format } from 'date-fns'
+import Loader from '../../../components/Loader';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import TrackLeaveRequestStatus from './TrackLeaveRequestStatus';
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs from 'dayjs';
+import Cookies from "js-cookie";
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import CachedIcon from "@mui/icons-material/Cached";
+import SearchIcon from "@mui/icons-material/Search";
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import swal from "sweetalert";
+import { useLocation } from "react-router";
+import { useSnackbar } from "../../../components/Snackbar";
+import LeadgerCard from './LedgerCard';
+import { Grid, Typography, Avatar, Paper } from '@mui/material';
+import { styled } from "@mui/material/styles";
+const FileLeave = () => {
 
 
+    const title = 'Leave Applications';
+    const title2 = 'Search Parameters';
+
+    useTitle(title);
+
+
+    const navigate = useNavigate();
+    const { showSnackbar } = useSnackbar();
+    const user = useSelector((state) => state.loginReducer);
+    console.log(user.data.userdetails.user.userId);
+    const userId = user.data.userdetails.user.userId;
+    const [tableData, setTableData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [leaveBalance, setLeaveBalalnce] = useState([]);
+    const [availableLeaves, setAvailableLeaves] = useState();
+    const [availedLeaves, setAvailedLeaves] = useState();
+    const [balanceLeaves, setBalanceLeaves] = useState();
+    const [open, setOpen] = React.useState(false);
+    const [requestStatus, setRequestStatus] = useState(null);
+    const [reqRemarks, setReqRemarks] = useState(null);
+    const [dubby, setDubby] = useState();
+    const [selectAllApplications, setSelectAllApplications] = useState(false);
+    const resetCheck = useRef();
+    const location = useLocation();
+    const [hover, setHover] = useState(false);
+
+    const Item = styled(Paper)(({ theme }) => ({
+        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+        ...theme.typography.body2,
+        padding: theme.spacing(1),
+        margin: 3,
+        borderRadius: "10px",
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+    }));
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 700,
+        bgcolor: 'background.paper',
+        border: '05 px solid #000',
+        boxShadow: 24,
+        p:2
+       
+      };
+
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+
+
+    const handleNavigation = () => {
+        console.log('called');
+        navigate('/leave')
+    }
 
 
 
 
+    const fetchDataOnLeaveBalance = async () => {
+        try {
+            const payload = {
+                userId: user.data.userdetails.user.userId,
+            }
 
-<Grid item xs={12} sm={4} md={4} lg={4}>
-                                                <FormControl>
-                                                    <FormLabel id="demo-row-radio-buttons-group-label">
-                                                        Disability (yes/no)
-                                                    </FormLabel>
-                                                    <RadioGroup
-                                                        row
-                                                        aria-labelledby="demo-row-radio-buttons-group-label"
-                                                        name="physicallyHandicapped"
-                                                        value={formik.values.physicallyHandicapped}
-                                                        onChange={(e) => {
-                                                            formik.setFieldValue("disabilityPercentage", "");
-                                                            formik.setFieldValue("disabilitype", "");
-                                                            formik.handleChange(e);
-                                                        }}
-                                                    >
-                                                        <FormControlLabel
-                                                            value="true"
-                                                            control={<Radio />}
-                                                            label="Yes" />
-                                                        <FormControlLabel
-                                                            value="false"
-                                                            control={<Radio />}
-                                                            label="No" />
-                                                    </RadioGroup>
-                                                    {formik.touched.physicallyHandicapped &&
-                                                        formik.errors.physicallyHandicapped && (
-                                                            <FormHelperText error>
-                                                                {formik.errors.physicallyHandicapped}
-                                                            </FormHelperText>
-                                                        )}
-                                                </FormControl>
+            const response = await axios.post(`http://141.148.194.18:8052/leavemanagement/leave-balance-dropdown`, payload, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`
+                }
+            });
+            let sortedLeaveBallenceData = response.data.result.map((value) => {
+                return value;
+            })
+
+            setLeaveBalalnce(sortedLeaveBallenceData);
+            console.log(sortedLeaveBallenceData);
+
+
+            //   if (response.status === 200) {
+
+
+            //   }
+        } catch (error) {
+            console.error(error)
+        }
+
+    }
+
+    const LeaveBalance = async () => {
+        try {
+            const payload = {
+                userId: user.data.userdetails.user.userId,
+            }
+
+            const response = await axios.post(`http://141.148.194.18:8095/leavemanagement/leave-balances`, payload, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`
+                }
+            });
+            if (response.data.statusCode === 200) {
+                setAvailableLeaves(response.data?.result.availableLeaves);
+                setAvailedLeaves(response.data?.result.availedLeaves);
+                setBalanceLeaves(response.data?.result.balanceLeaves);
+
+            }
+
+            console.log(response);
+
+
+        } catch (error) {
+            console.error(error)
+        }
+
+    }
+
+
+    useEffect(() => {
+
+        setIsLoading(true);
+        fetchDataOnLeaveBalance();
+        LeaveBalance();
+    }, [])
+
+
+
+    const validationSchema = Yup.object().shape({
+
+        LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
+        LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
+    });
+
+
+    const formik = useFormik({
+        initialValues: {
+
+            LeaveStartDate: null,
+            LeaveEndDate: null,
+
+        },
+        validationSchema: validationSchema,
+        enableReinitialize: true,
+        onSubmit: (values) => {
+            console.log(values)
+
+        },
+    });
+    console.log(formik.values.LeaveStartDate);
+    console.log(formik.values.LeaveEndDate);
+
+
+
+    const handleResetForm = () => {
+
+        swal({
+            title: "Do you want to reset the search?",
+            buttons: { cancel: "Cancel", confirm: "Confirm" },
+        }).then((userClickedConfirm) => {
+            if (userClickedConfirm) {
+                console.log(userClickedConfirm)
+                formik.setFieldValue("LeaveStartDate", null);
+                formik.setFieldValue("LeaveEndDate", null);
+                resetCheck.current = true
+                // setTableData([]);
+                handleFetchData();
+
+            }
+
+        })
+
+    };
+
+    const handleFetchData = async () => {
+
+        try {
+            const payload = {
+                userId: userId,
+                rqstFrom: resetCheck.current ? null : formik.values.LeaveStartDate,
+                rqstTo: resetCheck.current ? null : formik.values.LeaveEndDate
+            }
+
+            const response = await axios.post("http://141.148.194.18:8052/leavemanagement/leave-applied-leaves", payload,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get("token")}`
+                    }
+                });
+            const formattedData = response.data.result.map((item, index) => {
+                const fromDate = item.rqstFromDate + ":" + item.rqstFromTime;
+                const toDate = item.rqstToDate + ":" + item.rqstToTime;
+                return {
+                    ...item,
+                    index: index + 1,
+                    fromDate: fromDate,
+                    toDate: toDate,
+                };
+
+            });
+
+            setTableData(formattedData);
+            console.log('kp-tableDataResponse', response.data);
+
+
+
+            // setTableData(response.data.result);
+            if (response.data.status === true) {
+
+                console.log('kparyan', tableData);
+                console.log('kp-tableData2', tableData);
+                showSnackbar("Data fetched successfully", "success");
+
+            }
+        } catch (error) {
+
+            console.error(error);
+        }
+        finally {
+            setIsLoading(false);
+            resetCheck.current = false
+        }
+    }
+
+    useEffect(() => {
+        handleFetchData();
+        setIsLoading(true);
+    }, [])
+
+    console.log('kp-tableDataAfter', tableData)
+    const columns = [
+        {
+            field: "index", //keep this fixed, index should be present for all tables
+            headerName: "S.No",
+            flex: 0.1,
+            minWidth: 80,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "rqstId",
+            headerName: "Leave ID",
+            flex: 0.3,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Link
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => {
+                        const requestId = params.row.rqstId;
+                        navigate("/leaveapplicationview", { state: { requestId } });
+                    }}
+                >
+                    {params.value}
+                </Link>
+            ),
+        },
+        {
+            field: "leaveTypeDesc",
+            headerName: "Leave Type",
+            flex: 0.3,
+            minWidth: 160,
+            headerClassName: "super-app-theme--header",
+        },
+
+
+
+        {
+            field: "fromDate",
+            headerName: "Leave Start",
+            flex: 0.3,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "toDate",
+            headerName: "Leave End",
+            flex: 0.3,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "daysOfLeave",
+            headerName: "Leave Duration",
+            flex: 0.3,
+            minWidth: 80,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "rqstStatusDesc",
+            headerName: "Leave Current Status",
+            flex: 0.3,
+            minWidth: 240,
+            headerClassName: "super-app-theme--header",
+        },
+
+        {
+            field: "requestStatus",
+            headerName: "Track Status",
+            flex: 0.3,
+            minWidth: 100,
+            headerClassName: "super-app-theme--header",
+            renderCell: (params) => (
+                <Link onClick={() => {
+                    setReqRemarks(params.row.remarks);
+                    setRequestStatus(params.value);
+                    handleClickOpen();
+                    setDubby(params.row.rqstId);
+                }}>
+                    <GpsFixedIcon color='primary' />
+                </Link>
+            )
+        },
+
+
+    ];
+
+
+
+
+    console.log('kp-tabledata3', tableData)
+    return (
+        <>
+            {
+                isLoading && <Loader />
+            }
+            <Card sx={{ my: 2 }} elevation={3}>
+                <CardContent>
+                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
+                        <WalletIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Leave Balance</H3>
+                    </div>
+                    <Card >
+                        <Box sx={{ flexGrow: 1, mt: 1, elevation: "0" }}>
+                            <Grid container spacing={2} columns={16}>
+                                <Grid item xs={5}>
+                                    <Item  
+                                    onMouseEnter={() => setHover(true)}
+                                    onMouseLeave={() => setHover(false)}>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Available Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {availableLeaves}DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    {/* Render the dynamically chosen icon */}
+                                                    <Avatar >
+
+                                                    </Avatar>
+                                                </Grid>
                                             </Grid>
-                                            <Grid item xs={12} sm={4} md={4} lg={4}>
-                                                <Autocomplete
-                                                    disablePortal
-                                                    margin="normal"
-                                                    size="small"
-                                                    id="disabilityType"
-                                                    name="disabilityType"
-                                                    options={disabilityList}
-                                                    value={
-                                                        disabilityList.find(
-                                                            (option) =>
-                                                                option.id ===
-                                                                formik.values.disabilityType
-                                                        ) || null
-                                                    }
-                                                    onChange={(e, value) => {
-                                                        if (value === null) {
-                                                            formik.setFieldValue("disabilityType", null);
-                                                        } else formik.setFieldValue("disabilityType", value.id);
-                                                    }}
-                                                    getOptionLabel={(value) => value.label}
-                                                    sx={{ width: "100%", mt: 2, mb: 1 }}
-                                                    renderInput={(params) => (
-                                                        <TextField
-                                                            {...params}
-                                                            label="Type of Disability"
-                                                            //  required
-                                                            onBlur={formik.handleBlur}
-                                                            InputLabelProps={{ shrink: true }}
-                                                            helperText={
-                                                                formik.errors.disabilityType &&
-                                                                    formik.touched.disabilityType
-                                                                    ? formik.errors.disabilityType
-                                                                    : null
-                                                            }
-                                                            error={
-                                                                formik.errors.disabilityType &&
-                                                                    formik.touched.disabilityType
-                                                                    ? true
-                                                                    : false
-                                                            }
-                                                        />
-                                                    )}
-                                                />
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Availed Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {availedLeaves} DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    {/* Render the dynamically chosen icon */}
+                                                    <Avatar >
+
+                                                    </Avatar>
+                                                </Grid>
                                             </Grid>
-                                            <Grid item xs={12} sm={4} md={4} lg={4}>
-                                                <TextField
-                                                    margin="normal"
-                                                    //  required
-                                                    fullWidth
-                                                    type="text"
-                                                    id="disabilityPercentage"
-                                                    name="disabilityPercentage"
-                                                    label="Percentage of Disability"
-                                                    size="small"
-                                                    InputLabelProps={{ shrink: true }}
-                                                    onChange={(e) => {
-                                                        if (e.target.value < 0 || e.target.value > 100) {
-                                                            alert("Disability Percentage should be between 0 and 100")
-                                                            formik.setFieldValue("disabilityPercentage", "")
-                                                            return;
-                                                        }
-                                                        else {
-                                                            formik.setFieldValue("disabilityPercentage", e.target.value)
-                                                        }
-                                                    }}
-                                                    onBlur={formik.handleBlur}
-                                                    value={formik.values.disabilityPercentage}
-                                                    error={formik.touched.disabilityPercentage && !!formik.errors.disabilityPercentage}
-                                                    helperText={formik.touched.disabilityPercentage && formik.errors.disabilityPercentage}
-                                                />
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                                <Grid item xs={5}>
+                                    <Item>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} sm container>
+                                                <Grid item xs container direction="column" spacing={2}>
+                                                    <Grid item xs>
+                                                        <Typography gutterBottom component="div">
+                                                            Balance Leaves
+                                                        </Typography>
+                                                        <Typography variant="h6" gutterBottom>
+                                                            {balanceLeaves} DAYS
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid item>
+                                                    {/* Render the dynamically chosen icon */}
+                                                    <Avatar >
+
+                                                    </Avatar>
+                                                </Grid>
                                             </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Grid>
+                            </Grid>
+
+
+                            {hover && (
+                                <Box sx={style}>
+                            <Grid container spacing={2} columns={16}>
+                                {leaveBalance.map((value, index) => (<LeadgerCard resData={value} key={index} />))}
+
+                            </Grid>
+                            </Box>
+                            )}
+
+
+                        </Box>
+
+                    </Card>
+                    <Grid sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button sx={{ float: 'right', borderRadius: '4px' }} variant={'contained'} onClick={handleNavigation}>Apply for a new leave</Button>
+                    </Grid>
+
+                </CardContent>
+            </Card>
+
+
+            <Card sx={{ my: 2 }} elevation={3}>
+                <CardContent>
+
+                    <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf" }}>
+                        <SummarizeIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+                        <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end"> Leave Applications</H3>
+                    </div>
+                    <Box component={"div"} >
+
+                        <SearchTable
+                            columns={columns}
+                            data={tableData}
+                            isCheckbox={false}
+                            isHideDensity={false}
+                            isHideExport={true}
+                            isHideFilter={true}
+                            isHideColumn={true}
+                            isHidePaging={false}
+                            name="abc"
+                            id="hjjh"
+                        />
+                    </Box>
+                </CardContent>
+            </Card>
+            <Dialog
+                fullWidth
+                maxWidth={'md'}
+                open={open}
+                onClose={handleClose}
+            >
+                <DialogContent >
+                    <TrackLeaveRequestStatus rqstId={dubby} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Close</Button>
+
+                </DialogActions>
+            </Dialog>
+        </>
+    )
+}
+
+//aryan
+export default FileLeave
