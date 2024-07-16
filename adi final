@@ -1,3 +1,60 @@
+
+  const filterEndTimeValues = (startTimeId) => {
+    console.log(typeof(startTimeId));
+    console.log(startTimeId ==="14:00:00" );
+    console.log(formik.values.LeaveStartDate);
+    console.log(formik.values.LeaveEndDate);
+    const formatLeaveEndDate = dayjs(formik.values.LeaveEndDate ,"MM-DD-YYYY").format("DD/MM/YYYY");
+  const formatLeaveStartDate = dayjs(formik.values.LeaveStartDate ,"MM-DD-YYYY").format("DD/MM/YYYY");
+
+    console.log(formik.values.LeaveStartDate === formik.values.LeaveEndDate );
+    console.log (startDate === endDate);
+    console.log (startDate );
+    console.log (endDate );
+    console.log ( !formik.values.LeaveStartDate);
+    console.log (formatLeaveStartDate === startDate);
+    console.log (endDate === formatLeaveEndDate);
+
+
+    
+    if (
+       startTimeId === "14:00:00" && startDate === endDate
+    ) {
+      console.log("manasa")
+      return endTimeList.filter((value) => value.time !== "14:00:00");
+    }
+    if (
+      (!formik.values.LeaveStartDate === false)  &&  (!formik.values.LeaveEndDate === false) && startTimeId === "14:00:00" && formik.values.LeaveStartDate === formik.values.LeaveEndDate
+    ) {
+      console.log("manasa")
+      return endTimeList.filter((value) => value.time !== "14:00:00");
+    }
+
+    if (
+startTimeId === "14:00:00" && formatLeaveStartDate === endDate
+    ) {
+      console.log("manasa")
+      return endTimeList.filter((value) => value.time !== "14:00:00");
+    }
+
+    if (
+startTimeId === "14:00:00" &&  startDate === formatLeaveEndDate
+    ) {
+      console.log("manasa")
+      return endTimeList.filter((value) => value.time !== "14:00:00");
+    }
+    return endTimeList; // Otherwise, return the original time2 array
+  };
+
+
+
+
+
+
+
+
+
+
 const halfstartTimeData = async () => {
   try {
     const formatStartDate = dayjs(startDate, "DD/MM/YYYY").format("YYYY-MM-DD");
