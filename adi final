@@ -1,3 +1,38 @@
+
+  const halfstartTimeData = async () => {
+    try {
+      const formatStartDate = dayjs(startDate).format("YYYY-MM-DD");
+      const response = await axios.post(
+        "http://141.148.194.18:8095/leavemanagement/half-time-cal",
+        {
+          userId:fetchuserId,
+          startTime:formatStartDate,
+          typeId: 1
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`
+          }
+        }
+      );
+           console.log(response);
+      if (response.data.statusCode === 200) {
+        // setStartTimecheck(response.data.result);
+
+      }
+
+    } catch (error) {
+      // Handle errors
+      console.error("Error fetching user details:", error);
+    }
+  };
+
+
+
+
+
+
+
 import React, { useState } from 'react';
 import { Box, Card, Grid, Typography, Avatar } from '@mui/material';
 
