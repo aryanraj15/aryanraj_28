@@ -1,3 +1,21 @@
+const filterEndTimeValues = (startTimeId) => {
+    const { LeaveStartDate, LeaveEndDate } = formik.values;
+    const formatLeaveStartDate = dayjs(LeaveStartDate, "MM-DD-YYYY").format("DD/MM/YYYY");
+    const formatLeaveEndDate = dayjs(LeaveEndDate, "MM-DD-YYYY").format("DD/MM/YYYY");
+
+    const is14AndSameDate = startTimeId === "14:00:00" && 
+                            (LeaveStartDate === LeaveEndDate || 
+                             formatLeaveStartDate === LeaveEndDate || 
+                             LeaveStartDate === formatLeaveEndDate || 
+                             formatLeaveStartDate === formatLeaveEndDate);
+
+    if (is14AndSameDate) {
+      console.log("manasa");
+      return endTimeList.filter((value) => value.time !== "14:00:00");
+    }
+    
+    return endTimeList;
+};
 
   const filterEndTimeValues = (startTimeId) => {
     console.log(typeof(startTimeId));
