@@ -1,3 +1,62 @@
+
+import * as React from 'react';
+import { useFormik } from 'formik';
+import Checkbox from '@mui/material/Checkbox';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+
+const FormControlLabelPosition = () => {
+  const formik = useFormik({
+    initialValues: {
+      end: false,
+    },
+    onSubmit: values => {
+      console.log(values);
+    },
+  });
+
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <FormControl component="fieldset">
+        <FormLabel component="legend">Label placement</FormLabel>
+        <FormGroup aria-label="position" row>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="end"
+                checked={formik.values.end}
+                onChange={formik.handleChange}
+              />
+            }
+            label="End"
+            labelPlacement="end"
+          />
+        </FormGroup>
+        <button type="submit">Submit</button>
+      </FormControl>
+    </form>
+  );
+}
+
+export default FormControlLabelPosition;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const filterEndTimeValues = (startTimeId) => {
     const { LeaveStartDate, LeaveEndDate } = formik.values;
     const formatLeaveStartDate = dayjs(LeaveStartDate, "MM-DD-YYYY").format("DD/MM/YYYY");
