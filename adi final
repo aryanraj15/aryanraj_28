@@ -1,3 +1,140 @@
+Uncaught (in promise) 
+TypeError: Cannot read properties of null (reading 'concat')
+
+  const saveLeaveApproveDetails = async (prop) => {
+
+    let formattedStartDate = null;
+    let formattedEndDate = null;
+
+
+    if (approvedToDate === null && approvedFromDate === null) {
+
+      if (!formik.values.LeaveStartDate || !formik.values.LeaveEndDate) {
+
+        formattedStartDate = requestStartDate;
+        formattedEndDate = requestEndDate;
+        // dayjs(requestStartDate).format(
+        //   "YYYY-MM-DD"
+        // );
+
+        // dayjs(requestEndDate).format(
+        //   "YYYY-MM-DD"
+        // );
+
+      }
+      else {
+        formattedStartDate = dayjs(formik.values.LeaveStartDate).format(
+          "YYYY-MM-DD"
+        );
+        formattedEndDate = dayjs(formik.values.LeaveEndDate).format(
+          "YYYY-MM-DD"
+        );
+      }
+
+    }
+    else {
+      if (!formik.values.LeaveStartDate || !formik.values.LeaveEndDate) {
+        formattedStartDate = approvedFromDate;
+        formattedEndDate = approvedToDate;
+
+
+      }
+      else {
+        formattedStartDate = dayjs(formik.values.LeaveStartDate).format(
+          "YYYY-MM-DD"
+        );
+        formattedEndDate = dayjs(formik.values.LeaveEndDate).format(
+          "YYYY-MM-DD"
+        );
+      }
+
+    }
+
+    if (formik.values.LeaveStartDate) {
+      formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
+    }
+    if (formik.values.LeaveEndDate) {
+      formattedEndDate = dayjs(formik.values.LeaveEndDate).format("YYYY-MM-DD");
+    }
+
+    let approvedTimeTo = null;
+    if (!formik.values.two) {
+      approvedTimeTo = endTime;
+    } else {
+      approvedTimeTo = formik.values.two;
+    }
+
+    let approvedTimeFrom = null;
+    if (!formik.values.one) {
+      approvedTimeFrom = startTime;
+    } else {
+      approvedTimeFrom = formik.values.one;
+    }
+
+    if (prop === "Reject") {
+      // Set specific parameters to null
+      formattedStartDate = null;
+      formattedEndDate = null;
+      approvedTimeFrom = null;
+      approvedTimeTo = null;
+    }
+
+    const resultones = formattedStartDate.concat("T", approvedTimeFrom);
+      const resulttwos = formattedEndDate.concat("T", approvedTimeTo);
+
+
+    try {
+      const body = {
+        rqstId: data,
+        approvedFrom: resultones,
+        approvedTo: resulttwos,
+        updBy: user.data.userdetails.user.userId,
+        status: prop === "Approve" ? stepId.approve : stepId.reject,
+        finalRemarks: formik.values.remarks,
+      };
+
+      console.log("the saved details  body", body);
+      const res = await axios.post(
+        `http://141.148.194.18:8052/leavemanagement/update-status`,
+        body,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        }
+      );
+      console.log("the saved details  areeeeee", res);
+      if (res.data.statusCode === 200) {
+        console.log("the result ", res.data.result);
+        callConfirmDialogMessage(res.data.message);
+
+        // setOpenToast(true);
+        // showSnackbar("Saved Successfully", "success");
+
+      } else if (res.data.statusCode === 204) {
+        setToastMessage(res.data.message)
+        setToastSeverity("error");
+        setOpenToast(true);
+      }
+    } catch (error) {
+
+      alert("Data has not saved", error);
+      console.log(error.message);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
 const onhalfValuesChange = (e) => {
   const selectedTime = ishalfTimecheck.find(item => item.showTime === e.target.value);
   if (selectedTime) {
