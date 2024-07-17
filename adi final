@@ -1,4 +1,63 @@
 
+  const onhalfValuesChange = (e) => {
+    console.log(e.target.value);
+    formik.setFieldValue('radiohalfvalue', e.target.value);
+  };
+                  <Grid item xs={12} sm={6} md={6} lg={6} >
+                    <FormControl component="fieldset" >
+                      <RadioGroup
+                        row
+                        aria-label="startTime"
+                        name="radiohalfvalue"
+                        value={formik.values.radiohalfvalue}
+                        onChange={onhalfValuesChange}
+
+                      >
+                        {ishalfTimecheck.map((item, index) => (
+
+                          <FormControlLabel
+                            key={index}
+                            value={item.time}
+                            control={<Radio />}
+                            label={item.showTime}
+                          />
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                  </Grid>
+
+
+{
+    "status": true,
+    "message": "Half Day Sessions Calculated Successfully",
+    "result": [
+        {
+            "typeId": 1,
+            "timeStart": "10:00:00",
+            "timeEnd": "14:00:00",
+            "showTime": "10:00 AM - 02:00 PM"
+        },
+        {
+            "typeId": 2,
+            "timeStart": "14:00:00",
+            "timeEnd": "18:00:00",
+            "showTime": "02:00 PM - 06:00 PM"
+        }
+    ],
+    "statusCode": 200
+}
+
+
+
+
+
+
+
+
+
+
+
+
 import * as React from 'react';
 import { useFormik } from 'formik';
 import Checkbox from '@mui/material/Checkbox';
