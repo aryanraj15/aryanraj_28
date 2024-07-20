@@ -12,6 +12,8 @@ motherName
 maritalStatus
 spouseName
 physicallyHandicapped
+disabilityType
+disabilityPercentages
 bloodGrp
 personalemail
 personalMobile
@@ -40,6 +42,9 @@ confirmationDate
 payslipAuthority
 houseNumberComm
 streetcomm
+stateIdcommunication
+distIdcommunication
+pincodecomm
 
 
 {
