@@ -1,3 +1,318 @@
+prefix
+firstName
+middleName
+lastName
+gender
+dob
+height
+heightInInch
+identificationMarks
+fatherName
+motherName
+maritalStatus
+spouseName
+physicallyHandicapped
+bloodGrp
+personalemail
+personalMobile
+religion
+nationality
+socialCategory
+gpfPranType
+gpfPranId
+pancard
+Aadhaar
+employeeType
+serviceType
+cadre
+govtOccupied
+quarterType
+parentDept
+currentDept
+currentDesgn
+appointmentOrdNo
+appointmentOrdDate
+srcOfRecruit
+joiningDate
+joiningTime
+superannuationDate
+confirmationDate
+payslipAuthority
+houseNumberComm
+streetcomm
+
+
+{
+    "status": true,
+    "message": "Personal Details fetched successfully",
+    "result": {
+        "empId": 66,
+        "refNo": "BRD0000000000061",
+        "taskTypeId": null,
+        "prefix": {
+            "id": 178,
+            "label": "Prof."
+        },
+        "firstName": "Manasa",
+        "middleName": "",
+        "lastName": "Badeti",
+        "gender": {
+            "id": 2,
+            "label": "Female"
+        },
+        "dob": "19-07-2002",
+        "heightMeasure": {
+            "id": 145,
+            "label": "Feet/Inch"
+        },
+        "heightCmOrFeet": 5,
+        "heightInch": null,
+        "identifcnMark": "a mole on chin",
+        "fatherName": "Kishore",
+        "motherName": "sharada",
+        "maritalStatus": {
+            "id": 150,
+            "label": "Married"
+        },
+        "spouseName": "Chandu",
+        "isDisabled": true,
+        "religion": {
+            "id": 228,
+            "label": "Hinduism"
+        },
+        "bloodGroup": {
+            "id": 133,
+            "label": "B+"
+        },
+        "personalEmail": "e@gmail.com",
+        "personalMobileNo": "8989098765",
+        "nationality": {
+            "id": 142,
+            "label": "Indian"
+        },
+        "socialCategory": {
+            "id": 163,
+            "label": "Economically Backward Woman"
+        },
+        "gpfPranType": {
+            "id": 205,
+            "label": "GRF No"
+        },
+        "gpfPranNo": "7890900",
+        "panNo": "CVBNJ6789U",
+        "aadhaarRefNo": 678909876543,
+        "employeeType": {
+            "id": 134,
+            "label": "Regular"
+        },
+        "serviceType": {
+            "id": 53,
+            "label": "ALL INDIA SERVICE"
+        },
+        "cadreId": {
+            "id": 14,
+            "label": "Bihar Dairy Cadre "
+        },
+        "isGovtQuarterOccupied": true,
+        "quarterType": {
+            "id": 232,
+            "label": "Alloted to Self"
+        },
+        "parentDeptId": {
+            "id": 1,
+            "label": "Finance Department"
+        },
+        "currentDeptId": {
+            "id": 1,
+            "label": "Finance Department"
+        },
+        "currentDsgnId": {
+            "id": 2,
+            "label": "Assistant Manager"
+        },
+        "currentOffice": {
+            "id": 1,
+            "officeName": "Bihar Trust Office",
+            "address": "test12345"
+        },
+        "ordIssuingOffice": {
+            "id": 1,
+            "officeName": "Bihar Trust Office",
+            "address": "test12345"
+        },
+        "appointOrdNo": "ORD1",
+        "appointOrdDate": "04-07-2024",
+        "srcRecruitment": 184,
+        "joiningDate": "04-07-2024",
+        "joiningTime": {
+            "id": 153,
+            "label": "Afternoon"
+        },
+        "superannuationDate": "31-07-2062",
+        "confirmationDate": "11-07-2024",
+        "isPayslip": true,
+        "payslipAuthority": {
+            "id": 154,
+            "label": "AG"
+        },
+        "status": null,
+        "remarks": null,
+        "grpId": {
+            "id": 4,
+            "label": "GP2"
+        },
+        "addressLine1": "101",
+        "addressLine2": "Currency nagar",
+        "stateId": {
+            "id": 1,
+            "label": "Bihar"
+        },
+        "distId": {
+            "id": 2,
+            "label": "Patna"
+        },
+        "pincode": 787898,
+        "crtBy": {
+            "id": 1,
+            "label": "raj18"
+        },
+        "crtOn": "18-07-2024 05:03 PM",
+        "updBy": {
+            "id": 1,
+            "label": "raj18"
+        },
+        "updOn": "18-07-2024 05:06 PM",
+        "empDisabilityList": [
+            {
+                "disabilityType": {
+                    "id": 209,
+                    "label": "Deaf & Dumb"
+                },
+                "disabilityPercent": 50
+            },
+            {
+                "disabilityType": {
+                    "id": 210,
+                    "label": "Locomotive"
+                },
+                "disabilityPercent": 50
+            }
+        ]
+    },
+    "statusCode": 200
+}
+
+
+
+
+
+
+
+
+
+
+             formik.setFieldValue("firstName", response.data.result[1].userId.fullname)
+             formik.setFieldValue("lastName", response.data.result[1].userId.fullname)
+             formik.setFieldValue("fatherName", response.data.result[1].userId.fullname)
+              formik.setFieldValue("motherName", response.data.result[1].userId.fullname)
+            
+            formik.setFieldValue("contactNumber", user.data.userdetails.user.mobileNo)
+            formik.setFieldValue("apcosId", response.data.result[1].apcosId)
+            formik.setFieldValue("Aadhaar", response.data.result[1].aadhaarNo)
+            formik.setFieldValue("emergencyContact", response.data.result[1].alternateNumber)
+            formik.setFieldValue("employeeType", response.data.result[1].employeeType.typeId)
+             formik.setFieldValue("gender", response.data.result[1].gender.typeId)
+             formik.setFieldValue("dob", dayjs(response.data.result[1].dob).format("YYYY-MM-DD"))
+            ageValidator(response.data.result[1].dob)
+            formik.setFieldValue("nationality", (response.data.result[1].nationality.typeId))
+            formik.setFieldValue("religion", (response.data.result[1].religion.typeId))
+             formik.setFieldValue("maritalStatus", (response.data.result[1].maritalStatus.typeId))
+            formik.setFieldValue("identificationMarks", response.data.result[1].identificationMarks1)
+            formik.setFieldValue("identificationMarks2", response.data.result[1].identificationMarks2)
+            formik.setFieldValue("bloodGrp", response.data.result[1].caste.typeId)
+            formik.setFieldValue("physicallyHandicapped", response.data.result[1].physicallyHandicapped)
+            formik.setFieldValue("streetCard", response.data.result[1].presentStreet)
+            formik.setFieldValue("houseNumberCard", response.data.result[1].presentHouseNo)
+            formik.setFieldValue("pincodeCard", response.data.result[1].presentPincode)
+            formik.setFieldValue("isCommAddrsSame", response.data.result[1].isPresentPermanentAddressSame)
+            formik.setFieldValue("stateId", response.data.result[1].presentState)
+            formik.setFieldValue("distId", response.data.result[1].presentDistrict)
+            formik.setFieldValue("personalemail", response.data.result[1].personalEmail)
+            if (response.data.result[1].presentVillage === null) {
+                formik.setFieldValue("villageId", '')
+            }
+
+            formik.setFieldValue("streetcomm", response.data.result[1].permanentStreet)
+            formik.setFieldValue("houseNumberComm", response.data.result[1].permanentHouseNo)
+            formik.setFieldValue("pincodecomm", response.data.result[1].permanentPincode)
+            formik.setFieldValue("stateIdcommunication", response.data.result[1].permanentState)
+            formik.setFieldValue("distIdcommunication", response.data.result[1].permanentDistrict)
+           
+
+            // if (response.data.result[1].caste.typeId === 67 ) {
+            //     formik.setFieldValue("subcaste", response.data.result[1].subCaste.typeId)
+            //     axios.get(`${process.env.REACT_APP_MASTER_API_URL}/employee-enrollment/subcaste/${response.data.result[1].caste.typeId}`, {
+            //         headers: {
+            //             Authorization: `Bearer ${Cookies.get("token")}`
+            //         }
+            //     }).then(response => {
+            //         let sortedsubCasteData = response.data.result.map((value) => {
+            //             value.label = value.label
+            //             return value;
+            //         })
+
+
+            //         setIsDistrictDisabled(false);
+            //         setSubCasteList(sortedsubCasteData);
+            //         console.log(sortedsubCasteData);
+            //     })
+            //         .catch(error => {
+            //             setSubCasteList([]);
+            //             console.log(error);
+            //         });
+
+            // }
+
+            if (response.data.result[1].physicallyHandicapped === true || response.data.result[1].physicallyHandicapped === "true") {
+                formik.setFieldValue("disabilityPercentage", response.data.result[1].percentageOfDisability)
+                formik.setFieldValue("disabilitype", response.data.result[1].typeOfDisability)
+            }
+
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useRef, useEffect } from 'react';
 import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
 import "./CalendarStyles.css";
