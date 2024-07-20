@@ -1,3 +1,64 @@
+// Assuming `response` is the API response and `formik` is your Formik instance
+const result = response.data.result;
+
+formik.setFieldValue("prefix", result.prefix.id);
+formik.setFieldValue("firstName", result.firstName);
+formik.setFieldValue("middleName", result.middleName);
+formik.setFieldValue("lastName", result.lastName);
+formik.setFieldValue("gender", result.gender.id);
+formik.setFieldValue("dob", result.dob);
+formik.setFieldValue("height", result.heightCmOrFeet);
+formik.setFieldValue("heightInInch", result.heightInch);
+formik.setFieldValue("identificationMarks", result.identifcnMark);
+formik.setFieldValue("fatherName", result.fatherName);
+formik.setFieldValue("motherName", result.motherName);
+formik.setFieldValue("maritalStatus", result.maritalStatus.id);
+formik.setFieldValue("spouseName", result.spouseName);
+formik.setFieldValue("physicallyHandicapped", result.isDisabled);
+formik.setFieldValue("disabilityType", result.empDisabilityList.map(dis => dis.disabilityType.id));
+formik.setFieldValue("disabilityPercentages", result.empDisabilityList.map(dis => dis.disabilityPercent));
+formik.setFieldValue("bloodGrp", result.bloodGroup.id);
+formik.setFieldValue("personalemail", result.personalEmail);
+formik.setFieldValue("personalMobile", result.personalMobileNo);
+formik.setFieldValue("religion", result.religion.id);
+formik.setFieldValue("nationality", result.nationality.id);
+formik.setFieldValue("socialCategory", result.socialCategory.id);
+formik.setFieldValue("gpfPranType", result.gpfPranType.id);
+formik.setFieldValue("gpfPranId", result.gpfPranNo);
+formik.setFieldValue("pancard", result.panNo);
+formik.setFieldValue("Aadhaar", result.aadhaarRefNo);
+formik.setFieldValue("employeeType", result.employeeType.id);
+formik.setFieldValue("serviceType", result.serviceType.id);
+formik.setFieldValue("cadre", result.cadreId.id);
+formik.setFieldValue("govtOccupied", result.isGovtQuarterOccupied);
+formik.setFieldValue("quarterType", result.quarterType.id);
+formik.setFieldValue("parentDept", result.parentDeptId.id);
+formik.setFieldValue("currentDept", result.currentDeptId.id);
+formik.setFieldValue("currentDesgn", result.currentDsgnId.id);
+formik.setFieldValue("appointmentOrdNo", result.appointOrdNo);
+formik.setFieldValue("appointmentOrdDate", result.appointOrdDate);
+formik.setFieldValue("srcOfRecruit", result.srcRecruitment);
+formik.setFieldValue("joiningDate", result.joiningDate);
+formik.setFieldValue("joiningTime", result.joiningTime.id);
+formik.setFieldValue("superannuationDate", result.superannuationDate);
+formik.setFieldValue("confirmationDate", result.confirmationDate);
+formik.setFieldValue("payslipAuthority", result.payslipAuthority.id);
+formik.setFieldValue("houseNumberComm", result.addressLine1);
+formik.setFieldValue("streetcomm", result.addressLine2);
+formik.setFieldValue("stateIdcommunication", result.stateId.id);
+formik.setFieldValue("distIdcommunication", result.distId.id);
+formik.setFieldValue("pincodecomm", result.pincode);
+
+
+
+
+
+
+
+
+
+
+
 prefix
 firstName
 middleName
