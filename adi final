@@ -1,3 +1,123 @@
+                      <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <FormControl>
+                          <FormLabel id="demo-row-radio-buttons-group-label"  helperText="Disability is required">
+                            Disability (yes/no)
+                          </FormLabel>
+                          <RadioGroup
+                            row
+                            aria-labelledby="demo-row-radio-buttons-group-label"
+                            name="physicallyHandicapped"
+                            disabled={view}
+                            value={formik.values.physicallyHandicapped}
+                            onChange={(e) => {
+                              formik.setFieldValue('physicallyHandicapped', e.target.value === "true");
+                              formik.setFieldValue('disabilityPercentages', []);
+                              formik.setFieldValue('disabilityType', []);
+                              formik.handleChange(e);
+                            }}
+                          >
+                            <FormControlLabel value="true" control={<Radio />} label="Yes"  disabled={view} sx={{mb:0,padding:'0px 0',mt:0}}/>
+                            <FormControlLabel value="false" control={<Radio />} label="No"  disabled={view} sx={{mb:0,padding:'0px 0',mt:0}} />
+                          </RadioGroup>
+                          {formik.errors.physicallyHandicapped && (
+                            <FormHelperText sx={{mt:0}} error>{formik.errors.physicallyHandicapped}</FormHelperText>
+                            // <div>{formik.errors.physicallyHandicapped}</div>
+                          )}
+                        </FormControl>
+                      </Grid>
+
+
+
+{formik.values.physicallyHandicapped === "true" && (
+                        <>
+                          <Grid item xs={12} sm={4} md={4} lg={4}>
+                            <Autocomplete
+                              multiple
+                              margin="normal"
+                              disableCloseOnSelect
+                              limitTags={5}
+                              fullWidth
+                              size="small"
+                              id="disabilityType"
+                              name="disabilityType"
+                              disabled={view}
+                              options={disabilityList}
+                              getOptionLabel={(option) => option.label}
+                              value={Array.isArray(formik.values.disabilityType) ? formik.values.disabilityType : []}
+                              renderOption={(props, option, { selected }) => (
+                                <li {...props}>
+                                  <Checkbox
+                                    icon={icon}
+                                    checkedIcon={checkedIcon}
+                                    checked={selected}
+                                  />
+                                  {option.label}
+                                </li>
+                              )}
+                              onChange={handleDisabilityTypeChange}
+                              sx={{ width: "100%", mt:2 }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  required
+                                  label="Type of Disability"
+                                  onBlur={formik.handleBlur}
+                                  helperText={
+                                    formik.errors.disabilityType && formik.touched.disabilityType
+                                      ? formik.errors.disabilityType
+                                      : null
+                                  }
+                                  error={
+                                    formik.errors.disabilityType && formik.touched.disabilityType
+                                      ? true
+                                      : false
+                                  }
+                                />
+                              )}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={4} md={4} lg={4}>
+                            {view !==true && (
+                          <Typography sx={{color:'red' ,fontSize:"8px"}}>For Multiple Disabilities,Please add values seperated by comma(,)</Typography>
+                            )}
+                            <TextField
+                              margin="normal"
+                              fullWidth
+                              required
+                              size="small"
+                              type="text"
+                              id="disabilityPercentages"
+                              name="disabilityPercentages"
+                              label="Percentage of Disability (seperated by comma)"
+                              disabled={view}
+                              //InputLabelProps={{ shrink: true }}
+                              onChange={handlePercentageChange}
+                              onBlur={formik.handleBlur}
+                              value={formik.values.disabilityPercentages.join(', ')} // Join array values with comma and space
+                              error={
+                                formik.touched.disabilityPercentages &&
+                                !!formik.errors.disabilityPercentages
+                              }
+                              helperText={
+                                formik.touched.disabilityPercentages &&
+                                formik.errors.disabilityPercentages
+                              }
+                            />
+                          </Grid>
+                        </>
+                      )}
+
+
+
+
+
+
+
+
+
+
+
+
 // Assuming `response` is the API response and `formik` is your Formik instance
 const result = response.data.result;
 
