@@ -1,631 +1,343 @@
-      const formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
-
-      const result = formattedStartDate.concat("T", formik.values.radiostartvalue);
-      console.log(result)
-
-
- const formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
-const result = formattedStartDate.concat("T", formik.values.radiostartvalue);
- 
- 
- const onValueChange = (e) => {
-    console.log(e.target.value);
-    formik.setFieldValue('radiovalue', e.target.value);
-  };
-
-<Grid item xs={12} md={6}>
-                    <FormControl component="fieldset">
-                      <FormLabel component="legend">Start Time</FormLabel>
-                      <RadioGroup
-                        aria-label="startTime"
-                        name="radiovalue"
-                        value={formik.values.radiovalue}
-                        onChange={onValueChange}
-                      >
-                        {startTimecheck.map((item, index) => (
-                          <FormControlLabel
-                            key={index}
-                            value={item.value}
-                            control={<Radio />}
-                            label={item.label}
-                          />
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
-                  </Grid>
-
-
-
-
-
-                              
-{
-    "status": true,
-    "message": "Prefix and Suffix Calculated Successfully",
-    "result": [
-        {
-            "typeId": 1,
-            "time": "10:00:00",
-            "showTime": "10:00 AM"
-        },
-        {
-            "typeId": 2,
-            "time": "14:00:00",
-            "showTime": "02:00 PM"
-        }
-    ],
-    "statusCode": 200
-}
-
-import React, { useEffect, useState, useRef } from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
+import CachedIcon from '@mui/icons-material/Cached';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import SaveIcon from '@mui/icons-material/Save';
+import SchoolIcon from '@mui/icons-material/School';
+import {
+  Alert,
+  Autocomplete,
+  Box,
+  Card,
+  CardContent,
+  Divider,
+  Grid,
+  Slide,
+  TextField
+} from "@mui/material";
+import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { Card, CardContent, Link, Slide } from "@mui/material";
-import useTitle from "../../../hooks/useTitle";
-import PageTitle from "../../../layouts/PageTitle";
-import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import { H3 } from "../../../components/Typography";
-import AlertConfirm from "react-alert-confirm";
-import { useSnackbar } from "../../../components/Snackbar";
-import "react-alert-confirm/lib/style.css";
-import Typography from '@mui/material/Typography';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
 import axios from 'axios';
-import { useSelector } from "react-redux";
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import IconButton from '@mui/material/IconButton';
-import AlarmIcon from '@mui/icons-material/Alarm';
-import DateRangeIcon from '@mui/icons-material/DateRange';
-import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import dayjs from "dayjs";
+import { useFormik } from 'formik';
 import Cookies from "js-cookie";
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
+import React, { useEffect, useState } from 'react';
+import AlertConfirm from "react-alert-confirm";
+import "react-alert-confirm/lib/style.css";
+import * as Yup from 'yup';
+import SearchTable from "../../components/SearchTableAlt";
+import { useSnackbar } from "../../components/Snackbar";
+import { H3 } from "../../components/Typography";
 function TransitionLeft(props) {
   return <Slide {...props} direction="left" />;
 }
-const today = dayjs();
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  margin: 3,
-  borderRadius: "10px",
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
-
-const Leave = () => {
-  const [selectedLeaveStartDate, setSelectedLeaveStartDate] = useState(null);
-  const [leavelist, setLeaveList] = useState([]);
-  const [leaveBalance, setLeaveBalalnce] = useState([]);
-  const [balance, setBalalnce] = useState([]);
-  // const [suffix, setSuffix] = useState(null);
-  // const [priffix, setPriffix] = useState(null);
-  const [startTimecheck,setStartTimecheck]= useState([]);
-
-  const [emergencyList, setEmergencyList] = useState([]);
-  const [stationlist, setStationList] = useState([]);
-  const [startTimeList, setStartTimeList] = useState([]);
-  const [endTimeList, setEndTimeList] = useState([]);
-  const [mangerName, setMangeName] = useState([]);
-  const [employeeType, setEmployeeType] = useState();
-  const [passbookUploadedFile, setLeaveDocument] = useState(null);
+const QualifiactionDetails = ({ formData, setFormData, prevData, onButtonClick, view }) => {
+  const validationSchema = Yup.object().shape({
+    QualifiactionTypes: Yup.string().required("Qualification Type is required").nullable(),
+    institute: Yup.string().required("Institute Name is required").nullable(),
+    course: Yup.string().required("Course is required").nullable(),
+    Board: Yup.string().required("Board is required").nullable(),
+    marksCgpa: Yup.string().required("Marks/Cgpa is required").nullable(),
+    marks: Yup.string().when("marksCgpa", {
+      is: (value) => value === '269',
+      then: Yup.string().required("Marks secured is required").nullable(),
+    }).nullable(),
+    totalMarks: Yup.string().when("marksCgpa", {
+      is: (value) => value === '269',
+      then: Yup.string().required("Total Marks is required").nullable(),
+    }).nullable(),
+    gpa: Yup.string().when("marksCgpa", {
+      is: (value) => value === '270',
+      then: Yup.string().required("Cgpa is required").nullable(),
+    }).nullable(),
+    admissionDate: Yup.string().required("Admission Date is required").nullable(),
+    completionDate: Yup.string().required("Completion Date is required").nullable()
+  })
+  const formik = useFormik({
+    initialValues: {
+      QualifiactionTypes: null,
+      degree: null,
+      courseType: null,
+      institute: '',
+      course: '',
+      Board: '',
+      Duration: '',
+      marksCgpa: null,
+      marks: '',
+      totalMarks: '',
+      gpa: '',
+      passingYear: '',
+      admissionDate: null,
+      completionDate: null
+    },
+    validationSchema: validationSchema,
+  });
+  const tomorrow = dayjs().add(0, 'day');
+  const [qualificationList, setQualificationList] = useState([]);
+  const [degreeList, setDegreeList] = useState([])
+  const [courseList, setCourseList] = useState([])
+  const [marksCgpaList, setMarksCgpaList] = useState([])
+  const [rows, setRows] = useState([])
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openToast, setOpenToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastSeverity, setToastSeverity] = useState("info");
-  const [showLink, setShowLink] = useState(true);
-  const [disabledbutton, setDisabledbutton] = useState(true);
+  const { showSnackbar } = useSnackbar();
+  const [showNext, setShowNext] = useState(view);
+  const getValueFromList = (List, value) => {
+    return List.find((option) => option.id === value) ?? null;
+  };
+  useEffect(() => {
+    axios.get(`http://141.148.194.18:8052/payroll/employee/educational-details/dropdown-init`, {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("token")}`
+      }
+    }).then(response => {
+      // let sortedData = response.data.map((value) => {
+      //      value.label = value.label
+      //      return value;
+      //  })
+      //  console.log(sortedData);
+      if (response.status === 200) {
+        setQualificationList(response.data.qualification);
+        //setDegreeList(response.data.relationship);
+        setMarksCgpaList(response.data.marksCgpa);
+      }
+      console.log(response);
+    })
+      .catch(error => {
+        console.log(error);
+      });
+  }, [])
 
 
-  const [availableDuration, setAvailableDuration] = useState(0);
-  // const [preffixsuffixbutton, setPreffixsuffixbutton] = useState(false);
-  const user = useSelector((state) => state.loginReducer);
-
-  const [allowedFile, setAllowedFile] = useState('');
-
-  const fileInputRef = useRef(null)
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  }
-  let selectedFile = []
-  const handleFileChange = (event) => {
-
-    const File = event.target.files[0];
-
-    if (!File) {
-      return;
+  useEffect(() => {
+    if (view) {
+      fetchData();
     }
-    const fileSizeKB = File.size / 1024;
-
-    if (fileSizeKB > 300) {
-      console.error("File size exceeded");
-      alert("Attachment should be less than 200KB");
-      setLeaveDocument(null);
-      return;
-    }
-
-    const allowedFormats = ["application/pdf", "image/jpeg", "image/png"];
-    if (!allowedFormats.includes(File.type)) {
-      console.log(File.type);
-      console.error("Invalid file format");
-      alert("Invalid file format. Please choose JPG, PNG, or PDF.");
-      setLeaveDocument(null);
-      return;
-    }
-
-    console.log(File.name)
-    //  setSelectedFile(File)
-
-    selectedFile = event.target.files[0];
-    setLeaveDocument(selectedFile)
-    if (selectedFile) {
-
-      uploadFile()
-    }
-  }
+  }, [view]);
 
 
-  const validationSchema = Yup.object().shape({
-    Leave: Yup.string().required("Leave is Required").nullable(),
-    // ApplyingDueToAnyEmergency: Yup.string().required("Applying Due To Any Emergency is Required").nullable(),
-    StationLeave: Yup.string().required("Station Leave is required").nullable(),
-    LeaveStartDate: Yup.string().required("Leave Start Date is required").nullable(),
-    LeavestartTime: Yup.string().required("Leave Start Time is required").nullable(),
-    LeaveEndDate: Yup.string().required("Leave End Date is required").nullable(),
-    LeaveEndTime: Yup.string().required("Leave End Time is required").nullable(),
+  const fetchData = () => {
+    axios.get(`http://141.148.194.18:8052/payroll/employee/educational-details/${formData.empRefNo}`, {
+        headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`
+        }
+    }).then(response => {
 
-    Description: Yup.string()
-      .required("Description is required")
-      .nullable()
-      .test('word-count', 'Your word length is greater than 200 words', (value) => {
-        if (!value) return true; // Skip validation if the value is empty or null
-        const wordCount = value.trim().split(/\s+/).length;
-        return wordCount <= 200;
-      }),
-  });
+      const result = response.data.result;
+      
 
-  const formik = useFormik({
-    initialValues: {
-      Leave: '',
-      Balance: '0',
-      radiovalue:"",
-      ApplyingDueToAnyEmergency: '',
-      StationLeave: '',
-      LeaveStartDate: null,
-      LeavestartTime: "",
-      LeaveEndDate: null,
-      LeaveEndTime: '',
-      Prefix: '',
-      Suffix: '',
-      ReportingDesignation: '',
-      Description: '',
-      LeaveVirtualPath: '',
-      LeaveFile: '',
-      LeaveFileName: '',
-      isHalfday: false
+    })
+}
+  const columns = [
+    {
+      field: "id",
+      headerClassName: "super-app-theme--header",
+      headerName: "S No.",
+      width: 60,
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      hide: true
     },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      console.log(values)
-      // handleRedirect();
+    {
+      width: 250,
+      headerName: "Qualification Type",
+      field: "qualificationId",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          getValueFromList(qualificationList, params.row.qualificationId).label
+        )
+      }
     },
-  });
-
-  const AbsenceBalance = (formik.values.Balance);
-  const checkValid = () => {
+    {
+      width: 200,
+      headerName: "Board/University",
+      field: "boardOrUniversity",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    // {
+    //   width: 200,
+    //   headerName: "courseType",
+    //   field: "CourseType",
+    //   headerClassName: "super-app-theme--header",
+    //   sortable: false,
+    //   filterable: false,
+    //   disableColumnMenu: true,
+    // },
+    {
+      width: 200,
+      headerName: "Institute Name",
+      field: "instituteName",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    {
+      width: 200,
+      headerName: "Course",
+      field: "course",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    
+    {
+      field: "marksCgpaId",
+      headerName: "Marks/Cgpa",
+      width: 140,
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          getValueFromList(marksCgpaList, params.row.marksCgpaId).label
+        )
+      }
+    },
+    {
+      field: "marksSecured",
+      headerName: "Marks Obtained",
+      width: 140,
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    {
+      field: "totalMarks",
+      headerName: "Total Marks",
+      width: 140,
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    {
+      width: 200,
+      headerName: "CGPA",
+      field: "cgpa",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    {
+      width: 200,
+      headerName: "Admission Date",
+      field: "admissionDate",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          dayjs(params.row.admissionDate).format("DD-MM-YYYY")
+        )
+      }
+    },
+    {
+      width: 200,
+      headerName: "Completion Date",
+      field: "completionDate",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          dayjs(params.row.completionDate).format("DD-MM-YYYY")
+        )
+      }
+    },
+    {
+      field: "actiondelete",
+      headerName: "Action",
+      width: 140,
+      headerClassName: "super-app-theme--header",
+      renderCell: (params) => {
+        return (
+          <Button
+            variant="outlined"
+            color="error"
+            sx={{ mb: 1 }}
+            // value={params.value}
+            onClick={() => handleDeleteRow(params.row.id)}
+          >
+            Delete
+          </Button>
+        );
+      },
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+  ];
+  const addRow = () => {
     formik
       .validateForm()
       .then((formErrors) => {
         if (Object.keys(formErrors).length > 0) {
-
           console.log(Object.keys(formErrors))
           //alert(Object.keys(formErrors))
-          // alert("Please fill all the required * fields");
-          setToastMessage("Please fill all the required * fields");
+          setToastMessage("Please fill all the required * fields")
           setToastSeverity("error");
           setOpenToast(true);
-        } else {
-          handleRedirect();
-          setDisabledbutton(false);
+        }
+        else {
+          const newRow = {
+            id: rows.length + 1,
+            qualificationId: formik.values.QualifiactionTypes,
+            instituteName: formik.values.institute,
+            boardOrUniversity: formik.values.Board,
+            course: formik.values.course,
+            marksCgpaId: formik.values.marksCgpa,
+            marksSecured: formik.values.marks,
+            totalMarks: formik.values.totalMarks,
+            cgpa: formik.values.gpa,
+            admissionDate: formik.values.admissionDate,
+            completionDate: formik.values.completionDate,
+            //filePath: null,
+            actiondelete: ''
+          };
+          let temp = [...rows]
+          temp.push(newRow)
+          setRows(temp);
+          formik.resetForm()
         }
       })
       .catch((err) => {
-        // formik.setSubmitting(false);
+        formik.setSubmitting(false);
       });
   };
-
-
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
-
-  // const numberofDays = getNumberOfDays(formik.values.LeaveStartDate, formik.values.LeaveEndDate, formik.values.LeavestartTime, formik.values.LeaveEndTime);
-
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpenToast(false);
-  };
-  const fetchDropdownData = async () => {
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8052/leavemanagement/initiate-application",
-        {
-          userId: user.data.userdetails.user.userId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-      );
-      // Handle the response data as needed
-      console.log(response.data.result);
-      if (response.data.statusCode === 200) {
-        setStationList(response.data.result.station);
-        setEmergencyList(response.data.result.emergency);
-        setEndTimeList(response.data.result.leaveToTime);
-        setStartTimeList(response.data.result.leaveFromTime);
-        setLeaveBalalnce(response.data.result.leaveBalance);
-
-
-      }
-
-    } catch (error) {
-      // Handle errors
-      setStationList([]);
-      setEmergencyList([]);
-      setEndTimeList([]);
-      setStartTimeList([]);
-      setLeaveBalalnce([]);
-      console.error("Error fetching user details:", error);
+  console.log(rows);
+  const handleFileUpload = (response, type) => {
+    if (type === "upload") {
+      formik.setFieldValue("filePath", { ...formik.values.docs, ...response });
+    } else if (type === "delete") {
+      formik.setFieldValue("filePath", response);
     }
   };
-
-  const fetchData = async () => {
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8052/leavemanagement/get-user-details",
-        {
-          userId: user.data.userdetails.user.userId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-      );
-      // Handle the response data as needed
-      console.log(response.data.result[0].employeeType);
-      if (response.data.statusCode === 200) {
-        setMangeName(response.data.result[0].managerName);
-        setEmployeeType(response.data.result[0].employeeType);
-
-      }
-
-    } catch (error) {
-      // Handle errors
-      console.error("Error fetching user details:", error);
-    }
+  const handleDeleteRow = (index) => {
+    const updatedRows = rows.filter((row) => row.id !== index);
+    const updatedRowsWithId = updatedRows.map((row, index) => ({
+      ...row,
+      id: index + 1,
+    }));
+    setRows(updatedRowsWithId);
   };
-
-  const halfstartTimeData = async () => {
-    try {
-      const formatStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
-      const response = await axios.post(
-        "http://141.148.194.18:8095/leavemanagement/half-time-cal",
-        {
-          userId:user.data.userdetails.user.userId,
-          startTime:formatStartDate,
-          typeId: 1
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-      );
-           console.log(response);
-      if (response.data.statusCode === 200) {
-        setStartTimecheck(response.data.result);
-
-      }
-
-    } catch (error) {
-      // Handle errors
-      console.error("Error fetching user details:", error);
-    }
-  };
-
-  useEffect(() => {
-    halfstartTimeData();
-  }, [formik.values.LeaveStartDate])
-
-  useEffect(() => {
-
-    fetchData();
-    fetchDropdownData();
-
-  }, [])
-
-  useEffect(() => {
-
-    if (formik.values.LeaveStartDate && formik.values.LeaveEndDate && formik.values.LeaveEndTime && formik.values.LeavestartTime) {
-      sendpreffixAndsuffix();
-    }
-
-
-  }, [formik.values.LeaveStartDate, formik.values.LeaveEndDate, formik.values.LeaveEndTime, formik.values.LeavestartTime])
-
-
-
-  const saveLeaveDetails = async (data) => {
-
-    try {
-      const formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
-      const formattedEndDate = dayjs(formik.values.LeaveEndDate).format("YYYY-MM-DD");
-      // const formattedPreffix = dayjs(formik.values.preffix).format("YYYY-MM-DD");
-      // const formattedSuffix = dayjs(formik.values.suffix).format("YYYY-MM-DD");
-
-
-      const body = {
-        userId: user.data.userdetails.user.userId,
-        leaveTypeId: formik.values.Leave,
-        rqstFrom: formattedStartDate,
-        rqstTimeFrom: formik.values.LeavestartTime,
-        rqstTo: formattedEndDate,
-        rqstTimeTo: formik.values.LeaveEndTime,
-        preffix: formik.values.preffix === "NA" ? null : formik.values.preffix,
-        suffix: formik.values.suffix === "NA" ? null : formik.values.suffix,
-        isEmergencyLeave: formik.values.ApplyingDueToAnyEmergency,
-        isStationLeave: formik.values.StationLeave,
-        reason: formik.values.Description,
-        filePath: formik.values.LeaveVirtualPath,
-        // rqstStatus: 67,
-      };
-
-      console.log("the saved details  body", body);
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/new-leave-submit`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-
-      );
-      console.log("the saved details  areeeeee", res);
-      if (res.data.statusCode == 200) {
-        console.log("the result ", res.data.result);
-        callConfirmDialogMessage(res.data.message);
-        // setToastMessage(res.data.message)
-        // setToastSeverity("success");
-        // setOpenToast(true);
-        // setTimeout(() => {
-        //   navigate('/addAbsence')
-        // }, 1500);
-
-        //showSnackbar("Saved Successfully", 'success');
-        //navigate('/viewleave')
-        // alert(res.data.message);
-        // navigate('/Submitted')
-        // navigate('/BasicEmploymentFormPreview')
-      }
-    } catch (error) {
-      alert("Data has not saved", error);
-      console.log(error.message);
-    }
-  };
-
-
-
-  const sendpreffixAndsuffix = async (data) => {
-
-    try {
-      const formattedStartDate = dayjs(formik.values.LeaveStartDate).format("YYYY-MM-DD");
-      const formattedEndDate = dayjs(formik.values.LeaveEndDate).format("YYYY-MM-DD");
-
-      console.log(formattedStartDate)
-
-      const body = {
-        userId: user.data.userdetails.user.userId,
-        rqstFrom: formattedStartDate,
-        rqstTimeFrom: formik.values.LeavestartTime,
-        rqstTo: formattedEndDate,
-        rqstTimeTo: formik.values.LeaveEndTime,
-
-
-      };
-
-      console.log("send preffix Andsuffix", body);
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/cal-prefix-suffix`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-
-      );
-      console.log("send preffix Andsuffix", res);
-      if (res.data.statusCode == 200) {
-        console.log("the result ", res.data.result);
-
-        formik.setFieldValue("suffix", res.data.result.suffix);
-        formik.setFieldValue("preffix", res.data.result.preffix);
-        formik.setFieldValue("ApplyingDueToAnyEmergency", res.data.result.isEmergencyLeave);
-        setAvailableDuration(res.data.result.totalDaysCount);
-
-
-
-        // setSuffix(res.data.result.suffix);
-        // setPriffix(res.data.result.preffix);
-        //setOpenToast(true);
-        showSnackbar("Preffix and suffix Calculated Successfully", 'success');
-
-      }
-    } catch (error) {
-      //alert("No data found", error);
-      console.log(error.message);
-    }
-  };
-
-
-
-  const uploadFile = async () => {
-    var bodyFormData = new FormData();
-    console.log(selectedFile)
-    bodyFormData.append("file", selectedFile);
-
-    try {
-      const res = await axios.post(
-        `http://141.148.194.18:8052/leavemanagement/uploadAttachment`,
-        bodyFormData,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
-        }
-      );
-
-      if (res.data.statusCode === 200) {
-        formik.setFieldValue("LeaveFile", selectedFile);
-        formik.setFieldValue("LeaveFileName", selectedFile.name);
-        formik.setFieldValue("LeaveVirtualPath", res.data.result[0].virtualPath);
-        console.log(res.data)
-        setToastMessage(res.data.message)
-        setToastSeverity("success");
-        setOpenToast(true);
-      } else {
-        console.log('bad request');
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  console.log('kp-UploadedFile Type', formik.values.LeaveFile);
-  useEffect(() => {
-    if (formik.values.LeaveFile.type === "application/pdf") {
-      setAllowedFile('application/pdf');
-    }
-    else if (formik.values.LeaveFile.type === "image/jpeg") {
-      setAllowedFile('image/jpeg');
-    }
-    else if (formik.values.LeaveFile.type === "image/png") {
-      setAllowedFile('image/png')
-    }
-    else {
-      setAllowedFile('');
-    }
-  }, [formik.values.LeaveFile])
-  const showFile = (attachment) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const data = event.target.result;
-      const blob = new Blob([data], { type: allowedFile });
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank')
-    }
-    reader.readAsArrayBuffer(attachment);
-  }
-  const handleViewDocument = () => {
-
-    if (formik.values.LeaveFile) {
-      console.log(formik.values.LeaveFile);
-      showFile(formik.values.LeaveFile)
-    }
-  }
-
-  const filterEndTimeValues = (startTimeId) => {
-    if (startTimeId === 155 && formik.values.LeaveStartDate === formik.values.LeaveEndDate) {
-      // If starttimeId is 2, filter out the value with id 2 from time2
-      return endTimeList.filter((value) => value.typeId !== 156);
-    }
-    return endTimeList; // Otherwise, return the original time2 array
-  };
-
-  // function getNumberOfDays(start, end, startTimeId, endTimeId) {
-  //   if (!start || !end) {
-  //     return 0;
-  //   }
-
-  //   const date1 = new Date(start);
-  //   const date2 = new Date(end);
-  //   const oneDay = 1000 * 60 * 60 * 24;
-
-  //   const diffInTime = date2.getTime() - date1.getTime();
-  //   let diffInDays = Math.round(diffInTime / oneDay);
-
-
-  //   if (startTimeId === 154 && endTimeId === 156) {
-  //     diffInDays -= 0.5;
-  //   }
-  //   if (startTimeId === 155 && endTimeId === 156) {
-  //     diffInDays -= 1;
-  //   }
-  //   if (startTimeId === 155 && !endTimeId || startTimeId === 155 && endTimeId === 157) {
-  //     diffInDays -= 0.5;
-  //   }
-
-
-  //   return diffInDays + 1;
-  // }
-
-  // console.log(numberofDays)
-
-  const title = "Leave Application Form";
-  useTitle(title);
-
-  const navigate = useNavigate();
-
-  const handleRedirect = () => {
-    callConfirmDialog();
-  }
-
-  const { showSnackbar } = useSnackbar();
-
-  const callConfirmDialogMessage = async (strMessage) => {
-    AlertConfirm.config({
-      okText: "Ok",
-    });
-    const [action] = await AlertConfirm.alert(<span><b>{strMessage}</b></span>);
-    action && navigate("/addAbsence");
-  };
-
   const callConfirmDialog = async () => {
     console.log('kp-confirm');
     const [action] = await AlertConfirm({
@@ -638,582 +350,435 @@ const Leave = () => {
     });
     if (action) {
       console.log('kp-saved');
-
-      saveLeaveDetails();
+      SaveQualificationDetails();
     }
-
   };
-
-
+  const SaveQualificationDetails = async () => {
+    try {
+      let arr = [];
+      let obj = {}
+      rows.map((it) => {
+        obj = {
+          "qualificationId": it.qualificationId,
+          "instituteName": it.instituteName,
+          "boardOrUniversity": it.boardOrUniversity,
+          "course": it.course,
+          "marksCgpaId": it.marksCgpaId,
+          "marksSecured": it.marksSecured,
+          "totalMarks": it.totalMarks,
+          "cgpa": it.cgpa,
+          "admissionDate": it.admissionDate,
+          "completionDate": it.completionDate,
+          "filePath": null
+        }
+        arr.push(obj)
+      })
+      let body = {
+        // "refNo": "BRD0000000000027",
+        "refNo": localStorage.getItem("refNo"),
+        "educationalDetailsList": arr
+      }
+      const res = await axios.post(
+        `${process.env.REACT_APP_PAYROLL_API_URL}/employee/educational-details`,
+        body,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`
+          }
+        }
+      );
+      console.log("the saved details  areeeeee", res);
+      if (res.data.statusCode === 200) {
+        showSnackbar(res.data.message, "success");
+        setShowNext(true)
+        onButtonClick("pagethree");
+      }
+    }
+    catch (error) {
+      console.log(error.message);
+    }
+  }
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenToast(false);
+  };
   return (
-    <>
+    <Card>
+      <CardContent>
+        <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
+          <SchoolIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
+          <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Qualification Details</H3>
+        </div>
+        <Divider />
+        {view !== true && (
+          <Grid
+            container
+            direction="row"
+            rowSpacing={0}
+            columnSpacing={2}
+            justify="flex-end"
+            alignItems="center"
+            sx={{ mb: 1 }}
+          >
+            <Grid item xs={12} sm={6} md={4} lg={4}>
+              <Autocomplete
+                disablePortal
+                margin="normal"
+                size="small"
+                id="QualifiactionTypes"
+                name="QualifiactionTypes"
+                options={qualificationList}
+                value={qualificationList.find(
+                  (option) => option.id === formik.values.QualifiactionTypes
+                ) || null}
+                onChange={(e, value) => {
+                  if (value === null) {
+                    formik.setFieldValue("QualifiactionTypes", null)
+                  }
+                  else
+                    formik.setFieldValue("QualifiactionTypes", value.id)
+                }}
+                getOptionLabel={(value) => value.label}
+                sx={{ width: "100%" }}
+                renderInput={(params) => (
+                  <TextField {...params}
+                    label="Qualification Type"
+                    required
+                    onBlur={formik.handleBlur}
+                    helperText={formik.errors.QualifiactionTypes ? formik.errors.QualifiactionTypes : null}
+                    error={formik.errors.QualifiactionTypes ? true : false}
+                  />
+                )}
+              />
+            </Grid>
 
-      <Box>
-        <form onSubmit={formik.handleSubmit}>
-          <div>
-            <Snackbar
-              open={openToast}
-              autoHideDuration={6000}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={handleClose}
-              TransitionComponent={TransitionLeft}
-            >
-              <Alert onClose={handleClose} severity={toastSeverity}
-                sx={{
-                  width: '100%',
-                  padding: { sm: '15px', xs: '10px' },
-                  borderRadius: '15px',
-                  fontSize: { sm: '16px', xs: '14px' },
-                  boxShadow: "0 0 10px #999",
-                  marginTop: { sm: '25px', xs: '20px' }
-                }}>
-                {toastMessage}
-              </Alert>
-            </Snackbar>
-          </div>
-          <Card>
-            <CardContent>
-              <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
-                <CalendarMonthIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-                <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Apply Leave</H3>
-              </div>
-              <Grid item xs={12} sm={4} md={6} lg={6} >
-                <Autocomplete
-                  margin="0"
-                  id="Leave"
-                  name="Leave"
-                  options={leaveBalance}
-                  sx={{ width: "100%" }}
+            <Grid item xs={12} sm={6} md={4} lg={4}>
+              <TextField
+                label="Board/University"
+                required
+                fullWidth
+                name="Board"
+                id="Board"
+                size="small"
+                value={formik.values.Board}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                helperText={formik.errors.Board ? formik.errors.Board : null}
+                error={formik.errors.Board ? true : false}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={4}>
+              <TextField
+                label="Institute Name"
+                required
+                name="institute"
+                id="institute"
+                fullWidth
+                size="small"
+                value={formik.values.institute}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                helperText={formik.errors.institute ? formik.errors.institute : null}
+                error={formik.errors.institute ? true : false}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={4}>
+              <TextField
+                label="Course"
+                required
+                name="course"
+                id="course"
+                fullWidth
+                size="small"
+                value={formik.values.course}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                helperText={formik.errors.course ? formik.errors.course : null}
+                error={formik.errors.course ? true : false}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={4} lg={4}>
+              <Autocomplete
+                disablePortal
+                margin="normal"
+                size="small"
+                id="marksCgpa"
+                name="marksCgpa"
+                options={marksCgpaList}
+                value={marksCgpaList.find(
+                  (option) => option.id === formik.values.marksCgpa
+                ) || null}
+                onChange={(e, value) => {
+                  if (value === null) {
+                    formik.setFieldValue("marksCgpa", null)
+                  }
+                  else
+                    formik.setFieldValue("marksCgpa", value.id)
+                }}
+                getOptionLabel={(value) => value.label}
+                sx={{ width: "100%" }}
+                renderInput={(params) => (
+                  <TextField {...params}
+                    label="Marks/Cgpa"
+                    required
+                    onBlur={formik.handleBlur}
+                    helperText={formik.errors.marksCgpa ? formik.errors.marksCgpa : null}
+                    error={formik.errors.marksCgpa ? true : false}
+                  />
+                )}
+              />
+            </Grid>
+            {formik.values.marksCgpa === 269 && (
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  label="Marks Obtained"
                   required
                   fullWidth
-                  value={leaveBalance.find(
-                    (option) => option.typeId === formik.values.Leave
-                  ) || null}
-                  onChange={(e, value) => {
-                    if (value === null) {
-                      formik.setFieldValue("Leave", null)
-                      formik.setFieldValue("Balance", value.null)
-                    }
-                    else
-
-                      formik.setFieldValue("Leave", value.typeId);
-                    formik.setFieldValue("Balance", value.balance);
-                    console.log(formik.values.Balance)
-
-                  }}
-                  getOptionLabel={(value) => value.typeName}
-                  renderInput={(params) =>
-                    <TextField
-                      {...params}
-                      label="Leave Type"
-                      required
-                      size="small"
-                      onBlur={formik.handleBlur}
-                      helperText={formik.errors.Leave && formik.touched.Leave ? formik.errors.Leave : null}
-                      error={formik.errors.Leave && formik.touched.Leave ? true : false}
-
-                    />
-                  }
+                  size="small"
+                  name="marks"
+                  id='marks'
+                  value={formik.values.marks}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  helperText={formik.errors.marks ? formik.errors.marks : null}
+                  error={formik.errors.marks ? true : false}
                 />
-
               </Grid>
+            )}
+            {formik.values.marksCgpa === 269 && (
               <Grid item xs={12} sm={4} md={4} lg={4}>
-                <hr
-                  style={{
-                    background: "#000000",
-                    height: "1px",
-                    border: "none",
-                  }}
-                />
-                <Stack direction="row" spacing={1} sx={{ float: 'right' }}>
-                  <IconButton color="secondary" aria-label="add an alarm">
-                    <WorkHistoryIcon />
-                    <Typography sx={{ float: 'right', ml: 1 }}> Available Leave {AbsenceBalance} DAYS.</Typography>
-                  </IconButton>
-                </Stack>
-
-
-              </Grid>
-            </CardContent>
-          </Card>
-
-          <Box sx={{ flexGrow: 1 }}>
-            <Stack sx={{ width: '100%' }} spacing={0}>
-              {employeeType === 106 ? (
-                availableDuration > AbsenceBalance && (
-                  setDisabledbutton(false),
-                  <Alert severity="warning">Sorry, you cannot apply for {availableDuration} days of leave because it exceeds your available leave balance. Your current balance is {AbsenceBalance} days. Please adjust your leave request. You are short of {availableDuration - AbsenceBalance} days</Alert>
-                )
-              ) : (
-                (employeeType === 104 || employeeType === 105) && (
-                  availableDuration > AbsenceBalance && (
-                    <Alert severity="warning">You have only {AbsenceBalance} Days leave. A loss of Pay for {availableDuration - AbsenceBalance} days will be deducted from your Salary Balance</Alert>
-                  )
-                ))}
-
-              { }
-            </Stack>
-          </Box>
-          <Card>
-            <CardContent>
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // justifyContent="center"
-              // sx={{}}
-              >
-                <Grid item xs={12} sm={6} md={4} lg={4}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                    <DatePicker
-                      id="LeaveStartDate"
-                      name="LeaveStartDate"
-                      // minDate={today}
-                      format="DD/MM/YYYY"
-                      label="Leave Start Date"
-                      slotProps={{ textField: { size: 'small' } }}
-                      sx={{ width: "100%" }}
-                      // inputFormat="DD/MM/YYYY"
-                      value={formik.values.LeaveStartDate}
-                      onChange={(date) => {
-                        const formattedDate = dayjs(date).format("MM-DD-YYYY");
-                        formik.setFieldValue("LeaveStartDate", formattedDate);
-                        setSelectedLeaveStartDate(date);
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          size="small"
-                          fullWidth
-                          margin="0"
-                          required
-                          {...params}
-                          error={formik.touched.LeaveStartDate && Boolean(formik.errors.LeaveStartDate)}
-                          helperText={formik.touched.LeaveStartDate && formik.errors.LeaveStartDate}
-                          onBlur={formik.handleBlur}
-
-                        />
-                      )}
-                    />
-                  </LocalizationProvider>
-                </Grid>
-                {formik.values.isHalfday && (
-                  <Grid item xs={12} sm={6} md={4} lg={4} >
-                    <Autocomplete
-                      margin="0"
-                      id="LeavestartTime"
-                      name="LeavestartTime"
-                      options={startTimeList}
-                      sx={{ width: "100%" }}
-                      fullWidth
-
-                      value={startTimeList.find(
-                        (option) => option.typeId === formik.values.LeavestartTime
-                      ) || null}
-                      onChange={(e, value) => {
-                        if (value === null) {
-                          formik.setFieldValue("LeavestartTime", null)
-                        }
-                        else
-
-                          formik.setFieldValue("LeavestartTime", value.typeId);
-                        formik.setFieldValue("LeaveEndTime", null)
-
-                      }}
-                      getOptionLabel={(value) => value.typeName}
-                      renderInput={(params) =>
-                        <TextField
-                          {...params}
-                          label="Time"
-                          size="small"
-                          required
-                          onBlur={formik.handleBlur}
-                          helperText={formik.errors.LeavestartTime && formik.touched.LeavestartTime ? formik.errors.LeavestartTime : null}
-                          error={formik.errors.LeavestartTime && formik.touched.LeavestartTime ? true : false}
-
-                        />}
-                    />
-                  </Grid>
-
-                )}
-
-
-
-              </Grid>
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // justifyContent="center"
-              // sx={{}}
-              >
-                <Grid item xs={12} sm={6} md={4} lg={4}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
-                    <DatePicker
-                      margin="0"
-                      id="LeaveEndDate"
-                      name="LeaveEndDate"
-                      // minDate={today}
-                      slotProps={{ textField: { size: 'small' } }}
-                      shouldDisableDate={(date) =>
-                        selectedLeaveStartDate ? date < selectedLeaveStartDate : false
-                      }
-                      label="Leave End Date"
-                      sx={{ width: "100%" }}
-                      format="DD/MM/YYYY"
-                      value={formik.values.LeaveEndDate}
-                      onChange={(date) => {
-                        const formattedDate = dayjs(date).format("MM-DD-YYYY");
-                        formik.setFieldValue("LeaveEndDate", formattedDate);
-                      }}
-                      renderInput={(params) => (
-                        <TextField margin="0"
-                          required
-                          {...params} />
-                      )}
-                    />
-                  </LocalizationProvider>
-                </Grid>
-                {formik.values.isHalfday && (
-
-                  <Grid item xs={12} sm={6} md={4} lg={4} >
-                    <Autocomplete
-                      margin="0"
-                      id="LeaveEndTime"
-                      name="LeaveEndTime"
-                      options={filterEndTimeValues(formik.values.LeavestartTime)} // Use the filtered values
-                      sx={{ width: "100%" }}
-                      fullWidth
-
-                      value={endTimeList.find(
-                        (option) => option.typeId === formik.values.LeaveEndTime
-                      ) || null}
-                      onChange={(e, value) => {
-                        if (value === null) {
-                          formik.setFieldValue("LeaveEndTime", null)
-                        }
-                        else
-                          formik.setFieldValue("LeaveEndTime", value.typeId)
-                      }}
-                      getOptionLabel={(value) => value.typeName}
-                      renderInput={(params) =>
-                        <TextField
-                          {...params}
-                          label="Time"
-                          size="small"
-                          required
-                          onBlur={formik.handleBlur}
-                          helperText={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? formik.errors.LeaveEndTime : null}
-                          error={formik.errors.LeaveEndTime && formik.touched.LeaveEndTime ? true : false}
-                        />}
-                    />
-                  </Grid>
-
-                )}
-
-                {startTimecheck.map((detail, index) => (
-                  <RadioGroup
-        aria-labelledby="demo-controlled-radio-buttons-group"
-        id="radiovalue"
-        name="radiovalue"
-        value={formik.values.radiovalue}
-        onChange={formik.handleChange}
-      >
-                  <FormControl  key={index}>
-                    <FormControlLabel
-
-                      value="start"
-                     
-                      control={<Radio />}
-                      label={detail.showTime}
-                      labelPlacement="start"
-                    />
-                  </FormControl>
-                  </RadioGroup>
-                ))}
-
-
-              </Grid>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      name="isHalfday"
-                      checked={formik.values.isHalfday}
-                      onChange={formik.handleChange}
-                    />
-                  }
-                  label="Is halfday?"
-                />
-              </FormGroup>
-
-
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // justifyContent="center"
-              // sx={{}}
-              >
-                <Grid item xs={12} sm={12} md={12} lg={12} >
-                  <Stack direction="row" spacing={1} sx={{ float: 'right' }}>
-                    <IconButton color="secondary" aria-label="add an alarm">
-                      <DateRangeIcon />
-                      <Typography sx={{ float: 'right', ml: 1 }}> Absence Duration {availableDuration} DAYS.</Typography>
-                    </IconButton>
-
-                  </Stack>
-                </Grid>
-
-              </Grid>
-
-              <Grid item xs={12} sm={12} md={12} lg={12}>
-                <hr
-                  style={{
-
-                    background: "#000000",
-                    height: "1px",
-                    border: "none",
-                  }}
+                <TextField
+                  label="Total Marks"
+                  required
+                  fullWidth
+                  size="small"
+                  name="totalMarks"
+                  id='totalMarks'
+                  value={formik.values.totalMarks}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  helperText={formik.errors.totalMarks ? formik.errors.totalMarks : null}
+                  error={formik.errors.totalMarks ? true : false}
                 />
               </Grid>
-
-
-              <div style={{ color: "red", marginBottom: "15px", fontSize: "12px" }}>
-                <p>
-                  <b>Note:</b> Please check your leave preffix and suffix dates according to your selected leave Date.
-                </p>
-              </div>
-
-
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-                sx={{ mt: 1 }}
-
-              >
-
-                <Grid item xs={12} sm={6} md={4} lg={4}>
-                  <TextField
-                    margin="0"
-                    fullWidth
-                    id="Prefix"
-                    label="Prefix"
-                    name="Prefix"
-                    disabled
-                    size="small"
-                    value={formik.values.preffix || ""}
-                    InputLabelProps={{ shrink: true }}
-
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4} lg={4}>
-
-                  <TextField
-                    margin="0"
-                    fullWidth
-                    id="Suffix"
-                    label="Suffix"
-                    name="Suffix"
-                    disabled
-                    size="small"
-                    value={formik.values.suffix || ""}
-                    InputLabelProps={{ shrink: true }}
-
-                  />
-
-                </Grid>
-                {/* <Grid item xs={12} sm={6} md={4} lg={4}>
-
-                  <Button variant="outlined" color="primary" sx={{ borderRadius: '4px', mb: 2 }}
-                    // onClick={() => {
-                    //   sendpreffixAndsuffix();
-                    // }}
-                  >
-                    Calculate preffix & Suffix</Button>
-
-                </Grid> */}
-
+            )}
+            {formik.values.marksCgpa === 270 && (
+              <Grid item xs={12} sm={4} md={4} lg={4}>
+                <TextField
+                  label="CGPA"
+                  name="gpa"
+                  id='gpa'
+                  required
+                  fullWidth
+                  size="small"
+                  value={formik.values.gpa}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  helperText={formik.errors.gpa ? formik.errors.gpa : null}
+                  error={formik.errors.gpa ? true : false}
+                />
               </Grid>
-
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-              // sx={{ mt: 1 }}
-              >
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-
-                  <TextField
-                    margin="0"
-                    fullWidth
-                    id="ApplyingDueToAnyEmergency"
-                    label="Applying Due To Any Emergency"
-                    name="ApplyingDueToAnyEmergency"
-                    InputLabelProps={{ shrink: true }}
-                    //   autoComplete="email"
-                    InputProps={{
-                      readOnly: true
-                    }}
-                    value={formik.values.ApplyingDueToAnyEmergency ? "YES" : (formik.values.ApplyingDueToAnyEmergency === false ? "NO" : "")}
-                    disabled
-
+            )}
+            
+            <Grid item xs={12} sm={4} md={4} lg={4}>
+              <>
+                <LocalizationProvider
+                  dateAdapter={AdapterDayjs}
+                  adapterLocale={"en-gb"}
+                >
+                  <DatePicker
+                    label="Admission Date"
+                    format="DD-MM-YYYY"
+                    maxDate={tomorrow}
+                    slotProps={{ textField: { size: "small" } }}
+                    sx={{ width: "100%", mt: 2 }}
+                    id="admissionDate"
+                    name="admissionDate"
                     size="small"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <Autocomplete
-                    margin="0"
-                    id="StationLeave"
-                    name="StationLeave"
-                    options={stationlist}
-                    sx={{ width: "100%" }}
-                    fullWidth
-                    value={stationlist.find(
-                      (option) => option.typeValue === formik.values.StationLeave
-                    ) || null}
-                    onChange={(e, value) => {
-                      if (value === null) {
-                        formik.setFieldValue("StationLeave", null)
-                      }
-                      else
-
-                        formik.setFieldValue("StationLeave", value.typeValue)
-                    }}
-                    getOptionLabel={(value) => value.typeName}
+                    value={formik.values.admissionDate}
+                    onChange={(value) => { if (value === null) { formik.setFieldValue("admissionDate", "") } else { formik.setFieldValue("admissionDate", dayjs(value).format('YYYY-MM-DD')) } }}
                     renderInput={(params) => (
-                      <TextField {...params}
-                        margin="0"
-                        label="Station Leave"
-                        required
+                      <TextField
                         size="small"
+                        fullWidth
+                        margin="normal"
+                        name="admissionDate"
+                        required
+                        {...params}
+                        // error={formik.touched.admissionDate && Boolean(formik.errors.admissionDate)}
+                        // helperText={formik.touched.admissionDate && formik.errors.admissionDate}
+                        onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        helperText={formik.errors.StationLeave && formik.touched.StationLeave ? formik.errors.StationLeave : null}
-                        error={formik.errors.StationLeave && formik.touched.StationLeave ? true : false}
-
+                        helperText={formik.errors.admissionDate && formik.touched.admissionDate ? formik.errors.admissionDate : null}
+                        error={formik.errors.admissionDate && formik.touched.admissionDate ? true : false}
                       />
                     )}
                   />
-                </Grid>
-                <Grid item xs={12} sm={4} md={4} lg={4}>
-
-                  <TextField
-                    margin="0"
-                    fullWidth
-                    id="ReportingDesignation"
-                    label="Reporting User"
-                    name="ReportingDesignation"
-                    value={mangerName}
-                    disabled
-
-                    size="small"
+                  <p style={{ color: '#d42d2d', fontSize: "10px" }}>
+                    {formik.errors.admissionDate ? formik.errors.admissionDate : null}
+                  </p>
+                </LocalizationProvider>
+              </>
+            </Grid>
+            <Grid item xs={12} sm={4} md={4} lg={4}>
+              <>
+                <LocalizationProvider
+                  dateAdapter={AdapterDayjs}
+                  adapterLocale={"en-gb"}
+                >
+                  <DatePicker
+                    label="Completion Date"
+                    format="DD-MM-YYYY"
+                    maxDate={tomorrow}
+                    id="completionDate"
+                    name="completionDate"
+                    slotProps={{ textField: { size: "small" } }}
+                    sx={{ width: "100%", mt: 2 }}
+                    value={formik.values.completionDate}
+                    onChange={(value) => { if (value === null) { formik.setFieldValue("completionDate", "") } else { formik.setFieldValue("completionDate", dayjs(value).format('YYYY-MM-DD')) } }}
+                    renderInput={(params) => (
+                      <TextField
+                        size="small"
+                        fullWidth
+                        margin="normal"
+                        name="completionDate"
+                        required
+                        {...params}
+                        error={formik.touched.completionDate && Boolean(formik.errors.completionDate)}
+                        helperText={formik.touched.completionDate && formik.errors.completionDate}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      />
+                    )}
                   />
-
-                </Grid>
-              </Grid>
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="center"
-
-              >
-                <Grid item xs={12} sm={4} md={4} lg={8}>
-                  <TextField
-                    margin="0"
-                    required
-                    fullWidth
-                    multiline
-                    rows={4}
-                    id="Description"
-                    label="Reason/Description"
-                    name="Description"
-                    value={formik.values.Description || ""}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.Description &&
-                      Boolean(formik.errors.Description)
-                    }
-                    helperText={
-                      formik.touched.Description &&
-                      formik.errors.Description
-                    }
-
-                  />
-
-                </Grid>
-
-
-                <Grid item xs={12} sm={6} md={6} lg={6} sx={{ mb: '15px' }}>
-
-                  <Button
-                    sx={{ borderRadius: '4px' }}
-                    component="label"
-                    variant="contained"
-                    tabIndex={-1}
-                    startIcon={<CloudUploadIcon />}
-                    onClick={handleButtonClick}
-                  >
-                    Upload Document
-                    {/* <VisuallyHiddenInput type="file" /> */}
-                  </Button>
-
-                  <VisuallyHiddenInput
-                    ref={fileInputRef}
-                    type="file"
-                    onChange={handleFileChange}
-                  />
-                  <Button variant="outlined" sx={{ borderRadius: '4px', marginLeft: '8px' }} component="label" disabled={!formik.values.LeaveFile ?? true} onClick={handleViewDocument}>
-                    View Document
-                  </Button>
-                  {formik.values.LeaveFile && (
-                    <>
-                      {showLink === true ? (
-
-                        <Typography>Uploaded File: {formik.values.LeaveFileName}</Typography>
-
-                      ) : (
-                        <Typography sx={{ color: 'green', fontSize: '12px' }}>
-                          Uploaded File: {formik.values.LeaveFileName}
-                        </Typography>
-                      )}
-                    </>
-                  )}
-
-                </Grid>
-                {disabledbutton && (
-                  <Grid item xs={12} sm={12} md={12} lg={12} sx={{ width: '100%' }}>
-
-                    <Button type="submit"
-                      // disabled={availableDuration > AbsenceBalance}
-
-                      variant="contained" sx={{ float: 'right', borderRadius: '4px' }}
-
-                      onClick={() => {
-                        // saveLeaveDetails();
-                        checkValid();
-                      }}
-
-                    >
-                      Submit</Button>
-                  </Grid>
-                )}
-
-              </Grid>
-            </CardContent>
-          </Card>
-        </form>
-      </Box>
-
-    </>
-  );
+                  <p style={{ color: '#d42d2d', fontSize: "10px" }}>
+                    {formik.errors.completionDate ? formik.errors.completionDate : null}
+                  </p>
+                </LocalizationProvider>
+              </>
+            </Grid>
+            
+          </Grid>
+        )}
+        {view !== true && (
+          <Box
+            spacing={2}
+            sx={{ mt: 1, textAlign: 'right' }}
+          >
+            <Button
+              sx={{
+                minWidth: 100,
+                ml: 1,
+              }}
+              variant="contained"
+              type="submit"
+              onClick={() => {
+                addRow()
+              }}
+            >
+              <SaveIcon /> &nbsp; ADD
+            </Button>
+            <Button
+              type="button"
+              sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+              onClick={() => {
+                formik.resetForm()
+              }}
+              variant="outlined"
+            >
+              <CachedIcon />&nbsp;RESET
+            </Button>
+          </Box>
+        )}
+        {rows.length > 0 && (
+          <Box component={"div"} >
+            <SearchTable
+              columns={columns}
+              // data={rowss}
+              data={rows}
+              isCheckbox={false}
+              isHideDensity={false}
+              isHideExport={true}
+              isHideFilter={true}
+              isHideColumn={true}
+              isHidePaging={false}
+              name="villageName"
+              id="villageName"
+            />
+          </Box>
+        )}
+        <Box display="flex" justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
+          
+          {view !== true && (
+            <Button
+              sx={{
+                minWidth: 100,
+                ml: 1,
+                mt: { xs: 1, md: 0 },
+              }}
+              variant="contained"
+              type="submit"
+              // disabled={submitDisable}
+              onClick={() => {
+                // SaveQualificationDetails()
+                if (rows.length > 0) {
+                  callConfirmDialog();
+                }
+                else {
+                  showSnackbar("Please add Qualification Details", "error");
+                  return;
+                }
+                // checkValid();
+                // setFormData((prevFormData) => ({
+                //     ...prevFormData,
+                //     pageone: { formik: formik.values }
+                // }));
+              }}
+            >
+              SUBMIT&nbsp;
+              <SaveIcon></SaveIcon>
+            </Button>
+          )}
+          <Button
+            sx={{
+              minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
+            }}
+            variant="outlined"
+            //type="submit"
+            disabled={!showNext}
+            onClick={() => {
+              onButtonClick("pagethree")
+            }
+            }
+          >
+            NEXT &nbsp;
+            <NavigateNextIcon />
+          </Button>
+        </Box>
+        <Snackbar
+          open={openToast}
+          autoHideDuration={6000}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          onClose={handleClose}
+          TransitionComponent={TransitionLeft}
+        >
+          <Alert onClose={handleClose} severity={toastSeverity}
+            sx={{
+              width: '100%',
+              padding: { sm: '15px', xs: '10px' },
+              borderRadius: '15px',
+              fontSize: { sm: '16px', xs: '14px' },
+              boxShadow: "0 0 10px #999",
+              marginTop: { sm: '25px', xs: '20px' }
+            }}>
+            {toastMessage}
+          </Alert>
+        </Snackbar>
+      </CardContent>
+    </Card>
+  )
 }
-
-export default Leave;
+export default QualifiactionDetails
