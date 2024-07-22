@@ -1,3 +1,44 @@
+{
+    "status": true,
+    "message": "Educational Details fetched successfully",
+    "result": [
+        {
+            "eduId": 28,
+            "empId": 66,
+            "qualificationId": {
+                "id": 267,
+                "label": "Graduation"
+            },
+            "instituteName": "KL",
+            "boardOrUniversity": "Deemed",
+            "course": "CSE",
+            "marksCgpaId": {
+                "id": 270,
+                "label": "CGPA"
+            },
+            "marksSecured": null,
+            "totalMarks": null,
+            "cgpa": 9,
+            "admissionDate": "19-07-2019",
+            "completionDate": "17-07-2024",
+            "filePath": null,
+            "fileName": null,
+            "crtBy": {
+                "id": 1,
+                "label": "raj18"
+            },
+            "crtOn": "18-07-2024 05:04 PM",
+            "updBy": null,
+            "updOn": "18-07-2024 05:04 PM"
+        }
+    ],
+    "statusCode": 200
+}
+
+
+
+
+
 import CachedIcon from '@mui/icons-material/Cached';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import SaveIcon from '@mui/icons-material/Save';
