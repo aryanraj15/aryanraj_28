@@ -1,3 +1,400 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  Grid,
+  Snackbar,
+  TextField,
+  Box,
+  Alert,
+  Autocomplete
+} from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import CachedIcon from '@mui/icons-material/Cached';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import SearchTable from './SearchTable';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import TransitionLeft from './TransitionLeft';
+
+function QualificationForm({ onButtonClick, formData, setFormData, showNext, view }) {
+  const [rows, setRows] = useState([]);
+  const [openToast, setOpenToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastSeverity, setToastSeverity] = useState('success');
+
+  useEffect(() => {
+    // Fetch data when component mounts
+    axios.get('http://141.148.194.18:8052/payroll/employee/educational-details', {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("token")}`
+      }
+    })
+    .then(response => {
+      if (response.data.status && response.data.result) {
+        setRows(response.data.result.map(item => ({
+          id: item.eduId,
+          qualificationId: item.qualificationId.id,
+          qualificationLabel: item.qualificationId.label,
+          boardOrUniversity: item.boardOrUniversity,
+          instituteName: item.instituteName,
+          course: item.course,
+          marksCgpaId: item.marksCgpaId.id,
+          marksCgpaLabel: item.marksCgpaId.label,
+          marksSecured: item.marksSecured,
+          totalMarks: item.totalMarks,
+          cgpa: item.cgpa,
+          admissionDate: dayjs(item.admissionDate, 'DD-MM-YYYY'),
+          completionDate: dayjs(item.completionDate, 'DD-MM-YYYY')
+        })));
+      }
+    })
+    .catch(error => {
+      setToastMessage("Failed to fetch data. Please try again.");
+      setToastSeverity("error");
+      setOpenToast(true);
+    });
+  }, []);
+
+  const formik = useFormik({
+    initialValues: {
+      QualifiactionTypes: '',
+      degree: '',
+      institute: '',
+      course: '',
+      Board: '',
+      marksCgpa: '',
+      marks: '',
+      totalMarks: '',
+      gpa: '',
+      admissionDate: null,
+      completionDate: null,
+    },
+    validationSchema: Yup.object({
+      QualifiactionTypes: Yup.string().required('Required'),
+      degree: Yup.string().required('Required'),
+      institute: Yup.string().required('Required'),
+      course: Yup.string().required('Required'),
+      Board: Yup.string().required('Required'),
+      marksCgpa: Yup.string().required('Required'),
+      marks: Yup.number().when('marksCgpa', {
+        is: (val) => val && val.id === 269,
+        then: Yup.number().required('Required')
+      }),
+      totalMarks: Yup.number().when('marksCgpa', {
+        is: (val) => val && val.id === 269,
+        then: Yup.number().required('Required')
+      }),
+      gpa: Yup.number().when('marksCgpa', {
+        is: (val) => val && val.id === 270,
+        then: Yup.number().required('Required')
+      }),
+      admissionDate: Yup.date().nullable().required('Required'),
+      completionDate: Yup.date().nullable().required('Required'),
+    }),
+    onSubmit: (values) => {
+      const newRow = {
+        id: rows.length + 1,
+        qualificationId: values.QualifiactionTypes.id,
+        qualificationLabel: values.QualifiactionTypes.label,
+        boardOrUniversity: values.Board,
+        instituteName: values.institute,
+        course: values.course,
+        marksCgpaId: values.marksCgpa.id,
+        marksCgpaLabel: values.marksCgpa.label,
+        marksSecured: values.marks,
+        totalMarks: values.totalMarks,
+        cgpa: values.gpa,
+        admissionDate: values.admissionDate,
+        completionDate: values.completionDate,
+      };
+      setRows([...rows, newRow]);
+      formik.resetForm();
+    },
+  });
+
+  const handleDeleteRow = (rowId) => {
+    setRows(rows.filter(row => row.id !== rowId));
+  };
+
+  const handleSave = () => {
+    const payload = {
+      empRefNo: formData.empRefNo,
+      qualificationDetails: rows.map(row => ({
+        qualificationId: row.qualificationId,
+        boardOrUniversity: row.boardOrUniversity,
+        instituteName: row.instituteName,
+        course: row.course,
+        marksCgpaId: row.marksCgpaId,
+        marksSecured: row.marksSecured,
+        totalMarks: row.totalMarks,
+        cgpa: row.cgpa,
+        admissionDate: row.admissionDate.format('DD-MM-YYYY'),
+        completionDate: row.completionDate.format('DD-MM-YYYY'),
+      })),
+    };
+
+    axios.post('http://141.148.194.18:8052/payroll/employee/educational-details', payload, {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("token")}`
+      }
+    })
+      .then(response => {
+        setToastMessage("Data saved successfully!");
+        setToastSeverity("success");
+        setOpenToast(true);
+      })
+      .catch(error => {
+        setToastMessage("Failed to save data. Please try again.");
+        setToastSeverity("error");
+        setOpenToast(true);
+      });
+  };
+
+  const handleCloseToast = () => {
+    setOpenToast(false);
+  };
+
+  const handleNext = () => {
+    setFormData({ ...formData, qualificationDetails: rows });
+    onButtonClick();
+  };
+
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <Card sx={{ mt: 2, mb: 2 }}>
+        <CardContent>
+          <H3 textAlign="center" mb={2}>
+            Qualification Details
+          </H3>
+          <Divider sx={{ mb: 2 }} />
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
+              <Autocomplete
+                options={qualificationList}
+                getOptionLabel={(option) => option.label}
+                value={formik.values.QualifiactionTypes}
+                onChange={(event, newValue) => {
+                  formik.setFieldValue("QualifiactionTypes", newValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Qualification Type"
+                    error={formik.touched.QualifiactionTypes && Boolean(formik.errors.QualifiactionTypes)}
+                    helperText={formik.touched.QualifiactionTypes && formik.errors.QualifiactionTypes}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Autocomplete
+                options={degreeList}
+                getOptionLabel={(option) => option.label}
+                value={formik.values.degree}
+                onChange={(event, newValue) => {
+                  formik.setFieldValue("degree", newValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Degree"
+                    error={formik.touched.degree && Boolean(formik.errors.degree)}
+                    helperText={formik.touched.degree && formik.errors.degree}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                id="institute"
+                name="institute"
+                label="Institute Name"
+                value={formik.values.institute}
+                onChange={formik.handleChange}
+                error={formik.touched.institute && Boolean(formik.errors.institute)}
+                helperText={formik.touched.institute && formik.errors.institute}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                id="course"
+                name="course"
+                label="Course"
+                value={formik.values.course}
+                onChange={formik.handleChange}
+                error={formik.touched.course && Boolean(formik.errors.course)}
+                helperText={formik.touched.course && formik.errors.course}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                id="Board"
+                name="Board"
+                label="Board"
+                value={formik.values.Board}
+                onChange={formik.handleChange}
+                error={formik.touched.Board && Boolean(formik.errors.Board)}
+                helperText={formik.touched.Board && formik.errors.Board}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Autocomplete
+                options={marksCgpaList}
+                getOptionLabel={(option) => option.label}
+                value={formik.values.marksCgpa}
+                onChange={(event, newValue) => {
+                  formik.setFieldValue("marksCgpa", newValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Marks/CGPA"
+                    error={formik.touched.marksCgpa && Boolean(formik.errors.marksCgpa)}
+                    helperText={formik.touched.marksCgpa && formik.errors.marksCgpa}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                id="marks"
+                name="marks"
+                label="Marks Secured"
+                type="number"
+                value={formik.values.marks}
+                onChange={formik.handleChange}
+                error={formik.touched.marks && Boolean(formik.errors.marks)}
+                helperText={formik.touched.marks && formik.errors.marks}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                id="totalMarks"
+                name="totalMarks"
+                label="Total Marks"
+                type="number"
+                value={formik.values.totalMarks}
+                onChange={formik.handleChange}
+                error={formik.touched.totalMarks && Boolean(formik.errors.totalMarks)}
+                helperText={formik.touched.totalMarks && formik.errors.totalMarks}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                id="gpa"
+                name="gpa"
+                label="CGPA"
+                type="number"
+                value={formik.values.gpa}
+                onChange={formik.handleChange}
+                error={formik.touched.gpa && Boolean(formik.errors.gpa)}
+                helperText={formik.touched.gpa && formik.errors.gpa}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Admission Date"
+                  value={formik.values.admissionDate}
+                  onChange={(date) => formik.setFieldValue("admissionDate", date)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      error={formik.touched.admissionDate && Boolean(formik.errors.admissionDate)}
+                      helperText={formik.touched.admissionDate && formik.errors.admissionDate}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Completion Date"
+                  value={formik.values.completionDate}
+                  onChange={(date) => formik.setFieldValue("completionDate", date)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      error={formik.touched.completionDate && Boolean(formik.errors.completionDate)}
+                      helperText={formik.touched.completionDate && formik.errors.completionDate}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+            </Grid>
+          </Grid>
+          <Box display="flex" justifyContent="flex-end" mt={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              startIcon={<SaveIcon />}
+            >
+              Save
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+
+      {view && (
+        <Card>
+          <CardContent>
+            <SearchTable rows={rows} onDeleteRow={handleDeleteRow} />
+          </CardContent>
+        </Card>
+      )}
+
+      <Box display="flex" justifyContent="space-between" mt={2}>
+        <Button
+          variant="outlined"
+          startIcon={<CachedIcon />}
+          onClick={() => formik.resetForm()}
+        >
+          Reset
+        </Button>
+        {showNext && (
+          <Button
+            variant="contained"
+            endIcon={<NavigateNextIcon />}
+            onClick={handleNext}
+          >
+            Next
+          </Button>
+        )}
+      </Box>
+
+      <Snackbar
+        open={openToast}
+        autoHideDuration={6000}
+        onClose={handleCloseToast}
+        TransitionComponent={TransitionLeft}
+      >
+        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
+          {toastMessage}
+        </Alert>
+      </Snackbar>
+    </form>
+  );
+}
+
+export default QualificationForm;
 
 
 
