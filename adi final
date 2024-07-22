@@ -1,3 +1,96 @@
+ <FormControl>
+                              <FormLabel id="demo-row-radio-buttons-group-label" >
+                                Pay Slip (yes/no)
+                              </FormLabel>
+                              <RadioGroup
+                                row
+                                aria-labelledby="demo-row-radio-buttons-group-label"
+                                name="paySlip"
+                                disabled={view}
+                                value={formik.values.paySlip}
+                                onChange={(e) => {
+                                  formik.handleChange(e);
+                                }}
+                              >
+                                <FormControlLabel
+                                  value="true"
+                                  control={<Radio />}
+                                  label="Yes"
+                                  disabled={view}
+                                  sx={{ mb: 0, padding: '0px 0', mt: 0 }}
+                                />
+                                <FormControlLabel
+                                  value="false"
+                                  control={<Radio />}
+                                  label="No"
+                                  disabled={view}
+                                  sx={{ mb: 0, padding: '0px 0', mt: 0 }}
+                                />
+                              </RadioGroup>
+                              {
+                                formik.errors.paySlip && (
+                                  <FormHelperText error sx={{ mt: 0 }}>
+                                    {formik.errors.paySlip}
+                                  </FormHelperText>
+                                )}
+                            </FormControl>
+
+
+
+
+
+
+
+helperText={
+                                      formik.errors.payslipAuthority &&
+                                        formik.touched.payslipAuthority
+                                        ? formik.errors.payslipAuthority
+                                        : null
+                                    }
+                                    error={
+                                      formik.errors.payslipAuthority &&
+                                        formik.touched.payslipAuthority
+                                        ? true
+                                        : false
+                                    }
+
+error={
+                                formik.touched.payslipAuthority &&
+                                !!formik.errors.payslipAuthority
+                              }
+                              helperText={
+                                formik.touched.payslipAuthority &&
+                                formik.errors.payslipAuthority
+                              }
+
+
+error={
+                                formik.touched.payslipAuthority &&
+                                Boolean(formik.errors.payslipAuthority)
+                              }
+                              helperText={
+                                formik.touched.payslipAuthority &&
+                                formik.errors.payslipAuthority
+                              }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
 
 
