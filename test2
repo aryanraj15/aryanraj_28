@@ -1,3 +1,129 @@
+
+const columns = [
+  {
+    field: "id",
+    headerClassName: "super-app-theme--header",
+    headerName: "S No.",
+    width: 60,
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+    hide: true
+  },
+  {
+    width: 250,
+    headerName: "Name",
+    field: "name",
+    headerClassName: "super-app-theme--header",
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+  },
+  {
+    width: 200,
+    headerName: "Relationship",
+    field: "relationshipId",
+    headerClassName: "super-app-theme--header",
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+    renderCell: (params) => {
+      const relationship = getValueFromList(relationList, params.row.relationshipId);
+      return relationship ? relationship.label : '';
+    }
+  },
+  {
+    width: 200,
+    headerName: "Gender",
+    field: "genderId",
+    headerClassName: "super-app-theme--header",
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+    renderCell: (params) => {
+      const gender = getValueFromList(genderList, params.row.genderId);
+      return gender ? gender.label : '';
+    }
+  },
+  {
+    width: 200,
+    headerName: "Marital Status",
+    field: "maritalStatusId",
+    headerClassName: "super-app-theme--header",
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+    renderCell: (params) => {
+      const maritalStatus = getValueFromList(maritalStatusList, params.row.maritalStatusId);
+      return maritalStatus ? maritalStatus.label : '';
+    }
+  },
+  {
+    width: 200,
+    headerName: "Date of Birth",
+    field: "dob",
+    headerClassName: "super-app-theme--header",
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+  },
+  {
+    width: 200,
+    headerName: "Nominee",
+    field: "isNominee",
+    headerClassName: "super-app-theme--header",
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+    renderCell: (params) => {
+      return params.row.isNominee ? "Yes" : "No";
+    }
+  },
+  {
+    width: 200,
+    headerName: "Nominee (%)",
+    field: "nominationPercent",
+    headerClassName: "super-app-theme--header",
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+  },
+  {
+    field: "actiondelete",
+    headerName: "Action",
+    width: 140,
+    headerClassName: "super-app-theme--header",
+    renderCell: (params) => {
+      return (
+        <Button
+          variant="outlined"
+          color="error"
+          sx={{ mb: 1 }}
+          onClick={() => handleDeleteRow(params.row.id)}
+        >
+          Delete
+        </Button>
+      );
+    },
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+  },
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const fetchData = () => {
   axios.get(`http://141.148.194.18:8052/payroll/employee/family-details/${formData.empRefNo}`, {
       headers: {
