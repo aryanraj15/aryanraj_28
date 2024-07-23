@@ -1,641 +1,239 @@
+TypeError: Cannot read properties of null (reading 'label')
+    at Object.renderCell (SaveAddressDetails.js:227:1)
+    at GridCell.js:558:1
+    at renderWithHooks (react-dom.development.js:15486:1)
+    at updateForwardRef (react-dom.development.js:19245:1)
+    at beginWork (react-dom.development.js:21675:1)
+    at HTMLUnknownElement.callCallback (react-dom.development.js:4164:1)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:1)
+    at invokeGuardedCallback (react-dom.development.js:4277:1)
+    at beginWork$1 (react-dom.development.js:27490:1)
+    at performUnitOfWork (react-dom.development.js:26596:1)
 
-
-Entitlement Dropdown Init
-Method
-	
-GET
-
-
-URL
-	
-http://141.148.194.18:8052/payroll/employee/entitlement/dropdown-init
-
-
-Payload
-	
- 
-
-
-Response
-	
 {
-   "npsOpted": [
-       {
-           "label": "No",
-           "id": 332
-       },
-       {
-           "label": "Yes",
-           "id": 333
-       }
-   ],
-   "medicalStop": [
-       {
-           "label": "No",
-           "id": 324
-       },
-       {
-           "label": "Yes",
-           "id": 325
-       }
-   ],
-   "daStop": [
-       {
-           "label": "No",
-           "id": 326
-       },
-       {
-           "label": "Yes",
-           "id": 327
-       }
-   ],
-   "ctaAllowanceApplicable": [
-       {
-           "label": "No / Vehicle Alloted",
-           "id": 328
-       },
-       {
-           "label": "Yes",
-           "id": 329
-       }
-   ]
-}
- 
- 
-
-
-
-6.	Save Pay Entitlement 
-Method 	POST
-URL	http://141.148.194.18:8052/payroll/employee/pay-entitlement
-Payload	{
-  "refNo": "BRD0000000000020",
-  "hraTier": 4,
-  "basicPay": 50000,
-  "isCtaApplicable": false,
-  "ctaEntitlement": 204,
-  "paylevel": 105,
-  "pcId": 32,
-  "isNpsOpted": false,
-  "isMedicalStop": false,
-  "isDaStop": false,
-  "payEntitlementList": [
-    {
-      "payheadValue": 2000,
-      "payheadId": 12
-    },
-    {
-      "payheadValue": 1500,
-      "payheadId": 14
-    }
-  ]
-}
-
-
-Response	{
     "status": true,
-    "message": "Pay Entitlement Details saved successfully",
-    "result": "Employee Reference Number: BRD0000000000020",
+    "message": "Educational Details fetched successfully",
+    "result": [
+        {
+            "eduId": 28,
+            "empId": 66,
+            "qualificationId": {
+                "id": 267,
+                "label": "Graduation"
+            },
+            "instituteName": "KL",
+            "boardOrUniversity": "Deemed",
+            "course": "CSE",
+            "marksCgpaId": {
+                "id": 270,
+                "label": "CGPA"
+            },
+            "marksSecured": null,
+            "totalMarks": null,
+            "cgpa": 9,
+            "admissionDate": "19-07-2019",
+            "completionDate": "17-07-2024",
+            "filePath": null,
+            "fileName": null,
+            "crtBy": {
+                "id": 1,
+                "label": "raj18"
+            },
+            "crtOn": "18-07-2024 05:04 PM",
+            "updBy": null,
+            "updOn": "18-07-2024 05:04 PM"
+        }
+    ],
     "statusCode": 200
 }
 
-
-
-
-
-
-
-
-
-
-15.	Entitlement Payhead List – Payment/Earning
-Method 	POST
-URL	http://141.148.194.18:8052/payroll/employee/entitlement-details/payment
-Payload	{
-    "payCommissionId":32,
-    "grpId":1,
-    "serviceTypeId":10,
-    "payLevelId":105,
-    "departmentId":2,
-    "designationId":1
-}
-
-Response	[
-    {
-        "payheadName": "Band Pay",
-        "payheadId": 12,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Dearness Allowance",
-        "payheadId": 13,
-        "amount": "234000"
-    },
-    {
-        "payheadName": "Dearness Allowance",
-        "payheadId": 13,
-        "amount": "123"
-    },
-    {
-        "payheadName": "Dearness Allowance",
-        "payheadId": 13,
-        "amount": "120000"
-    },
-    {
-        "payheadName": "Grade Pay",
-        "payheadId": 14,
-        "amount": "0"
-    },
-    {
-        "payheadName": "House Rent Allowance",
-        "payheadId": 15,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Special Pay",
-        "payheadId": 16,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Medical Allowance",
-        "payheadId": 17,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Other Allowances",
-        "payheadId": 18,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Basic Pay",
-        "payheadId": 1,
-        "amount": "50000"
-    },
-    {
-        "payheadName": "City Transport allowance",
-        "payheadId": 19,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Dearness Pay",
-        "payheadId": 20,
-        "amount": "0"
-    }
-]
-
-
-16.	Entitlement Payhead List - Deduction
-Method 	POST
-URL	http://141.148.194.18:8052/payroll/employee/entitlement-details/deduction
-Payload	{
-    "payCommissionId":32,
-    "grpId":1,
-    "serviceTypeId":10,
-    "payLevelId":105,
-    "departmentId":2,
-    "designationId":1
-}
-
-Response	[
-    {
-        "payheadName": "GPF Recovery State Govt. Employees_2",
-        "payheadId": 21,
-        "amount": "0"
-    },
-    {
-        "payheadName": "GPF Recovery State Govt. Employees_1",
-        "payheadId": 22,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Professional Tax",
-        "payheadId": 25,
-        "amount": "0"
-    },
-    {
-        "payheadName": "NPS contribution employee",
-        "payheadId": 26,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Income Tax (Monthly Contribution)",
-        "payheadId": 27,
-        "amount": "0"
-    },
-    {
-        "payheadName": "House Rent Deduction General Pool",
-        "payheadId": 28,
-        "amount": "0"
-    },
-    {
-        "payheadName": "GIS State Govt. Employees",
-        "payheadId": 29,
-        "amount": "0"
-    },
-    {
-        "payheadName": "GPF State Govt. Employees",
-        "payheadId": 30,
-        "amount": "0"
-    }
-]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Method 	POST
-URL	http://141.148.194.18:8052/payroll/employee/entitlement-data
-Payload	{
-    "refNo":"BRD0000000000016"
-}
-
-Response	{
-    "empId": "BRD0000000000016",
-    "gpfPranType": {
-        "id": 205,
-        "label": "GRF No"
-    },
-    "designation": {
-        "id": 1,
-        "label": "Manager"
-    },
-    "department": {
-        "id": 1,
-        "label": "Finance Department"
-    },
-    "employeeName": "John ADoe",
-    "dob": "01-01-1990",
-    "mobileNo": "9234567890",
-    "serviceType": {
-        "id": 1,
-        "label": "All india Service(AIS)"
-    },
-    "office": {
-        "id": 1,
-        "label": "Bihar Trust Office"
-    },
-    "group": {
-        "id": 1,
-        "label": "grp test"
-    },
-    "govtQuarterType": true,
-    "disability": [
-        {
-            "disabilityType": {
-                "id": 209,
-                "label": "Deaf & Dumb"
-            },
-            "percentage": 10
-        },
-        {
-            "disabilityType": {
-                "id": 211,
-                "label": "Mental Disorder"
-            },
-            "percentage": 90
+  const fetchData = () => {
+    axios.get(`http://141.148.194.18:8052/payroll/employee/educational-details/${formData.empRefNo}`, {
+        headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`
         }
-    ]
+    }) .then(response => {
+      console.log(response)
+      if (response.data.status && response.data.result) {
+        setRows(response.data.result.map(item => ({
+          id: item.eduId,
+          qualificationId: item.qualificationId.id,
+          qualificationLabel: item.qualificationId.label,
+          boardOrUniversity: item.boardOrUniversity,
+          instituteName: item.instituteName,
+          course: item.course,
+          marksCgpaId: item.marksCgpaId.id,
+          marksCgpaLabel: item.marksCgpaId.label,
+          marksSecured: item.marksSecured,
+          totalMarks: item.totalMarks,
+          cgpa: item.cgpa,
+          admissionDate: dayjs(item.admissionDate, 'DD-MM-YYYY'),
+          completionDate: dayjs(item.completionDate, 'DD-MM-YYYY')
+        })));
+      }
+    })
 }
 
 
-13.	Hra Tier Dropdown
-Method 	GET
-URL	http://141.148.194.18:8052/payroll/employee/dropdown/hra-tier
-Payload	
-Response	[
+  const columns = [
     {
-        "id": 1,
-        "label": "Rate"
-    },
-    {
-        "id": 3,
-        "label": "Rate "
+      field: "id",
+      headerClassName: "super-app-theme--header",
+      headerName: "S No.",
+      width: 60,
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      hide: true
     },
     {
-        "id": 2,
-        "label": "Rate test"
+      width: 250,
+      headerName: "Qualification Type",
+      field: "qualificationId",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          getValueFromList(qualificationList, params.row.qualificationId).label
+        )
+      }
     },
     {
-        "id": 18,
-        "label": "TE01"
+      width: 200,
+      headerName: "Board/University",
+      field: "boardOrUniversity",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    // {
+    //   width: 200,
+    //   headerName: "courseType",
+    //   field: "CourseType",
+    //   headerClassName: "super-app-theme--header",
+    //   sortable: false,
+    //   filterable: false,
+    //   disableColumnMenu: true,
+    // },
+    {
+      width: 200,
+      headerName: "Institute Name",
+      field: "instituteName",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
     },
     {
-        "id": 17,
-        "label": "Th08"
+      width: 200,
+      headerName: "Course",
+      field: "course",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+    },
+    // {
+    //   width: 200,
+    //   headerName: "Course Duration(in months)",
+    //   field: "Duration",
+    //   headerClassName: "super-app-theme--header",
+    //   sortable: false,
+    //   filterable: false,
+    //   disableColumnMenu: true,
+    // },
+    {
+      field: "marksCgpaId",
+      headerName: "Marks/Cgpa",
+      width: 140,
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          getValueFromList(marksCgpaList, params.row.marksCgpaId).label
+        )
+      }
     },
     {
-        "id": 8,
-        "label": "Tier Eng"
+      field: "marksSecured",
+      headerName: "Marks Obtained",
+      width: 140,
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
     },
     {
-        "id": 14,
-        "label": "Tier Eng05"
+      field: "totalMarks",
+      headerName: "Total Marks",
+      width: 140,
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
     },
     {
-        "id": 15,
-        "label": "Tier Eng07"
+      width: 200,
+      headerName: "CGPA",
+      field: "cgpa",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
     },
     {
-        "id": 9,
-        "label": "Tier English 2"
+      width: 200,
+      headerName: "Admission Date",
+      field: "admissionDate",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          dayjs(params.row.admissionDate).format("DD-MM-YYYY")
+        )
+      }
     },
     {
-        "id": 7,
-        "label": "Tier Name Eng Testing"
+      width: 200,
+      headerName: "Completion Date",
+      field: "completionDate",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          dayjs(params.row.completionDate).format("DD-MM-YYYY")
+        )
+      }
     },
     {
-        "id": 16,
-        "label": "Tier08"
+      field: "actiondelete",
+      headerName: "Action",
+      width: 140,
+      headerClassName: "super-app-theme--header",
+      renderCell: (params) => {
+        return (
+          <Button
+            variant="outlined"
+            color="error"
+            sx={{ mb: 1 }}
+            // value={params.value}
+            onClick={() => handleDeleteRow(params.row.id)}
+          >
+            Delete
+          </Button>
+        );
+      },
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
     },
-    {
-        "id": 4,
-        "label": "Tier1"
-    },
-    {
-        "id": 5,
-        "label": "Tier2"
-    },
-    {
-        "id": 10,
-        "label": "Tier5"
-    },
-    {
-        "id": 19,
-        "label": "Tier9"
-    },
-    {
-        "id": 11,
-        "label": "asdw"
-    },
-    {
-        "id": 12,
-        "label": "asdw"
-    },
-    {
-        "id": 13,
-        "label": "tE"
-    }
-]
-
-
-
-
-14.	CTA Entitlement Dropdown
-Method 	GET
-URL	http://141.148.194.18:8052/payroll/employee/dropdown/cta-entitlement
-Payload	
-Response	[
-    {
-        "label": "Bihar Bhawan",
-        "id": 204
-    },
-    {
-        "label": "City Entitled for higher rate",
-        "id": 202
-    },
-    {
-        "label": "Other City",
-        "id": 203
-    }
-]
-
-
-
-
-
-Method 	POST
-URL	http://141.148.194.18:8052/payroll/employee/entitlement-data
-Payload	{
-    "refNo":"BRD0000000000016"
-}
-
-Response	{
-    "empId": "BRD0000000000016",
-    "gpfPranType": {
-        "id": 205,
-        "label": "GRF No"
-    },
-    "designation": {
-        "id": 1,
-        "label": "Manager"
-    },
-    "department": {
-        "id": 1,
-        "label": "Finance Department"
-    },
-    "employeeName": "John ADoe",
-    "dob": "01-01-1990",
-    "mobileNo": "9234567890",
-    "serviceType": {
-        "id": 1,
-        "label": "All india Service(AIS)"
-    },
-    "office": {
-        "id": 1,
-        "label": "Bihar Trust Office"
-    },
-    "group": {
-        "id": 1,
-        "label": "grp test"
-    },
-    "govtQuarterType": true,
-    "disability": [
-        {
-            "disabilityType": {
-                "id": 209,
-                "label": "Deaf & Dumb"
-            },
-            "percentage": 10
-        },
-        {
-            "disabilityType": {
-                "id": 211,
-                "label": "Mental Disorder"
-            },
-            "percentage": 90
-        }
-    ]
-}
-
-
-13.	Hra Tier Dropdown
-Method 	GET
-URL	http://141.148.194.18:8052/payroll/employee/dropdown/hra-tier
-Payload	
-Response	[
-    {
-        "id": 1,
-        "label": "Rate"
-    },
-    {
-        "id": 3,
-        "label": "Rate "
-    },
-    {
-        "id": 2,
-        "label": "Rate test"
-    },
-    {
-        "id": 18,
-        "label": "TE01"
-    },
-    {
-        "id": 17,
-        "label": "Th08"
-    },
-    {
-        "id": 8,
-        "label": "Tier Eng"
-    },
-    {
-        "id": 14,
-        "label": "Tier Eng05"
-    },
-    {
-        "id": 15,
-        "label": "Tier Eng07"
-    },
-    {
-        "id": 9,
-        "label": "Tier English 2"
-    },
-    {
-        "id": 7,
-        "label": "Tier Name Eng Testing"
-    },
-    {
-        "id": 16,
-        "label": "Tier08"
-    },
-    {
-        "id": 4,
-        "label": "Tier1"
-    },
-    {
-        "id": 5,
-        "label": "Tier2"
-    },
-    {
-        "id": 10,
-        "label": "Tier5"
-    },
-    {
-        "id": 19,
-        "label": "Tier9"
-    },
-    {
-        "id": 11,
-        "label": "asdw"
-    },
-    {
-        "id": 12,
-        "label": "asdw"
-    },
-    {
-        "id": 13,
-        "label": "tE"
-    }
-]
-
-
-
-
-14.	CTA Entitlement Dropdown
-Method 	GET
-URL	http://141.148.194.18:8052/payroll/employee/dropdown/cta-entitlement
-Payload	
-Response	[
-    {
-        "label": "Bihar Bhawan",
-        "id": 204
-    },
-    {
-        "label": "City Entitled for higher rate",
-        "id": 202
-    },
-    {
-        "label": "Other City",
-        "id": 203
-    }
-]
-
-
-
-
-
-
-
-16.	Entitlement Payhead List - Deduction
-Method 	POST
-URL	http://141.148.194.18:8052/payroll/employee/entitlement-details/deduction
-Payload	{
-    "payCommissionId":32,
-    "grpId":1,
-    "serviceTypeId":10,
-    "payLevelId":105,
-    "departmentId":2,
-    "designationId":1
-}
-
-Response	[
-    {
-        "payheadName": "GPF Recovery State Govt. Employees_2",
-        "payheadId": 21,
-        "amount": "0"
-    },
-    {
-        "payheadName": "GPF Recovery State Govt. Employees_1",
-        "payheadId": 22,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Professional Tax",
-        "payheadId": 25,
-        "amount": "0"
-    },
-    {
-        "payheadName": "NPS contribution employee",
-        "payheadId": 26,
-        "amount": "0"
-    },
-    {
-        "payheadName": "Income Tax (Monthly Contribution)",
-        "payheadId": 27,
-        "amount": "0"
-    },
-    {
-        "payheadName": "House Rent Deduction General Pool",
-        "payheadId": 28,
-        "amount": "0"
-    },
-    {
-        "payheadName": "GIS State Govt. Employees",
-        "payheadId": 29,
-        "amount": "0"
-    },
-    {
-        "payheadName": "GPF State Govt. Employees",
-        "payheadId": 30,
-        "amount": "0"
-    }
-]
-
+  ];
