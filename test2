@@ -1,3 +1,50 @@
+const fetchData = () => {
+  axios.get(`http://141.148.194.18:8052/payroll/employee/family-details/${formData.empRefNo}`, {
+      headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`
+      }
+  }).then(response => {
+    console.log(response);
+    if (response.data.status && response.data.result) {
+      setRows(response.data.result.map(item => ({
+        id: item.id,
+        empId: item.empId,
+        relationshipId: item.relationshipId ? item.relationshipId.id : '',
+        relationshipLabel: item.relationshipId ? item.relationshipId.label : '',
+        name: item.name,
+        genderId: item.gender ? item.gender.id : '',
+        genderLabel: item.gender ? item.gender.label : '',
+        maritalStatus: item.maritalStatus ? item.maritalStatus.label : '',
+        isDisabled: item.isDisabled,
+        disabilityPercent: item.disabilityPercent || '',
+        isDependant: item.isDependant,
+        dependantIncome: item.dependantIncome || '',
+        isEmployed: item.isEmployed,
+        isNominee: item.isNominee,
+        nominationPercent: item.nominationPercent || '',
+        isActive: item.isActive,
+        status: item.status || '',
+        crtBy: item.crtBy ? item.crtBy.label : '',
+        crtOn: item.crtOn || '',
+        updBy: item.updBy ? item.updBy.label : '',
+        updOn: item.updOn || ''
+      })));
+    }
+  });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 {
     "status": true,
     "message": "Family Details fetched successfully",
