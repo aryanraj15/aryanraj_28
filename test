@@ -10,6 +10,49 @@ TypeError: Cannot read properties of null (reading 'label')
     at beginWork$1 (react-dom.development.js:27490:1)
     at performUnitOfWork (react-dom.development.js:26596:1)
 
+
+
+
+const fetchData = () => {
+    axios.get(`http://141.148.194.18:8052/payroll/employee/educational-details/${formData.empRefNo}`, {
+        headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`
+        }
+    })
+    .then(response => {
+        console.log(response);
+        if (response.data.status && response.data.result) {
+            setRows(response.data.result.map(item => ({
+                id: item.eduId,
+                qualificationId: item.qualificationId ? item.qualificationId.id : null,
+                qualificationLabel: item.qualificationId ? item.qualificationId.label : '',
+                boardOrUniversity: item.boardOrUniversity,
+                instituteName: item.instituteName,
+                course: item.course,
+                marksCgpaId: item.marksCgpaId ? item.marksCgpaId.id : null,
+                marksCgpaLabel: item.marksCgpaId ? item.marksCgpaId.label : '',
+                marksSecured: item.marksSecured !== null ? item.marksSecured : '',
+                totalMarks: item.totalMarks !== null ? item.totalMarks : '',
+                cgpa: item.cgpa !== null ? item.cgpa : '',
+                admissionDate: dayjs(item.admissionDate, 'DD-MM-YYYY'),
+                completionDate: dayjs(item.completionDate, 'DD-MM-YYYY')
+            })));
+        }
+    })
+    .catch(error => {
+        console.error("There was an error fetching the data!", error);
+    });
+};
+
+
+
+
+
+
+
+
+
+
 {
     "status": true,
     "message": "Educational Details fetched successfully",
