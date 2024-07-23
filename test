@@ -1,3 +1,15 @@
+
+
+
+const qualification = getValueFromList(qualificationList, params.row.qualificationId);
+          return qualification ? qualification.label : 'N/A'
+return (
+          getValueFromList(qualificationList, params.row.qualificationId).label
+        )
+
+
+
+
 TypeError: Cannot read properties of null (reading 'label')
     at Object.renderCell (SaveAddressDetails.js:227:1)
     at GridCell.js:558:1
