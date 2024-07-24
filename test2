@@ -1,3 +1,83 @@
+                {(formik.values.PayCommission !==32 && formik.values.PayScale !==364) &&(
+                  <Grid item xs={12} sm={4} md={4} lg={4}>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="BasicPay"
+                    label="Basic Pay"
+                    name="BasicPay"
+                    disabled={view}
+                    value={formik.values.BasicPay || ""}
+                    size="small"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.BasicPay && Boolean(formik.errors.BasicPay)
+                    }
+                    helperText={
+                      formik.touched.BasicPay && formik.errors.BasicPay
+                    }
+                  />
+                </Grid>
+                )}
+                
+                {resultList?.serviceType?.id ===56 && formik.values.PayCommission ===32 && formik.values.PayScale ===364 &&(
+                  
+                  <Grid item xs={12} sm={4} md={4} lg={4}>
+                  <Autocomplete
+                    disablePortal
+                    margin="normal"
+                    fullWidth
+                    size="small"
+                    id="BasicPay"
+                    name="BasicPay"
+                    disabled={view}
+                    options={basicpaylist}
+                    value={
+                      basicpaylist.find(
+                        (option) => option.label === formik.values.BasicPay
+                      ) || null
+                    }
+                    onChange={(e, value) => {
+                      console.log(value);
+                      if (value === null) {
+                        formik.setFieldValue("BasicPay", null);
+                        
+                      } else 
+                      formik.setFieldValue("BasicPay", value.label);
+                    }}
+                    getOptionLabel={(value) => value.label}
+                    sx={{ width: "100%", mt: 2 }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        required
+                        label="Basic Pay"
+                        onBlur={formik.handleBlur}
+                        helperText={
+                          formik.errors.BasicPay && formik.touched.BasicPay
+                            ? formik.errors.BasicPay
+                            : null
+                        }
+                        error={
+                          formik.errors.BasicPay && formik.touched.BasicPay
+                            ? true
+                            : false
+                        }
+                      />
+                    )}
+                  />
+                </Grid>
+                )}
+
+
+
+
+
+
+
+
 http://141.148.194.18:8052/payroll/employee/entitlement-details
 
 {
