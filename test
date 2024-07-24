@@ -1,4 +1,42 @@
 
+  const getEarningDetails = async (data) => {
+    try {
+      const response = await axios.post(
+        "http://141.148.194.18:8052/payroll/employee/entitlement-details/payment",
+        {
+          basicPay: formik.values.BasicPay,
+          payCommissionId: formik.values.PayCommission,
+          grpId: resultList?.group?.id,
+          serviceTypeId: resultList?.serviceType?.id,
+          payLevelId: formik.values.PayScale,
+          departmentId: resultList?.department.id,
+          designationId: resultList?.designation?.id,
+          ctaEntitlement: formik.values.CTAEntitlement,
+          hraTier: formik.values.HRATier,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        }
+      );
+      setEntitlementDetails(response.data);
+      setIsSubmitDisabled(true);
+      setIsTableDisabled(true);
+      console.log("aryznnn", response);
+    } catch (error) {
+       // setOpenAlertSave(true);
+      setToastMessage(
+        "Something went wrong while Saving the details, please try again."
+      );
+      setToastSeverity("error");
+      setOpenToast(true);
+    }
+  };
+
+
+
+
 
 
 const qualification = getValueFromList(qualificationList, params.row.qualificationId);
