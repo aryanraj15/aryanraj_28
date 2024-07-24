@@ -1,3 +1,72 @@
+  const handleSave = async () => {
+    const payEntitlementList = [];
+    Object.keys(updatedAmounts).forEach((key) => {
+      const index = parseInt(key);
+      const amount = parseFloat(updatedAmounts[key]);
+      if (amount > 0) {
+        payEntitlementList.push({
+          payheadId: entitlementDetails[index].payheadId,
+          payheadValue: amount,
+          payheadConfigId: entitlementDetails[index].payheadConfigId,
+          payheadName: entitlementDetails[index].payheadName,
+        });
+      }
+    });
+    Object.keys(updatedDeductionAmounts).forEach((key) => {
+      const index = parseInt(key);
+      const amount = parseFloat(updatedDeductionAmounts[key]);
+      if (amount > 0) {
+        payEntitlementList.push({
+          payheadId: deductionDetails[index].payheadId,
+          payheadValue: amount,
+          payheadConfigId: deductionDetails[index].payheadConfigId,
+          payheadName: deductionDetails[index].payheadName,
+        });
+      }
+    });
+
+
+    const payload = {
+      refNo: "BRD0000000000061",
+      //refNo: localStorage.getItem("refNo"),
+      hraTier: formik.values.HRATier,
+      basicPay: formik.values.BasicPay,
+      isCtaApplicable: formik.values.CTAAllowanceApplicable,
+      ctaEntitlement: formik.values.CTAEntitlement,
+      paylevel: formik.values.PayScale,
+      pcId: formik.values.PayCommission,
+      isNpsOpted:formik.values.NPSOpted,
+      isMedicalStop: formik.values.MedicalStop,
+      isDaStop: formik.values.DAStop,
+
+      payEntitlementList,
+    };
+    try {
+      const response = await axios.post(
+        "http://141.148.194.18:8052/payroll/employee/pay-entitlement",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        }
+      );
+      console.log("Save response:", response.data);
+      showSnackbar(response.data.message, "success");
+      setShowNext(true);
+      setOpenToast(true);
+      setShowNext(true);
+      onButtonClick("pagesix");
+    } catch (error) {
+      console.error("Error saving pay entitlement details", error);
+    }
+  };
+
+
+
+
+
+
 
   const getEarningDetails = async (data) => {
     try {
