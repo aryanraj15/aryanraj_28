@@ -1,3 +1,180 @@
+http://141.148.194.18:8052/payroll/employee/entitlement-details
+
+{
+    "basicPay": 40000,
+    "payCommissionId": 32,
+    "grpId": 6,
+    "serviceTypeId": 53,
+    "payLevelId": 364,
+    "departmentId": 1,
+    "designationId": 2,
+    "hraTier": null,
+    "ctaEntitlement": null,
+    "isDaStop":false,
+    "isNPS":true
+}
+
+
+
+{
+    "deductionPayhead": [
+        {
+            "payheadId": 29,
+            "payheadConfigId": null,
+            "payheadName": "GIS State Govt. Employees",
+            "payheadTypeId": 28,
+            "amount": "0",
+            "payheadType": "Deduction"
+        },
+        {
+            "payheadId": 22,
+            "payheadConfigId": null,
+            "payheadName": "GPF Recovery State Govt. Employees_1",
+            "payheadTypeId": 28,
+            "amount": "0",
+            "payheadType": "Deduction"
+        },
+        {
+            "payheadId": 21,
+            "payheadConfigId": null,
+            "payheadName": "GPF Recovery State Govt. Employees_2",
+            "payheadTypeId": 28,
+            "amount": "0",
+            "payheadType": "Deduction"
+        },
+        {
+            "payheadId": 30,
+            "payheadConfigId": null,
+            "payheadName": "GPF State Govt. Employees",
+            "payheadTypeId": 28,
+            "amount": "0",
+            "payheadType": "Deduction"
+        },
+        {
+            "payheadId": 28,
+            "payheadConfigId": null,
+            "payheadName": "House Rent Deduction General Pool",
+            "payheadTypeId": 28,
+            "amount": "0",
+            "payheadType": "Deduction"
+        },
+        {
+            "payheadId": 27,
+            "payheadConfigId": null,
+            "payheadName": "Income Tax (Monthly Contribution)",
+            "payheadTypeId": 28,
+            "amount": "0",
+            "payheadType": "Deduction"
+        },
+        {
+            "payheadId": 26,
+            "payheadConfigId": null,
+            "payheadName": "NPS contribution employee",
+            "payheadTypeId": 28,
+            "amount": "0",
+            "payheadType": "Deduction"
+        },
+        {
+            "payheadId": 25,
+            "payheadConfigId": null,
+            "payheadName": "Professional Tax",
+            "payheadTypeId": 28,
+            "amount": "0",
+            "payheadType": "Deduction"
+        }
+    ],
+    "paymentPayhead": [
+        {
+            "payheadId": 12,
+            "payheadConfigId": null,
+            "payheadName": "Band Pay",
+            "payheadTypeId": 26,
+            "amount": "0",
+            "payheadType": "Payment"
+        },
+        {
+            "payheadId": 1,
+            "payheadConfigId": null,
+            "payheadName": "Basic Pay",
+            "payheadTypeId": 26,
+            "amount": "40000",
+            "payheadType": "Payment"
+        },
+        {
+            "payheadId": 19,
+            "payheadConfigId": null,
+            "payheadName": "City Transport allowance",
+            "payheadTypeId": 26,
+            "amount": "0",
+            "payheadType": "Payment"
+        },
+        {
+            "payheadId": 13,
+            "payheadConfigId": 445,
+            "payheadName": "Dearness Allowance",
+            "payheadTypeId": 26,
+            "amount": "1600",
+            "payheadType": "Payment"
+        },
+        {
+            "payheadId": 20,
+            "payheadConfigId": null,
+            "payheadName": "Dearness Pay",
+            "payheadTypeId": 26,
+            "amount": "0",
+            "payheadType": "Payment"
+        },
+        {
+            "payheadId": 14,
+            "payheadConfigId": null,
+            "payheadName": "Grade Pay",
+            "payheadTypeId": 26,
+            "amount": "0",
+            "payheadType": "Payment"
+        },
+        {
+            "payheadId": 15,
+            "payheadConfigId": 415,
+            "payheadName": "House Rent Allowance",
+            "payheadTypeId": 26,
+            "amount": "2000",
+            "payheadType": "Payment"
+        },
+        {
+            "payheadId": 17,
+            "payheadConfigId": null,
+            "payheadName": "Medical Allowance",
+            "payheadTypeId": 26,
+            "amount": "0",
+            "payheadType": "Payment"
+        },
+        {
+            "payheadId": 18,
+            "payheadConfigId": null,
+            "payheadName": "Other Allowances",
+            "payheadTypeId": 26,
+            "amount": "0",
+            "payheadType": "Payment"
+        },
+        {
+            "payheadId": 16,
+            "payheadConfigId": 475,
+            "payheadName": "Special Pay",
+            "payheadTypeId": 26,
+            "amount": "500",
+            "payheadType": "Payment"
+        }
+    ],
+    "recoveryPayhead": []
+}
+
+
+
+
+
+
+
+
 import BadgeIcon from "@mui/icons-material/Badge";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import {
