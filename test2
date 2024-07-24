@@ -1,4 +1,16 @@
-                {(formik.values.PayCommission !==32 && formik.values.PayScale !==364) &&(
+
+
+
+(
+    formik.values.PayCommission !== 32 ||
+    formik.values.PayScale !== 364 ||
+    [365, 366, 367, 368].includes(formik.values.PayScale)
+  )
+
+
+
+
+{(formik.values.PayCommission !==32 && formik.values.PayScale !==364) &&(
                   <Grid item xs={12} sm={4} md={4} lg={4}>
                   <TextField
                     margin="normal"
