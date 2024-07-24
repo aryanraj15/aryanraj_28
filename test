@@ -1,3 +1,104 @@
+
+
+const handleSave = async () => {
+  const payEntitlementList = [];
+
+  // Process updated amounts and add to the list
+  Object.keys(updatedAmounts).forEach((key) => {
+    const index = parseInt(key);
+    const amount = parseFloat(updatedAmounts[key]);
+    payEntitlementList.push({
+      payheadId: entitlementDetails[index].payheadId,
+      payheadValue: amount,
+      payheadConfigId: entitlementDetails[index].payheadConfigId,
+      payheadName: entitlementDetails[index].payheadName,
+    });
+  });
+
+  // Process updated deduction amounts and add to the list
+  Object.keys(updatedDeductionAmounts).forEach((key) => {
+    const index = parseInt(key);
+    const amount = parseFloat(updatedDeductionAmounts[key]);
+    payEntitlementList.push({
+      payheadId: deductionDetails[index].payheadId,
+      payheadValue: amount,
+      payheadConfigId: deductionDetails[index].payheadConfigId,
+      payheadName: deductionDetails[index].payheadName,
+    });
+  });
+
+  // Add all items from entitlementDetails and deductionDetails
+  entitlementDetails.forEach((item, index) => {
+    if (!updatedAmounts[index]) {
+      payEntitlementList.push({
+        payheadId: item.payheadId,
+        payheadValue: parseFloat(item.amount) || 0,
+        payheadConfigId: item.payheadConfigId,
+        payheadName: item.payheadName,
+      });
+    }
+  });
+
+  deductionDetails.forEach((item, index) => {
+    if (!updatedDeductionAmounts[index]) {
+      payEntitlementList.push({
+        payheadId: item.payheadId,
+        payheadValue: parseFloat(item.amount) || 0,
+        payheadConfigId: item.payheadConfigId,
+        payheadName: item.payheadName,
+      });
+    }
+  });
+
+  const payload = {
+    refNo: "BRD0000000000061",
+    hraTier: formik.values.HRATier,
+    basicPay: formik.values.BasicPay,
+    isCtaApplicable: formik.values.CTAAllowanceApplicable === 329,
+    ctaEntitlement: formik.values.CTAEntitlement,
+    paylevel: formik.values.PayScale,
+    pcId: formik.values.PayCommission,
+    isNpsOpted: formik.values.NPSOpted === 333,
+    isMedicalStop: formik.values.MedicalStop === 325,
+    isDaStop: formik.values.DAStop === 327,
+    payEntitlementList,
+  };
+
+  try {
+    const response = await axios.post(
+      "http://141.148.194.18:8052/payroll/employee/pay-entitlement",
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+      }
+    );
+    console.log("Save response:", response.data);
+    showSnackbar(response.data.message, "success");
+    setShowNext(true);
+    setOpenToast(true);
+    setShowNext(true);
+    onButtonClick("pagesix");
+  } catch (error) {
+    console.error("Error saving pay entitlement details", error);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import BadgeIcon from "@mui/icons-material/Badge";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import {
