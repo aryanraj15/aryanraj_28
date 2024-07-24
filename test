@@ -1,4 +1,82 @@
-  const handleSave = async () => {
+
+const handleSave = async () => {
+    const payEntitlementList = [];
+
+    Object.keys(updatedAmounts).forEach((key) => {
+        const index = parseInt(key);
+        const amount = parseFloat(updatedAmounts[key]);
+        if (amount > 0) {
+            payEntitlementList.push({
+                payheadId: entitlementDetails[index].payheadId,
+                payheadValue: amount,
+                payheadConfigId: entitlementDetails[index].payheadConfigId,
+                payheadName: entitlementDetails[index].payheadName,
+            });
+        }
+    });
+
+    Object.keys(updatedDeductionAmounts).forEach((key) => {
+        const index = parseInt(key);
+        const amount = parseFloat(updatedDeductionAmounts[key]);
+        if (amount > 0) {
+            payEntitlementList.push({
+                payheadId: deductionDetails[index].payheadId,
+                payheadValue: amount,
+                payheadConfigId: deductionDetails[index].payheadConfigId,
+                payheadName: deductionDetails[index].payheadName,
+            });
+        }
+    });
+
+    const getYesNoValue = (value, expected) => value === expected ? 'YES' : 'NO';
+
+    const payload = {
+        refNo: "BRD0000000000061",
+        //refNo: localStorage.getItem("refNo"),
+        hraTier: formik.values.HRATier,
+        basicPay: formik.values.BasicPay,
+        isCtaApplicable: getYesNoValue(formik.values.CTAAllowanceApplicable, 329),
+        ctaEntitlement: formik.values.CTAEntitlement,
+        paylevel: formik.values.PayScale,
+        pcId: formik.values.PayCommission,
+        isNpsOpted: getYesNoValue(formik.values.NPSOpted, 332),
+        isMedicalStop: getYesNoValue(formik.values.MedicalStop, 325),
+        isDaStop: getYesNoValue(formik.values.DAStop, 327),
+        payEntitlementList,
+    };
+
+    try {
+        const response = await axios.post(
+            "http://141.148.194.18:8052/payroll/employee/pay-entitlement",
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`,
+                },
+            }
+        );
+        console.log("Save response:", response.data);
+        showSnackbar(response.data.message, "success");
+        setShowNext(true);
+        setOpenToast(true);
+        setShowNext(true);
+        onButtonClick("pagesix");
+    } catch (error) {
+        console.error("Error saving pay entitlement details", error);
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+const handleSave = async () => {
     const payEntitlementList = [];
     Object.keys(updatedAmounts).forEach((key) => {
       const index = parseInt(key);
