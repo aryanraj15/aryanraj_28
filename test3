@@ -1,4 +1,60 @@
-                <LocalizationProvider
+<LocalizationProvider
+  dateAdapter={AdapterDayjs}
+  adapterLocale={"en-gb"}
+>
+  <DatePicker
+    label="Admission Date"
+    format="YYYY"
+    maxDate={tomorrow}
+    slotProps={{ textField: { size: "small" } }}
+    sx={{ width: "100%", mt: 2 }}
+    id="admissionDate"
+    name="admissionDate"
+    size="small"
+    value={formik.values.admissionDate}
+    onChange={(value) => {
+      if (value === null) {
+        formik.setFieldValue("admissionDate", "");
+      } else {
+        formik.setFieldValue("admissionDate", dayjs(value).year());
+      }
+    }}
+    renderInput={(params) => (
+      <TextField
+        size="small"
+        fullWidth
+        margin="normal"
+        name="admissionDate"
+        required
+        {...params}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        helperText={formik.errors.admissionDate && formik.touched.admissionDate ? formik.errors.admissionDate : null}
+        error={formik.errors.admissionDate && formik.touched.admissionDate ? true : false}
+      />
+    )}
+  />
+  <p style={{ color: '#d42d2d', fontSize: "10px" }}>
+    {formik.errors.admissionDate ? formik.errors.admissionDate : null}
+  </p>
+</LocalizationProvider>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<LocalizationProvider
                   dateAdapter={AdapterDayjs}
                   adapterLocale={"en-gb"}
                 >
