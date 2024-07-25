@@ -1,3 +1,20 @@
+{
+      width: 200,
+      headerName: "Admission Date",
+      field: "admissionDate",
+      headerClassName: "super-app-theme--header",
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          dayjs(params.row.admissionDate).format("DD-MM-YYYY")
+        )
+      }
+
+
+
+
 <LocalizationProvider
   dateAdapter={AdapterDayjs}
   adapterLocale={"en-gb"}
