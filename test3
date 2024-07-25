@@ -1,4 +1,49 @@
 
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(0, 1),
+  ...theme.mixins.toolbar,
+  justifyContent: "center",
+  flexDirection: "column", // Adjust flex direction
+}));
+
+
+<DrawerHeader>
+  <Box mr={1.5}>
+    <Typography
+      sx={{ py: 2 }}
+      display="flex"
+      justifyContent="center"
+      component={"div"}
+    >
+      <img src={logo_left} alt="YSR" style={{ width: "auto", height: "100px", objectFit: "contain" }} />
+    </Typography>
+  </Box>
+</DrawerHeader>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useContext, useEffect, useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
