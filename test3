@@ -1,356 +1,345 @@
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
-import Link from "@mui/material/Link";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import { sha256 } from "js-sha256";
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
 
-import { styled } from "@mui/material";
-import { useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import blue_bg from "../../assets/images/new2_BG.jpg";
-import logo_left from "../../assets/images/Indian_Navy_Insignia.png";
-import logo_right from "../../assets/images/logo_right.png";
-import { loginUser } from "../../redux/actions/LoginAction";
-import { useSnackbar } from "../../components/Snackbar";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LockIcon from '@mui/icons-material/Lock';
+import React, { useContext, useEffect, useState } from "react";
+import { styled, useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import CssBaseline from "@mui/material/CssBaseline";
+import MuiAppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import MailIcon from "@mui/icons-material/Mail";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import LightMode from "@mui/icons-material/LightMode";
+import DarkMode from "@mui/icons-material/DarkMode";
+import { ColorModeContext } from "../utils/ColorModeContext";
+import DrawerMenu from "./DrawerMenu";
+import Avatar from "@mui/material/Avatar";
+import logoImage from "../assets/images/logo.png";
+import { Outlet, useNavigate } from "react-router-dom";
+import logo from "../assets/images/logo.png";
+import logo_left from "../assets/images/IndianNavyBlue.png";
+import { grey, indigo } from "@mui/material/colors";
+import { Grid, Select, InputLabel, FormControl } from "@mui/material";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Stack } from "@mui/system";
+import { TitleContext } from "../contexts/TitleContext";
+import { useSnackbar } from "../components/Snackbar";
+import Cookies from "js-cookie";
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import Tooltip from '@mui/material/Tooltip';
+import Logout from '@mui/icons-material/Logout';
+import SwitchAccountIcon from '@mui/icons-material/SwitchAccount';
+import BadgeIcon from '@mui/icons-material/Badge';
 
 const drawerWidth = 280;
+
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: `-${drawerWidth}px`,
+    ...(open && {
+      transition: theme.transitions.create("margin", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
+    }),
+  })
+);
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+  justifyContent: "center", //changed property
+}));
 
 const Footer = styled("div", {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
   transition: theme.transitions.create(["margin", "width"], {
     easing: theme.transitions.easing.sharp,
-
     duration: theme.transitions.duration.leavingScreen,
   }),
-
   width: "100%",
-
   position: "fixed",
-
   top: "unset",
-
   bottom: 0,
-
   color: "white",
-
   backgroundColor: "black",
-
   textAlign: "center",
-
   size: "8px",
-
   ...(open && {
     width: `calc(100% - ${drawerWidth}px)`,
-
     marginLeft: `${drawerWidth}px`,
-
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
-
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
 }));
 
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link
-        color="inherit"
-        href="https://www.ysraarogyasri.ap.gov.in/"
-        target="_blank"
-      >
-        Dr.YSR Aarogyasri Health Care Trust
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-export default function Login() {
+export default function PersistentDrawerLeft() {
   const { showSnackbar } = useSnackbar();
-  const showMessage = useSelector((state) => state.showMessageReducer);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  //const [salt, setSalt] = useState("");
-  // const  hash = sha256.create();
+  const theme = useTheme();
+  const { title } = useContext(TitleContext);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [emptyPass, setEmptyPass] = useState(false);
-  const [emptyUsername, setEmptyUsername] = useState(false);
-  const data = useSelector((state) => state.loginReducer);
-  // console.log(data);
-  const navigateToHome = () => {
-    navigate("/home");
+  const location = useLocation();
+  const [open, setOpen] = useState(true);
+  const [dark, setDark] = useState(false);
+  const { toggleColorMode } = useContext(ColorModeContext);
+  const [data, setData] = useState(false);
+  const [desg, setDesg] = useState(localStorage.getItem("DesignationId"));
+  const [anchorEl, setAnchorEl] = useState(null);
+  
+  const [showProfileMenu, setShowProfileMenu] = useState(null); 
+  const show = Boolean(showProfileMenu);
+  const handleClickProfile = (event) => {
+    setShowProfileMenu(event.currentTarget);
+  };
+  const handleCloseProfile = () => {
+    setShowProfileMenu(null);
   };
 
-  const usernameRef = useRef();
-  const passwordRef = useRef();
-  let salt = "";
-  // const createHmac = (salt, plainText)=>{
-  //  let hmac = sha256.hmac(salt, plainText);
-  //   return hmac.toString();
-  // }
-
-  const hashPassword = (passwordPlainText) => {
-    var plainText = passwordPlainText;
-    salt = randomString();
-    let hash = sha256.hmac(salt, plainText);
-    // console.log(hash)
-    passwordRef.current.value = hash;
+  const openE1 = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
-  const randomString = () => {
-    let length = 100;
-    let chars =
-      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    var result = "";
-    for (var i = length; i > 0; --i)
-      result += chars[Math.floor(Math.random() * chars.length)];
-    return result;
+  const handleLogout = () => {
+    console.log("Logging out");
+    setAnchorEl(null);
+    Cookies.remove("token");
+    Cookies.remove("jobToken");
+    localStorage.clear();
+    navigate("/");
+    showSnackbar("Logout Successful", "success");
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (usernameRef.current.value === "" && passwordRef.current.value === "") {
-      setEmptyUsername(true);
-      setEmptyPass(true);
-    } else {
-      if (usernameRef.current.value === "") {
-        setEmptyUsername(true);
-        setEmptyPass(false);
-      } else if (passwordRef.current.value === "") {
-        setEmptyPass(true);
-        setEmptyUsername(false);
-      }
-    }
-
-    if (usernameRef.current.value !== "" && passwordRef.current.value !== "") {
-      hashPassword(passwordRef.current.value);
-      // console.log(passwordRef.current.value);
-
-      setIsSubmitted(true);
-      let request = {
-        username: usernameRef.current.value,
-        password: passwordRef.current.value.trim(),
-        password2: salt,
-      };
-      setEmptyPass(false);
-      setEmptyUsername(false);
-      // console.log(request);
-      dispatch(loginUser(request, successCb));
-    }
+  const handleDrawerOpen = () => {
+    setOpen(true);
   };
 
-  const successCb = (response) => {
-    // console.log("Inside successCB");
-    //navigate("/home");
-    try {
-      if (
-        response.data.status === true ||
-        response.data.statusCode === "200" ||
-        response.data.status === "SUCCESS"
-      ) {
-        showSnackbar("Login Successful", "success");
-        navigate("/home");
-      } else if (
-        response.data.statusCode === 400 ||
-        response.data.status === false
-      ) {
-        setIsSubmitted(false);
-        //setLoading(false);
-        showSnackbar(response.data.message, "error");
-        navigate("/");
-      } else {
-        setIsSubmitted(false);
-        showSnackbar("Opps, something went wrong", "error");
-        navigate("/");
-      }
-    } catch (error) {
-      setIsSubmitted(false);
-      showSnackbar("Opps, something went wrong", "error");
-      // console.log(error.message);
-      navigate("/");
-    }
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  const handleDarkMode = () => {
+    setDark(!dark);
+    toggleColorMode();
+  };
+
+  const handleChange = (e) => {
+    setDesg(e.target.value);
+    localStorage.setItem("DesignationId", e.target.value);
   };
 
   return (
-    <>
-
-      <Box
-
-        sx={{
-          backgroundImage: `url(${blue_bg})`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Grid
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="100vh"
-          sx={{ mx: 3 }}
-        >
-          <Grid container>
-            <Grid
-              item
-              xs={12}
-              sm={5}
-              sx={{
-                // height: "80vh", //remove
-                spacing: 0,
-                backgroundColor: "#F1F8FF",
-                borderRight: "1px solid #CDE6FF",
-                borderRadius: "5px 0 0 5px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                paddingRight: 2,
-              }}
-            >
-              <Grid
-                item
-                md={8}
-                xs={6}
-                component="img"
-                alt="The house from the offer."
-                src={logo_left}
-               // sx={{height: "80vh"}}
-              // margin={"15%"}
-              // display='flex'
-              // placeItems='center'
-              // justifyContent='center'
-              // alignItems='center'
-              />
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <AppBar position="fixed" open={open}>
+        <Toolbar sx={{ backgroundColor: "#3045a0", color: "#fff" }}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={{ mr: 2, ...(open && { display: "none" }) }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerClose}
+            edge="start"
+            sx={{ mr: 2, ...(!open && { display: "none" }) }}
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+          <Grid
+            container
+            alignItems="center"
+            spacing={2}
+            sx={{ flexGrow: 1 }}
+          >
+            <Grid item xs={12} sm={6} md={6} lg={6}>
+              <Typography variant="h6" noWrap>
+                {title ? title : "KPMG"}
+              </Typography>
             </Grid>
-            <Grid
-              item
-              xs={12}
-              sm={7}
-              sx={{
-                // height: "80vh",//rem
-                spacing: 0,
-                backgroundColor: "white",
-                borderRight: "1px solid #CDE6FF",
-                borderRadius: "0 5px 5px 0",
-              }}
-            >
-              <Box
-                component={"form"}
-                onSubmit={handleSubmit}
-                display="flex"
-                justifyContent="center"
-              >
-                <Grid m={4}>
-                  <Grid
-                    item
-                    xs={12}
-                    md={12}
-                  //component="img"
-                  // alt="The house from the offer."
-                  // src={logo_right}
-                  />
-                  <Grid item xs={12} md={12}>
-                    <Typography
-                      variant="h1" fontWeight={"bold"}
-                      my={2} sx={{display:'flex',justifyContent:'center',fontSize:'20px'}} 
-                    >
-                    PAYROLL
-                    </Typography>
-                    <Grid item md={12} xs={12}>
-                      <Grid item md={12} xs={10} >
-                        <TextField
-                          InputProps={{startAdornment:(<AccountCircleIcon sx={{color:"#2169B2",mr:1}}/>)}}
-                          id="userid"
-                          placeholder="User Id"
-                          variant="outlined"
-                          
-                          fullWidth
-                          inputRef={usernameRef}
-                          sx={{
-                            border: "1px solid #EAEDF1",
-                            borderRadius: "5px",
-                            width:"15rem"
-                          }}
-                          size="small"
-                          error={emptyUsername}
-                          helperText={
-                            emptyUsername ? "User Id is required" : null
-                          }
-                        />
-                      </Grid>
-                      <Grid item md={12} xs={10} >
-                        <TextField
-                        InputProps={{startAdornment:(<LockIcon sx={{color:"#2169B2",mr:1}}/>)}}
-                          id="password"
-                          placeholder="Password"
-                          variant="outlined"
-                          type="password"
-                          fullWidth
-                          inputRef={passwordRef}
-                          sx={{
-                            border: "1px solid #EAEDF1",
-                            borderRadius: "5px",
-                            width:"15rem"
-                          }}
-                          size="small"
-                          error={emptyPass}
-                          helperText={emptyPass ? "Password is required" : null}
-                        />
-                      </Grid>
-                    </Grid>
-                    <Grid container display="flex" sx={{mt:'-1rem'}} justifyContent="right">
-                      {/* <Link style={{ textDecoration: "none", cursor: 'pointer',fontSize:'15px',marginTop:'2px' }} onClick={() => { navigate("/forgotpassword") }} >Forgot Password?</Link> */}
-                    </Grid>
-                    <Grid container display="flex" justifyContent="center">
-
-                      <Button
-                        variant="contained"
-                        type="submit"
-                        disabled={isSubmitted}
-                        sx={{
-                          backgroundColor: "#2169B2",
-                          padding: "11px 50px",
-                          borderRadius: "5px",
-                          marginTop:"1.5rem"
-                        }}
-                      >
-                        LOGIN
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </Grid>
+            {/* <Grid item xs={12} sm={3} md={3} lg={3}>
+              <Typography variant="h8" noWrap>
+                {localStorage.getItem("fullname")}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={3} md={3} lg={3}>
+              <Typography variant="h8" noWrap>
+                {localStorage.getItem("designation")}
+              </Typography>
+            </Grid> */}
+            <Grid item xs={12} sm={6} md={6} lg={6}>
+              <Box display="flex" justifyContent="flex-end">
+                <Tooltip title="Account settings">
+                  <IconButton
+                    onClick={handleClickProfile}
+                    size="small"
+                    sx={{ ml: 2 }}
+                    aria-controls={show ? 'account-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={show ? 'true' : undefined}
+                  >
+                    <Avatar sx={{ width: 32, height: 32 }}><PersonOutlineIcon /></Avatar>
+                  </IconButton>
+                </Tooltip>
               </Box>
+              <Menu
+                anchorEl={showProfileMenu}
+                id="account-menu"
+                open={showProfileMenu}
+                onClose={handleCloseProfile}
+                onClick={handleCloseProfile}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: 'visible',
+                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                    mt: 1.5,
+                    '& .MuiAvatar-root': {
+                      width: 32,
+                      height: 32,
+                      ml: -0.5,
+                      mr: 1,
+                    },
+                    '&::before': {
+                      content: '""',
+                      display: 'block',
+                      position: 'absolute',
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: 'background.paper',
+                      transform: 'translateY(-50%) rotate(45deg)',
+                      zIndex: 0,
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <MenuItem onClick={handleCloseProfile}>
+                  <Avatar><BadgeIcon /></Avatar> <Typography variant="h8" noWrap>{localStorage.getItem("fullname")}</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleCloseProfile}>
+                  <Avatar><SwitchAccountIcon /></Avatar> <Typography variant="h8" noWrap>{localStorage.getItem("designation")}</Typography>
+                </MenuItem>
+                <Divider />
+                {/* <MenuItem onClick={handleClose}>
+                  <ListItemIcon>
+                    <PersonAdd fontSize="small" />
+                  </ListItemIcon>
+                  Add another account
+                </MenuItem> */}
+                {/* <MenuItem onClick={handleClose}>
+                  <ListItemIcon>
+                    <Settings fontSize="small" />
+                  </ListItemIcon>
+                  Settings
+                </MenuItem> */}
+                <MenuItem onClick={handleLogout}>
+                  <ListItemIcon>
+                    <Logout fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
+              </Menu>
             </Grid>
           </Grid>
-        </Grid>
-      </Box>
-      <Footer position="fixed">
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            scrollbarWidth: "thin",
+            // boxShadow: '1px 0px 10px #888888'
+          },
+        }}
+        variant="persistent"
+        anchor="left"
+        open={open}
+      >
+        <DrawerHeader>
+          <Box mr={1.5}>
+            <Typography
+              sx={{ py: 2, float: "left" }}
+              display="flex"
+              justifyContent="space-between"
+              component={"div"}
+            >
+              <img src={logo_left} alt="YSR" width="70px" height="100px" />
+            </Typography>
+          </Box>
+        </DrawerHeader>
+        <Divider />
+        <DrawerMenu />
+      </Drawer>
+      <Main open={open}>
+        <DrawerHeader />
+        <Outlet />
+      </Main>
+      <Footer position="fixed" open={open}>
         <Typography noWrap component="div">
-
           &copy; Site maintained by KPMG Advisory Services Pvt. Ltd.
         </Typography>
       </Footer>
-      {/* </Grid> */}
-    </>
+    </Box>
   );
 }
