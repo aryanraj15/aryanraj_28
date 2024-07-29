@@ -1,3 +1,18 @@
+
+[3:12 PM] Chouksey, Anusha
+Map of Odisha 
+2. Introduction: The Resilient Odisha Portal, under the OSDMA, has been established to deepen policymakers' understanding of cascading risks from the hazard-exposure-vulnerability perspective, providing a visualization tool to understand the vulnerabilities and risk intensity of coastal rural Odisha, and evidence-based analytics to strengthen regional cooperation and actionable risk assessments, and strengthen capacity of communities and administrations to mitigate losses. The portal also acts as a too for improved planning, decision support system, and knowledge hub for stakeholders and administrators.
+ 
+[3:18 PM] Chouksey, Anusha
+Risk and Resilience Portal (b) Risk Maps and Analysis Reports (c) Disaster Planning (d) Disaster Planning Progress (e) Digital Catalogue of Mitigation Solutions (f) Resilience Index and Risk Rating of Village/GPs (g) Resource center 
+ 
+
+
+
+
+
+
+
 import React, { lazy, Suspense, useState } from "react";
 import { Provider } from "react-redux";
 import { Route, Routes } from "react-router-dom";
