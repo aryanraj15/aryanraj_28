@@ -1,1061 +1,855 @@
-
-
-
-(
-    formik.values.PayCommission !== 32 ||
-    formik.values.PayScale !== 364 ||
-    [365, 366, 367, 368].includes(formik.values.PayScale)
-  )
-
-
-
-
-{(formik.values.PayCommission !==32 && formik.values.PayScale !==364) &&(
-                  <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="BasicPay"
-                    label="Basic Pay"
-                    name="BasicPay"
-                    disabled={view}
-                    value={formik.values.BasicPay || ""}
-                    size="small"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.BasicPay && Boolean(formik.errors.BasicPay)
-                    }
-                    helperText={
-                      formik.touched.BasicPay && formik.errors.BasicPay
-                    }
-                  />
-                </Grid>
-                )}
-                
-                {resultList?.serviceType?.id ===56 && formik.values.PayCommission ===32 && formik.values.PayScale ===364 &&(
-                  
-                  <Grid item xs={12} sm={4} md={4} lg={4}>
-                  <Autocomplete
-                    disablePortal
-                    margin="normal"
-                    fullWidth
-                    size="small"
-                    id="BasicPay"
-                    name="BasicPay"
-                    disabled={view}
-                    options={basicpaylist}
-                    value={
-                      basicpaylist.find(
-                        (option) => option.label === formik.values.BasicPay
-                      ) || null
-                    }
-                    onChange={(e, value) => {
-                      console.log(value);
-                      if (value === null) {
-                        formik.setFieldValue("BasicPay", null);
-                        
-                      } else 
-                      formik.setFieldValue("BasicPay", value.label);
-                    }}
-                    getOptionLabel={(value) => value.label}
-                    sx={{ width: "100%", mt: 2 }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        required
-                        label="Basic Pay"
-                        onBlur={formik.handleBlur}
-                        helperText={
-                          formik.errors.BasicPay && formik.touched.BasicPay
-                            ? formik.errors.BasicPay
-                            : null
-                        }
-                        error={
-                          formik.errors.BasicPay && formik.touched.BasicPay
-                            ? true
-                            : false
-                        }
-                      />
-                    )}
-                  />
-                </Grid>
-                )}
-
-
-
-
-
-
-
-
-http://141.148.194.18:8052/payroll/employee/entitlement-details
-
-{
-    "basicPay": 40000,
-    "payCommissionId": 32,
-    "grpId": 6,
-    "serviceTypeId": 53,
-    "payLevelId": 364,
-    "departmentId": 1,
-    "designationId": 2,
-    "hraTier": null,
-    "ctaEntitlement": null,
-    "isDaStop":false,
-    "isNPS":true
-}
-
-
-
-{
-    "deductionPayhead": [
-        {
-            "payheadId": 29,
-            "payheadConfigId": null,
-            "payheadName": "GIS State Govt. Employees",
-            "payheadTypeId": 28,
-            "amount": "0",
-            "payheadType": "Deduction"
-        },
-        {
-            "payheadId": 22,
-            "payheadConfigId": null,
-            "payheadName": "GPF Recovery State Govt. Employees_1",
-            "payheadTypeId": 28,
-            "amount": "0",
-            "payheadType": "Deduction"
-        },
-        {
-            "payheadId": 21,
-            "payheadConfigId": null,
-            "payheadName": "GPF Recovery State Govt. Employees_2",
-            "payheadTypeId": 28,
-            "amount": "0",
-            "payheadType": "Deduction"
-        },
-        {
-            "payheadId": 30,
-            "payheadConfigId": null,
-            "payheadName": "GPF State Govt. Employees",
-            "payheadTypeId": 28,
-            "amount": "0",
-            "payheadType": "Deduction"
-        },
-        {
-            "payheadId": 28,
-            "payheadConfigId": null,
-            "payheadName": "House Rent Deduction General Pool",
-            "payheadTypeId": 28,
-            "amount": "0",
-            "payheadType": "Deduction"
-        },
-        {
-            "payheadId": 27,
-            "payheadConfigId": null,
-            "payheadName": "Income Tax (Monthly Contribution)",
-            "payheadTypeId": 28,
-            "amount": "0",
-            "payheadType": "Deduction"
-        },
-        {
-            "payheadId": 26,
-            "payheadConfigId": null,
-            "payheadName": "NPS contribution employee",
-            "payheadTypeId": 28,
-            "amount": "0",
-            "payheadType": "Deduction"
-        },
-        {
-            "payheadId": 25,
-            "payheadConfigId": null,
-            "payheadName": "Professional Tax",
-            "payheadTypeId": 28,
-            "amount": "0",
-            "payheadType": "Deduction"
-        }
-    ],
-    "paymentPayhead": [
-        {
-            "payheadId": 12,
-            "payheadConfigId": null,
-            "payheadName": "Band Pay",
-            "payheadTypeId": 26,
-            "amount": "0",
-            "payheadType": "Payment"
-        },
-        {
-            "payheadId": 1,
-            "payheadConfigId": null,
-            "payheadName": "Basic Pay",
-            "payheadTypeId": 26,
-            "amount": "40000",
-            "payheadType": "Payment"
-        },
-        {
-            "payheadId": 19,
-            "payheadConfigId": null,
-            "payheadName": "City Transport allowance",
-            "payheadTypeId": 26,
-            "amount": "0",
-            "payheadType": "Payment"
-        },
-        {
-            "payheadId": 13,
-            "payheadConfigId": 445,
-            "payheadName": "Dearness Allowance",
-            "payheadTypeId": 26,
-            "amount": "1600",
-            "payheadType": "Payment"
-        },
-        {
-            "payheadId": 20,
-            "payheadConfigId": null,
-            "payheadName": "Dearness Pay",
-            "payheadTypeId": 26,
-            "amount": "0",
-            "payheadType": "Payment"
-        },
-        {
-            "payheadId": 14,
-            "payheadConfigId": null,
-            "payheadName": "Grade Pay",
-            "payheadTypeId": 26,
-            "amount": "0",
-            "payheadType": "Payment"
-        },
-        {
-            "payheadId": 15,
-            "payheadConfigId": 415,
-            "payheadName": "House Rent Allowance",
-            "payheadTypeId": 26,
-            "amount": "2000",
-            "payheadType": "Payment"
-        },
-        {
-            "payheadId": 17,
-            "payheadConfigId": null,
-            "payheadName": "Medical Allowance",
-            "payheadTypeId": 26,
-            "amount": "0",
-            "payheadType": "Payment"
-        },
-        {
-            "payheadId": 18,
-            "payheadConfigId": null,
-            "payheadName": "Other Allowances",
-            "payheadTypeId": 26,
-            "amount": "0",
-            "payheadType": "Payment"
-        },
-        {
-            "payheadId": 16,
-            "payheadConfigId": 475,
-            "payheadName": "Special Pay",
-            "payheadTypeId": 26,
-            "amount": "500",
-            "payheadType": "Payment"
-        }
-    ],
-    "recoveryPayhead": []
-}
-
-
-
-
-
-
-
-
-import BadgeIcon from "@mui/icons-material/Badge";
-import PaymentsIcon from "@mui/icons-material/Payments";
+import CachedIcon from "@mui/icons-material/Cached";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import EditIcon from "@mui/icons-material/Edit";
 import {
-  Alert, AlertTitle,Box,Card, CardContent, Divider,Grid, Modal, Slide, TextField,Typography,
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Stack,
+  TextField,
+  Tooltip,
 } from "@mui/material";
-import Autocomplete from "@mui/material/Autocomplete";
-import Button from "@mui/material/Button";
-import Snackbar from "@mui/material/Snackbar";
-import { styled } from "@mui/material/styles";
-import { makeStyles } from "@mui/styles";
-import axios from "axios";
+import Grid from "@mui/material/Unstable_Grid2";
+import "dayjs/locale/en-gb";
 import { useFormik } from "formik";
-import Cookies from "js-cookie";
-import React, { useEffect, useRef, useState } from "react";
-import AlertConfirm from "react-alert-confirm";
-import "react-alert-confirm/lib/style.css";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import * as Yup from "yup";
+import React, { useEffect, useState } from "react";
+import * as yup from "yup";
+import Loader from "../../components/Loader";
+import SearchTable from "../../components/SearchTableAlt";
 import { useSnackbar } from "../../components/Snackbar";
-import { H3 } from "../../components/Typography";
-function TransitionLeft(props) {
-  return <Slide {...props} direction="left" />;
-}
-const styleAlertOpenSave = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  // width: 600,
-  bgcolor: "background.paper",
-  // border: '2px solid #000',
-  boxShadow: 24,
-  // p: 4,
-};
-const useStyles = makeStyles({
-  cookieAlert: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    margin: "20px",
-    width: "300px",
-  },
-});
-const useAlertSaveStyles = makeStyles({
-  cookieAlert: {
-    "& .MuiAlert-icon": {
-      fontSize: 40,
-    },
-  },
-});
-const PayEntitlement = ({ formData, setFormData, prevData, onButtonClick, view }) => {
-  const classes = useAlertSaveStyles();
+import useTitle from "../../hooks/useTitle";
+import PageTitle from "../../layouts/PageTitle";
+import axiosClient from "../../utils/AxiosInterceptor";
+import Checkbox from "@mui/material/Checkbox";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { values } from "lodash";
+
+const PayMatrix = () => {
+  const [rowss, setRowss] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [payLevelMenu, setPayLevelMenu] = useState([]);
+  const [payLevelId, setPayLevelId] = useState([]);
+  const [payCommissionMenu, setPayCommissionMenu] = useState([]);
+  const [payCommissionId, setPayCommissionId] = useState([]);
+  const [btnText, setBtnText] = useState("Save");
+  const [isReadable, setIsReadable] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoader, setIsLoader] = useState(false);
+  const [pcServTypeId, setPcServTypeId] = useState(null);
+  const [serviceTypeMenu, setServiceTypeMenu] = useState([]);
+  const [editId, setEditId] = useState(null);
+  const [editCount, setEditCount] = useState(0);
   const { showSnackbar } = useSnackbar();
-  const user = useSelector((state) => state.loginReducer);
-  const navigate = useNavigate();
-  const [bankName, setBankName] = useState("");
-  const [lengthdesabled, setLengthdesabled] = useState();
-  const [branchName, setBranchName] = useState("");
-  const [enteredValue, setEnteredValue] = useState("");
-  const [accountList, setAccountList] = useState([]);
-  const [hratierList, setHratierList] = useState([]);
-  const [percentages, setPercentages] = useState([]);
-  const [npsOpted, setNpsOpted] = useState([]);
-  const [medicalStop, setMedicalStop] = useState([]);
-  const [daStop, setDaStop] = useState([]);
-  const [ctaAllowanceApplicable, setCtaAllowanceApplicable] = useState([]);
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastSeverity, setToastSeverity] = useState("info");
-  const [resultList, setResultList] = useState([]);
-  const [ctaentitlementList, setCtaentitlementList] = useState([]);
-  const [updatedDeductionAmounts, setUpdatedDeductionAmounts] = useState({});
-  const [entitlementDetails, setEntitlementDetails] = useState([]);
-  const [deductionDetails, setDeductionDetails] = useState([]);
-  const [updatedAmounts, setUpdatedAmounts] = useState({});
-  const [passbookUploadedFile, setPassbookUploadedFile] = useState(null);
-  const [requirePassbook, setRequirePassbook] = useState(false);
-  const [checkboxChecked, setCheckboxChecked] = useState(false);
-  const [istableDisabled, setIsTableDisabled] = useState(false);
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
-  const [openAlertSave, setOpenAlertSave] = React.useState(false);
-  const [showNext, setShowNext] = useState(view);
-  const [isOtpButtonDisabled, setIsOtpButtonDisabled] = useState(
-    prevData?.disableAadhar || false
-  );
-  const [showOtpField, setShowOtpField] = useState(
-    prevData?.showOtpField || false
-  );
-  const [disableAadhar, setDisableAadhar] = useState(false);
-  const [showLink, setShowLink] = useState(true);
-  const [payCommissionList, setPayCommissionList] = useState([]);
-  const [payScaleList, setPayScaleList] = useState([]);
-  //const [isSubmitButtonDisabled,setIsSubmitButtonDisabled] =useState(true);
-  const [txn, setTxn] = useState("");
-  const handleAlertSaveOpen = () => setOpenAlertSave(true);
-  const handleAlertSaveClose = () => setOpenAlertSave(false);
-  const fileInputRef = useRef(null);
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  };
-  const handleAmountChange = (index, value) => {
-    setUpdatedAmounts((prev) => ({
-      ...prev,
-      [index]: value,
-    }));
-  };
-  const handleDeductionAmountChange = (index, value) => {
-    setUpdatedDeductionAmounts((prev) => ({
-      ...prev,
-      [index]: value,
-    }));
-  };
-  const calculateNetDeduction = () => {
-    return deductionDetails.reduce((total, detail, index) => {
-      const amount = parseFloat(detail.amount) || 0;
-      const updatedAmount = parseFloat(updatedDeductionAmounts[index]) || 0;
-      return total + (updatedAmount > 0 ? updatedAmount : amount);
-    }, 0);
-  };
-  const calculateNetEarning = () => {
-    return entitlementDetails.reduce((total, detail, index) => {
-      const amount = parseFloat(detail.amount) || 0;
-      const updatedAmount = parseFloat(updatedAmounts[index]) || 0;
-      return total + (updatedAmount > 0 ? updatedAmount : amount);
-    }, 0);
-  };
-  const calculateNetSalary = () => {
-    return calculateNetEarning() - calculateNetDeduction();
-  };
-  let selectedFile = [];
-  const isSubmitButtonDisabled = !(checkboxChecked && isOtpButtonDisabled);
-  console.log(checkboxChecked);
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenToast(false);
-  };
-  const validationSchema = Yup.object().shape({
-    DAStop: Yup.string().required("DA Stop is required").nullable(),
-    MedicalStop: Yup.string().required("Medical Stop is required").nullable(),
-    NPSOpted: Yup.string().required("NPS Opted is required").nullable(),
-    GPFPRANType: Yup.string().required("GPF/PRAN Type is required").nullable(),
-    CTAAllowanceApplicable: Yup.string()
-      .required("CTA Allowance Applicable is required")
-      .nullable(),
-    GovtQuarterOccupied: Yup.string()
-      .required("Govt Quarter Occupied is required")
-      .nullable(),
-    BasicPay: Yup.string().required("Basic Pay is required").nullable(),
-    PayScale: Yup.string().required("Pay Scale is required").nullable(),
-    PayCommission: Yup.string()
-      .required("Pay Commission is required")
-      .nullable(),
+  const title = "Pay Matrix";
+  useTitle(title);
+
+
+  const validationSchema = yup.object({
+    serviceType: yup.object().nullable().required("Service Type is required"),
+    payCommission: yup
+      .object()
+      .nullable()
+      .required("Pay Commission is required"),
+    payLevel: yup.object().nullable().required("Pay Level is required"),
+    amount: yup.number().required("Amount is required"),
+    effectiveFrom: yup.date().nullable().required("Effective From is required"),
+    isActive: yup.bool().required("Is Active is required"),
   });
+
   const formik = useFormik({
     initialValues: {
-      DAStop: "",
-      MedicalStop: "",
-      NPSOpted: "",
-      GPFPRANType: "",
-      CTAEntitlement: "",
-      CTAAllowanceApplicable: "",
-      HRATier: "",
-      GovtQuarterOccupied: "",
-      BasicPay: "",
-      PayScale: "",
-      PayCommission: "",
-      serviceId: "",
-      // Add initial values for other fields
+      serviceType: "",
+      payCommission: "",
+      payLevel: "",
+      minAmount: "",
+      maxAmount: "",
+      amount: "",
+      effectiveFrom: null,
+      isActive: false,
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      // Handle form submission or API integration here
+      setSelectedRow(null);
+      setIsSubmitted(true);
+      if (selectedRow !== null) {
+        setBtnText("Updating");
+        let postData = {
+          id: editId,
+          payBandId: values.payLevel.id,
+          value: Number(values.amount),
+          isActive: formik.values.isActive,
+        };
+        axiosClient
+          .post(
+            `${process.env.REACT_APP_PAYROLL_API_URL}/savePayMatrix`,
+            postData
+          )
+          .then((response) => {
+            if (response.data.statusCode === 200) {
+              setRowss((prevValue) => {
+                const updatedRows = [...prevValue];
+                updatedRows[selectedRow] = {
+                  ...updatedRows[selectedRow],
+                  ...response.data?.result,
+                  payCommission: response.data?.result?.payCommision,
+                  payLevel: response.data?.result?.payBandId,
+                  amount: response.data?.result?.value,
+
+                };
+                // setIsReadable(false);
+                return updatedRows;
+              });
+              showSnackbar(response.data?.message, "success");
+              setBtnText("Save");
+              formik.resetForm();
+            } else {
+              setBtnText("Update");
+              showSnackbar(response.data?.message, "error");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+            setBtnText("Update");
+            if (error.response) {
+              showSnackbar(
+                error.response.data.message
+                  ? error.response.data.message
+                  : error.response.message,
+                "error"
+              );
+            }
+          })
+          .finally(() => {
+            setIsSubmitted(false);
+          });
+      } else {
+        // console.log(values);
+        setBtnText("Saving");
+        let postData = {
+          id: null,
+          payBandId: values.payLevel.id,
+          value: Number(values.amount),
+          isActive: formik.values.isActive,
+        };
+        // console.log("Post Data",postData);
+        axiosClient
+          .post(
+            `${process.env.REACT_APP_PAYROLL_API_URL}/savePayMatrix`,
+            postData
+          )
+          .then((response) => {
+            // console.log(response.data);
+            if (response.data.statusCode === 200) {
+              const rowData = {
+                ...response.data.result,
+                payCommission: response.data?.result?.payCommision,
+                payLevel: response.data?.result?.payBandId,
+                amount: response.data?.result?.value,
+
+              };
+
+              setRowss([rowData, ...rowss]);
+              setBtnText("Saving");
+              showSnackbar(response.data?.message, "success");
+              formik.resetForm();
+            } else {
+              showSnackbar(response.data?.message, "error");
+            }
+          })
+          .catch((error) => {
+            if (error.response) {
+              showSnackbar(
+                error.response.data.message
+                  ? error.response.data.message
+                  : error.response.message,
+                "error"
+              );
+            }
+          })
+          .finally(() => {
+            setBtnText("Save");
+            setIsSubmitted(false);
+          });
+      }
     },
   });
-  console.log(formik.values.serviceId);
-  const VisuallyHiddenInput = styled("input")({
-    clip: "rect(0 0 0 0)",
-    clipPath: "inset(50%)",
-    height: 1,
-    overflow: "hidden",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    whiteSpace: "nowrap",
-    width: 1,
-  });
-  const handleTextfield = (e) => {
-    const newValue = e.target.value;
-    setEnteredValue(newValue);
-  };
-  const checkValid = async () => {
-    formik
-      .validateForm()
-      .then((formErrors) => {
-        if (Object.keys(formErrors).length > 0) {
-          console.log(Object.keys(formErrors));
-          //alert(Object.keys(formErrors))
-          setToastMessage("Please fill all the required * fields");
-          setToastSeverity("error");
-          setOpenToast(true);
+
+  useEffect(() => {
+    setIsLoader(true);
+    axiosClient
+      .get(`${process.env.REACT_APP_PAYROLL_API_URL}/getIndependentdropdown`)
+      .then((response) => {
+        if (
+          response.data?.result?.length === 0 ||
+          response.data.result === null
+        ) {
+          console("No data found");
         } else {
-          getEarningDetails();
-          getDeductionDetails();
+          setServiceTypeMenu(
+            response.data?.result?.serviceType?.map((item, index) => ({
+              id: item.typeId,
+              label: item.typeName,
+            }))
+          );
         }
-      })
-      .catch((err) => {
-        formik.setSubmitting(false);
-      });
-  };
-  useEffect(() => {
-    if (formik.values.serviceId) {
-      axios
-        .get(
-          `http://141.148.194.18:8052/payroll/employee/dropdown/pay-commission/${formik.values.serviceId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${Cookies.get("token")}`,
-            },
-          }
-        )
-        .then((response) => {
-          if (response.status === 200) {
-            setPayCommissionList(response.data);
-          }
-          console.log(response);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }, [formik.values.serviceId]);
-  useEffect(() => {
-    //checkEnrollmentStatus()
-    entitlmentDetails();
-    axios
-      .get(
-        `http://141.148.194.18:8052/payroll/employee/dropdown/cta-entitlement`,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        }
-      )
-      .then((response) => {
-        if (response.status === 200) {
-          setCtaentitlementList(response.data);
-        }
-        //console.log(sortedAccountData);
       })
       .catch((error) => {
-        setCtaentitlementList([]);
-        console.log(error);
-      });
-    axios
-      .get(`http://141.148.194.18:8052/payroll/employee/dropdown/hra-tier`, {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("token")}`,
-        },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          setHratierList(response.data);
+        if (error.response) {
+          showSnackbar(
+            error.response.data.message
+              ? error.response.data.message
+              : error.response.message,
+            "error"
+          );
         }
-        console.log(response);
-        // setHratierList(sortedHratierData);
+      })
+      .finally(() => setIsLoader(false));
+    setIsLoader(true);
+    axiosClient
+      .get(`${process.env.REACT_APP_PAYROLL_API_URL}/getPayMatrix`)
+      .then((response) => {
+        if (
+          response.data?.result?.length === 0 ||
+          response.data.result === null
+        ) {
+          // showSnackbar("No data found", "warning");
+          console("No data found");
+        } else {
+          let responseData = response.data?.result?.map((values, index) => {
+            let rowData = {
+              ...values,
+              payCommission: values?.payCommision,
+              payLevel: values?.payBandId,
+              amount: values?.value,
+              index: index + 1,
+            };
+            return rowData;
+          });
+
+          // console.log("repons",responseData);
+          setRowss(responseData);
+        }
       })
       .catch((error) => {
-        setHratierList([]);
-        console.log(error);
-      });
-    axios
-      .get(
-        `http://141.148.194.18:8052/payroll/employee/entitlement/dropdown-init`,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
+        if (error.response) {
+          showSnackbar(
+            error.response.data.message
+              ? error.response.data.message
+              : error.response.message,
+            "error"
+          );
         }
-      )
-      .then((response) => {
-        if (response.status === 200) {
-          setNpsOpted(response.data.npsOpted);
-          setMedicalStop(response.data.medicalStop);
-          setDaStop(response.data.daStop);
-          setCtaAllowanceApplicable(response.data.ctaAllowanceApplicable);
-        }
-        console.log(response);
-        // setHratierList(sortedHratierData);
+        setRowss([]);
       })
-      .catch((error) => {
-        setHratierList([]);
-        console.log(error);
-      });
+      .finally(() => setIsLoader(false));
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getEarningDetails = async (data) => {
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8052/payroll/employee/entitlement-details/payment",
-        {
-          basicPay: formik.values.BasicPay,
-          payCommissionId: formik.values.PayCommission,
-          grpId: resultList?.group?.id,
-          serviceTypeId: resultList?.serviceType?.id,
-          payLevelId: formik.values.PayScale,
-          departmentId: resultList?.department.id,
-          designationId: resultList?.designation?.id,
-          ctaEntitlement: formik.values.CTAEntitlement || null,
-          hraTier: formik.values.HRATier || null,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        }
-      );
-      setEntitlementDetails(response.data);
-      setIsSubmitDisabled(true);
-      setIsTableDisabled(true);
-      console.log("aryznnn", response);
-    } catch (error) {
-      // setOpenAlertSave(true);
-      setToastMessage(
-        "Something went wrong while Saving the details, please try again."
-      );
-      setToastSeverity("error");
-      setOpenToast(true);
-    }
+
+  const handleCancel = () => {
+    setPayLevelId([]);
+    setPayCommissionId([]);
+    setBtnText("Save");
+    setEditCount(0);
+    // setIsReadable(false);
+    setSelectedRow(null);
+    formik.resetForm();
   };
-  const getDeductionDetails = async (data) => {
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8052/payroll/employee/entitlement-details/deduction",
-        {
-          basicPay: formik.values.BasicPay,
-          payCommissionId: formik.values.PayCommission,
-          grpId: resultList?.group?.id,
-          serviceTypeId: resultList?.serviceType?.id,
-          payLevelId: formik.values.PayScale,
-          departmentId: resultList?.department.id,
-          designationId: resultList?.designation?.id,
-          ctaEntitlement: formik.values.CTAEntitlement || null,
-          hraTier: formik.values.HRATier || null,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        }
-      );
-      setDeductionDetails(response.data);
-    } catch (error) {
-      setToastMessage(
-        "Something went wrong while Saving the details, please try again."
-      );
-      setToastSeverity("error");
-      setOpenToast(true);
-    }
+
+  const handleChange = (event) => {
+    formik.setFieldValue("isActive", event.target.checked);
   };
-  const entitlmentDetails = async (data) => {
-    try {
-      let body = {
-        refNo: localStorage.getItem("refNo"),
-        //refNo: "BRD0000000000061",
-      };
-      console.log("the saved details  body", body);
-      const res = await axios.post(
-        `http://141.148.194.18:8052/payroll/employee/entitlement-data`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        }
-      );
-      console.log("the saved details  areeeeee", res);
-      if (res.status == 200) {
-        console.log("the aryan ", res.data);
-        // console.log("the length ", res.data.disability.length);
-        setResultList(res.data);
-        setLengthdesabled(res.data.disability.length);
-        formik.setFieldValue("Disabled", res.data?.disability);
-        formik.setFieldValue("GovtQuarterOccupied", res.data?.govtQuarterType);
-        formik.setFieldValue("GPFPRANType", res.data?.gpfPranType?.label);
-        formik.setFieldValue("serviceId", res.data?.serviceType?.id);
-        // formik.setFieldValue(
-        //   "PercentageofDisability",
-        //   res.data.disability[0].percentage
-        // );
-        const percentages = res.data.disability.map(item => item.percentage);
-        // Store the percentages in the state
-        setPercentages(percentages);
-      }
-    } catch (error) {
-      //alert("No refNo found", error);
-      console.log(error.message);
+
+
+
+  const handleAmount = (event) => {
+    const { value } = event.target;
+    const amount = parseFloat(value);
+    console.log(amount)
+
+    const minAmount = formik.values.minAmount;
+    const maxAmount = formik.values.maxAmount;
+    formik.setFieldTouched('amount', true, true);
+    console.log(minAmount)
+    console.log(maxAmount)
+
+
+    if (isNaN(amount) || amount < minAmount || amount > maxAmount) {
+      formik.setFieldError('amount', `Amount must be between ${minAmount} and ${maxAmount}`);
+      // alert("hello")
+      console.log("true");
+    } else {
+      formik.setFieldError('amount', '');
     }
+    formik.setFieldValue('amount', value);
   };
-  // console.log(formik.values.Disabled.length)
-  const handleSave = async () => {
-    const payEntitlementList = [];
-    Object.keys(updatedAmounts).forEach((key) => {
-      const index = parseInt(key);
-      const amount = parseFloat(updatedAmounts[key]);
-      if (amount > 0) {
-        payEntitlementList.push({
-          payheadId: entitlementDetails[index].payheadId,
-          payheadValue: amount,
-          payheadConfigId: entitlementDetails[index].payheadConfigId,
-          payheadName: entitlementDetails[index].payheadName,
-        });
-      }
-    });
-    Object.keys(updatedDeductionAmounts).forEach((key) => {
-      const index = parseInt(key);
-      const amount = parseFloat(updatedDeductionAmounts[key]);
-      if (amount > 0) {
-        payEntitlementList.push({
-          payheadId: deductionDetails[index].payheadId,
-          payheadValue: amount,
-          payheadConfigId: deductionDetails[index].payheadConfigId,
-          payheadName: deductionDetails[index].payheadName,
-        });
-      }
-    });
 
-    entitlementDetails.forEach((item, index) => {
-      if (!updatedAmounts[index]) {
-        payEntitlementList.push({
-          payheadId: item.payheadId,
-          payheadValue: parseFloat(item.amount) || 0,
-          payheadConfigId: item.payheadConfigId,
-          payheadName: item.payheadName,
-        });
-      }
-    });
-
-    deductionDetails.forEach((item, index) => {
-      if (!updatedDeductionAmounts[index]) {
-        payEntitlementList.push({
-          payheadId: item.payheadId,
-          payheadValue: parseFloat(item.amount) || 0,
-          payheadConfigId: item.payheadConfigId,
-          payheadName: item.payheadName,
-        });
-      }
-    });
-
-
-    const payload = {
-      //refNo: "BRD0000000000061",
-      refNo: localStorage.getItem("refNo"),
-      hraTier: formik.values.HRATier,
-      basicPay: formik.values.BasicPay,
-      isCtaApplicable: formik.values.CTAAllowanceApplicable === 329,
-      ctaEntitlement: formik.values.CTAEntitlement || null,
-      paylevel: formik.values.PayScale,
-      pcId: formik.values.PayCommission,
-      isNpsOpted: formik.values.NPSOpted === 333,
-      isMedicalStop: formik.values.MedicalStop === 325,
-      isDaStop: formik.values.DAStop === 327,
-      payEntitlementList,
+  const handleEdit = (params, index) => {
+    setSelectedRow(index - 1);
+    setEditId(rowss[index - 1].id);
+    setBtnText("Update");
+    //////////////////////////////////////////////////////////////////
+    // console.log("params",params);
+    const PayLevelLabel = payLevelMenu.find(
+      (option) => option.label === rowss[index - 1].PayLevelName
+    );
+    if (params.pcServTypeName) {
+      formik.setFieldValue("payLevel", { label: params.pcServTypeName });
+      setPayLevelId(params.pcServTypeId);
+    } else {
+      formik.setFieldValue("payLevel", { label: params.PayLevelName });
+      setPayLevelId(params.pcServTypeId.servTypeId.id);
+    }
+    /////////////////////////////////////////////////////////////
+    const typeCommissionLabel = {
+      id: params.typeId,
+      label: params.payCommision,
     };
-    try {
-      const response = await axios.post(
-        "http://141.148.194.18:8052/payroll/employee/pay-entitlement",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        }
-      );
-      console.log("Save response:", response.data);
-      showSnackbar(response.data.message, "success");
-      setShowNext(true);
-      setOpenToast(true);
-      setShowNext(true);
-      onButtonClick("pagesix");
-    } catch (error) {
-      console.error("Error saving pay entitlement details", error);
-    }
+    formik.setFieldValue("payCommission", typeCommissionLabel);
+    setPayCommissionId(typeCommissionLabel);
+
+    ///////////////////////////////////////////////////////////
+
+    const payBandLabel = {
+      id: rowss[index - 1].payBandId,
+      label: rowss[index - 1].payBandName,
+    };
+    formik.setFieldValue("payBand", payBandLabel);
+
+    formik.setFieldValue("minValue", rowss[index - 1].minValue);
+    formik.setFieldValue("maxValue", rowss[index - 1].maxValue);
+    formik.setFieldValue("amount", rowss[index - 1].amount);
+    formik.setFieldValue("matrixIndex", rowss[index - 1].matrixIndex);
+    formik.setFieldValue("description", rowss[index - 1].description);
+    formik.setFieldValue("minimumServiceYear", rowss[index - 1].minServYears);
   };
-  const callConfirmDialog = async () => {
-    console.log('kp-confirm');
-    const [action] = await AlertConfirm({
-      title: "Confirm",
-      desc: "Are you sure, you want to submit?",
-    });
-    AlertConfirm.config({
-      okText: "Submit",
-      cancelText: "Cancel",
-    });
-    if (action) {
-      console.log('kp-saved');
-      handleSave();
-    }
-  };
+  const columns = [
+    {
+      field: "index",
+      headerName: "Sr No.",
+      flex: 0.1,
+      minWidth: 80,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "PayLevelName",
+      headerName: "Pay Level",
+      flex: 0.3,
+      minWidth: 200,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "payCommission",
+      headerName: "Pay Commission",
+      flex: 0.3,
+      minWidth: 200,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "amount",
+      headerName: "Amount",
+      flex: 0.2,
+      minWidth: 150,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "isActive",
+      headerName: "Is Active",
+      flex: 0.2,
+      minWidth: 150,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "action",
+      headerName: "Action",
+      headerClassName: "super-app-theme--header",
+      flex: 0.3,
+      minWidth: 180,
+      sortable: false,
+      disableClickEventBubbling: true,
+      renderCell: (params) => {
+        return (
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              sx={{
+                color: "black",
+                backgroundColor: "white",
+                ":hover": { color: "black", backgroundColor: "white" },
+                borderRadius: "4px",
+              }}
+              endIcon={<EditIcon />}
+              size="small"
+              onClick={() => handleEdit(params.row, params.row.index)}
+            >
+              Edit
+            </Button>
+            {/* <Button variant="contained" sx={{ color: 'white', backgroundColor: '#286cb4', ":hover": { color: 'white', backgroundColor: '#286cb4' }, borderRadius: '4px' }} startIcon={<DeleteIcon />} size="small" onClick={() => handleDelete(params.row.index)}>Delete</Button> */}
+          </Stack>
+        );
+      },
+    },
+  ];
+
+  return (
+    <>
+      {isLoader && <Loader />}
+      <Grid container>
+        <Grid xs={12}>
+          <Card sx={{ my: 2 }} elevation={5}>
+            <CardContent>
+              <PageTitle name={title} />
+              <Box component="form" onSubmit={formik.handleSubmit}>
+                <Grid container columnSpacing={3}>
+                  <Grid xs={12} sm={4}>
+                    <Autocomplete
+                      disablePortal
+                      margin="normal"
+                      fullWidth
+                      id="serviceType"
+                      name="serviceType"
+                      size="small"
+                      // required
+                      options={serviceTypeMenu}
+                      value={
+                        formik.values?.serviceType
+                          ? formik.values?.serviceType
+                          : serviceTypeMenu.find(
+                            (option) =>
+                              option.id === formik.values.serviceType?.id
+                          ) || null
+                      }
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("serviceType", null);
+                          formik.setFieldValue("payCommission", "");
+                          formik.setFieldValue("payLevel", "");
+                        } else {
+                          formik.setFieldValue("payCommission", "");
+                          formik.setFieldValue("payLevel", "");
+                          formik.setFieldValue("serviceType", value);
+                          setIsLoader(true);
+                          axiosClient
+                            .get(
+                              `${process.env.REACT_APP_PAYROLL_API_URL}/getPayCommisionByService/${value.id}`
+                            )
+                            .then((response) => {
+                              if (
+                                response.data?.result?.length === 0 ||
+                                response.data.result === null
+                              ) {
+                                // showSnackbar("No data found", "warning");
+                                console("No data found");
+                              } else {
+                                let responseData = response.data?.result?.map(
+                                  (value, index) => {
+                                    let rowData = {
+                                      ...value,
+                                      index: index + 1,
+                                    };
+                                    return rowData;
+                                  }
+                                );
+                                setPayCommissionMenu(
+                                  responseData.map((item, index) => ({
+                                    id: item.typeId,
+                                    label: item.typeName,
+                                    pcServiceTypeId: item.pcServiceTypeId,
+                                  }))
+                                );
+                              }
+                            })
+                            .catch((error) => {
+                              if (error.response) {
+                                showSnackbar(
+                                  error.response.data.message
+                                    ? error.response.data.message
+                                    : error.response.message,
+                                  "error"
+                                );
+                              }
+                            })
+                            .finally(() => setIsLoader(false));
+                        }
+                      }}
+                      getOptionLabel={(value) => value.label}
+                      sx={{ width: "100%", mt: 2 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Service Type"
+                          onBlur={formik.handleBlur}
+                          required
+                          helperText={
+                            formik.errors.serviceType &&
+                              formik.touched.serviceType
+                              ? formik.errors.serviceType
+                              : null
+                          }
+                          error={
+                            formik.errors.serviceType &&
+                              formik.touched.serviceType
+                              ? true
+                              : false
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid xs={12} sm={4}>
+                    {/* <Tooltip title={serviceTypeId.id?'':'First select Service Type'}> */}
+                    <Autocomplete
+                      disablePortal
+                      margin="normal"
+                      fullWidth
+                      id="payCommission"
+                      name="payCommission"
+                      size="small"
+                      // required
+                      disabled={formik.values?.serviceType ? false : true}
+                      options={payCommissionMenu}
+                      value={
+                        formik.values?.payCommission
+                          ? formik.values?.payCommission
+                          : payCommissionMenu.find(
+                            (option) =>
+                              option.id === formik.values.payCommission?.id
+                          ) || null
+                      }
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("payCommission", null);
+                          formik.setFieldValue("payLevel", "");
+                        } else {
+                          formik.setFieldValue("payLevel", "");
+                          formik.setFieldValue("payCommission", value);
+                          setIsLoader(true);
+                          axiosClient
+                            .get(
+                              `${process.env.REACT_APP_PAYROLL_API_URL}/getPaybands/${value.id}`
+                            )
+                            .then((response) => {
+                              if (
+                                response.data?.result?.length === 0 ||
+                                response.data.result === null
+                              ) {
+                                // showSnackbar("No data found", "warning");
+                                console("No data found");
+                              } else {
+                                let responseData = response.data?.result?.map(
+                                  (value, index) => {
+                                    let rowData = {
+                                      ...value,
+                                      index: index + 1,
+                                    };
+                                    return rowData;
+                                  }
+                                );
+                                setPayLevelMenu(
+                                  responseData.map((item, index) => ({
+                                    id: item.typeId,
+                                    label: item.typeName,
+                                  }))
+                                );
+                              }
+                            })
+                            .catch((error) => {
+                              if (error.response) {
+                                showSnackbar(
+                                  error.response.data.message
+                                    ? error.response.data.message
+                                    : error.response.message,
+                                  "error"
+                                );
+                              }
+                            })
+                            .finally(() => setIsLoader(false));
+                        }
+                      }}
+                      getOptionLabel={(value) => value.label}
+                      sx={{ width: "100%", mt: 2 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          required
+                          label="Pay Commission"
+                          onBlur={formik.handleBlur}
+                          helperText={
+                            formik.errors.payCommission &&
+                              formik.touched.payCommission
+                              ? formik.errors.payCommission
+                              : null
+                          }
+                          error={
+                            formik.errors.payCommission &&
+                              formik.touched.payCommission
+                              ? true
+                              : false
+                          }
+                        />
+                      )}
+                    />
+                    {/* </Tooltip> */}
+                  </Grid>
+                  <Grid xs={12} sm={4}>
+                    <Autocomplete
+                      disablePortal
+                      margin="normal"
+                      fullWidth
+                      id="payLevel"
+                      name="payLevel"
+                      size="small"
+                      disabled={formik.values?.payCommission ? false : true}
+                      options={payLevelMenu}
+                      value={
+                        formik.values?.payLevel
+                          ? formik.values?.payLevel
+                          : payLevelMenu.find(
+                            (option) =>
+                              option.id === formik.values.payLevel?.id
+                          ) || null
+                      }
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("payLevel", null);
+                          formik.setFieldValue("minAmount", "");
+                          formik.setFieldValue("maxAmount", "");
+                        } else {
+                          formik.setFieldValue("minAmount", "");
+                          formik.setFieldValue("maxAmount", "");
+                          formik.setFieldValue("payLevel", value);
+                          setIsLoader(true);
+                          axiosClient
+                            .get(
+                              `${process.env.REACT_APP_PAYROLL_API_URL}/getRangeByPayLevel/${value.id}`
+                            )
+                            .then((response) => {
+                              if (
+                                response.data?.result?.length === 0 ||
+                                response.data.result === null
+                              ) {
+                                showSnackbar("No data found", "warning");
+                                console("No data found");
+                              } else {
+                                let responseData = response.data?.result[0];
+                                formik.setFieldValue("minAmount", responseData?.minValue);
+                                formik.setFieldValue("maxAmount", responseData?.maxValue);
 
 
-          {istableDisabled && (
-            <Card>
-              <CardContent>
-                <Grid
-                  container
-                  direction="row"
-                  rowSpacing={0}
-                  columnSpacing={2}
-                  justify="flex-end"
-                  alignItems="center"
-                  sx={{ mb: 2 }}
-                >
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={6} md={6} lg={6}>
-                        <div style={{ border: "0.5px solid black"}}>
-                          <h6 style={{
-                            padding: "6px",
-                            textAlign: 'center',
-                            backgroundColor: '#F0F8FF'
-                          }}>Earning</h6>
-                          <table
-                            style={{
-                              width: "100%",
-                              borderCollapse: "collapse",
-                              border: "1px solid #ccc",
-                            }}
-                          >
-                            <thead>
-                              <tr>
-                                <th
-                                  style={{
-                                    border: "1px solid #ccc",
-                                    padding: "8px",
-                                  }}
-                                >
-                                  Sr. No
-                                </th>
-                                <th
-                                  style={{
-                                    border: "1px solid #ccc",
-                                    padding: "8px",
-                                  }}
-                                >
-                                  Payhead Name
-                                </th>
-                                <th
-                                  style={{
-                                    border: "1px solid #ccc",
-                                    padding: "8px",
-                                  }}
-                                >
-                                  Amount
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {entitlementDetails.map((detail, index) => (
-                                <tr key={index}>
-                                  <td
-                                    style={{
-                                      border: "1px solid #ccc",
-                                      padding: "8px",
-                                    }}
-                                  >
-                                    {index + 1}
-                                  </td>
-                                  <td
-                                    style={{
-                                      border: "1px solid #ccc",
-                                      padding: "8px",
-                                    }}
-                                  >
-                                    {detail.payheadName}
-                                  </td>
-                                  <td
-                                    style={{
-                                      border: "1px solid #ccc",
-                                      padding: "8px",
-                                    }}
-                                  >
-                                    {detail.amount === "0" ? (
-                                      <TextField
-                                        fullWidth
-                                        variant="outlined"
-                                        onChange={(e) =>
-                                          handleAmountChange(
-                                            index,
-                                            e.target.value
-                                          )
-                                        }
-                                      />
-                                    ) : (
-                                      detail.amount
-                                    )}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                          {/* <div
-                          style={{
-                            textAlign: "right",
-                            padding: "8px",
-                            borderTop: "1px solid #ccc",
-                          }}
-                        >
-                          <strong>Net Earning:</strong> {calculateNetEarning()}
-                        </div> */}
-                        </div>
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={6} lg={6}>
-                      <div style={{ border: "0.5px solid black"}}>
-                          <h6 style={{
-                            padding: "6px",
-                            textAlign: 'center',
-                            backgroundColor: '#F0F8FF'
-                          }}>Deduction</h6>
-                          <table
-                            style={{
-                              width: "100%",
-                              borderCollapse: "collapse",
-                              border: "1px solid #ccc",
-                            }}
-                          >
-                            <thead>
-                              <tr>
-                                <th
-                                  style={{
-                                    border: "1px solid #ccc",
-                                    padding: "8px",
-                                  }}
-                                >
-                                  Sr. No
-                                </th>
-                                <th
-                                  style={{
-                                    border: "1px solid #ccc",
-                                    padding: "8px",
-                                  }}
-                                >
-                                  Payhead Name
-                                </th>
-                                <th
-                                  style={{
-                                    border: "1px solid #ccc",
-                                    padding: "8px",
-                                  }}
-                                >
-                                  Amount
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {deductionDetails.map((detail, index) => (
-                                <tr key={index}>
-                                  <td
-                                    style={{
-                                      border: "1px solid #ccc",
-                                      padding: "8px",
-                                    }}
-                                  >
-                                    {index + 1}
-                                  </td>
-                                  <td
-                                    style={{
-                                      border: "1px solid #ccc",
-                                      padding: "8px",
-                                    }}
-                                  >
-                                    {detail.payheadName}
-                                  </td>
-                                  <td
-                                    style={{
-                                      border: "1px solid #ccc",
-                                      padding: "8px",
-                                    }}
-                                  >
-                                    {detail.amount === "0" ? (
-                                      <TextField
-                                        fullWidth
-                                        variant="outlined"
-                                        onChange={(e) =>
-                                          handleDeductionAmountChange(
-                                            index,
-                                            e.target.value
-                                          )
-                                        }
-                                      />
-                                    ) : (
-                                      detail.amount
-                                    )}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                          {/* <div
-                          style={{
-                            textAlign: "right",
-                            padding: "8px",
-                            borderTop: "1px solid #ccc",
-                          }}
-                        >
-                          <strong>Net Deduction:</strong>{" "}
-                          {calculateNetDeduction()}
-                        </div> */}
-                        </div>
-                        {/* <div style={{ textAlign: "center", padding: "16px" }}>
-                        <strong>Net Salary:</strong> {calculateNetSalary()}
-                      </div> */}
-                      </Grid>
-                    </Grid>
-                  </div>
-                  <table
-                    style={{
-                      width: "100%",
-                      marginTop: "16px",
-                      border: "1px solid #ccc",
-                    }}
-                  >
-                    <tbody>
-                      <tr>
-                        <td
-                          style={{
-                            textAlign: "center",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                          }}
-                        >
-                          <strong>Net Earning:</strong> {calculateNetEarning()}
-                        </td>
-                        <td
-                          style={{
-                            textAlign: "center",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                          }}
-                        >
-                          <strong>Net Deduction:</strong>{" "}
-                          {calculateNetDeduction()}
-                        </td>
-                        <td
-                          style={{
-                            textAlign: "center",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                          }}
-                        >
-                          <strong>Net Salary:</strong> {calculateNetSalary()}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </Grid>
-                {isSubmitDisabled && (
-                  <div style={{ textAlign: "center", padding: "16px" }}>
-                    {view !== true && (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => {
-                          // handleSave();
-                          callConfirmDialog()
-                          //setOpenAlertSave(true);
-                        }}
-                      >
-                        Save Pay Entitlement
-                      </Button>
-                    )}
-                    <Button
-                      sx={{
-                        minWidth: 100,
-                        ml: 1,
-                        mt: { xs: 1, md: 0 },
+                              }
+                            })
+                            .catch((error) => {
+                              if (error.response) {
+                                showSnackbar(
+                                  error.response.data.message
+                                    ? error.response.data.message
+                                    : error.response.message,
+                                  "error"
+                                );
+                              }
+                            })
+                            .finally(() => setIsLoader(false));
+                        }
                       }}
-                      variant="outlined"
-                      //type="submit"
-                      disabled={!showNext}
-                      onClick={() => {
-                        onButtonClick("pagesix");
-                      }}
+                      getOptionLabel={(value) => value.label}
+                      sx={{ width: "100%", mt: 2 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Pay Level"
+                          onBlur={formik.handleBlur}
+                          required
+                          helperText={
+                            formik.errors.payLevel && formik.touched.payLevel
+                              ? formik.errors.payLevel
+                              : null
+                          }
+                          error={
+                            formik.errors.payLevel && formik.touched.payLevel
+                              ? true
+                              : false
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid xs={12} sm={4}>
+                    <TextField
+                      margin="normal"
+                      fullWidth
+                      type="text"
+                      id="minAmount"
+                      name="minAmount"
+                      label="Min Amount"
+                      size="small"
+                      disabled
+                      value={formik.values.minAmount}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.minAmount && !!formik.errors.minAmount
+                      }
+                      helperText={
+                        formik.touched.minAmount && formik.errors.minAmount
+                      }
+                    />
+                  </Grid>
+                  <Grid xs={12} sm={4}>
+                    <TextField
+                      margin="normal"
+                      fullWidth
+                      type="text"
+                      id="maxAmount"
+                      name="maxAmount"
+                      label="Max Amount"
+                      size="small"
+                      disabled
+                      value={formik.values.maxAmount}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.maxAmount && !!formik.errors.maxAmount
+                      }
+                      helperText={
+                        formik.touched.maxAmount && formik.errors.maxAmount
+                      }
+                    />
+                  </Grid>
+
+                  <Grid xs={12} sm={4}>
+                    <TextField
+                      margin="normal"
+                      fullWidth
+                      type="text"
+                      id="amount"
+                      name="amount"
+                      label="Amount"
+                      size="small"
+                      required
+                      value={formik.values.amount}
+                      onChange={handleAmount}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.amount && !!formik.errors.amount}
+                      helperText={formik.touched.amount && formik.errors.amount}
+                    />
+                  </Grid>
+                  <Grid xs={12} sm={4}>
+                    <LocalizationProvider
+                      dateAdapter={AdapterDayjs}
+                      adapterLocale={"en-gb"}
                     >
-                      NEXT &nbsp;
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                      <DatePicker
+                        id="effectiveFrom"
+                        sx={{ width: "100%", mt: 2 }}
+                        name="effectiveFrom"
+                        disablePast
+                        format="DD/MM/YYYY"
+                        value={formik.values.effectiveFrom}
+                        onChange={(value) =>
+                          formik.setFieldValue("effectiveFrom", value)
+                        }
+                        onBlur={formik.handleBlur}
+                        label={
+                          <span>
+                            Effective From{" "}
+                            {<span style={{ color: "red" }}>*</span>}
+                          </span>
+                        }
+                        slotProps={{ textField: { size: "small" } }}
+                        renderInput={(params) => (
+                          <TextField
+                            size="small"
+                            fullWidth
+                            margin="0"
+                            required
+                            {...params}
+                            error={
+                              formik.touched.effectiveFrom &&
+                              Boolean(formik.errors.effectiveFrom)
+                            }
+                            helperText={
+                              formik.touched.effectiveFrom &&
+                              formik.errors.effectiveFrom
+                            }
+                            onBlur={formik.handleBlur}
+                          />
+                        )}
+                      />
+                    </LocalizationProvider>
+                  </Grid>
+                  <Grid
+                    xs={12}
+                    sm={4}
+                    sx={{ display: "flex", marginTop: "1.7%" }}
+                  >
+                    <FormGroup>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={formik.values.isActive}
+                            onChange={handleChange}
+                          />
+                        }
+                        label="Is Active"
+                      />
+                    </FormGroup>
+                  </Grid>
+                </Grid>
+                <Box spacing={2} sx={{ mt: 1, textAlign: "center" }}>
+                  <Button
+                    sx={{
+                      minWidth: 100,
+                      ml: 1,
+                      mt: { xs: 1, md: 0 },
+                    }}
+                    disabled={isSubmitted}
+                    variant="contained"
+                    type="submit"
+                  >
+                    {btnText}
+                    &nbsp;
+                  </Button>
+                  <Button
+                    type="button"
+                    sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                    onClick={handleCancel}
+                    variant="outlined"
+                  >
+                    <CachedIcon />
+                    &nbsp;RESET
+                  </Button>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+      <Card>
+        <CardContent>
+          <div style={{ marginBottom: "-2%" }}>
+            <PageTitle name="Pay Matrix List" />
+          </div>
+          <Box component={"div"}>
+            <SearchTable
+              columns={columns}
+              data={rowss}
+              isCheckbox={false}
+              isHideDensity={false}
+              isHideExport={true}
+              isHideFilter={true}
+              isHideColumn={true}
+              isHidePaging={false}
+              name="villageName"
+              id="villageName"
+            />
+          </Box>
+        </CardContent>
+      </Card>
+    </>
+  );
+};
+export default PayMatrix;
