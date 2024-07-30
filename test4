@@ -1,3 +1,34 @@
+  const handleAmount = (event) => {
+
+    console.log(event)
+    // formik.values.minAmount
+    // formik.values.maxAmount
+
+    
+  };
+
+
+<Grid xs={12} sm={4}>
+                    <TextField
+                      margin="normal"
+                      fullWidth
+                      type="text"
+                      id="amount"
+                      name="amount"
+                      label="Amount"
+                      size="small"
+                      required
+                      value={formik.values.amount}
+                      onChange={handleAmount}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.amount && !!formik.errors.amount}
+                      helperText={formik.touched.amount && formik.errors.amount}
+                    />
+                  </Grid>
+
+
+
+
 
 [3:12 PM] Chouksey, Anusha
 Map of Odisha 
