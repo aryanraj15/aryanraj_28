@@ -1,4 +1,25 @@
-                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+            InputProps={{
+              ...params.InputProps,
+              style: { borderRadius: textFieldStyles.borderRadius }, // Apply borderRadius directly
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: textFieldStyles.borderRadius,
+              },
+            }}s
+
+
+
+
+
+
+
+
+
+
+
+
+<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
                           <DatePicker
                             label="Date of Birth"
                             format="DD-MM-YYYY"
