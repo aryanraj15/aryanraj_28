@@ -1,4 +1,53 @@
- <TextField
+                      <Grid item xs={12} sm={4} md={4} lg={4}>
+                        <Autocomplete
+                          disablePortal
+                          margin="normal"
+                          size="small"
+                          id="gender"
+                          name="gender"
+                          disabled={view}
+                          options={genderList}
+                          value={
+                            genderList.find(
+                              (option) => option.id === formik.values.gender
+                            ) || null
+                          }
+                          onChange={(e, value) => {
+                            if (value === null) {
+                              formik.setFieldValue("gender", null);
+                            } else formik.setFieldValue("gender", value.id);
+                          }}
+                          getOptionLabel={(value) => value.label}
+                          sx={{ width: "100%", mt: 2 }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Gender"
+                              required
+                              onBlur={formik.handleBlur}
+                              helperText={
+                                formik.errors.gender && formik.touched.gender
+                                  ? formik.errors.gender
+                                  : null
+                              }
+                              error={
+                                formik.errors.gender && formik.touched.gender
+                                  ? true
+                                  : false
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+
+
+
+
+
+
+
+
+<TextField
                           fullWidth
                           id="firstName"
                           name="firstName"
