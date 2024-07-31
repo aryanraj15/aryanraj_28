@@ -1,47 +1,705 @@
- const handleAmount = (event) => {
-  const { value } = event.target;
-  const amount = parseFloat(value);
-  const minAmount = formik.values.minAmount;
-  const maxAmount = formik.values.maxAmount;
+import CachedIcon from "@mui/icons-material/Cached";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Stack,
+  TextField,
+  Tooltip,
+} from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
+import "dayjs/locale/en-gb";
+import { useFormik } from "formik";
+import React, { useEffect, useState } from "react";
+import * as yup from "yup";
+import Loader from "../../components/Loader";
+import SearchTable from "../../components/SearchTableAlt";
+import { useSnackbar } from "../../components/Snackbar";
+import useTitle from "../../hooks/useTitle";
+import PageTitle from "../../layouts/PageTitle";
+import axiosClient from "../../utils/AxiosInterceptor";
+import Checkbox from "@mui/material/Checkbox";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { values } from "lodash";
 
-  formik.setFieldTouched('amount', true, true);
+const PayMatrix = () => {
+  const [rowss, setRowss] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [payLevelMenu, setPayLevelMenu] = useState([]);
+  const [payLevelId, setPayLevelId] = useState([]);
+  const [payCommissionMenu, setPayCommissionMenu] = useState([]);
+  const [payCommissionId, setPayCommissionId] = useState([]);
+  const [btnText, setBtnText] = useState("Save");
+  const [isReadable, setIsReadable] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoader, setIsLoader] = useState(false);
+  const [pcServTypeId, setPcServTypeId] = useState(null);
+  const [serviceTypeMenu, setServiceTypeMenu] = useState([]);
+  const [editId, setEditId] = useState(null);
+  const [editCount, setEditCount] = useState(0);
+  const { showSnackbar } = useSnackbar();
+  const title = "Pay Matrix";
+  useTitle(title);
 
-  if (isNaN(amount) || amount < minAmount || amount > maxAmount) {
-    formik.setFieldError('amount', `Amount must be between ${minAmount} and ${maxAmount}`);
-  } else {
-    formik.setFieldError('amount', '');
-  }
+  
+  const validationSchema = yup.object({
+    serviceType: yup.object().nullable().required("Service Type is required"),
+    payCommission: yup
+      .object()
+      .nullable()
+      .required("Pay Commission is required"),
+    payLevel: yup.object().nullable().required("Pay Level is required"),
+    amount: yup.number().required("Amount is required"),
+    effectiveFrom: yup.date().nullable().required("Effective From is required"),
+    isActive: yup.bool().required("Is Active is required"),
+  });
+  
+  const formik = useFormik({
+    initialValues: {
+      serviceType: "",
+      payCommission: "",
+      payLevel: "",
+      minAmount: "",
+      maxAmount: "",
+      amount: "",
+      effectiveFrom: null,
+      isActive: false,
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      setSelectedRow(null);
+      setIsSubmitted(true);
+      if (selectedRow !== null) {
+        setBtnText("Updating");
+        let postData = {
+          id: editId,
+          payBandId: values.payLevel.id,
+          value: Number(values.amount),
+          isActive: formik.values.isActive,
+        };
+        axiosClient
+          .post(
+            `${process.env.REACT_APP_PAYROLL_API_URL}/savePayMatrix`,
+            postData
+          )
+          .then((response) => {
+            if (response.data.statusCode === 200) {
+              setRowss((prevValue) => {
+                const updatedRows = [...prevValue];
+                updatedRows[selectedRow] = {
+                  ...updatedRows[selectedRow],
+                  ...response.data?.result,
+                  payCommission: response.data?.result?.payCommision,
+                  payLevel: response.data?.result?.payBandId,
+                  amount: response.data?.result?.value,
+                  
+                };
+                // setIsReadable(false);
+                return updatedRows;
+              });
+              showSnackbar(response.data?.message, "success");
+              setBtnText("Save");
+              formik.resetForm();
+            } else {
+              setBtnText("Update");
+              showSnackbar(response.data?.message, "error");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+            setBtnText("Update");
+            if (error.response) {
+              showSnackbar(
+                error.response.data.message
+                  ? error.response.data.message
+                  : error.response.message,
+                "error"
+              );
+            }
+          })
+          .finally(() => {
+            setIsSubmitted(false);
+          });
+      } else {
+        // console.log(values);
+        setBtnText("Saving");
+        let postData = {
+          id: null,
+          payBandId: values.payLevel.id,
+          value: Number(values.amount),
+          isActive: formik.values.isActive,
+        };
+        // console.log("Post Data",postData);
+        axiosClient
+          .post(
+            `${process.env.REACT_APP_PAYROLL_API_URL}/savePayMatrix`,
+            postData
+          )
+          .then((response) => {
+            // console.log(response.data);
+            if (response.data.statusCode === 200) {
+              const rowData = {
+                ...response.data.result,
+                payCommission: response.data?.result?.payCommision,
+                payLevel: response.data?.result?.payBandId,
+                amount: response.data?.result?.value,
+                
+              };
 
-  formik.setFieldValue('amount', value);
-};
+              setRowss([rowData, ...rowss]);
+              setBtnText("Saving");
+              showSnackbar(response.data?.message, "success");
+              formik.resetForm();
+            } else {
+              showSnackbar(response.data?.message, "error");
+            }
+          })
+          .catch((error) => {
+            if (error.response) {
+              showSnackbar(
+                error.response.data.message
+                  ? error.response.data.message
+                  : error.response.message,
+                "error"
+              );
+            }
+          })
+          .finally(() => {
+            setBtnText("Save");
+            setIsSubmitted(false);
+          });
+      }
+    },
+  });
 
+  useEffect(() => {
+    setIsLoader(true);
+    axiosClient
+      .get(`${process.env.REACT_APP_PAYROLL_API_URL}/getIndependentdropdown`)
+      .then((response) => {
+        if (
+          response.data?.result?.length === 0 ||
+          response.data.result === null
+        ) {
+          console("No data found");
+        } else {
+          setServiceTypeMenu(
+            response.data?.result?.serviceType?.map((item, index) => ({
+              id: item.typeId,
+              label: item.typeName,
+            }))
+          );
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          showSnackbar(
+            error.response.data.message
+              ? error.response.data.message
+              : error.response.message,
+            "error"
+          );
+        }
+      })
+      .finally(() => setIsLoader(false));
+    setIsLoader(true);
+    axiosClient
+      .get(`${process.env.REACT_APP_PAYROLL_API_URL}/getPayMatrix`)
+      .then((response) => {
+        if (
+          response.data?.result?.length === 0 ||
+          response.data.result === null
+        ) {
+          // showSnackbar("No data found", "warning");
+          console("No data found");
+        } else {
+          let responseData = response.data?.result?.map((values, index) => {
+            let rowData = {
+              ...values,
+              payCommission: values?.payCommision,
+              payLevel: values?.payBandId,
+              amount: values?.value,
+              index: index + 1,
+            };
+            return rowData;
+          });
 
+          // console.log("repons",responseData);
+          setRowss(responseData);
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          showSnackbar(
+            error.response.data.message
+              ? error.response.data.message
+              : error.response.message,
+            "error"
+          );
+        }
+        setRowss([]);
+      })
+      .finally(() => setIsLoader(false));
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  const handleCancel = () => {
+    setPayLevelId([]);
+    setPayCommissionId([]);
+    setBtnText("Save");
+    setEditCount(0);
+    // setIsReadable(false);
+    setSelectedRow(null);
+    formik.resetForm();
+  };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-const handleAmount = (event) => {
-
-    console.log(event)
-    // formik.values.minAmount
-    // formik.values.maxAmount
-
-    
+  const handleChange = (event) => {
+    formik.setFieldValue("isActive", event.target.checked);
   };
 
 
-<Grid xs={12} sm={4}>
+  
+
+  const handleEdit = (params, index) => {
+    setSelectedRow(index - 1);
+    setEditId(rowss[index - 1].id);
+    setBtnText("Update");
+    //////////////////////////////////////////////////////////////////
+    // console.log("params",params);
+    const PayLevelLabel = payLevelMenu.find(
+      (option) => option.label === rowss[index - 1].PayLevelName
+    );
+    if (params.pcServTypeName) {
+      formik.setFieldValue("payLevel", { label: params.pcServTypeName });
+      setPayLevelId(params.pcServTypeId);
+    } else {
+      formik.setFieldValue("payLevel", { label: params.PayLevelName });
+      setPayLevelId(params.pcServTypeId.servTypeId.id);
+    }
+    /////////////////////////////////////////////////////////////
+    const typeCommissionLabel = {
+      id: params.typeId,
+      label: params.payCommision,
+    };
+    formik.setFieldValue("payCommission", typeCommissionLabel);
+    setPayCommissionId(typeCommissionLabel);
+
+    ///////////////////////////////////////////////////////////
+
+    const payBandLabel = {
+      id: rowss[index - 1].payBandId,
+      label: rowss[index - 1].payBandName,
+    };
+    formik.setFieldValue("payBand", payBandLabel);
+
+    formik.setFieldValue("minValue", rowss[index - 1].minValue);
+    formik.setFieldValue("maxValue", rowss[index - 1].maxValue);
+    formik.setFieldValue("amount", rowss[index - 1].amount);
+    formik.setFieldValue("matrixIndex", rowss[index - 1].matrixIndex);
+    formik.setFieldValue("description", rowss[index - 1].description);
+    formik.setFieldValue("minimumServiceYear", rowss[index - 1].minServYears);
+  };
+  const columns = [
+    {
+      field: "index",
+      headerName: "Sr No.",
+      flex: 0.1,
+      minWidth: 80,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "PayLevelName",
+      headerName: "Pay Level",
+      flex: 0.3,
+      minWidth: 200,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "payCommission",
+      headerName: "Pay Commission",
+      flex: 0.3,
+      minWidth: 200,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "amount",
+      headerName: "Amount",
+      flex: 0.2,
+      minWidth: 150,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "isActive",
+      headerName: "Is Active",
+      flex: 0.2,
+      minWidth: 150,
+      headerClassName: "super-app-theme--header",
+    },
+    {
+      field: "action",
+      headerName: "Action",
+      headerClassName: "super-app-theme--header",
+      flex: 0.3,
+      minWidth: 180,
+      sortable: false,
+      disableClickEventBubbling: true,
+      renderCell: (params) => {
+        return (
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              sx={{
+                color: "black",
+                backgroundColor: "white",
+                ":hover": { color: "black", backgroundColor: "white" },
+                borderRadius: "4px",
+              }}
+              endIcon={<EditIcon />}
+              size="small"
+              onClick={() => handleEdit(params.row, params.row.index)}
+            >
+              Edit
+            </Button>
+            {/* <Button variant="contained" sx={{ color: 'white', backgroundColor: '#286cb4', ":hover": { color: 'white', backgroundColor: '#286cb4' }, borderRadius: '4px' }} startIcon={<DeleteIcon />} size="small" onClick={() => handleDelete(params.row.index)}>Delete</Button> */}
+          </Stack>
+        );
+      },
+    },
+  ];
+
+  return (
+    <>
+      {isLoader && <Loader />}
+      <Grid container>
+        <Grid xs={12}>
+          <Card sx={{ my: 2 }} elevation={5}>
+            <CardContent>
+              <PageTitle name={title} />
+              <Box component="form" onSubmit={formik.handleSubmit}>
+                <Grid container columnSpacing={3}>
+                  <Grid xs={12} sm={4}>
+                    <Autocomplete
+                      disablePortal
+                      margin="normal"
+                      fullWidth
+                      id="serviceType"
+                      name="serviceType"
+                      size="small"
+                      // required
+                      options={serviceTypeMenu}
+                      value={
+                        formik.values?.serviceType
+                          ? formik.values?.serviceType
+                          : serviceTypeMenu.find(
+                              (option) =>
+                                option.id === formik.values.serviceType?.id
+                            ) || null
+                      }
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("serviceType", null);
+                          formik.setFieldValue("payCommission", "");
+                          formik.setFieldValue("payLevel", "");
+                        } else {
+                          formik.setFieldValue("payCommission", "");
+                          formik.setFieldValue("payLevel", "");
+                          formik.setFieldValue("serviceType", value);
+                          setIsLoader(true);
+                          axiosClient
+                            .get(
+                              `${process.env.REACT_APP_PAYROLL_API_URL}/getPayCommisionByService/${value.id}`
+                            )
+                            .then((response) => {
+                              if (
+                                response.data?.result?.length === 0 ||
+                                response.data.result === null
+                              ) {
+                                // showSnackbar("No data found", "warning");
+                                console("No data found");
+                              } else {
+                                let responseData = response.data?.result?.map(
+                                  (value, index) => {
+                                    let rowData = {
+                                      ...value,
+                                      index: index + 1,
+                                    };
+                                    return rowData;
+                                  }
+                                );
+                                setPayCommissionMenu(
+                                  responseData.map((item, index) => ({
+                                    id: item.typeId,
+                                    label: item.typeName,
+                                    pcServiceTypeId: item.pcServiceTypeId,
+                                  }))
+                                );
+                              }
+                            })
+                            .catch((error) => {
+                              if (error.response) {
+                                showSnackbar(
+                                  error.response.data.message
+                                    ? error.response.data.message
+                                    : error.response.message,
+                                  "error"
+                                );
+                              }
+                            })
+                            .finally(() => setIsLoader(false));
+                        }
+                      }}
+                      getOptionLabel={(value) => value.label}
+                      sx={{ width: "100%", mt: 2 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Service Type"
+                          onBlur={formik.handleBlur}
+                          required
+                          helperText={
+                            formik.errors.serviceType &&
+                            formik.touched.serviceType
+                              ? formik.errors.serviceType
+                              : null
+                          }
+                          error={
+                            formik.errors.serviceType &&
+                            formik.touched.serviceType
+                              ? true
+                              : false
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid xs={12} sm={4}>
+                    {/* <Tooltip title={serviceTypeId.id?'':'First select Service Type'}> */}
+                    <Autocomplete
+                      disablePortal
+                      margin="normal"
+                      fullWidth
+                      id="payCommission"
+                      name="payCommission"
+                      size="small"
+                      // required
+                      disabled={formik.values?.serviceType ? false : true}
+                      options={payCommissionMenu}
+                      value={
+                        formik.values?.payCommission
+                          ? formik.values?.payCommission
+                          : payCommissionMenu.find(
+                              (option) =>
+                                option.id === formik.values.payCommission?.id
+                            ) || null
+                      }
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("payCommission", null);
+                          formik.setFieldValue("payLevel", "");
+                        } else {
+                          formik.setFieldValue("payLevel", "");
+                          formik.setFieldValue("payCommission", value);
+                          setIsLoader(true);
+                          axiosClient
+                            .get(
+                              `${process.env.REACT_APP_PAYROLL_API_URL}/getPaybands/${value.id}`
+                            )
+                            .then((response) => {
+                              if (
+                                response.data?.result?.length === 0 ||
+                                response.data.result === null
+                              ) {
+                                // showSnackbar("No data found", "warning");
+                                console("No data found");
+                              } else {
+                                let responseData = response.data?.result?.map(
+                                  (value, index) => {
+                                    let rowData = {
+                                      ...value,
+                                      index: index + 1,
+                                    };
+                                    return rowData;
+                                  }
+                                );
+                                setPayLevelMenu(
+                                  responseData.map((item, index) => ({
+                                    id: item.typeId,
+                                    label: item.typeName,
+                                  }))
+                                );
+                              }
+                            })
+                            .catch((error) => {
+                              if (error.response) {
+                                showSnackbar(
+                                  error.response.data.message
+                                    ? error.response.data.message
+                                    : error.response.message,
+                                  "error"
+                                );
+                              }
+                            })
+                            .finally(() => setIsLoader(false));
+                        }
+                      }}
+                      getOptionLabel={(value) => value.label}
+                      sx={{ width: "100%", mt: 2 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          required
+                          label="Pay Commission"
+                          onBlur={formik.handleBlur}
+                          helperText={
+                            formik.errors.payCommission &&
+                            formik.touched.payCommission
+                              ? formik.errors.payCommission
+                              : null
+                          }
+                          error={
+                            formik.errors.payCommission &&
+                            formik.touched.payCommission
+                              ? true
+                              : false
+                          }
+                        />
+                      )}
+                    />
+                    {/* </Tooltip> */}
+                  </Grid>
+                  <Grid xs={12} sm={4}>
+                    <Autocomplete
+                      disablePortal
+                      margin="normal"
+                      fullWidth
+                      id="payLevel"
+                      name="payLevel"
+                      size="small"
+                      disabled={formik.values?.payCommission ? false : true}
+                      options={payLevelMenu}
+                      value={
+                        formik.values?.payLevel
+                          ? formik.values?.payLevel
+                          : payLevelMenu.find(
+                              (option) =>
+                                option.id === formik.values.payLevel?.id
+                            ) || null
+                      }
+                      onChange={(e, value) => {
+                        if (value === null) {
+                          formik.setFieldValue("payLevel", null);
+                          formik.setFieldValue("minAmount","");
+                          formik.setFieldValue("maxAmount","");
+                        } else {
+                          formik.setFieldValue("minAmount","");
+                          formik.setFieldValue("maxAmount","");
+                          formik.setFieldValue("payLevel", value);
+                          setIsLoader(true);
+                          axiosClient
+                            .get(
+                              `${process.env.REACT_APP_PAYROLL_API_URL}/getRangeByPayLevel/${value.id}`
+                            )
+                            .then((response) => {
+                              if (
+                                response.data?.result?.length === 0 ||
+                                response.data.result === null
+                              ) {
+                                showSnackbar("No data found", "warning");
+                                console("No data found");
+                              } else {
+                                let responseData = response.data?.result[0];
+                                formik.setFieldValue("minAmount",responseData?.minValue);
+                                formik.setFieldValue("maxAmount",responseData?.maxValue);
+                                
+
+                              }
+                            })
+                            .catch((error) => {
+                              if (error.response) {
+                                showSnackbar(
+                                  error.response.data.message
+                                    ? error.response.data.message
+                                    : error.response.message,
+                                  "error"
+                                );
+                              }
+                            })
+                            .finally(() => setIsLoader(false));
+                        }
+                      }}
+                      getOptionLabel={(value) => value.label}
+                      sx={{ width: "100%", mt: 2 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Pay Level"
+                          onBlur={formik.handleBlur}
+                          required
+                          helperText={
+                            formik.errors.payLevel && formik.touched.payLevel
+                              ? formik.errors.payLevel
+                              : null
+                          }
+                          error={
+                            formik.errors.payLevel && formik.touched.payLevel
+                              ? true
+                              : false
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid xs={12} sm={4}>
+                    <TextField
+                      margin="normal"
+                      fullWidth
+                      type="text"
+                      id="minAmount"
+                      name="minAmount"
+                      label="Min Amount"
+                      size="small"
+                      disabled
+                      value={formik.values.minAmount}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.minAmount && !!formik.errors.minAmount
+                      }
+                      helperText={
+                        formik.touched.minAmount && formik.errors.minAmount
+                      }
+                    />
+                  </Grid>
+                  <Grid xs={12} sm={4}>
+                    <TextField
+                      margin="normal"
+                      fullWidth
+                      type="text"
+                      id="maxAmount"
+                      name="maxAmount"
+                      label="Max Amount"
+                      size="small"
+                      disabled
+                      value={formik.values.maxAmount}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.maxAmount && !!formik.errors.maxAmount
+                      }
+                      helperText={
+                        formik.touched.maxAmount && formik.errors.maxAmount
+                      }
+                    />
+                  </Grid>
+
+                  <Grid xs={12} sm={4}>
                     <TextField
                       margin="normal"
                       fullWidth
@@ -52,541 +710,125 @@ const handleAmount = (event) => {
                       size="small"
                       required
                       value={formik.values.amount}
-                      onChange={handleAmount}
+                      onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      error={formik.touched.amount && !!formik.errors.amount}
+                      error={formik.touched.amount &&  !! formik.errors.amount}
                       helperText={formik.touched.amount && formik.errors.amount}
                     />
                   </Grid>
-
-
-
-
-
-[3:12 PM] Chouksey, Anusha
-Map of Odisha 
-2. Introduction: The Resilient Odisha Portal, under the OSDMA, has been established to deepen policymakers' understanding of cascading risks from the hazard-exposure-vulnerability perspective, providing a visualization tool to understand the vulnerabilities and risk intensity of coastal rural Odisha, and evidence-based analytics to strengthen regional cooperation and actionable risk assessments, and strengthen capacity of communities and administrations to mitigate losses. The portal also acts as a too for improved planning, decision support system, and knowledge hub for stakeholders and administrators.
- 
-[3:18 PM] Chouksey, Anusha
-Risk and Resilience Portal (b) Risk Maps and Analysis Reports (c) Disaster Planning (d) Disaster Planning Progress (e) Digital Catalogue of Mitigation Solutions (f) Resilience Index and Risk Rating of Village/GPs (g) Resource center 
- 
-
-
-
-
-
-
-
-import React, { lazy, Suspense, useState } from "react";
-import { Provider } from "react-redux";
-import { Route, Routes } from "react-router-dom";
-import { SnackbarProvider } from "./components/Snackbar";
-import store from "./redux/store";
-import PrivateRoutes from "./routes/PrivateRoutes";
-import ScrollToTop from "./components/ScrollToTop";
-import Header from "./layouts/Header";
-import { ColorModeContextProvider } from "./utils/ColorModeContext";
-
-/*****Pages******/
-const Home = lazy(() => import("./pages/Home"));
-const Login = lazy(() => import("./pages/Login/Login"));
-const ForgotPassword = lazy(() => import("./pages/Login/forgotPassword"));
-const Test2 = lazy(() => import("./pages/Test/test2"));
-const Accordian = lazy(() => import("./pages/Accordian/AccordianParent"));
-
-const ChartAdmin = lazy(() => import("./pages/charts/ChartAdmin"));
-const ChartPartners = lazy(() => import("./pages/charts/ChartPartners"));
-const MetricData = lazy(() => import("./pages/MasterAdmin/MetricData"));
-const MetricsMaster = lazy(() => import("./pages/MasterAdmin/MetricsMaster"));
-const PhasesMaster = lazy(() => import("./pages/MasterAdmin/PhasesMaster"));
-const ProjectMaster = lazy(() => import("./pages/MasterAdmin/ProjectMaster"));
-const QuestionsMaster = lazy(() => import("./pages/MasterAdmin/QuestionsMaster"));
-
-const App = () => {
-  return (
-    <>
-      <SnackbarProvider>
-        <ColorModeContextProvider>
-          <Provider store={store}>
-            <AppRoutes />
-          </Provider>
-        </ColorModeContextProvider>
-      </SnackbarProvider>
+                  <Grid xs={12} sm={4}>
+                    <LocalizationProvider
+                      dateAdapter={AdapterDayjs}
+                      adapterLocale={"en-gb"}
+                    >
+                      <DatePicker
+                        id="effectiveFrom"
+                        sx={{ width: "100%", mt: 2 }}
+                        name="effectiveFrom"
+                        disablePast
+                        format="DD/MM/YYYY"
+                        value={formik.values.effectiveFrom}
+                        onChange={(value) =>
+                          formik.setFieldValue("effectiveFrom", value)
+                        }
+                        onBlur={formik.handleBlur}
+                        label={
+                          <span>
+                            Effective From{" "}
+                            {<span style={{ color: "red" }}>*</span>}
+                          </span>
+                        }
+                        slotProps={{ textField: { size: "small" } }}
+                        renderInput={(params) => (
+                          <TextField
+                            size="small"
+                            fullWidth
+                            margin="0"
+                            required
+                            {...params}
+                            error={
+                              formik.touched.effectiveFrom &&
+                              Boolean(formik.errors.effectiveFrom)
+                            }
+                            helperText={
+                              formik.touched.effectiveFrom &&
+                              formik.errors.effectiveFrom
+                            }
+                            onBlur={formik.handleBlur}
+                          />
+                        )}
+                      />
+                    </LocalizationProvider>
+                  </Grid>
+                  <Grid
+                    xs={12}
+                    sm={4}
+                    sx={{ display: "flex", marginTop: "1.7%" }}
+                  >
+                    <FormGroup>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={formik.values.isActive}
+                            onChange={handleChange}
+                          />
+                        }
+                        label="Is Active"
+                      />
+                    </FormGroup>
+                  </Grid>
+                </Grid>
+                <Box spacing={2} sx={{ mt: 1, textAlign: "center" }}>
+                  <Button
+                    sx={{
+                      minWidth: 100,
+                      ml: 1,
+                      mt: { xs: 1, md: 0 },
+                    }}
+                    disabled={isSubmitted}
+                    variant="contained"
+                    type="submit"
+                  >
+                    {btnText}
+                    &nbsp;
+                  </Button>
+                  <Button
+                    type="button"
+                    sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
+                    onClick={handleCancel}
+                    variant="outlined"
+                  >
+                    <CachedIcon />
+                    &nbsp;RESET
+                  </Button>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+      <Card>
+        <CardContent>
+          <div style={{ marginBottom: "-2%" }}>
+            <PageTitle name="Pay Matrix List" />
+          </div>
+          <Box component={"div"}>
+            <SearchTable
+              columns={columns}
+              data={rowss}
+              isCheckbox={false}
+              isHideDensity={false}
+              isHideExport={true}
+              isHideFilter={true}
+              isHideColumn={true}
+              isHidePaging={false}
+              name="villageName"
+              id="villageName"
+            />
+          </Box>
+        </CardContent>
+      </Card>
     </>
   );
 };
-
-const AppRoutes = () => {
-  const [selectedProjectId, setSelectedProjectId] = useState('');
-  return (
-    <Suspense fallback={<div />}>
-      <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<Login />} exact />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
-        <Route element={<Header setSelectedProjectId={setSelectedProjectId}/>}>
-          <Route element={<PrivateRoutes />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/test2" element={<Test2 />} />
-            <Route path="/chartadmin" element={<ChartAdmin selectedProjectId={selectedProjectId} />} />
-            <Route path="/chartpartners" element={<ChartPartners />} />
-            <Route path="/metricdata" element={<MetricData />} />
-            <Route path="/metricsmaster" element={<MetricsMaster />} />
-            <Route path="/phasesmaster" element={<PhasesMaster />} />
-            <Route path="/projectmaster" element={<ProjectMaster />} />
-            <Route path="/questionsmaster" element={<QuestionsMaster />} />
-            <Route path="/accordian" element={<Accordian />} />
-          </Route>
-        </Route>
-      </Routes>
-    </Suspense>
-  );
-};
-
-export default App;
-
-
-import React, { useEffect, useState } from "react";
-import { PieChart, Pie, Tooltip, Legend, Cell } from "recharts";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import ReactSpeedometer from "react-d3-speedometer";
-import useTitle from "../../hooks/useTitle";
-import PageTitle from "../../layouts/PageTitle";
-import axiosClient from "../../utils/AxiosInterceptor";
-import { useSnackbar } from "../../components/Snackbar";
-
-const COLORS = ["#4caf50", "#ba68c8", "#FFBB28"];
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: "center",
-    color: theme.palette.text.black,
-    width: "50%",
-    margin: "5px",
-    boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "column",
-    marginTop: "25px",
-  },
-}));
-
-const ChartAdmin = ({ selectedProjectId }) => {
-  const { showSnackbar } = useSnackbar();
-  const classes = useStyles();
-  const title = "Dashboard";
-  const [pciResponse, setPciResponse] = useState([]);
-  const [data, setData] = useState([]);
-  useTitle(title);
-
-  // Retrieve projectId from localStorage as fallback
-  const retrievedData = localStorage.getItem("project");
-  const parsedData = JSON.parse(retrievedData);
-  const fallbackProjectId = parsedData.map((item) => item.project.id)[0];
-
-  useEffect(() => {
-    const projectIdToUse = selectedProjectId || fallbackProjectId;
-
-    if (!projectIdToUse) {
-      showSnackbar("No project ID found", "error");
-      return;
-    }
-
-    axiosClient
-      .post(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/dashboard/metrics`, {
-        projectId: projectIdToUse,
-      })
-      .then((response) => {
-        if (response.data.statusCode === 200) {
-          setPciResponse(
-            response.data.result["PCI Score"].map((score) => ({
-              ...score,
-              value: parseFloat(score.value),
-            }))
-          );
-        } else {
-          showSnackbar(response.data?.message, "error");
-        }
-      })
-      .catch((error) => {
-        showSnackbar(
-          error.response?.data?.message || error.message,
-          "error"
-        );
-      });
-
-    axiosClient
-      .post(`${process.env.REACT_APP_QMS_DASHBOARD_API_URL}/dashboard/counts`, {
-        projectId: projectIdToUse,
-      })
-      .then((response) => {
-        if (response.data.statusCode === 200) {
-          setData(
-            response.data.result.map((item) => ({
-              name: item.responseValue,
-              totalCounts: item.totalCounts,
-            }))
-          );
-        } else {
-          showSnackbar(response.data?.message, "error");
-        }
-      })
-      .catch((error) => {
-        showSnackbar(
-          error.response?.data?.message || error.message,
-          "error"
-        );
-      });
-  }, [selectedProjectId, fallbackProjectId, showSnackbar]);
-
-  const pciValue = pciResponse.map((item) => item.value);
-
-  return (
-    <div style={{ display: "flex" }}>
-      <Paper className={classes.paper}>
-        <PageTitle name="Distribution of Response" />
-        <PieChart width={400} height={300} style={{ marginTop: "-10px" }}>
-          <Pie
-            data={data}
-            labelLine={false}
-            label
-            outerRadius={100}
-            fill="#8884d8"
-            dataKey="totalCounts"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index]} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </Paper>
-      <Paper className={classes.paper}>
-        <div style={{ marginTop: "-15px" }}>
-          <PageTitle name="Process Compilance Index (PCI)" />
-        </div>
-        <div style={{ marginTop: "-25px" }}>
-          <ReactSpeedometer
-            value={pciValue}
-            minValue={0}
-            maxValue={100}
-            needleColor="black"
-            startColor="red"
-            endColor="green"
-            segments={3}
-            customSegmentStops={[0, 50, 80, 100]}
-            segmentColors={["red", "orange", "green"]}
-            needleTransitionDuration={4000}
-            height={200}
-            width={300}
-            paddingVertical={50}
-          />
-        </div>
-      </Paper>
-    </div>
-  );
-};
-
-export default ChartAdmin;
-
-
-
-
-import React, { useContext, useEffect, useState } from "react";
-import { styled, useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import CssBaseline from "@mui/material/CssBaseline";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import LogoutIcon from "@mui/icons-material/Logout";
-import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
-import { useSnackbar } from "../components/Snackbar";
-import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
-import { FormControl, Grid, InputLabel, MenuItem, Select } from "@mui/material";
-
-// import Footer from '../components/footer/Footer';
-
-const drawerWidth = 280;
-
-const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
-  ({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-      transition: theme.transitions.create("margin", {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    }),
-  })
-);
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  transition: theme.transitions.create(["margin", "width"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: "center",
-}));
-
-const Footer = styled("div", {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  transition: theme.transitions.create(["margin", "width"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  width: "100%",
-  position: "fixed",
-  top: "unset",
-  bottom: 0,
-  color: "white",
-  backgroundColor: "black",
-  textAlign: "center",
-  size: "8px",
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-export default function PersistentDrawerLeft({ setSelectedProjectId }) {
-  const { showSnackbar } = useSnackbar();
-  const theme = useTheme();
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  // For Projects Dropdown
-  const retrievedData = localStorage.getItem("project");
-  const parsedData = JSON.parse(retrievedData);
-  const projects = parsedData.map((item) => item.project);
-  const defaultProject = projects.length > 0 ? projects[0].name : "";
-  const [selectedProject, setSelectedProject] = useState(defaultProject);
-  const [selectedProjectDetails, setSelectedProjectDetails] =
-    useState(defaultProject);
-
-  const handleLogout = () => {
-    console.log("Logging out");
-    setAnchorEl(null);
-    Cookies.remove("token");
-    Cookies.remove("jobToken");
-    localStorage.clear();
-    navigate("/");
-    showSnackbar("Logout Successful", "success");
-  };
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  const handleProjectChange = (e) => {
-    setSelectedProject(e.target.value);
-
-    const selectedProjectDetails = projects.find(
-      (project) => project.name === e.target.value
-    );
-    setSelectedProjectDetails(selectedProjectDetails);
-
-    setSelectedProjectId(selectedProjectDetails.id);
-
-    console.log("ProjectId::", selectedProjectDetails.id);
-  };
-
-  return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar sx={{ backgroundColor: "#004c99", color: "#fff" }}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ mr: 2, ...(open && { display: "none" }) }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerClose}
-            edge="start"
-            sx={{ mr: 2, ...(!open && { display: "none" }) }}
-          >
-            <ChevronLeftIcon />
-          </IconButton>
-          <Grid
-            container
-            direction="row"
-            rowSpacing={0}
-            columnSpacing={2}
-            justify="flex-end"
-            alignItems="center"
-          >
-            <Grid item xs={12} sm={3} md={3} lg={3}>
-              <Typography variant="h6" noWrap>
-                {title ? title : "KPMG"}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={2} md={2.5} lg={2.5}>
-              <Typography variant="h8" noWrap>
-                {localStorage.getItem("fullname")}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={2} md={3} lg={3}>
-              <Typography variant="h8" noWrap>
-                {localStorage.getItem("designation")}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={2} md={3} lg={3}>
-              {projects.length > 1 ? (
-                <FormControl variant="standard" fullWidth>
-                  <InputLabel style={{ color: "white" }}>Projects</InputLabel>
-                  <Select
-                    value={selectedProject}
-                    onChange={handleProjectChange}
-                    label="Project"
-                    style={{ color: "white", marginBottom: "15px" }}
-                  >
-                    {projects.map((project) => (
-                      <MenuItem key={project.id} value={project.name}>
-                        {project.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ) : (
-                <Typography variant="body1">
-                  {projects.length === 1
-                    ? projects[0].name
-                    : "No projects available"}
-                </Typography>
-              )}
-            </Grid>
-            <Grid item xs={2} sm={1} md={0.5} lg={0.5}>
-              <PowerSettingsNewIcon
-                onClick={handleLogout}
-                sx={{ cursor: "pointer" }}
-              />
-            </Grid>
-          </Grid>
-        </Toolbar>
-      </AppBar>
-
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            scrollbarWidth: "thin",
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={open}
-      >
-        <DrawerHeader>
-          <Box mr={1.5}>
-            <Typography
-              sx={{ py: 2, float: "left" }}
-              display="flex"
-              justifyContent="space-between"
-              component={"div"}
-            >
-              <img src={logo_left} alt="YSR" width="150px" height="50px" />
-            </Typography>
-          </Box>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <ListItem>
-            <ListItemButton onClick={() => navigate("/dashboard")}>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton onClick={() => navigate("/chartadmin")}>
-              <ListItemIcon>
-                <MailIcon />
-              </ListItemIcon>
-              <ListItemText primary="Chart Admin" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton onClick={handleLogout}>
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Drawer>
-      <Main open={open}>
-        <DrawerHeader />
-        <Outlet />
-      </Main>
-      <Footer position="fixed" open={open}>
-        <Typography noWrap component="div">
-          &copy; Site maintained by KPMG Advisory Services Pvt. Ltd.
-        </Typography>
-      </Footer>
-    </Box>
-  );
-}
-
-
-
+export default PayMatrix;
