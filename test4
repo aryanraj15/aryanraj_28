@@ -1,4 +1,37 @@
-  const handleAmount = (event) => {
+ const handleAmount = (event) => {
+  const { value } = event.target;
+  const amount = parseFloat(value);
+  const minAmount = formik.values.minAmount;
+  const maxAmount = formik.values.maxAmount;
+
+  formik.setFieldTouched('amount', true, true);
+
+  if (isNaN(amount) || amount < minAmount || amount > maxAmount) {
+    formik.setFieldError('amount', `Amount must be between ${minAmount} and ${maxAmount}`);
+  } else {
+    formik.setFieldError('amount', '');
+  }
+
+  formik.setFieldValue('amount', value);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const handleAmount = (event) => {
 
     console.log(event)
     // formik.values.minAmount
