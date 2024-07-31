@@ -1,3 +1,46 @@
+                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+                          <DatePicker
+                            label="Date of Birth"
+                            format="DD-MM-YYYY"
+                            id="dob"
+                            name="dob"
+                            value={formik.values.dob}
+                            disabled={view}
+                            slotProps={{ textField: { size: "small" } }}
+                            sx={{ width: "100%", mt: 2 }}
+                            onChange={(value) => {
+                              if (value === null) {
+                                formik.setFieldValue("dob", "");
+                              } else {
+                                const date = dayjs(value, "DD-MM-YYYY").toDate();
+                                const age = differenceInYears(new Date(), date);
+                                console.log(age);
+                                if (age < 18) {
+                                  alert("Age cannot be less than 18");
+                                  formik.setFieldValue("dob", "");
+
+                                } else {
+                                  formik.setFieldValue("dob", dayjs(value, "DD-MM-YYYY"));
+                                }
+                              }
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                size="small"
+                                fullWidth
+                               margin="dense"
+                                name="dob"
+                                required
+                                {...params}
+                                error={formik.touched.dob && Boolean(formik.errors.dob)}
+                                helperText={formik.touched.dob && formik.errors.dob}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                
+                              />
+                            )}
+                          />
+                        </LocalizationProvider>
 
  InputProps={{
         ...params.InputProps,
