@@ -1,4 +1,15 @@
-                      <Grid item xs={12} sm={4} md={4} lg={4}>
+
+ InputProps={{
+        ...params.InputProps,
+        style: textFieldStyles, // Apply common styles
+      }}
+
+
+
+
+
+
+<Grid item xs={12} sm={4} md={4} lg={4}>
                         <Autocomplete
                           disablePortal
                           margin="normal"
