@@ -1,4 +1,115 @@
-            InputProps={{
+                  <Grid item xs={12} sm={4} md={4} lg={4}>
+                    <FormControl>
+                      <FormLabel id="demo-row-radio-buttons-group-label" >
+                        Pay Slip (yes/no)
+                      </FormLabel>
+                      <RadioGroup
+                        row
+                        aria-labelledby="demo-row-radio-buttons-group-label"
+                        name="paySlip"
+                        disabled={view}
+                        value={formik.values.paySlip}
+                        onChange={(e) => {
+                          formik.handleChange(e);
+                        }}
+                      >
+                        <FormControlLabel
+                          value="true"
+                          control={<Radio />}
+                          label="Yes"
+                          disabled={view}
+                          sx={{ mb: 0, padding: '0px 0', mt: 0 }}
+                        />
+                        <FormControlLabel
+                          value="false"
+                          control={<Radio />}
+                          label="No"
+                          disabled={view}
+                          sx={{ mb: 0, padding: '0px 0', mt: 0 }}
+                        />
+                      </RadioGroup>
+                      {
+                        formik.errors.paySlip && (
+                          <FormHelperText error sx={{ mt: 0 }}>
+                            {formik.errors.paySlip}
+                          </FormHelperText>
+                        )}
+                    </FormControl>
+                  </Grid>
+                  {formik.values.paySlip === "true" && (
+                    <Grid item xs={12} sm={4} md={4} lg={4}>
+                      <Autocomplete
+                        disablePortal
+                        margin="normal"
+                        size="small"
+                        id="payslipAuthority"
+                        name="payslipAuthority"
+                        options={payslipAuthorityList}
+                        disabled={view}
+                        value={
+                          payslipAuthorityList.find(
+                            (option) =>
+                              option.id === formik.values.payslipAuthority
+                          ) || null
+                        }
+                        onChange={(e, value) => {
+                          if (value === null) {
+                            formik.setFieldValue(
+                              "payslipAuthority",
+                              null
+                            );
+                          } else
+                            formik.setFieldValue(
+                              "payslipAuthority",
+                              value.id
+                            );
+                        }}
+                        getOptionLabel={(value) => value.label}
+                        sx={{ width: "100%", mt: 2 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Pay Slip Authority"
+                            required
+                            //InputLabelProps={{ shrink: true }}
+                            onBlur={formik.handleBlur}
+                            helperText={
+                              formik.errors.payslipAuthority &&
+                                formik.touched.payslipAuthority
+                                ? formik.errors.payslipAuthority
+                                : null
+                            }
+                            error={
+                              formik.errors.payslipAuthority &&
+                                formik.touched.payslipAuthority
+                                ? true
+                                : false
+                            }
+                            InputProps={{
+                              ...params.InputProps,
+                              style: textFieldStyles,
+                            }}
+                          />
+                        )}
+                      />
+                    </Grid>
+                  )}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+InputProps={{
               ...params.InputProps,
               style: { borderRadius: textFieldStyles.borderRadius }, // Apply borderRadius directly
             }}
