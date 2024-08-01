@@ -1,4 +1,7 @@
-                  <Grid item xs={12} sm={4} md={4} lg={4}>
+Pay Slip is required
+
+
+<Grid item xs={12} sm={4} md={4} lg={4}>
                     <FormControl>
                       <FormLabel id="demo-row-radio-buttons-group-label" >
                         Pay Slip (yes/no)
