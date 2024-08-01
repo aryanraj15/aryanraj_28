@@ -1,4 +1,42 @@
-
+<Grid item xs={12} sm={4} md={4} lg={4}>
+  <FormControl error={formik.touched.paySlip && Boolean(formik.errors.paySlip)}>
+    <FormLabel id="demo-row-radio-buttons-group-label">
+      Pay Slip (yes/no)
+    </FormLabel>
+    <RadioGroup
+      row
+      aria-labelledby="demo-row-radio-buttons-group-label"
+      name="paySlip"
+      disabled={view}
+      value={formik.values.paySlip}
+      onChange={(e) => {
+        formik.handleChange(e);
+      }}
+    >
+      <FormControlLabel
+        value="true"
+        control={<Radio />}
+        label="Yes"
+        disabled={view}
+        sx={{ mb: 0, padding: '0px 0', mt: 0 }}
+      />
+      <FormControlLabel
+        value="false"
+        control={<Radio />}
+        label="No"
+        disabled={view}
+        sx={{ mb: 0, padding: '0px 0', mt: 0 }}
+      />
+    </RadioGroup>
+    {
+      formik.touched.paySlip && formik.errors.paySlip && (
+        <FormHelperText>
+          {formik.errors.paySlip}
+        </FormHelperText>
+      )
+    }
+  </FormControl>
+</Grid>
 
  {
       formik.touched.paySlip && formik.errors.paySlip && (
