@@ -7,6 +7,12 @@ error={
                               formik.errors.confirmationDate
                             }
 
+      payslipAuthority: Yup.string().when('paySlip', {
+        is: 'true',
+        then: Yup.string().required('Pay Slip Authority is required'),
+        otherwise: Yup.string().nullable(),
+      }),
+
 
 
 
