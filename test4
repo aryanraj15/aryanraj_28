@@ -1,3 +1,19 @@
+
+
+ {
+      formik.touched.paySlip && formik.errors.paySlip && (
+        <FormHelperText>
+          {formik.errors.paySlip}
+        </FormHelperText>
+      )
+    }
+
+
+
+
+
+
+
 error={
                               formik.touched.confirmationDate &&
                               Boolean(formik.errors.confirmationDate)
