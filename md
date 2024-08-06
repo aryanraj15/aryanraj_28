@@ -1,3 +1,11 @@
+const officeIds = values.officeSelect 
+            ? [values.officeSelect.id] 
+            : officeData.map(office => office.id); // If officeSelect is null, get all office IDs
+
+
+
+
+
 import { Card, Grid, CardContent, TextField, Box, Button, Alert } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import PageTitle from '../../layouts/PageTitle';
