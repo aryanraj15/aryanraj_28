@@ -1,3 +1,11 @@
+
+  const officeIds = values.officeSelect?.id === 'ALL' 
+            ? officeData.filter(office => office.id !== 'ALL').map(office => office.id)
+            : [values.officeSelect.id];
+ 
+ 
+ 
+ 
  const officeIds = values.officeSelect?.id === 'ALL' 
             ? officeData.map(office => office.id) 
             : [values.officeSelect.id];
