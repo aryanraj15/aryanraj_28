@@ -1,1640 +1,541 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Card,
-  CardContent,
-  Divider,
-  Grid,
-  Snackbar,
-  TextField,
-  Box,
-  Alert,
-  Autocomplete
-} from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import CachedIcon from '@mui/icons-material/Cached';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { Card, Grid, CardContent, TextField, Box, Button, Stack, Typography, Alert } from '@mui/material'
+import React, {useState, useEffect} from 'react'
+import PageTitle from '../../layouts/PageTitle'
+import useTitle from '../../hooks/useTitle'
+import SearchTable from '../../components/SearchTableAlt';
+import SearchIcon from '@mui/icons-material/Search';
+import IconButton from '@mui/material/IconButton';
+import Modal from '@mui/material/Modal';
+import Autocomplete from '@mui/material/Autocomplete';
+import { useNavigate } from 'react-router-dom';
+import axiosClient from '../../utils/AxiosInterceptor';
+import Loader from '../../components/Loader';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import SearchTable from './SearchTable';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
-import TransitionLeft from './TransitionLeft';
-
-function QualificationForm({ onButtonClick, formData, setFormData, showNext, view }) {
-  const [rows, setRows] = useState([]);
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastSeverity, setToastSeverity] = useState('success');
-
-  useEffect(() => {
-    // Fetch data when component mounts
-    axios.get('http://141.148.194.18:8052/payroll/employee/educational-details', {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("token")}`
-      }
-    })
-    .then(response => {
-      if (response.data.status && response.data.result) {
-        setRows(response.data.result.map(item => ({
-          id: item.eduId,
-          qualificationId: item.qualificationId.id,
-          qualificationLabel: item.qualificationId.label,
-          boardOrUniversity: item.boardOrUniversity,
-          instituteName: item.instituteName,
-          course: item.course,
-          marksCgpaId: item.marksCgpaId.id,
-          marksCgpaLabel: item.marksCgpaId.label,
-          marksSecured: item.marksSecured,
-          totalMarks: item.totalMarks,
-          cgpa: item.cgpa,
-          admissionDate: dayjs(item.admissionDate, 'DD-MM-YYYY'),
-          completionDate: dayjs(item.completionDate, 'DD-MM-YYYY')
-        })));
-      }
-    })
-    .catch(error => {
-      setToastMessage("Failed to fetch data. Please try again.");
-      setToastSeverity("error");
-      setOpenToast(true);
-    });
-  }, []);
-
-  const formik = useFormik({
-    initialValues: {
-      QualifiactionTypes: '',
-      degree: '',
-      institute: '',
-      course: '',
-      Board: '',
-      marksCgpa: '',
-      marks: '',
-      totalMarks: '',
-      gpa: '',
-      admissionDate: null,
-      completionDate: null,
-    },
-    validationSchema: Yup.object({
-      QualifiactionTypes: Yup.string().required('Required'),
-      degree: Yup.string().required('Required'),
-      institute: Yup.string().required('Required'),
-      course: Yup.string().required('Required'),
-      Board: Yup.string().required('Required'),
-      marksCgpa: Yup.string().required('Required'),
-      marks: Yup.number().when('marksCgpa', {
-        is: (val) => val && val.id === 269,
-        then: Yup.number().required('Required')
-      }),
-      totalMarks: Yup.number().when('marksCgpa', {
-        is: (val) => val && val.id === 269,
-        then: Yup.number().required('Required')
-      }),
-      gpa: Yup.number().when('marksCgpa', {
-        is: (val) => val && val.id === 270,
-        then: Yup.number().required('Required')
-      }),
-      admissionDate: Yup.date().nullable().required('Required'),
-      completionDate: Yup.date().nullable().required('Required'),
-    }),
-    onSubmit: (values) => {
-      const newRow = {
-        id: rows.length + 1,
-        qualificationId: values.QualifiactionTypes.id,
-        qualificationLabel: values.QualifiactionTypes.label,
-        boardOrUniversity: values.Board,
-        instituteName: values.institute,
-        course: values.course,
-        marksCgpaId: values.marksCgpa.id,
-        marksCgpaLabel: values.marksCgpa.label,
-        marksSecured: values.marks,
-        totalMarks: values.totalMarks,
-        cgpa: values.gpa,
-        admissionDate: values.admissionDate,
-        completionDate: values.completionDate,
-      };
-      setRows([...rows, newRow]);
-      formik.resetForm();
-    },
-  });
-
-  const handleDeleteRow = (rowId) => {
-    setRows(rows.filter(row => row.id !== rowId));
-  };
-
-  const handleSave = () => {
-    const payload = {
-      empRefNo: formData.empRefNo,
-      qualificationDetails: rows.map(row => ({
-        qualificationId: row.qualificationId,
-        boardOrUniversity: row.boardOrUniversity,
-        instituteName: row.instituteName,
-        course: row.course,
-        marksCgpaId: row.marksCgpaId,
-        marksSecured: row.marksSecured,
-        totalMarks: row.totalMarks,
-        cgpa: row.cgpa,
-        admissionDate: row.admissionDate.format('DD-MM-YYYY'),
-        completionDate: row.completionDate.format('DD-MM-YYYY'),
-      })),
-    };
-
-    axios.post('http://141.148.194.18:8052/payroll/employee/educational-details', payload, {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("token")}`
-      }
-    })
-      .then(response => {
-        setToastMessage("Data saved successfully!");
-        setToastSeverity("success");
-        setOpenToast(true);
-      })
-      .catch(error => {
-        setToastMessage("Failed to save data. Please try again.");
-        setToastSeverity("error");
-        setOpenToast(true);
-      });
-  };
-
-  const handleCloseToast = () => {
-    setOpenToast(false);
-  };
-
-  const handleNext = () => {
-    setFormData({ ...formData, qualificationDetails: rows });
-    onButtonClick();
-  };
-
-  return (
-    <form onSubmit={formik.handleSubmit}>
-      <Card sx={{ mt: 2, mb: 2 }}>
-        <CardContent>
-          <H3 textAlign="center" mb={2}>
-            Qualification Details
-          </H3>
-          <Divider sx={{ mb: 2 }} />
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Autocomplete
-                options={qualificationList}
-                getOptionLabel={(option) => option.label}
-                value={formik.values.QualifiactionTypes}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue("QualifiactionTypes", newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Qualification Type"
-                    error={formik.touched.QualifiactionTypes && Boolean(formik.errors.QualifiactionTypes)}
-                    helperText={formik.touched.QualifiactionTypes && formik.errors.QualifiactionTypes}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Autocomplete
-                options={degreeList}
-                getOptionLabel={(option) => option.label}
-                value={formik.values.degree}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue("degree", newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Degree"
-                    error={formik.touched.degree && Boolean(formik.errors.degree)}
-                    helperText={formik.touched.degree && formik.errors.degree}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="institute"
-                name="institute"
-                label="Institute Name"
-                value={formik.values.institute}
-                onChange={formik.handleChange}
-                error={formik.touched.institute && Boolean(formik.errors.institute)}
-                helperText={formik.touched.institute && formik.errors.institute}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="course"
-                name="course"
-                label="Course"
-                value={formik.values.course}
-                onChange={formik.handleChange}
-                error={formik.touched.course && Boolean(formik.errors.course)}
-                helperText={formik.touched.course && formik.errors.course}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="Board"
-                name="Board"
-                label="Board"
-                value={formik.values.Board}
-                onChange={formik.handleChange}
-                error={formik.touched.Board && Boolean(formik.errors.Board)}
-                helperText={formik.touched.Board && formik.errors.Board}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Autocomplete
-                options={marksCgpaList}
-                getOptionLabel={(option) => option.label}
-                value={formik.values.marksCgpa}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue("marksCgpa", newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Marks/CGPA"
-                    error={formik.touched.marksCgpa && Boolean(formik.errors.marksCgpa)}
-                    helperText={formik.touched.marksCgpa && formik.errors.marksCgpa}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="marks"
-                name="marks"
-                label="Marks Secured"
-                type="number"
-                value={formik.values.marks}
-                onChange={formik.handleChange}
-                error={formik.touched.marks && Boolean(formik.errors.marks)}
-                helperText={formik.touched.marks && formik.errors.marks}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="totalMarks"
-                name="totalMarks"
-                label="Total Marks"
-                type="number"
-                value={formik.values.totalMarks}
-                onChange={formik.handleChange}
-                error={formik.touched.totalMarks && Boolean(formik.errors.totalMarks)}
-                helperText={formik.touched.totalMarks && formik.errors.totalMarks}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="gpa"
-                name="gpa"
-                label="CGPA"
-                type="number"
-                value={formik.values.gpa}
-                onChange={formik.handleChange}
-                error={formik.touched.gpa && Boolean(formik.errors.gpa)}
-                helperText={formik.touched.gpa && formik.errors.gpa}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Admission Date"
-                  value={formik.values.admissionDate}
-                  onChange={(date) => formik.setFieldValue("admissionDate", date)}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      error={formik.touched.admissionDate && Boolean(formik.errors.admissionDate)}
-                      helperText={formik.touched.admissionDate && formik.errors.admissionDate}
-                    />
-                  )}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Completion Date"
-                  value={formik.values.completionDate}
-                  onChange={(date) => formik.setFieldValue("completionDate", date)}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      error={formik.touched.completionDate && Boolean(formik.errors.completionDate)}
-                      helperText={formik.touched.completionDate && formik.errors.completionDate}
-                    />
-                  )}
-                />
-              </LocalizationProvider>
-            </Grid>
-          </Grid>
-          <Box display="flex" justifyContent="flex-end" mt={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-              startIcon={<SaveIcon />}
-            >
-              Save
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-
-      {view && (
-        <Card>
-          <CardContent>
-            <SearchTable rows={rows} onDeleteRow={handleDeleteRow} />
-          </CardContent>
-        </Card>
-      )}
-
-      <Box display="flex" justifyContent="space-between" mt={2}>
-        <Button
-          variant="outlined"
-          startIcon={<CachedIcon />}
-          onClick={() => formik.resetForm()}
-        >
-          Reset
-        </Button>
-        {showNext && (
-          <Button
-            variant="contained"
-            endIcon={<NavigateNextIcon />}
-            onClick={handleNext}
-          >
-            Next
-          </Button>
-        )}
-      </Box>
-
-      <Snackbar
-        open={openToast}
-        autoHideDuration={6000}
-        onClose={handleCloseToast}
-        TransitionComponent={TransitionLeft}
-      >
-        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
-          {toastMessage}
-        </Alert>
-      </Snackbar>
-    </form>
-  );
-}
-
-export default QualificationForm;
-
-
-
-
-
-
-
-
-
-
-import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Card,
-  CardContent,
-  Divider,
-  Grid,
-  Snackbar,
-  TextField,
-  Box,
-  Alert,
-  Autocomplete
-} from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import CachedIcon from '@mui/icons-material/Cached';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import SearchTable from './SearchTable';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
-import TransitionLeft from './TransitionLeft';
-
-function QualificationForm({ onButtonClick, formData, setFormData, showNext, view }) {
-  const [rows, setRows] = useState([]);
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastSeverity, setToastSeverity] = useState('success');
-
-  useEffect(() => {
-    // Fetch data when component mounts
-    axios.get('http://141.148.194.18:8052/payroll/employee/educational-details', {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("token")}`
-      }
-    })
-    .then(response => {
-      if (response.data.status && response.data.result) {
-        setRows(response.data.result.map(item => ({
-          id: item.eduId,
-          qualificationId: item.qualificationId.id,
-          qualificationLabel: item.qualificationId.label,
-          boardOrUniversity: item.boardOrUniversity,
-          instituteName: item.instituteName,
-          course: item.course,
-          marksCgpaId: item.marksCgpaId.id,
-          marksCgpaLabel: item.marksCgpaId.label,
-          marksSecured: item.marksSecured,
-          totalMarks: item.totalMarks,
-          cgpa: item.cgpa,
-          admissionDate: dayjs(item.admissionDate, 'DD-MM-YYYY'),
-          completionDate: dayjs(item.completionDate, 'DD-MM-YYYY')
-        })));
-      }
-    })
-    .catch(error => {
-      setToastMessage("Failed to fetch data. Please try again.");
-      setToastSeverity("error");
-      setOpenToast(true);
-    });
-  }, []);
-
-  const formik = useFormik({
-    initialValues: {
-      QualifiactionTypes: '',
-      degree: '',
-      institute: '',
-      course: '',
-      Board: '',
-      marksCgpa: '',
-      marks: '',
-      totalMarks: '',
-      gpa: '',
-      admissionDate: null,
-      completionDate: null,
-    },
-    validationSchema: Yup.object({
-      QualifiactionTypes: Yup.string().required('Required'),
-      degree: Yup.string().required('Required'),
-      institute: Yup.string().required('Required'),
-      course: Yup.string().required('Required'),
-      Board: Yup.string().required('Required'),
-      marksCgpa: Yup.string().required('Required'),
-      marks: Yup.number().when('marksCgpa', {
-        is: (val) => val && val.id === 269,
-        then: Yup.number().required('Required')
-      }),
-      totalMarks: Yup.number().when('marksCgpa', {
-        is: (val) => val && val.id === 269,
-        then: Yup.number().required('Required')
-      }),
-      gpa: Yup.number().when('marksCgpa', {
-        is: (val) => val && val.id === 270,
-        then: Yup.number().required('Required')
-      }),
-      admissionDate: Yup.date().nullable().required('Required'),
-      completionDate: Yup.date().nullable().required('Required'),
-    }),
-    onSubmit: (values) => {
-      const newRow = {
-        id: rows.length + 1,
-        qualificationId: values.QualifiactionTypes.id,
-        qualificationLabel: values.QualifiactionTypes.label,
-        boardOrUniversity: values.Board,
-        instituteName: values.institute,
-        course: values.course,
-        marksCgpaId: values.marksCgpa.id,
-        marksCgpaLabel: values.marksCgpa.label,
-        marksSecured: values.marks,
-        totalMarks: values.totalMarks,
-        cgpa: values.gpa,
-        admissionDate: values.admissionDate,
-        completionDate: values.completionDate,
-      };
-      setRows([...rows, newRow]);
-      formik.resetForm();
-    },
-  });
-
-  const handleDeleteRow = (rowId) => {
-    setRows(rows.filter(row => row.id !== rowId));
-  };
-
-  const handleSave = () => {
-    const payload = {
-      empRefNo: formData.empRefNo,
-      qualificationDetails: rows.map(row => ({
-        qualificationId: row.qualificationId,
-        boardOrUniversity: row.boardOrUniversity,
-        instituteName: row.instituteName,
-        course: row.course,
-        marksCgpaId: row.marksCgpaId,
-        marksSecured: row.marksSecured,
-        totalMarks: row.totalMarks,
-        cgpa: row.cgpa,
-        admissionDate: row.admissionDate.format('DD-MM-YYYY'),
-        completionDate: row.completionDate.format('DD-MM-YYYY'),
-      })),
-    };
-
-    axios.post('http://141.148.194.18:8052/payroll/employee/educational-details', payload, {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("token")}`
-      }
-    })
-      .then(response => {
-        setToastMessage("Data saved successfully!");
-        setToastSeverity("success");
-        setOpenToast(true);
-      })
-      .catch(error => {
-        setToastMessage("Failed to save data. Please try again.");
-        setToastSeverity("error");
-        setOpenToast(true);
-      });
-  };
-
-  const handleCloseToast = () => {
-    setOpenToast(false);
-  };
-
-  const handleNext = () => {
-    setFormData({ ...formData, qualificationDetails: rows });
-    onButtonClick();
-  };
-
-  return (
-    <form onSubmit={formik.handleSubmit}>
-      <Card sx={{ mt: 2, mb: 2 }}>
-        <CardContent>
-          <H3 textAlign="center" mb={2}>
-            Qualification Details
-          </H3>
-          <Divider sx={{ mb: 2 }} />
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Autocomplete
-                options={qualificationList}
-                getOptionLabel={(option) => option.label}
-                value={formik.values.QualifiactionTypes}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue("QualifiactionTypes", newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Qualification Type"
-                    error={formik.touched.QualifiactionTypes && Boolean(formik.errors.QualifiactionTypes)}
-                    helperText={formik.touched.QualifiactionTypes && formik.errors.QualifiactionTypes}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Autocomplete
-                options={degreeList}
-                getOptionLabel={(option) => option.label}
-                value={formik.values.degree}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue("degree", newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Degree"
-                    error={formik.touched.degree && Boolean(formik.errors.degree)}
-                    helperText={formik.touched.degree && formik.errors.degree}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="institute"
-                name="institute"
-                label="Institute Name"
-                value={formik.values.institute}
-                onChange={formik.handleChange}
-                error={formik.touched.institute && Boolean(formik.errors.institute)}
-                helperText={formik.touched.institute && formik.errors.institute}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="course"
-                name="course"
-                label="Course"
-                value={formik.values.course}
-                onChange={formik.handleChange}
-                error={formik.touched.course && Boolean(formik.errors.course)}
-                helperText={formik.touched.course && formik.errors.course}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="Board"
-                name="Board"
-                label="Board"
-                value={formik.values.Board}
-                onChange={formik.handleChange}
-                error={formik.touched.Board && Boolean(formik.errors.Board)}
-                helperText={formik.touched.Board && formik.errors.Board}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Autocomplete
-                options={marksCgpaList}
-                getOptionLabel={(option) => option.label}
-                value={formik.values.marksCgpa}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue("marksCgpa", newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Marks/CGPA"
-                    error={formik.touched.marksCgpa && Boolean(formik.errors.marksCgpa)}
-                    helperText={formik.touched.marksCgpa && formik.errors.marksCgpa}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="marks"
-                name="marks"
-                label="Marks Secured"
-                type="number"
-                value={formik.values.marks}
-                onChange={formik.handleChange}
-                error={formik.touched.marks && Boolean(formik.errors.marks)}
-                helperText={formik.touched.marks && formik.errors.marks}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="totalMarks"
-                name="totalMarks"
-                label="Total Marks"
-                type="number"
-                value={formik.values.totalMarks}
-                onChange={formik.handleChange}
-                error={formik.touched.totalMarks && Boolean(formik.errors.totalMarks)}
-                helperText={formik.touched.totalMarks && formik.errors.totalMarks}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="gpa"
-                name="gpa"
-                label="CGPA"
-                type="number"
-                value={formik.values.gpa}
-                onChange={formik.handleChange}
-                error={formik.touched.gpa && Boolean(formik.errors.gpa)}
-                helperText={formik.touched.gpa && formik.errors.gpa}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Admission Date"
-                  value={formik.values.admissionDate}
-                  onChange={(date) => formik.setFieldValue("admissionDate", date)}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      error={formik.touched.admissionDate && Boolean(formik.errors.admissionDate)}
-                      helperText={formik.touched.admissionDate && formik.errors.admissionDate}
-                    />
-                  )}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Completion Date"
-                  value={formik.values.completionDate}
-                  onChange={(date) => formik.setFieldValue("completionDate", date)}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      error={formik.touched.completionDate && Boolean(formik.errors.completionDate)}
-                      helperText={formik.touched.completionDate && formik.errors.completionDate}
-                    />
-                  )}
-                />
-              </LocalizationProvider>
-            </Grid>
-          </Grid>
-          <Box display="flex" justifyContent="flex-end" mt={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-              startIcon={<SaveIcon />}
-            >
-              Save
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-
-      {view && (
-        <Card>
-          <CardContent>
-            <SearchTable rows={rows} onDeleteRow={handleDeleteRow} />
-          </CardContent>
-        </Card>
-      )}
-
-      <Box display="flex" justifyContent="space-between" mt={2}>
-        <Button
-          variant="outlined"
-          startIcon={<CachedIcon />}
-          onClick={() => formik.resetForm()}
-        >
-          Reset
-        </Button>
-        {showNext && (
-          <Button
-            variant="contained"
-            endIcon={<NavigateNextIcon />}
-            onClick={handleNext}
-          >
-            Next
-          </Button>
-        )}
-      </Box>
-
-      <Snackbar
-        open={openToast}
-        autoHideDuration={6000}
-        onClose={handleCloseToast}
-        TransitionComponent={TransitionLeft}
-      >
-        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
-          {toastMessage}
-        </Alert>
-      </Snackbar>
-    </form>
-  );
-}
-
-export default QualificationForm;
-
-
-
-
-
-
-
-
-
-
-
-{
-    "status": true,
-    "message": "Educational Details fetched successfully",
-    "result": [
-        {
-            "eduId": 28,
-            "empId": 66,
-            "qualificationId": {
-                "id": 267,
-                "label": "Graduation"
-            },
-            "instituteName": "KL",
-            "boardOrUniversity": "Deemed",
-            "course": "CSE",
-            "marksCgpaId": {
-                "id": 270,
-                "label": "CGPA"
-            },
-            "marksSecured": null,
-            "totalMarks": null,
-            "cgpa": 9,
-            "admissionDate": "19-07-2019",
-            "completionDate": "17-07-2024",
-            "filePath": null,
-            "fileName": null,
-            "crtBy": {
-                "id": 1,
-                "label": "raj18"
-            },
-            "crtOn": "18-07-2024 05:04 PM",
-            "updBy": null,
-            "updOn": "18-07-2024 05:04 PM"
-        }
-    ],
-    "statusCode": 200
-}
-
-
-
-
-
-import CachedIcon from '@mui/icons-material/Cached';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import SaveIcon from '@mui/icons-material/Save';
-import SchoolIcon from '@mui/icons-material/School';
-import {
-  Alert,
-  Autocomplete,
-  Box,
-  Card,
-  CardContent,
-  Divider,
-  Grid,
-  Slide,
-  TextField
-} from "@mui/material";
-import Button from '@mui/material/Button';
-import Snackbar from '@mui/material/Snackbar';
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import axios from 'axios';
-import dayjs from "dayjs";
-import { useFormik } from 'formik';
-import Cookies from "js-cookie";
-import React, { useEffect, useState } from 'react';
-import AlertConfirm from "react-alert-confirm";
+import * as yup from "yup";
+import AlertConfirm, { Button1 } from "react-alert-confirm";
 import "react-alert-confirm/lib/style.css";
-import * as Yup from 'yup';
-import SearchTable from "../../components/SearchTableAlt";
-import { useSnackbar } from "../../components/Snackbar";
-import { H3 } from "../../components/Typography";
-function TransitionLeft(props) {
-  return <Slide {...props} direction="left" />;
-}
-const QualifiactionDetails = ({ formData, setFormData, prevData, onButtonClick, view }) => {
-  const validationSchema = Yup.object().shape({
-    QualifiactionTypes: Yup.string().required("Qualification Type is required").nullable(),
-    institute: Yup.string().required("Institute Name is required").nullable(),
-    course: Yup.string().required("Course is required").nullable(),
-    Board: Yup.string().required("Board is required").nullable(),
-    marksCgpa: Yup.string().required("Marks/Cgpa is required").nullable(),
-    marks: Yup.string().when("marksCgpa", {
-      is: (value) => value === '269',
-      then: Yup.string().required("Marks secured is required").nullable(),
-    }).nullable(),
-    totalMarks: Yup.string().when("marksCgpa", {
-      is: (value) => value === '269',
-      then: Yup.string().required("Total Marks is required").nullable(),
-    }).nullable(),
-    gpa: Yup.string().when("marksCgpa", {
-      is: (value) => value === '270',
-      then: Yup.string().required("Cgpa is required").nullable(),
-    }).nullable(),
-    admissionDate: Yup.string().required("Admission Date is required").nullable(),
-    completionDate: Yup.string().required("Completion Date is required").nullable()
-  })
-  const formik = useFormik({
-    initialValues: {
-      QualifiactionTypes: null,
-      degree: null,
-      courseType: null,
-      institute: '',
-      course: '',
-      Board: '',
-      Duration: '',
-      marksCgpa: null,
-      marks: '',
-      totalMarks: '',
-      gpa: '',
-      passingYear: '',
-      admissionDate: null,
-      completionDate: null
-    },
-    validationSchema: validationSchema,
-  });
-  const tomorrow = dayjs().add(0, 'day');
-  const [qualificationList, setQualificationList] = useState([]);
-  const [degreeList, setDegreeList] = useState([])
-  const [courseList, setCourseList] = useState([])
-  const [marksCgpaList, setMarksCgpaList] = useState([])
-  const [rows, setRows] = useState([])
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastSeverity, setToastSeverity] = useState("info");
-  const { showSnackbar } = useSnackbar();
-  const [showNext, setShowNext] = useState(view);
-  const getValueFromList = (List, value) => {
-    return List.find((option) => option.id === value) ?? null;
-  };
-  useEffect(() => {
-    axios.get(`http://141.148.194.18:8052/payroll/employee/educational-details/dropdown-init`, {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("token")}`
-      }
-    }).then(response => {
-      // let sortedData = response.data.map((value) => {
-      //      value.label = value.label
-      //      return value;
-      //  })
-      //  console.log(sortedData);
-      if (response.status === 200) {
-        setQualificationList(response.data.qualification);
-        //setDegreeList(response.data.relationship);
-        setMarksCgpaList(response.data.marksCgpa);
-      }
-      console.log(response);
-    })
-      .catch(error => {
-        console.log(error);
-      });
-  }, [])
+import { useSnackbar } from '../../components/Snackbar';
 
+const SalaryProcessReport = () => {
 
-  useEffect(() => {
-    if (view) {
-      fetchData();
-    }
-  }, [view]);
+    const title = 'Salary Process Report';
+    const name = 'Processed Salary Report';
+    const name1= 'Salary Process Report'
+    useTitle(title)
 
-
-  const fetchData = () => {
-    axios.get(`http://141.148.194.18:8052/payroll/employee/educational-details/${formData.empRefNo}`, {
-        headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-        }
-    }).then(response => {
-
-      const result = response.data.result;
-      
-
-    })
-}
-  const columns = [
-    {
-      field: "id",
-      headerClassName: "super-app-theme--header",
-      headerName: "S No.",
-      width: 60,
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      hide: true
-    },
-    {
-      width: 250,
-      headerName: "Qualification Type",
-      field: "qualificationId",
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      renderCell: (params) => {
-        return (
-          getValueFromList(qualificationList, params.row.qualificationId).label
-        )
-      }
-    },
-    {
-      width: 200,
-      headerName: "Board/University",
-      field: "boardOrUniversity",
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-    },
-    // {
-    //   width: 200,
-    //   headerName: "courseType",
-    //   field: "CourseType",
-    //   headerClassName: "super-app-theme--header",
-    //   sortable: false,
-    //   filterable: false,
-    //   disableColumnMenu: true,
-    // },
-    {
-      width: 200,
-      headerName: "Institute Name",
-      field: "instituteName",
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-    },
-    {
-      width: 200,
-      headerName: "Course",
-      field: "course",
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-    },
-    
-    {
-      field: "marksCgpaId",
-      headerName: "Marks/Cgpa",
-      width: 140,
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      renderCell: (params) => {
-        return (
-          getValueFromList(marksCgpaList, params.row.marksCgpaId).label
-        )
-      }
-    },
-    {
-      field: "marksSecured",
-      headerName: "Marks Obtained",
-      width: 140,
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-    },
-    {
-      field: "totalMarks",
-      headerName: "Total Marks",
-      width: 140,
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-    },
-    {
-      width: 200,
-      headerName: "CGPA",
-      field: "cgpa",
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-    },
-    {
-      width: 200,
-      headerName: "Admission Date",
-      field: "admissionDate",
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      renderCell: (params) => {
-        return (
-          dayjs(params.row.admissionDate).format("DD-MM-YYYY")
-        )
-      }
-    },
-    {
-      width: 200,
-      headerName: "Completion Date",
-      field: "completionDate",
-      headerClassName: "super-app-theme--header",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      renderCell: (params) => {
-        return (
-          dayjs(params.row.completionDate).format("DD-MM-YYYY")
-        )
-      }
-    },
-    {
-      field: "actiondelete",
-      headerName: "Action",
-      width: 140,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params) => {
-        return (
-          <Button
-            variant="outlined"
-            color="error"
-            sx={{ mb: 1 }}
-            // value={params.value}
-            onClick={() => handleDeleteRow(params.row.id)}
-          >
-            Delete
-          </Button>
-        );
-      },
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-    },
-  ];
-  const addRow = () => {
-    formik
-      .validateForm()
-      .then((formErrors) => {
-        if (Object.keys(formErrors).length > 0) {
-          console.log(Object.keys(formErrors))
-          //alert(Object.keys(formErrors))
-          setToastMessage("Please fill all the required * fields")
-          setToastSeverity("error");
-          setOpenToast(true);
-        }
-        else {
-          const newRow = {
-            id: rows.length + 1,
-            qualificationId: formik.values.QualifiactionTypes,
-            instituteName: formik.values.institute,
-            boardOrUniversity: formik.values.Board,
-            course: formik.values.course,
-            marksCgpaId: formik.values.marksCgpa,
-            marksSecured: formik.values.marks,
-            totalMarks: formik.values.totalMarks,
-            cgpa: formik.values.gpa,
-            admissionDate: formik.values.admissionDate,
-            completionDate: formik.values.completionDate,
-            //filePath: null,
-            actiondelete: ''
-          };
-          let temp = [...rows]
-          temp.push(newRow)
-          setRows(temp);
-          formik.resetForm()
-        }
-      })
-      .catch((err) => {
-        formik.setSubmitting(false);
-      });
-  };
-  console.log(rows);
-  const handleFileUpload = (response, type) => {
-    if (type === "upload") {
-      formik.setFieldValue("filePath", { ...formik.values.docs, ...response });
-    } else if (type === "delete") {
-      formik.setFieldValue("filePath", response);
-    }
-  };
-  const handleDeleteRow = (index) => {
-    const updatedRows = rows.filter((row) => row.id !== index);
-    const updatedRowsWithId = updatedRows.map((row, index) => ({
-      ...row,
-      id: index + 1,
-    }));
-    setRows(updatedRowsWithId);
-  };
-  const callConfirmDialog = async () => {
-    console.log('kp-confirm');
-    const [action] = await AlertConfirm({
-      title: "Confirm",
-      desc: "Are you sure, you want to submit?",
+    const navigate = useNavigate();
+    const {showSnackbar} = useSnackbar();
+    const validationSchema = yup.object({
+       // officeSelect: yup.object().nullable().required("Please select Office"),
+        department: yup.object().nullable().required("Please select HOA"),
+        financialYear: yup.object().nullable().required("Financial year is required"),
     });
-    AlertConfirm.config({
-      okText: "Submit",
-      cancelText: "Cancel",
-    });
-    if (action) {
-      console.log('kp-saved');
-      SaveQualificationDetails();
-    }
-  };
-  const SaveQualificationDetails = async () => {
-    try {
-      let arr = [];
-      let obj = {}
-      rows.map((it) => {
-        obj = {
-          "qualificationId": it.qualificationId,
-          "instituteName": it.instituteName,
-          "boardOrUniversity": it.boardOrUniversity,
-          "course": it.course,
-          "marksCgpaId": it.marksCgpaId,
-          "marksSecured": it.marksSecured,
-          "totalMarks": it.totalMarks,
-          "cgpa": it.cgpa,
-          "admissionDate": it.admissionDate,
-          "completionDate": it.completionDate,
-          "filePath": null
+    const formik = useFormik({
+        initialValues: {
+            officeSelect: "",
+            department:null,
+            financialYear:null,
+            totalEmployee: '',
+            salaryInitiated:'',
+            salaryNotInitiatedYet  :'',
+            delay:'',
+
+
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values, {resetForm}) => {
+            console.log(values)
+            // callConfirmDialogFormSave(values, resetForm);
+            handleFetchTableData({
+                deptId : [formik.values.department && formik.values.department?.id],
+                empIds:[],
+                officeIds:[1,2,3,23],
+                // officeIds: [formik.values.officeSelect && formik.values?.officeSelect?.id],
+                payMontId: formik.values.financialYear && formik.values?.financialYear?.id
+            });
         }
-        arr.push(obj)
-      })
-      let body = {
-        // "refNo": "BRD0000000000027",
-        "refNo": localStorage.getItem("refNo"),
-        "educationalDetailsList": arr
-      }
-      const res = await axios.post(
-        `${process.env.REACT_APP_PAYROLL_API_URL}/employee/educational-details`,
-        body,
+    })
+    console.log(formik.values)
+    // const handleOpenGroup =(params) => {
+    //     navigate('/opengroup', {state:params})
+    // }
+    // const handleGoForProcess = (params)=> {
+    //     navigate('/SalaryProcess', {state:[params, formik.values.officeSelect?.id]});
+    // }
+
+    const columns = [
         {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`
-          }
+            field: "officeId",
+            headerName: "Office Id.",
+            flex: 0.1,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+
+        },
+        {
+            field: "officeName",
+            headerName: "Office Name",
+            flex: 0.2,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+
+        },
+        {
+            field: "deptName",
+            headerName: "Department Name",
+            flex: 0.2,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+
+        },
+        {
+            field: "notProcessedCount",
+            headerName: "Not Processed Count",
+            flex: 0.2,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+
+        },
+        {
+            field: "processedCount",
+            headerName: "Processed Count",
+            flex: 0.2,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+
+        },
+        {
+            field: "notDelayedCount",
+            headerName: "Not Delayed Count",
+            flex: 0.2,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+
+        },
+        {
+            field: "totalEmp",
+            headerName: "Total Employee",
+            flex: 0.2,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+
+        },
+        {
+            field: "delayedCount",
+            headerName: "Delayed Count",
+            flex: 0.2,
+            minWidth: 180,
+            headerClassName: "super-app-theme--header",
+
+        },
+    ];
+
+    
+    const [departmentData, setDepartmentData] = useState([]);
+    const [financialYearData, setFinancialYearData] = useState([]);
+    const [officeData, setOfficeData] = useState([]);
+    const [tableData, setTableData] = useState([]);
+    const [ callOfficeData, setCallOfficeData] = useState(false);
+
+    const [showPeriodList, setShowPeriodList] = useState(false);
+    const [fieldData, setFieldData] = useState();
+    const [isLoader, setIsLoader] = useState(false);
+
+    const handleFetchIndependentDropdownData = async() => {
+        try {
+            const res = await axiosClient.get(`${process.env.REACT_APP_PAYROLL_API_URL}/getIndependentdropdown`)
+             console.log(res.data.result.departments);
+            if(res.data.status){
+
+                const departmentDropdown = res?.data?.result?.departments?.map((item) => ({
+                    id: item?.deptId,
+                    label: item?.name
+                   
+                }))
+
+                console.log(departmentDropdown);
+                setDepartmentData(departmentDropdown);
+                setIsLoader(false);
+            }
+
+        } catch (error) {
+            setIsLoader(false);
+            console.log(error)
         }
-      );
-      console.log("the saved details  areeeeee", res);
-      if (res.data.statusCode === 200) {
-        showSnackbar(res.data.message, "success");
-        setShowNext(true)
-        onButtonClick("pagethree");
-      }
     }
-    catch (error) {
-      console.log(error.message);
-    }
-  }
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpenToast(false);
-  };
-  return (
-    <Card>
-      <CardContent>
-        <div style={{ display: "flex", justifyContent: "left", alignItems: 'center', marginBlock: 15, borderBottom: "0.5px solid #d1d1cf", marginBottom: "20px" }}>
-          <SchoolIcon sx={{ fontSize: "25px", color: '#246cb5' }} />
-          <H3 sx={{ fontSize: "15px", color: '#246cb5' }} marginLeft={0.5} my={0.5} display="flex" justifyContent="center" alignItems="flex-end">Qualification Details</H3>
-        </div>
-        <Divider />
-        {view !== true && (
-          <Grid
-            container
-            direction="row"
-            rowSpacing={0}
-            columnSpacing={2}
-            justify="flex-end"
-            alignItems="center"
-            sx={{ mb: 1 }}
-          >
-            <Grid item xs={12} sm={6} md={4} lg={4}>
-              <Autocomplete
-                disablePortal
-                margin="normal"
-                size="small"
-                id="QualifiactionTypes"
-                name="QualifiactionTypes"
-                options={qualificationList}
-                value={qualificationList.find(
-                  (option) => option.id === formik.values.QualifiactionTypes
-                ) || null}
-                onChange={(e, value) => {
-                  if (value === null) {
-                    formik.setFieldValue("QualifiactionTypes", null)
-                  }
-                  else
-                    formik.setFieldValue("QualifiactionTypes", value.id)
-                }}
-                getOptionLabel={(value) => value.label}
-                sx={{ width: "100%" }}
-                renderInput={(params) => (
-                  <TextField {...params}
-                    label="Qualification Type"
-                    required
-                    onBlur={formik.handleBlur}
-                    helperText={formik.errors.QualifiactionTypes ? formik.errors.QualifiactionTypes : null}
-                    error={formik.errors.QualifiactionTypes ? true : false}
-                  />
-                )}
-              />
-            </Grid>
 
-            <Grid item xs={12} sm={6} md={4} lg={4}>
-              <TextField
-                label="Board/University"
-                required
-                fullWidth
-                name="Board"
-                id="Board"
-                size="small"
-                value={formik.values.Board}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                helperText={formik.errors.Board ? formik.errors.Board : null}
-                error={formik.errors.Board ? true : false}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={4}>
-              <TextField
-                label="Institute Name"
-                required
-                name="institute"
-                id="institute"
-                fullWidth
-                size="small"
-                value={formik.values.institute}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                helperText={formik.errors.institute ? formik.errors.institute : null}
-                error={formik.errors.institute ? true : false}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={4}>
-              <TextField
-                label="Course"
-                required
-                name="course"
-                id="course"
-                fullWidth
-                size="small"
-                value={formik.values.course}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                helperText={formik.errors.course ? formik.errors.course : null}
-                error={formik.errors.course ? true : false}
-              />
-            </Grid>
+    const Fetchfymonth= async() => {
+        try {
+            const res = await axiosClient.get(`${process.env.REACT_APP_PAYROLL_API_URL}/getFyMonth`)
+            if(res.data.status){
 
-            <Grid item xs={12} sm={6} md={4} lg={4}>
-              <Autocomplete
-                disablePortal
-                margin="normal"
-                size="small"
-                id="marksCgpa"
-                name="marksCgpa"
-                options={marksCgpaList}
-                value={marksCgpaList.find(
-                  (option) => option.id === formik.values.marksCgpa
-                ) || null}
-                onChange={(e, value) => {
-                  if (value === null) {
-                    formik.setFieldValue("marksCgpa", null)
-                  }
-                  else
-                    formik.setFieldValue("marksCgpa", value.id)
-                }}
-                getOptionLabel={(value) => value.label}
-                sx={{ width: "100%" }}
-                renderInput={(params) => (
-                  <TextField {...params}
-                    label="Marks/Cgpa"
-                    required
-                    onBlur={formik.handleBlur}
-                    helperText={formik.errors.marksCgpa ? formik.errors.marksCgpa : null}
-                    error={formik.errors.marksCgpa ? true : false}
-                  />
-                )}
-              />
-            </Grid>
-            {formik.values.marksCgpa === 269 && (
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  label="Marks Obtained"
-                  required
-                  fullWidth
-                  size="small"
-                  name="marks"
-                  id='marks'
-                  value={formik.values.marks}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  helperText={formik.errors.marks ? formik.errors.marks : null}
-                  error={formik.errors.marks ? true : false}
-                />
-              </Grid>
-            )}
-            {formik.values.marksCgpa === 269 && (
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  label="Total Marks"
-                  required
-                  fullWidth
-                  size="small"
-                  name="totalMarks"
-                  id='totalMarks'
-                  value={formik.values.totalMarks}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  helperText={formik.errors.totalMarks ? formik.errors.totalMarks : null}
-                  error={formik.errors.totalMarks ? true : false}
-                />
-              </Grid>
-            )}
-            {formik.values.marksCgpa === 270 && (
-              <Grid item xs={12} sm={4} md={4} lg={4}>
-                <TextField
-                  label="CGPA"
-                  name="gpa"
-                  id='gpa'
-                  required
-                  fullWidth
-                  size="small"
-                  value={formik.values.gpa}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  helperText={formik.errors.gpa ? formik.errors.gpa : null}
-                  error={formik.errors.gpa ? true : false}
-                />
-              </Grid>
-            )}
-            
-            <Grid item xs={12} sm={4} md={4} lg={4}>
-              <>
-                <LocalizationProvider
-                  dateAdapter={AdapterDayjs}
-                  adapterLocale={"en-gb"}
-                >
-                  <DatePicker
-                    label="Admission Date"
-                    format="DD-MM-YYYY"
-                    maxDate={tomorrow}
-                    slotProps={{ textField: { size: "small" } }}
-                    sx={{ width: "100%", mt: 2 }}
-                    id="admissionDate"
-                    name="admissionDate"
-                    size="small"
-                    value={formik.values.admissionDate}
-                    onChange={(value) => { if (value === null) { formik.setFieldValue("admissionDate", "") } else { formik.setFieldValue("admissionDate", dayjs(value).format('YYYY-MM-DD')) } }}
-                    renderInput={(params) => (
-                      <TextField
-                        size="small"
-                        fullWidth
-                        margin="normal"
-                        name="admissionDate"
-                        required
-                        {...params}
-                        // error={formik.touched.admissionDate && Boolean(formik.errors.admissionDate)}
-                        // helperText={formik.touched.admissionDate && formik.errors.admissionDate}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        helperText={formik.errors.admissionDate && formik.touched.admissionDate ? formik.errors.admissionDate : null}
-                        error={formik.errors.admissionDate && formik.touched.admissionDate ? true : false}
-                      />
-                    )}
-                  />
-                  <p style={{ color: '#d42d2d', fontSize: "10px" }}>
-                    {formik.errors.admissionDate ? formik.errors.admissionDate : null}
-                  </p>
-                </LocalizationProvider>
-              </>
-            </Grid>
-            <Grid item xs={12} sm={4} md={4} lg={4}>
-              <>
-                <LocalizationProvider
-                  dateAdapter={AdapterDayjs}
-                  adapterLocale={"en-gb"}
-                >
-                  <DatePicker
-                    label="Completion Date"
-                    format="DD-MM-YYYY"
-                    maxDate={tomorrow}
-                    id="completionDate"
-                    name="completionDate"
-                    slotProps={{ textField: { size: "small" } }}
-                    sx={{ width: "100%", mt: 2 }}
-                    value={formik.values.completionDate}
-                    onChange={(value) => { if (value === null) { formik.setFieldValue("completionDate", "") } else { formik.setFieldValue("completionDate", dayjs(value).format('YYYY-MM-DD')) } }}
-                    renderInput={(params) => (
-                      <TextField
-                        size="small"
-                        fullWidth
-                        margin="normal"
-                        name="completionDate"
-                        required
-                        {...params}
-                        error={formik.touched.completionDate && Boolean(formik.errors.completionDate)}
-                        helperText={formik.touched.completionDate && formik.errors.completionDate}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                    )}
-                  />
-                  <p style={{ color: '#d42d2d', fontSize: "10px" }}>
-                    {formik.errors.completionDate ? formik.errors.completionDate : null}
-                  </p>
-                </LocalizationProvider>
-              </>
-            </Grid>
-            
-          </Grid>
-        )}
-        {view !== true && (
-          <Box
-            spacing={2}
-            sx={{ mt: 1, textAlign: 'right' }}
-          >
-            <Button
-              sx={{
-                minWidth: 100,
-                ml: 1,
-              }}
-              variant="contained"
-              type="submit"
-              onClick={() => {
-                addRow()
-              }}
-            >
-              <SaveIcon /> &nbsp; ADD
-            </Button>
-            <Button
-              type="button"
-              sx={{ minWidth: 100, ml: 1, mt: { xs: 1, md: 0 } }}
-              onClick={() => {
-                formik.resetForm()
-              }}
-              variant="outlined"
-            >
-              <CachedIcon />&nbsp;RESET
-            </Button>
-          </Box>
-        )}
-        {rows.length > 0 && (
-          <Box component={"div"} >
-            <SearchTable
-              columns={columns}
-              // data={rowss}
-              data={rows}
-              isCheckbox={false}
-              isHideDensity={false}
-              isHideExport={true}
-              isHideFilter={true}
-              isHideColumn={true}
-              isHidePaging={false}
-              name="villageName"
-              id="villageName"
-            />
-          </Box>
-        )}
-        <Box display="flex" justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
-          
-          {view !== true && (
-            <Button
-              sx={{
-                minWidth: 100,
-                ml: 1,
-                mt: { xs: 1, md: 0 },
-              }}
-              variant="contained"
-              type="submit"
-              // disabled={submitDisable}
-              onClick={() => {
-                // SaveQualificationDetails()
-                if (rows.length > 0) {
-                  callConfirmDialog();
-                }
-                else {
-                  showSnackbar("Please add Qualification Details", "error");
-                  return;
-                }
-                // checkValid();
-                // setFormData((prevFormData) => ({
-                //     ...prevFormData,
-                //     pageone: { formik: formik.values }
-                // }));
-              }}
-            >
-              SUBMIT&nbsp;
-              <SaveIcon></SaveIcon>
-            </Button>
-          )}
-          <Button
-            sx={{
-              minWidth: 100, ml: 1, mt: { xs: 1, md: 0 }
-            }}
-            variant="outlined"
-            //type="submit"
-            disabled={!showNext}
-            onClick={() => {
-              onButtonClick("pagethree")
+                const financialYearDropdown = res?.data?.result?.map((item) => ({
+                    id: item?.typeId,
+                    label: item?.typeName
+                }))
+                console.log(financialYearDropdown);
+                setFinancialYearData(financialYearDropdown);
+                setIsLoader(false);
             }
+
+        } catch (error) {
+            setIsLoader(false);
+            console.log(error)
+        }
+    }
+
+    const handleCallofficeData =async() => {
+        setIsLoader(true);
+        try {
+            const payload = {
+                deptId: formik.values.department.id,
+                stateId:  null,
+                districtId: null,
+                officeName: null
+              };
+            const res = await axiosClient.post(`http://141.148.194.18:8052/payroll/employee/dropdown/office`,payload )
+            console.log('office',res);
+            if(res.status === 200){
+                const officeDropdown = res?.data?.map((item) => ({
+                    id: item?.id,
+                    label: item?.officeName
+                }))
+
+                console.log(officeDropdown)
+                setOfficeData(officeDropdown)
+                formik.setFieldValue('officeSelect', null)
+                setIsLoader(false);
+                setCallOfficeData(false);
             }
-          >
-            NEXT &nbsp;
-            <NavigateNextIcon />
-          </Button>
-        </Box>
-        <Snackbar
-          open={openToast}
-          autoHideDuration={6000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          onClose={handleClose}
-          TransitionComponent={TransitionLeft}
-        >
-          <Alert onClose={handleClose} severity={toastSeverity}
-            sx={{
-              width: '100%',
-              padding: { sm: '15px', xs: '10px' },
-              borderRadius: '15px',
-              fontSize: { sm: '16px', xs: '14px' },
-              boxShadow: "0 0 10px #999",
-              marginTop: { sm: '25px', xs: '20px' }
-            }}>
-            {toastMessage}
-          </Alert>
-        </Snackbar>
-      </CardContent>
-    </Card>
-  )
+            else{
+                setIsLoader(false);
+                formik.setFieldValue('officeSelect', null)
+                setOfficeData([])
+            }
+        } catch (error) {
+            console.log(error)
+            setIsLoader(false);
+            formik.setFieldValue('officeSelect', null)
+            setOfficeData([])
+        }
+    }
+
+    var val;
+    const handleReset =(val) => {
+        formik.setFieldValue('hoa', null);
+        formik.setFieldValue('financialYear', null);
+        handleFetchTableData({
+            deptId: 1,
+            officeIds: null,
+            empIds:null,
+            payMontId: null
+
+        }, val);
+    }
+    const handleFetchTableData = async(payload, val) => {
+
+        // const payload = {
+        //     officeId : formik.values.officeSelect ? formik.values.officeSelect?.id : 1,
+        //     hoaId: formik.values.hoa ? formik.values?.hoa?.id : null,
+        //     fyId: formik.values.financialYear ? formik.values?.financialYear?.id : null
+        // }
+        console.log(val, 'val')
+        try {
+            setIsLoader(true);
+            const res = await axiosClient.post(`${process.env.REACT_APP_PAYROLL_API_URL}/getEmployeeReport`, payload)
+            console.log('tableData',res);
+
+            if(res.data.status){
+                setTableData(res.data?.result);
+                // formik.setFieldValue('totalEmployee', (res.data.result?.allocatedEmp + res.data.result?.unAllocatedEmp))
+                // formik.setFieldValue('allocatedEmployee', res.data.result?.allocatedEmp)
+                // formik.setFieldValue('unallocatedEmployee', res.data.result?.unAllocatedEmp)
+                setIsLoader(false);
+                setShowPeriodList(true);
+                showSnackbar(res.data.message, 'success');
+                if(val){
+                    setShowPeriodList(false);
+                    // formik.setFieldValue('totalEmployee', '')       
+                    // formik.setFieldValue('allocatedEmployee', '')
+                    // formik.setFieldValue('unallocatedEmployee', '')
+                }
+            }
+            else{
+                setIsLoader(false);
+                showSnackbar('No records found', 'error')
+            }
+        } catch (error) {
+            console.log(error);
+            setIsLoader(false);
+            showSnackbar('No records found', 'error')
+        }
+    }
+    useEffect(() => {
+        setIsLoader(true);
+        handleFetchIndependentDropdownData();
+        Fetchfymonth();
+        // handleFetchTableData();
+    }, [])
+
+    useEffect(() => {
+        if(callOfficeData){
+            // setIsLoader(true);
+            handleCallofficeData();
+        }
+    }, [formik.values.department])
+
+    return (
+        <>
+        {isLoader && <Loader />}
+        <Card>
+            <CardContent>
+                <PageTitle name={name}/>
+                    <Box component= "form" onSubmit={formik.handleSubmit}>
+                        <Grid container columnSpacing={2}>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                                <Autocomplete
+                                    disablePortal
+                                    options={departmentData}
+                                    fullWidth
+                                    id="department"
+                                    name="department"
+                                    required
+                                    value={
+                                        departmentData.find(
+                                        (option) =>
+                                            option.id === formik.values.department?.id
+                                        ) || null
+                                    }
+                                    onChange={(e, value) => {
+                                        if (value === null) {
+                                            formik.setFieldValue("department", null);
+                                            formik.setFieldValue('officeSelect', null);
+                                        } else {
+                                            formik.setFieldValue("department", value);
+                                            setCallOfficeData(true);
+                                        }
+                                    }}
+                                    getOptionLabel={(value) => value.label}
+                                    size='small'
+                                    renderInput={(params) => 
+                                        <TextField 
+                                            {...params} 
+                                            label="Department"
+                                            required
+                                            onBlur={formik.handleBlur}
+                                            helperText={
+                                                formik.errors.department &&
+                                                formik.touched.department
+                                                ? formik.errors.department
+                                                : null
+                                            }
+                                            error={
+                                                formik.errors.department &&
+                                                formik.touched.department
+                                                ? true
+                                                : false
+                                            } 
+                                        />}
+                                />
+                            </Grid>
+                            {/* <Grid item xs={12} sm={12} md={4} lg={4}>
+                                <Autocomplete
+                                    disablePortal
+                                    options={officeData}
+                                    fullWidth
+                                    id="officeSelect"
+                                    name="officeSelect"
+                                    required
+                                    value={
+                                        officeData.find(
+                                        (option) =>
+                                            option.id === formik.values.officeSelect?.id
+                                        ) || null
+                                    }
+                                    onChange={(e, value) => {
+                                        if (value === null) {
+                                            formik.setFieldValue("officeSelect", null);
+                                            formik.setFieldValue('hoa', null);
+                                        } else {
+                                            formik.setFieldValue("officeSelect", value);
+                                            setCallOfficeData(true);
+                                        }
+                                    }}
+                                    getOptionLabel={(value) => value.label}
+                                    size='small'
+                                    renderInput={(params) => 
+                                        <TextField 
+                                            {...params} 
+                                            label="Office"
+                                            required
+                                            onBlur={formik.handleBlur}
+                                            helperText={
+                                                formik.errors.officeSelect &&
+                                                formik.touched.officeSelect
+                                                ? formik.errors.officeSelect
+                                                : null
+                                            }
+                                            error={
+                                                formik.errors.officeSelect &&
+                                                formik.touched.officeSelect
+                                                ? true
+                                                : false
+                                            } 
+                                        />}
+                                />
+                            </Grid> */}
+                            <Grid item xs={12} sm={12} md={4} lg={4}>
+                                <Autocomplete
+                                    disablePortal
+                                    options={officeData}
+                                    fullWidth
+                                    disabled= {formik.values.department ? false : true}
+                                    id="officeSelect"
+                                    name="officeSelect"
+                                    required
+                                    value={officeData &&
+                                        officeData?.find(
+                                        (option) =>
+                                            option.id === formik.values.officeSelect?.id
+                                        ) || null
+                                    }
+                                    onChange={(e, value) => {
+                                        if (value === null) {
+                                        formik.setFieldValue("officeSelect", null);
+                                        } else {
+                                        formik.setFieldValue("officeSelect", value);
+                                        }
+                                    }}
+                                    getOptionLabel={(value) => value.label}
+                                    size='small'
+                                    renderInput={(params) => 
+                                        <TextField 
+                                            {...params} 
+                                            label="Office"
+                                            required
+                                            onBlur={formik.handleBlur}
+                                            helperText={
+                                                formik.errors.officeSelect &&
+                                                formik.touched.officeSelect
+                                                ? formik.errors.officeSelect
+                                                : null
+                                            }
+                                            error={
+                                                formik.errors.officeSelect &&
+                                                formik.touched.officeSelect
+                                                ? true
+                                                : false
+                                            } 
+                                        />}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={12} md={4} lg={4}>
+                                <Autocomplete
+                                    disablePortal
+                                    options={financialYearData}
+                                    fullWidth
+                                    id="financialYear"
+                                    name="financialYear"
+                                    required
+                                    value={
+                                        financialYearData.find(
+                                        (option) =>
+                                            option.id === formik.values.financialYear?.id
+                                        ) || null
+                                    }
+                                    onChange={(e, value) => {
+                                        if (value === null) {
+                                        formik.setFieldValue("financialYear", null);
+                                        } else {
+                                        formik.setFieldValue("financialYear", value);
+                                        }
+                                    }}
+                                    getOptionLabel={(value) => value.label}
+                                    size='small'
+                                    renderInput={(params) => 
+                                        <TextField 
+                                            {...params} 
+                                            label="Financial Year"
+                                            required
+                                            onBlur={formik.handleBlur}
+                                            helperText={
+                                                formik.errors.financialYear &&
+                                                formik.touched.financialYear
+                                                ? formik.errors.financialYear
+                                                : null
+                                            }
+                                            error={
+                                                formik.errors.financialYear &&
+                                                formik.touched.financialYear
+                                                ? true
+                                                : false
+                                            } 
+                                    />}
+                                />
+                            </Grid>
+
+                        </Grid>
+                        <Grid container>
+                            <Grid item style={{width:'100%',display:'flex',justifyContent:'flex-end', gap:4}}  paddingRight={{md:3, lg:3}} paddingTop={{md:2, lg:2}}>
+                                <Button variant='outlined' style={{borderRadius:'4px', float:'right'}} onClick={() => handleReset(val = true)}>Reset</Button>
+                                <Button variant='contained' style={{borderRadius:'4px', float:'right'}} disabled={formik.values.department === null || formik.values.officeSelect === null || formik.values.financialYear === null ? true : false} type='submit'>Search</Button>
+                            </Grid>
+                        </Grid>
+                    </Box>
+            </CardContent>    
+        </Card>
+        {!showPeriodList && (
+            <Alert severity="warning">
+                Please select the above fields and search to receive the data.
+            </Alert>
+        )}
+        <>
+            <Card>
+                <CardContent>
+                    <PageTitle name={name1}/>
+                    <Grid container columnSpacing={2}>
+                        {/* <Grid item xs={12} sm={12} md={3} lg={3.8}>
+                            <TextField label="Office Name" size="small" defaultValue={"Finance Department"} disabled fullWidth/>
+                        </Grid> */}
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <TextField label="Total Employee" size="small" name="totalEmployee" value={formik.values.totalEmployee} disabled fullWidth/>
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <TextField label="Salary Initiated" size="small" name='allocatedEmployee' value={formik.values.salaryInitiated} disabled fullWidth/>
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <TextField label="Salary Not Initiated Yet" size="small" name='unallocatedEmployee' value={formik.values.salaryNotInitiatedYet} disabled fullWidth/>
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <TextField label="Delay" size="small" name='unallocatedEmployee' value={formik.values.delay} disabled fullWidth/>
+                        </Grid>
+                    </Grid>
+                    {showPeriodList && (
+                    <>
+                        <Grid container sx={{mt:2}}>
+                            <SearchTable 
+                                columns={columns}
+                                // data={rowss}
+                                data={tableData}
+                                isCheckbox={false}
+                                isHideDensity={false}
+                                isHideExport={true}
+                                isHideFilter={true}
+                                isHideColumn={true}
+                                isHidePaging={false}
+                                name="villageName"
+                                id="villageName"
+                            />
+                        </Grid>
+                    </>
+                    )}
+                </CardContent>
+            </Card>
+        </>
+        
+    
+        </>
+    )
 }
-export default QualifiactionDetails
+
+export default SalaryProcessReport
