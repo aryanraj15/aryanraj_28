@@ -1,3 +1,51 @@
+ const officeIds = values.officeSelect?.id === 'ALL' 
+            ? officeData.map(office => office.id) 
+            : [values.officeSelect.id];
+
+
+
+const [officeData, setOfficeData] = useState([{ id: 'ALL', label: 'ALL' }]);
+
+
+const handleCallOfficeData = async () => {
+    setIsLoader(true);
+    try {
+        const payload = {
+            deptId: formik.values.department.id,
+            stateId: null,
+            districtId: null,
+            officeName: null
+        };
+        const res = await axiosClient.post(`http://141.148.194.18:8052/payroll/employee/dropdown/office`, payload);
+        if (res.status === 200) {
+            const officeDropdown = res.data.map((item) => ({
+                id: item.id,
+                label: item.officeName
+            }));
+            setOfficeData([{ id: 'ALL', label: 'ALL' }, ...officeDropdown]);
+            formik.setFieldValue('officeSelect', { id: 'ALL', label: 'ALL' });
+            setIsLoader(false);
+            setCallOfficeData(false);
+        } else {
+            setIsLoader(false);
+            formik.setFieldValue('officeSelect', { id: 'ALL', label: 'ALL' });
+            setOfficeData([{ id: 'ALL', label: 'ALL' }]);
+        }
+    } catch (error) {
+        setIsLoader(false);
+        formik.setFieldValue('officeSelect', { id: 'ALL', label: 'ALL' });
+        setOfficeData([{ id: 'ALL', label: 'ALL' }]);
+    }
+};
+
+
+
+
+
+
+
+
+
 const officeIds = values.officeSelect 
             ? [values.officeSelect.id] 
             : officeData.map(office => office.id); // If officeSelect is null, get all office IDs
