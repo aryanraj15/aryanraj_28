@@ -162,27 +162,27 @@ const SalaryProcessReport = () => {
             ),
 
         },
-        {
-            field: "notDelayedCount",
-            headerName: "Not Delayed Count",
-            flex: 0.2,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
+        // {
+        //     field: "notDelayedCount",
+        //     headerName: "Not Delayed Count",
+        //     flex: 0.2,
+        //     minWidth: 180,
+        //     headerClassName: "super-app-theme--header",
+        //     renderCell: (params) => (
+        //         <Link
+        //             sx={{ cursor: "pointer" }}
+        //             onClick={() => {
 
-                        handleClickOpen();
-                        setDubby(params.row.officeId);
-                        console.log((params))
-                    }}
-                >
-                    {params.value}
-                </Link>
-            ),
+        //                 handleClickOpen();
+        //                 setDubby(params.row.officeId);
+        //                 console.log((params))
+        //             }}
+        //         >
+        //             {params.value}
+        //         </Link>
+        //     ),
 
-        },
+        // },
         {
             field: "totalEmp",
             headerName: "Total Employee",
