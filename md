@@ -1,679 +1,356 @@
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import Link from "@mui/material/Link";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { sha256 } from "js-sha256";
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
 
-https://github.com/anshika2432001/auro_proj.git
+import { styled } from "@mui/material";
+import { useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import blue_bg from "../../assets/images/banner_1.jpg";
+import logo_left from "../../assets/images/Indian_Navy_Insignia.png";
+import logo_right from "../../assets/images/logo_right.png";
+import { loginUser } from "../../redux/actions/LoginAction";
+import { useSnackbar } from "../../components/Snackbar";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LockIcon from '@mui/icons-material/Lock';
 
-import {
-    Card, Grid, CardContent, TextField, Box, Button, Stack, Typography, Link, Alert, Dialog, DialogContent,
-    DialogActions
-} from '@mui/material'
-import React, { useState, useEffect } from 'react'
-import PageTitle from '../../layouts/PageTitle'
-import useTitle from '../../hooks/useTitle'
-import SearchTable from '../../components/SearchTableAlt';
-import SearchIcon from '@mui/icons-material/Search';
-import IconButton from '@mui/material/IconButton';
-import Modal from '@mui/material/Modal';
-import Autocomplete from '@mui/material/Autocomplete';
-import { useNavigate } from 'react-router-dom';
-import axiosClient from '../../utils/AxiosInterceptor';
-import Loader from '../../components/Loader';
-import { useFormik } from 'formik';
-import * as yup from "yup";
-import AlertConfirm, { Button1 } from "react-alert-confirm";
-import "react-alert-confirm/lib/style.css";
-import { useSnackbar } from '../../components/Snackbar';
-import PopupOverClick from './PopupOverClick'
-const SalaryProcessReport = () => {
+const drawerWidth = 280;
 
-    const title = 'Salary Process Report';
-    const name = 'Processed Salary Report';
-    const name1 = 'Salary Process Report'
-    useTitle(title)
+const Footer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
 
-    const navigate = useNavigate();
-    const [open, setOpen] = React.useState(false);
-    const [dubby, setDubby] = useState();
-    const { showSnackbar } = useSnackbar();
-    const validationSchema = yup.object({
-        // officeSelect: yup.object().nullable().required("Please select Office"),
-        department: yup.object().nullable().required("Please select HOA"),
-        financialYear: yup.object().nullable().required("Financial year is required"),
-    });
-    const formik = useFormik({
-        initialValues: {
-            officeSelect: null,
-            department: null,
-            financialYear: null,
-            totalEmployee: '',
-            salaryInitiated: '',
-            salaryNotInitiatedYet: '',
-            delay: '',
+    duration: theme.transitions.duration.leavingScreen,
+  }),
 
+  width: "100%",
 
-        },
-        validationSchema: validationSchema,
-        onSubmit: (values, { resetForm }) => {
+  position: "fixed",
 
-            const officeIds = values.officeSelect?.id === 'ALL'
-                ? officeData.filter(office => office.id !== 'ALL').map(office => office.id)
-                : [values.officeSelect.id];
+  top: "unset",
 
-            console.log(values)
-            // callConfirmDialogFormSave(values, resetForm);
-            handleFetchTableData({
-                deptId: [formik.values.department && formik.values.department?.id],
-                empIds: [],
-                officeIds: officeIds,
-                // officeIds: [formik.values.officeSelect && formik.values?.officeSelect?.id],
-                payMontId: formik.values.financialYear && formik.values?.financialYear?.id
-            });
-        }
-    })
-    console.log(formik.values)
-    // const handleOpenGroup =(params) => {
-    //     navigate('/opengroup', {state:params})
-    // }
-    // const handleGoForProcess = (params)=> {
-    //     navigate('/SalaryProcess', {state:[params, formik.values.officeSelect?.id]});
-    // }
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-    const handleClose = () => {
-        setOpen(false);
-    };
+  bottom: 0,
 
-    const columns = [
-        {
-            field: "officeId",
-            headerName: "Office Id.",
-            flex: 0.1,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
+  color: "white",
 
-        },
-        {
-            field: "officeName",
-            headerName: "Office Name",
-            flex: 0.2,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
+  backgroundColor: "black",
 
-        },
-        {
-            field: "deptName",
-            headerName: "Department Name",
-            flex: 0.2,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
+  textAlign: "center",
 
-        },
-        {
-            field: "notProcessedCount",
-            headerName: "Not Processed Count",
-            flex: 0.2,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
+  size: "8px",
 
-                        handleClickOpen();
-                        setDubby(params.row.officeId);
-                        console.log((params))
-                    }}
-                >
-                    {params.value}
-                </Link>
-            ),
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
 
-        },
+    marginLeft: `${drawerWidth}px`,
 
-        //   {
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
 
-        //     renderCell: (params) => (
-        //       params.value > 0 ? ( 
-        //         <Link
-        //           sx={{ cursor: "pointer" }}
-        //           onClick={() => handleRedirectDetails(params.row)}
-        //         >
-        //           {params.value}
-        //         </Link>
-        //       ) : (
-        //         <span>{params.value}</span> 
-        //       )
-        //     ),
-        //   },
-        {
-            field: "processedCount",
-            headerName: "Processed Count",
-            flex: 0.2,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
 
-                        handleClickOpen();
-                        setDubby(params.row.officeId);
-                        console.log((params))
-                    }}
-                >
-                    {params.value}
-                </Link>
-            ),
-
-        },
-        // {
-        //     field: "notDelayedCount",
-        //     headerName: "Not Delayed Count",
-        //     flex: 0.2,
-        //     minWidth: 180,
-        //     headerClassName: "super-app-theme--header",
-        //     renderCell: (params) => (
-        //         <Link
-        //             sx={{ cursor: "pointer" }}
-        //             onClick={() => {
-
-        //                 handleClickOpen();
-        //                 setDubby(params.row.officeId);
-        //                 console.log((params))
-        //             }}
-        //         >
-        //             {params.value}
-        //         </Link>
-        //     ),
-
-        // },
-        {
-            field: "totalEmp",
-            headerName: "Total Employee",
-            flex: 0.2,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
-
-                        handleClickOpen();
-                        setDubby(params.row.officeId);
-                        console.log((params))
-                    }}
-                >
-                    {params.value}
-                </Link>
-            ),
-
-        },
-        {
-            field: "delayedCount",
-            headerName: "Delayed Count",
-            flex: 0.2,
-            minWidth: 180,
-            headerClassName: "super-app-theme--header",
-            renderCell: (params) => (
-                <Link
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
-
-                        handleClickOpen();
-                        setDubby(params.row.officeId);
-                        console.log((params))
-                    }}
-                >
-                    {params.value}
-                </Link>
-            ),
-
-        },
-    ];
-
-
-    const [departmentData, setDepartmentData] = useState([]);
-    const [financialYearData, setFinancialYearData] = useState([]);
-    const [officeData, setOfficeData] = useState([{ id: 'ALL', label: 'ALL' }]);
-    const [tableData, setTableData] = useState([]);
-    const [callOfficeData, setCallOfficeData] = useState(false);
-    const [showPeriodList, setShowPeriodList] = useState(false);
-    const [fieldData, setFieldData] = useState();
-    const [isLoader, setIsLoader] = useState(false);
-
-    const handleFetchIndependentDropdownData = async () => {
-        try {
-            const res = await axiosClient.get(`${process.env.REACT_APP_PAYROLL_API_URL}/getIndependentdropdown`)
-            console.log(res.data.result.departments);
-            if (res.data.status) {
-
-                const departmentDropdown = res?.data?.result?.departments?.map((item) => ({
-                    id: item?.deptId,
-                    label: item?.name
-
-                }))
-
-                console.log(departmentDropdown);
-                setDepartmentData(departmentDropdown);
-                setIsLoader(false);
-            }
-
-        } catch (error) {
-            setIsLoader(false);
-            console.log(error)
-        }
-    }
-
-    const Fetchfymonth = async () => {
-        try {
-            const res = await axiosClient.get(`${process.env.REACT_APP_PAYROLL_API_URL}/getFyMonth`)
-            if (res.data.status) {
-
-                const financialYearDropdown = res?.data?.result?.map((item) => ({
-                    id: item?.typeId,
-                    label: item?.typeName
-                }))
-                console.log(financialYearDropdown);
-                setFinancialYearData(financialYearDropdown);
-                setIsLoader(false);
-            }
-
-        } catch (error) {
-            setIsLoader(false);
-            console.log(error)
-        }
-    }
-
-    // const handleCallofficeData =async() => {
-    //     setIsLoader(true);
-    //     try {
-    //         const payload = {
-    //             deptId: formik.values.department.id,
-    //             stateId:  null,
-    //             districtId: null,
-    //             officeName: null
-    //           };
-    //         const res = await axiosClient.post(`http://141.148.194.18:8052/payroll/employee/dropdown/office`,payload )
-    //         console.log('office',res);
-    //         if(res.status === 200){
-    //             const officeDropdown = res?.data?.map((item) => ({
-    //                 id: item?.id,
-    //                 label: item?.officeName
-    //             }))
-
-    //             console.log(officeDropdown)
-    //             setOfficeData(officeDropdown)
-    //             formik.setFieldValue('officeSelect', null)
-    //             setIsLoader(false);
-    //             setCallOfficeData(false);
-    //         }
-    //         else{
-    //             setIsLoader(false);
-    //             formik.setFieldValue('officeSelect', null)
-    //             setOfficeData([])
-    //         }
-    //     } catch (error) {
-    //         console.log(error)
-    //         setIsLoader(false);
-    //         formik.setFieldValue('officeSelect', null)
-    //         setOfficeData([])
-    //     }
-    // }
-    const handleCallofficeData = async () => {
-        setIsLoader(true);
-        try {
-            const payload = {
-                deptId: formik.values.department.id,
-                stateId: null,
-                districtId: null,
-                officeName: null
-            };
-            const res = await axiosClient.post(`http://141.148.194.18:8052/payroll/employee/dropdown/office`, payload);
-            if (res.status === 200) {
-                const officeDropdown = res.data.map((item) => ({
-                    id: item.id,
-                    label: item.officeName
-                }));
-                setOfficeData([{ id: 'ALL', label: 'ALL' }, ...officeDropdown]);
-                formik.setFieldValue('officeSelect', { id: 'ALL', label: 'ALL' });
-                setIsLoader(false);
-                setCallOfficeData(false);
-            } else {
-                setIsLoader(false);
-                formik.setFieldValue('officeSelect', { id: 'ALL', label: 'ALL' });
-                setOfficeData([{ id: 'ALL', label: 'ALL' }]);
-            }
-        } catch (error) {
-            setIsLoader(false);
-            formik.setFieldValue('officeSelect', { id: 'ALL', label: 'ALL' });
-            setOfficeData([{ id: 'ALL', label: 'ALL' }]);
-        }
-    };
-
-    var val;
-    const handleReset = (val) => {
-        formik.setFieldValue('hoa', null);
-        formik.setFieldValue('financialYear', null);
-        handleFetchTableData({
-            deptId: 1,
-            officeIds: null,
-            empIds: null,
-            payMontId: null
-
-        }, val);
-    }
-    const handleFetchTableData = async (payload, val) => {
-        console.log(val, 'val')
-        try {
-            setIsLoader(true);
-            const res = await axiosClient.post(`${process.env.REACT_APP_PAYROLL_API_URL}/getEmployeeReport`, payload)
-            console.log('tableData', res);
-
-            if (res.data.status) {
-                setTableData(res.data?.result);
-                // formik.setFieldValue('totalEmployee', (res.data.result?.allocatedEmp + res.data.result?.unAllocatedEmp))
-                // formik.setFieldValue('allocatedEmployee', res.data.result?.allocatedEmp)
-                // formik.setFieldValue('unallocatedEmployee', res.data.result?.unAllocatedEmp)
-                setIsLoader(false);
-                setShowPeriodList(true);
-                showSnackbar(res.data.message, 'success');
-                if (val) {
-                    setShowPeriodList(false);
-                    // formik.setFieldValue('totalEmployee', '')       
-                    // formik.setFieldValue('allocatedEmployee', '')
-                    // formik.setFieldValue('unallocatedEmployee', '')
-                }
-            }
-            else {
-                setIsLoader(false);
-                showSnackbar('No records found', 'error')
-            }
-        } catch (error) {
-            console.log(error);
-            setIsLoader(false);
-            showSnackbar('No records found', 'error')
-        }
-    }
-    useEffect(() => {
-        setIsLoader(true);
-        handleFetchIndependentDropdownData();
-        Fetchfymonth();
-        // handleFetchTableData();
-    }, [])
-
-    useEffect(() => {
-        if (callOfficeData) {
-            // setIsLoader(true);
-            handleCallofficeData();
-        }
-    }, [formik.values.department])
-
-    return (
-        <>
-            {isLoader && <Loader />}
-            <Card>
-                <CardContent>
-                    <PageTitle name={name} />
-                    <Box component="form" onSubmit={formik.handleSubmit}>
-                        <Grid container columnSpacing={2}>
-                            <Grid item xs={12} sm={12} md={4} lg={4}>
-                                <Autocomplete
-                                    disablePortal
-                                    options={departmentData}
-                                    fullWidth
-                                    id="department"
-                                    name="department"
-                                    required
-                                    value={
-                                        departmentData.find(
-                                            (option) =>
-                                                option.id === formik.values.department?.id
-                                        ) || null
-                                    }
-                                    onChange={(e, value) => {
-                                        if (value === null) {
-                                            formik.setFieldValue("department", null);
-                                            formik.setFieldValue('officeSelect', null);
-                                        } else {
-                                            formik.setFieldValue("department", value);
-                                            setCallOfficeData(true);
-                                        }
-                                    }}
-                                    getOptionLabel={(value) => value.label}
-                                    size='small'
-                                    renderInput={(params) =>
-                                        <TextField
-                                            {...params}
-                                            label="Department"
-                                            required
-                                            onBlur={formik.handleBlur}
-                                            helperText={
-                                                formik.errors.department &&
-                                                    formik.touched.department
-                                                    ? formik.errors.department
-                                                    : null
-                                            }
-                                            error={
-                                                formik.errors.department &&
-                                                    formik.touched.department
-                                                    ? true
-                                                    : false
-                                            }
-                                        />}
-                                />
-                            </Grid>
-                            {/* <Grid item xs={12} sm={12} md={4} lg={4}>
-                                <Autocomplete
-                                    disablePortal
-                                    options={officeData}
-                                    fullWidth
-                                    id="officeSelect"
-                                    name="officeSelect"
-                                    required
-                                    value={
-                                        officeData.find(
-                                        (option) =>
-                                            option.id === formik.values.officeSelect?.id
-                                        ) || null
-                                    }
-                                    onChange={(e, value) => {
-                                        if (value === null) {
-                                            formik.setFieldValue("officeSelect", null);
-                                            formik.setFieldValue('hoa', null);
-                                        } else {
-                                            formik.setFieldValue("officeSelect", value);
-                                            setCallOfficeData(true);
-                                        }
-                                    }}
-                                    getOptionLabel={(value) => value.label}
-                                    size='small'
-                                    renderInput={(params) => 
-                                        <TextField 
-                                            {...params} 
-                                            label="Office"
-                                            required
-                                            onBlur={formik.handleBlur}
-                                            helperText={
-                                                formik.errors.officeSelect &&
-                                                formik.touched.officeSelect
-                                                ? formik.errors.officeSelect
-                                                : null
-                                            }
-                                            error={
-                                                formik.errors.officeSelect &&
-                                                formik.touched.officeSelect
-                                                ? true
-                                                : false
-                                            } 
-                                        />}
-                                />
-                            </Grid> */}
-                            <Grid item xs={12} sm={12} md={4} lg={4}>
-                                <Autocomplete
-                                    disablePortal
-                                    options={officeData}
-                                    fullWidth
-                                    disabled={formik.values.department ? false : true}
-                                    id="officeSelect"
-                                    name="officeSelect"
-
-                                    value={officeData &&
-                                        officeData?.find(
-                                            (option) =>
-                                                option.id === formik.values.officeSelect?.id
-                                        ) || { id: 'ALL', label: 'ALL' }
-                                    }
-                                    onChange={(e, value) => {
-                                        if (value === null) {
-                                            formik.setFieldValue("officeSelect", { id: 'ALL', label: 'ALL' });
-                                        } else {
-                                            formik.setFieldValue("officeSelect", value);
-                                        }
-                                    }}
-                                    getOptionLabel={(value) => value.label}
-                                    size='small'
-                                    renderInput={(params) =>
-                                        <TextField
-                                            {...params}
-                                            label="Office"
-
-                                            onBlur={formik.handleBlur}
-                                            helperText={
-                                                formik.errors.officeSelect &&
-                                                    formik.touched.officeSelect
-                                                    ? formik.errors.officeSelect
-                                                    : null
-                                            }
-                                            error={
-                                                formik.errors.officeSelect &&
-                                                    formik.touched.officeSelect
-                                                    ? true
-                                                    : false
-                                            }
-                                        />}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={12} md={4} lg={4}>
-                                <Autocomplete
-                                    disablePortal
-                                    options={financialYearData}
-                                    fullWidth
-                                    id="financialYear"
-                                    name="financialYear"
-                                    required
-                                    value={
-                                        financialYearData.find(
-                                            (option) =>
-                                                option.id === formik.values.financialYear?.id
-                                        ) || null
-                                    }
-                                    onChange={(e, value) => {
-                                        if (value === null) {
-                                            formik.setFieldValue("financialYear", null);
-                                        } else {
-                                            formik.setFieldValue("financialYear", value);
-                                        }
-                                    }}
-                                    getOptionLabel={(value) => value.label}
-                                    size='small'
-                                    renderInput={(params) =>
-                                        <TextField
-                                            {...params}
-                                            label="Financial Year"
-                                            required
-                                            onBlur={formik.handleBlur}
-                                            helperText={
-                                                formik.errors.financialYear &&
-                                                    formik.touched.financialYear
-                                                    ? formik.errors.financialYear
-                                                    : null
-                                            }
-                                            error={
-                                                formik.errors.financialYear &&
-                                                    formik.touched.financialYear
-                                                    ? true
-                                                    : false
-                                            }
-                                        />}
-                                />
-                            </Grid>
-
-                        </Grid>
-                        <Grid container>
-                            <Grid item style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', gap: 4 }} paddingRight={{ md: 3, lg: 3 }} paddingTop={{ md: 2, lg: 2 }}>
-                                <Button variant='outlined' style={{ borderRadius: '4px', float: 'right' }} onClick={() => handleReset(val = true)}>Reset</Button>
-                                <Button variant='contained' style={{ borderRadius: '4px', float: 'right' }} disabled={formik.values.department === null || formik.values.financialYear === null ? true : false} type='submit'>Search</Button>
-                            </Grid>
-                        </Grid>
-                    </Box>
-                </CardContent>
-            </Card>
-            {!showPeriodList && (
-                <Alert severity="warning">
-                    Please select the above fields and search to receive the data.
-                </Alert>
-            )}
-            <>
-                <Card>
-                    <CardContent>
-
-                        {showPeriodList && (
-                            <>
-                                <PageTitle name={name1} />
-                                <Grid container columnSpacing={2}>
-
-                                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                                        <TextField label="Total Employee" size="small" name="totalEmployee" value={formik.values.totalEmployee} disabled fullWidth />
-                                    </Grid>
-                                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                                        <TextField label="Salary Initiated" size="small" name='allocatedEmployee' value={formik.values.salaryInitiated} disabled fullWidth />
-                                    </Grid>
-                                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                                        <TextField label="Salary Not Initiated Yet" size="small" name='unallocatedEmployee' value={formik.values.salaryNotInitiatedYet} disabled fullWidth />
-                                    </Grid>
-                                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                                        <TextField label="Delay" size="small" name='unallocatedEmployee' value={formik.values.delay} disabled fullWidth />
-                                    </Grid>
-                                </Grid>
-
-                                <Grid container sx={{ mt: 2 }}>
-                                    <SearchTable
-                                        columns={columns}
-                                        // data={rowss}
-                                        data={tableData}
-                                        isCheckbox={false}
-                                        isHideDensity={false}
-                                        isHideExport={true}
-                                        isHideFilter={true}
-                                        isHideColumn={true}
-                                        isHidePaging={false}
-                                        name="villageName"
-                                        id="villageName"
-                                    />
-                                </Grid>
-                            </>
-                        )}
-                        <Dialog
-                            fullWidth
-                            maxWidth={'md'}
-                            open={open}
-                            onClose={handleClose}
-                        >
-                            <DialogContent >
-
-                                <PopupOverClick rqstId={dubby} year={formik?.values?.financialYear?.id} />
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={handleClose}>Close</Button>
-
-                            </DialogActions>
-                        </Dialog>
-                    </CardContent>
-                </Card>
-            </>
-
-
-        </>
-    )
+function Copyright(props) {
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {"Copyright © "}
+      <Link
+        color="inherit"
+        href="https://www.ysraarogyasri.ap.gov.in/"
+        target="_blank"
+      >
+        Dr.YSR Aarogyasri Health Care Trust
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
+  );
 }
 
-export default SalaryProcessReport
+export default function Login() {
+  const { showSnackbar } = useSnackbar();
+  const showMessage = useSelector((state) => state.showMessageReducer);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  //const [salt, setSalt] = useState("");
+  // const  hash = sha256.create();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [emptyPass, setEmptyPass] = useState(false);
+  const [emptyUsername, setEmptyUsername] = useState(false);
+  const data = useSelector((state) => state.loginReducer);
+  // console.log(data);
+  const navigateToHome = () => {
+    navigate("/home");
+  };
+
+  const usernameRef = useRef();
+  const passwordRef = useRef();
+  let salt = "";
+  // const createHmac = (salt, plainText)=>{
+  //  let hmac = sha256.hmac(salt, plainText);
+  //   return hmac.toString();
+  // }
+
+  const hashPassword = (passwordPlainText) => {
+    var plainText = passwordPlainText;
+    salt = randomString();
+    let hash = sha256.hmac(salt, plainText);
+    // console.log(hash)
+    passwordRef.current.value = hash;
+  };
+
+  const randomString = () => {
+    let length = 100;
+    let chars =
+      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var result = "";
+    for (var i = length; i > 0; --i)
+      result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (usernameRef.current.value === "" && passwordRef.current.value === "") {
+      setEmptyUsername(true);
+      setEmptyPass(true);
+    } else {
+      if (usernameRef.current.value === "") {
+        setEmptyUsername(true);
+        setEmptyPass(false);
+      } else if (passwordRef.current.value === "") {
+        setEmptyPass(true);
+        setEmptyUsername(false);
+      }
+    }
+
+    if (usernameRef.current.value !== "" && passwordRef.current.value !== "") {
+      hashPassword(passwordRef.current.value);
+      // console.log(passwordRef.current.value);
+
+      setIsSubmitted(true);
+      let request = {
+        username: usernameRef.current.value,
+        password: passwordRef.current.value.trim(),
+        password2: salt,
+      };
+      setEmptyPass(false);
+      setEmptyUsername(false);
+      // console.log(request);
+      dispatch(loginUser(request, successCb));
+    }
+  };
+
+  const successCb = (response) => {
+    // console.log("Inside successCB");
+    //navigate("/home");
+    try {
+      if (
+        response.data.status === true ||
+        response.data.statusCode === "200" ||
+        response.data.status === "SUCCESS"
+      ) {
+        showSnackbar("Login Successful", "success");
+        navigate("/home");
+      } else if (
+        response.data.statusCode === 400 ||
+        response.data.status === false
+      ) {
+        setIsSubmitted(false);
+        //setLoading(false);
+        showSnackbar(response.data.message, "error");
+        navigate("/");
+      } else {
+        setIsSubmitted(false);
+        showSnackbar("Opps, something went wrong", "error");
+        navigate("/");
+      }
+    } catch (error) {
+      setIsSubmitted(false);
+      showSnackbar("Opps, something went wrong", "error");
+      // console.log(error.message);
+      navigate("/");
+    }
+  };
+
+  return (
+    <>
+
+      <Box
+
+        sx={{
+          backgroundImage: `url(${blue_bg})`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Grid
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+          sx={{ mx: 3 }}
+        >
+          <Grid container>
+            <Grid
+              item
+              xs={12}
+              sm={5}
+              sx={{
+                // height: "80vh", //remove
+                spacing: 0,
+                backgroundColor: "#F1F8FF",
+                borderRight: "1px solid #CDE6FF",
+                borderRadius: "5px 0 0 5px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                paddingRight: 2,
+              }}
+            >
+              <Grid
+                item
+                md={8}
+                xs={6}
+                component="img"
+                alt="The house from the offer."
+                src={logo_left}
+               sx={{height: "15rem", width: "18rem"}}
+              // margin={"15%"}
+              // display='flex'
+              // placeItems='center'
+              // justifyContent='center'
+              // alignItems='center'
+              />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              sm={7}
+              sx={{
+                // height: "80vh",//rem
+                spacing: 0,
+                backgroundColor: "white",
+                borderRight: "1px solid #CDE6FF",
+                borderRadius: "0 5px 5px 0",
+              }}
+            >
+              <Box
+                component={"form"}
+                onSubmit={handleSubmit}
+                display="flex"
+                justifyContent="center"
+              >
+                <Grid m={4}>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                  //component="img"
+                  // alt="The house from the offer."
+                  // src={logo_right}
+                  />
+                  <Grid item xs={12} md={12}>
+                    <Typography
+                      variant="h1" fontWeight={"bold"}
+                      my={2} sx={{display:'flex',justifyContent:'center',fontSize:'20px'}} 
+                    >
+                    PAYROLL
+                    </Typography>
+                    <Grid item md={12} xs={12}>
+                      <Grid item md={12} xs={10} >
+                        <TextField
+                          InputProps={{startAdornment:(<AccountCircleIcon sx={{color:"#2169B2",mr:1}}/>)}}
+                          id="userid"
+                          placeholder="User Id"
+                          variant="outlined"
+                          
+                          fullWidth
+                          inputRef={usernameRef}
+                          sx={{
+                            border: "1px solid #EAEDF1",
+                            borderRadius: "5px",
+                            width:"15rem"
+                          }}
+                          size="small"
+                          error={emptyUsername}
+                          helperText={
+                            emptyUsername ? "User Id is required" : null
+                          }
+                        />
+                      </Grid>
+                      <Grid item md={12} xs={10} >
+                        <TextField
+                        InputProps={{startAdornment:(<LockIcon sx={{color:"#2169B2",mr:1}}/>)}}
+                          id="password"
+                          placeholder="Password"
+                          variant="outlined"
+                          type="password"
+                          fullWidth
+                          inputRef={passwordRef}
+                          sx={{
+                            border: "1px solid #EAEDF1",
+                            borderRadius: "5px",
+                            width:"15rem"
+                          }}
+                          size="small"
+                          error={emptyPass}
+                          helperText={emptyPass ? "Password is required" : null}
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid container display="flex" sx={{mt:'-1rem'}} justifyContent="right">
+                      {/* <Link style={{ textDecoration: "none", cursor: 'pointer',fontSize:'15px',marginTop:'2px' }} onClick={() => { navigate("/forgotpassword") }} >Forgot Password?</Link> */}
+                    </Grid>
+                    <Grid container display="flex" justifyContent="center">
+
+                      <Button
+                        variant="contained"
+                        type="submit"
+                        disabled={isSubmitted}
+                        sx={{
+                          backgroundColor: "#2169B2",
+                          padding: "11px 50px",
+                          borderRadius: "5px",
+                          marginTop:"1.5rem"
+                        }}
+                      >
+                        LOGIN
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Box>
+      <Footer position="fixed">
+        <Typography noWrap component="div">
+
+          &copy; Site maintained by KPMG Advisory Services Pvt. Ltd.
+        </Typography>
+      </Footer>
+      {/* </Grid> */}
+    </>
+  );
+}
