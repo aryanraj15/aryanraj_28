@@ -1,3 +1,25 @@
+
+Login.js:25 Uncaught TypeError: Cannot destructure property 'status' of '(0 , react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(...)' as it is undefined.
+    at Login (Login.js:25:1)
+    at renderWithHooks (react-dom.development.js:15486:1)
+    at mountIndeterminateComponent (react-dom.development.js:20103:1)
+    at beginWork (react-dom.development.js:21626:1)
+    at HTMLUnknownElement.callCallback (react-dom.development.js:4164:1)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:1)
+    at invokeGuardedCallback (react-dom.development.js:4277:1)
+    at beginWork$1 (react-dom.development.js:27490:1)
+    at performUnitOfWork (react-dom.development.js:26596:1)
+    at workLoopSync (react-dom.development.js:26505:1)
+
+
+
+
+
+
+
+
+
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
